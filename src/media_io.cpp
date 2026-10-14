@@ -395,4 +395,17 @@ std::string SampleHash::digest() const {
     }
     return result;
 }
+std::string executingImageSha256(const std::function<void()> &beforeRead) {
+#ifdef _WIN32
+    std::wstring path(32768,L'\0');const auto count=GetModuleFileNameW(nullptr,path.data(),DWORD(path.size()));
+    require(count>0 && count<path.size(),"Cannot inspect running executable");path.resize(count);
+    return hashMediaFile(path,beforeRead);
+#else
+    std::ifstream image("/proc/self/exe",std::ios::binary);require(bool(image),"Cannot open running executable");
+    SampleHash digest;std::array<char,65536> buffer{};
+    while(image){if(beforeRead)beforeRead();image.read(buffer.data(),std::streamsize(buffer.size()));const auto count=image.gcount();
+        if(count>0)digest.updateBytes({reinterpret_cast<const std::byte *>(buffer.data()),std::size_t(count)});}
+    require(image.eof(),"Cannot read running executable");return digest.digest();
+#endif
+}
 } // namespace soundcurrent::daw::media_io

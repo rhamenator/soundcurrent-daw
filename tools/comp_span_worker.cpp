@@ -34,13 +34,6 @@ void processLimit(std::uint64_t bytes){
     rlimit core{0,0};check(setrlimit(RLIMIT_CORE,&core)==0,"Cannot disable span core dump",ErrorCode::ResourceLimit);
 #endif
 }
-std::filesystem::path selfPath(){
-#ifdef _WIN32
-    std::wstring path(32768,L'\0');auto count=GetModuleFileNameW(nullptr,path.data(),DWORD(path.size()));check(count && count<path.size(),"Cannot inspect span executable");path.resize(count);return path;
-#else
-    return std::filesystem::read_symlink("/proc/self/exe");
-#endif
-}
 std::filesystem::path root(const std::string &s){check(s.size()<=4096 && validUtf8(s) && s.find('\0')==s.npos,"Invalid span worker root");auto p=utf8Path(s);check(p.is_absolute() && p==p.lexically_normal(),"Span worker root must be canonical absolute");auto at=p.root_path();media_io::plainDirectory(at);for(const auto &part:p.relative_path()){at/=part;media_io::plainDirectory(at);}return p;}
 struct Wave {
     media_io::File descriptor;SNDFILE *file=nullptr;
@@ -56,7 +49,7 @@ int run(const std::vector<std::string> &args){bool publicationMayHaveCommitted=f
         processLimit(policy.memoryBytes);std::thread([milliseconds=policy.deadlineMilliseconds]{std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));std::_Exit(2);}).detach();
         ResourceLedger ledger(std::size_t(policy.memoryBytes),"Span worker owned payload");auto bank=ledger.reserve(compSpanRequestMaximum*2);std::string bytes;bytes.reserve(compSpanRequestMaximum);char c;
         while(std::cin.get(c)){check(bytes.size()<compSpanRequestMaximum,"Span request too large",ErrorCode::ResourceLimit);bytes.push_back(c);}
-        const auto self=selfPath();const auto executable=hashMediaFile(self);
+        const auto executable=media_io::executingImageSha256();
         auto request=decodeCompSpanRequest(bytes,args[14],{1,"owned-span-worker"},executable,ledger);bank.resize(0);bytes.clear();bytes.shrink_to_fit();
         auto sourceRoot=root(args[2]),jobsRoot=root(args[4]);check(jobsRoot==sourceRoot/"media"/"comp-spans","Span job root is outside its owned project");
         const auto job=jobsRoot/request.operation().str();const auto poll=[&]{if(std::filesystem::exists(std::filesystem::symlink_status(job/"cancel.request")))throw ProjectError(ErrorCode::Canceled,"Span canceled before commit");};
@@ -71,7 +64,7 @@ int run(const std::vector<std::string> &args){bool publicationMayHaveCommitted=f
         const auto rendered=renderCompSpan(request.span(),[&](Frame at,std::span<float> values){poll();cache.read(0,at,values);},[&](std::span<const float> values){poll();const auto frames=values.size()/asset.layout.channels;
             check(sf_writef_float(wave.file,values.data(),sf_count_t(frames))==sf_count_t(frames) && sf_error(wave.file)==SF_ERR_NO_ERROR,"Span RF64 write failed",ErrorCode::Io);samples.update(values);},ledger,poll);
         wave.close();poll();check(std::filesystem::file_size(job/"audio.partial")<=policy.maximumOutputBytes,"Span file exceeds grant",ErrorCode::ResourceLimit);
-        const auto audioSha=hashMediaFile(job/"audio.partial",poll);admitCompSpanSources(sourceRoot,request,policy,ledger,poll);check(hashMediaFile(self,poll)==executable,"Span binary changed during processing",ErrorCode::MediaMismatch);poll();
+        const auto audioSha=hashMediaFile(job/"audio.partial",poll);admitCompSpanSources(sourceRoot,request,policy,ledger,poll);check(media_io::executingImageSha256(poll)==executable,"Span binary changed during processing",ErrorCode::MediaMismatch);poll();
         auto complete=intent;complete["complete"]=true;complete["writtenFrames"]=rendered.writtenFrames;complete["audioSha256"]=audioSha;complete["sampleSha256"]=samples.digest();complete["peakLinear"]=rendered.floatPeak;complete["payloadPeakBytes"]=ledger.usage().peakBytes;
         complete["durabilityMinimum"]="file-flushed";complete["memoryMetric"]=
 #ifdef _WIN32
