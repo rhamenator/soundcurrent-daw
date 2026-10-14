@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated-edit plans and desktop corrections (2026-10-14)
+
+[Checkpoint 289](289-regeneration-plans-and-ci-corrections.md) integrates original
+source history into handle planning and v2 recipes while preserving six retained
+v1 recipe identities. Twelve layered recipe cases pass; production remains gated
+until historical-file verification and clock-aware rendering are implemented.
+Original CI exposed a narrow-dialog layout bug and a Windows test-path conversion
+failure. Corrections pass local layout and transition tests, including enlarged
+DejaVu Sans at 350 pixels wide; native Windows confirmation remains due. Original
+CI evidence is retained and audited. The full frozen DAW goal remains active.
+
 ## Original-source history for repeated rendering (2026-10-14)
 
 [Checkpoint 288](288-comp-regeneration-source-history.md) adds immutable source
