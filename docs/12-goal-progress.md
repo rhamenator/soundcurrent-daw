@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Final comp playback source preparation (2026-10-14)
+
+[Checkpoint 284](284-comp-playback-source-preparation.md) prepares actual physical
+or project-rate playback geometry while retaining the original clip/nominal/raw
+metadata separately. The expanded source-bound corpus passes 110 prepared sources
+and preserves every original sample's exact raw timing, fractional crops and
+processing alignment. This is a control-side preparation API. Versioned canonical
+provenance, paired adoption/Undo, real save/reopen/playback/export and main-window
+integration remain to be implemented. It does not establish new processing-quality
+or native Windows coverage. The complete frozen goal remains active.
+
 ## Desktop assembly ownership (2026-10-14)
 
 [Checkpoint 282](282-desktop-assembly-ownership.md) queues final publication and
