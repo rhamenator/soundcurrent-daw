@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Processed comp handle window state (2026-10-13)
+
+[Checkpoint 264](264-processed-comp-window-state.md) adds conditional project schema
+1.20 with explicit processed windows and unchanged nominal/raw anchors. Exact lookup,
+validation, split/paired edits, Undo/reopen and further planning pass nine Linux
+gates, including 75 window checks. The preceding planner passes all four original
+hosted jobs and its build inputs pass byte/source review. Current window-state
+Windows checks are pending. Actual worker generation/admission, paired stretch
+regeneration and PCM edge quality remain required; no audio is generated yet.
+Installed previews and full-suite/Europe delivery are unchanged.
+
+
 ## Immutable comp handle planning (2026-10-13)
 
 [Checkpoint 263](263-immutable-comp-handle-plans.md) promotes bounded handle geometry
