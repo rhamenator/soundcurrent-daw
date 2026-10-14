@@ -326,6 +326,36 @@ void prepareCompTransition(Session &s,const PrepareCompTransition &e,StateBudget
     validateClipProcessing(outgoing.processing);validateClipProcessing(incoming.processing);
     out=std::move(outgoing);in=std::move(incoming);
 }
+void adoptCompHandlePair(Session &s,const ApplyCompHandlePair &e,StateBudget budget) {
+    const auto replace=[&](const std::optional<CompHandleReplacement> &replacement,const Id &id) {
+        if(!replacement)return;
+        const auto &r=*replacement;
+        auto &c=*find(track(s,e.transition.track).clips,id);
+        require(c==r.expected && c.stretch && c.takeOrigin,"Comp fragment changed before handle adoption");
+        require(*find(s.assets,c.assetId)==r.current && r.current.id==c.assetId &&
+            *find(s.assets,c.stretch->sourceAssetId)==r.raw &&
+            *find(s.assets,r.nominal.id)==r.nominal,"Comp source changed before handle adoption");
+        const auto nominal=c.compHandles?c.compHandles->baseAssetId:c.assetId;
+        const auto prefix=c.compHandles?c.compHandles->prefixFrames:0;
+        const auto suffix=c.compHandles?c.compHandles->suffixFrames:0;
+        require(r.window.baseAssetId==nominal && r.nominal.id==nominal &&
+            r.window.prefixFrames>=prefix && r.window.suffixFrames>=suffix,
+            "Handle adoption must preserve the existing processed buffer");
+        auto proposed=c;proposed.assetId=r.rendered.id;proposed.compHandles=r.window;
+        const auto position=addSourcePosition({c.sourceFrame,c.sourceTiming.fraction,c.sourceTiming.denominator},
+            {r.window.prefixFrames-prefix,0,1});
+        proposed.sourceFrame=position.frame;proposed.sourceTiming={position.fraction,position.denominator};
+        validateCompHandleWindow(proposed,r.raw,r.nominal,r.rendered);
+        require(r.rendered.id!=r.current.id,"A new handle artifact must have a new identity");
+        const auto existing=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &a){return a.id==r.rendered.id;});
+        if(existing==s.assets.end())s.assets.push_back(r.rendered);
+        else require(*existing==r.rendered,"Handle artifact identity already names different media");
+        c=std::move(proposed); // Track storage is unaffected by the asset insertion.
+    };
+    require(e.transition.outgoing!=e.transition.incoming,"Handle adoption needs distinct fragments");
+    replace(e.outgoing,e.transition.outgoing);replace(e.incoming,e.transition.incoming);
+    prepareCompTransition(s,e.transition,budget);
+}
 } // namespace
 void validateClipProcessing(const ClipProcessing &p) {
     require(std::isfinite(p.gainDb) && p.gainDb >= -120 && p.gainDb <= 60,
@@ -545,6 +575,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     c.lengthFrames=low;
                 } else if constexpr (std::is_same_v<E, ApplyClipStretch>) {
                     adoptClipStretch(proposed,e);
+                } else if constexpr (std::is_same_v<E, ApplyCompHandlePair>) {
+                    adoptCompHandlePair(proposed,e,budget);
                 } else if constexpr (std::is_same_v<E, MoveClip>) {
                     auto &from = track(proposed, e.from).clips;
                     auto &to = track(proposed, e.to).clips;

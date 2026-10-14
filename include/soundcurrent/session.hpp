@@ -439,6 +439,16 @@ struct ApplyClipStretch {
     Asset source, rendered;
     ClipStretchAnchor value;
 };
+struct CompHandleReplacement {
+    Clip expected;
+    Asset current, raw, nominal, rendered;
+    ClipCompHandleWindow window;
+};
+// Artifacts must be independently verified before submitting this model edit.
+struct ApplyCompHandlePair {
+    PrepareCompTransition transition;
+    std::optional<CompHandleReplacement> outgoing, incoming;
+};
 struct MoveClip {
     Id from, to, clip;
     Frame start;
@@ -475,7 +485,7 @@ struct SelectTakeRegion {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
+                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
