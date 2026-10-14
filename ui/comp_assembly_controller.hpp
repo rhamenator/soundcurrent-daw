@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "project_controller.hpp"
-#include <soundcurrent/comp_assembly_job.hpp>
+#include <soundcurrent/comp_assembly_adoption.hpp>
 
 namespace soundcurrent::daw::ui {
 enum class CompAssemblyPhase {Idle,Queued,Loading,Publishing,Verifying,Complete,RecoveryRequired,Fault,Canceled};
@@ -12,6 +12,7 @@ struct CompAssemblySnapshot {
     std::shared_ptr<const CompPairSelection> selection;
     std::shared_ptr<const CompAssemblyRequest> request;
     std::shared_ptr<const CompAssemblyRecovery> recovery;
+    std::shared_ptr<const VerifiedCompAssemblyAdoption> adoption;
     std::optional<ErrorCode> error;
     bool busy=false,closed=false,canceled=false,stale=false,published=false;
 };
@@ -31,6 +32,7 @@ class CompAssemblyController {
     ~CompAssemblyController(); // Fallback join; GUI normally waits for closed.
     CompAssemblyController(const CompAssemblyController &)=delete;
     Admission render(Id); // Only a new absent job; complete jobs are reviewed.
+    Admission prepareApply(Id); // Fresh file verification and owner-bound edit; no model mutation.
     Admission review(Id); // Read-only recovery; never resumes/replaces files.
     void requestCancel() noexcept;
     void requestShutdown() noexcept;
@@ -38,6 +40,6 @@ class CompAssemblyController {
     std::shared_ptr<const CompAssemblySnapshot> snapshot() const;
   private:
     struct State;std::unique_ptr<State> state_;
-    Admission submit(Id,bool);
+    Admission submit(Id,bool,bool=false);
 };
 } // namespace soundcurrent::daw::ui

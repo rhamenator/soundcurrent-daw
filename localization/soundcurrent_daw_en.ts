@@ -2486,6 +2486,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Review retained pitch/stretch renders…</translation>
     </message>
     <message>
+      <source>Review rendered transitions…</source>
+      <translation>Review rendered transitions…</translation>
+    </message>
+    <message>
       <source>Retry project display</source>
       <translation>Retry project display</translation>
     </message>
@@ -2822,6 +2826,102 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</translation>
     </message>
     <message>
+      <source>Transition review could not start. Check Project resources and retry.</source>
+      <translation>Transition review could not start. Check Project resources and retry.</translation>
+    </message>
+    <message>
+      <source>Transition verification could not start. Check Project resources and retry.</source>
+      <translation>Transition verification could not start. Check Project resources and retry.</translation>
+    </message>
+    <message>
+      <source>The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.</source>
+      <translation>The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.</translation>
+    </message>
+    <message>
+      <source>The edit queue is unavailable. Review the transition and retry Apply.</source>
+      <translation>The edit queue is unavailable. Review the transition and retry Apply.</translation>
+    </message>
+    <message>
+      <source>The transition was not applied because the project or sources changed. Retained files are available for review.</source>
+      <translation>The transition was not applied because the project or sources changed. Retained files are available for review.</translation>
+    </message>
+    <message>
+      <source>Transition applied. Undo restores both original clips; save to retain the change.</source>
+      <translation>Transition applied. Undo restores both original clips; save to retain the change.</translation>
+    </message>
+    <message>
+      <source>Transition review needs more Project resources. Close unused previews and retry.</source>
+      <translation>Transition review needs more Project resources. Close unused previews and retry.</translation>
+    </message>
+    <message>
+      <source>Rendered transitions — preview</source>
+      <translation>Rendered transitions — preview</translation>
+    </message>
+    <message>
+      <source>Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix.</source>
+      <translation>Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix.</translation>
+    </message>
+    <message>
+      <source>Previous page</source>
+      <translation>Previous page</translation>
+    </message>
+    <message>
+      <source>Next page</source>
+      <translation>Next page</translation>
+    </message>
+    <message>
+      <source>Review selected transition</source>
+      <translation>Review selected transition</translation>
+    </message>
+    <message>
+      <source>Apply reviewed audio</source>
+      <translation>Apply reviewed audio</translation>
+    </message>
+    <message>
+      <source>Cancel operation</source>
+      <translation>Cancel operation</translation>
+    </message>
+    <message>
+      <source>This review belongs to a previous project opening. Close it and review the current project.</source>
+      <translation>This review belongs to a previous project opening. Close it and review the current project.</translation>
+    </message>
+    <message>
+      <source>Saved transition %1</source>
+      <translation>Saved transition %1</translation>
+    </message>
+    <message>
+      <source>%1 · frames %2–%3</source>
+      <translation>%1 · frames %2–%3</translation>
+    </message>
+    <message>
+      <source>Checking audio before Apply…</source>
+      <translation>Checking audio before Apply…</translation>
+    </message>
+    <message>
+      <source>Reviewing transition audio…</source>
+      <translation>Reviewing transition audio…</translation>
+    </message>
+    <message>
+      <source>Applying both clips…</source>
+      <translation>Applying both clips…</translation>
+    </message>
+    <message>
+      <source>No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.</source>
+      <translation>No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.</translation>
+    </message>
+    <message>
+      <source>Audio verified. Apply will check it again before changing the project.</source>
+      <translation>Audio verified. Apply will check it again before changing the project.</translation>
+    </message>
+    <message>
+      <source>This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.</source>
+      <translation>This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.</translation>
+    </message>
+    <message>
+      <source>Select a saved transition to review its audio.</source>
+      <translation>Select a saved transition to review its audio.</translation>
+    </message>
+    <message>
       <source>Retained render review needs more Project resources. Close unused previews and retry.</source>
       <translation>Retained render review needs more Project resources. Close unused previews and retry.</translation>
     </message>
@@ -2836,10 +2936,6 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Scan again</source>
       <translation>Scan again</translation>
-    </message>
-    <message>
-      <source>Next page</source>
-      <translation>Next page</translation>
     </message>
     <message>
       <source>Review selected result</source>

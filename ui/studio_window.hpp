@@ -12,6 +12,7 @@
 #include "export_dialog.hpp"
 #include "import_inspection_controller.hpp"
 #include "stretch_controller.hpp"
+#include "comp_assembly_controller.hpp"
 #include <QPointer>
 #include <QMainWindow>
 #include <QCoreApplication>
@@ -46,9 +47,14 @@ class StudioWindow : public QMainWindow {
                           std::function<void(HistoryBudget)> historyAccepted = {},
                           std::function<void(MemoryPreferences)> memoryAccepted = {},
                           StretchOptions stretchOptions = {},
-                          NativeMonitorControllerOptions nativeOptions = {});
+                          NativeMonitorControllerOptions nativeOptions = {},
+                          CompAssemblyControllerOptions compOptions = {});
     bool requestClipStretch(const Id &, const Id &, StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
     bool applyClipStretch();
+    bool showCompAssemblies();
+    bool reviewCompAssembly(const Id &);
+    bool applyCompAssembly();
+    std::shared_ptr<const CompAssemblySnapshot> compAssemblySnapshot() const;
     bool auditionClipStretch();
     bool scanStretchRenders();
     std::shared_ptr<const StretchSnapshot> stretchSnapshot() const;
@@ -92,6 +98,13 @@ class StudioWindow : public QMainWindow {
   private:
     ProjectController controller_;
     StretchController stretch_;
+    CompAssemblyController compAssembly_;
+    QPointer<QDialog> compAssemblyDialog_;
+    QString compAssemblyMessage_;
+    bool compAssemblyApplying_=false;
+    std::uint64_t compAssemblyAdopting_=0;
+    bool compAssemblyCanWork() const;
+    void pollCompAssembly(const std::shared_ptr<const ControllerSnapshot> &);
     QPointer<StretchDialog> stretchDialog_;
     QPointer<QDialog> stretchRecoveryDialog_;
     QString stretchMessage_;

@@ -120,10 +120,11 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            ManualControlOptions manualOptions, ControllerOptions projectOptions,
                            std::function<void(HistoryBudget)> historyAccepted,
                            std::function<void(MemoryPreferences)> memoryAccepted,
-                           StretchOptions stretchOptions, NativeMonitorControllerOptions nativeOptions)
+                           StretchOptions stretchOptions, NativeMonitorControllerOptions nativeOptions, CompAssemblyControllerOptions compOptions)
     : QMainWindow(parent), controller_(std::move(projectOptions)), stretch_([&]{
           stretchOptions.memory=controller_.resourceLedger();return std::move(stretchOptions);
-      }()), playback_([&] {
+      }()), compAssembly_([&]{compOptions.memory=controller_.resourceLedger();
+          compOptions.project=[this]{return controller_.snapshot();};return std::move(compOptions);}()), playback_([&] {
           options.projectMemory = controller_.resourceLedger();
           return std::move(options);
       }()),
@@ -192,6 +193,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     historyAction->setObjectName("historyResourcesAction");
     auto *rendersAction=editMenu->addAction(tr("Review retained pitch/stretch renders…"),this,[this]{scanStretchRenders();});
     rendersAction->setObjectName("reviewStretchRendersAction");
+    auto *compAction=editMenu->addAction(tr("Review rendered transitions…"),this,[this]{showCompAssemblies();});
+    compAction->setObjectName("reviewCompAssembliesAction");
     retryGui_ = editMenu->addAction(tr("Retry project display"), this, [this] {
         guiRefusedSource_.reset();
         guiRefusedEpoch_ = 0;
@@ -797,13 +800,139 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
 std::shared_ptr<const ControllerSnapshot> StudioWindow::snapshot() const {
     return controller_.snapshot();
 }
+std::shared_ptr<const CompAssemblySnapshot> StudioWindow::compAssemblySnapshot() const {
+    return compAssembly_.snapshot();
+}
+bool StudioWindow::compAssemblyCanWork() const {
+    return stretchCanRender() && nativeInactive();
+}
+bool StudioWindow::reviewCompAssembly(const Id &operation) {
+    if(!compAssemblyCanWork())return false;
+    try {
+        compAssemblyMessage_.clear();
+        return compAssembly_.review(operation)==Admission::Accepted;
+    }catch(const std::exception &){compAssemblyMessage_=tr("Transition review could not start. Check Project resources and retry.");return false;}
+}
+bool StudioWindow::applyCompAssembly() {
+    const auto result=compAssembly_.snapshot();const auto owner=controller_.snapshot();
+    if(!compAssemblyCanWork() || result->phase!=CompAssemblyPhase::Complete || !result->operation ||
+        !result->project || !owner->session || result->project->projectEpoch!=owner->projectEpoch ||
+        result->project->root!=owner->root || result->project->session->id!=owner->session->id)return false;
+    try {
+        // Re-read owned files on the worker for this explicit Apply. A previously
+        // displayed Complete snapshot is never itself an adoption authority.
+        if(compAssembly_.prepareApply(*result->operation)!=Admission::Accepted)return false;
+        compAssemblyMessage_.clear();compAssemblyApplying_=true;return true;
+    }catch(const std::exception &){compAssemblyMessage_=tr("Transition verification could not start. Check Project resources and retry.");return false;}
+}
+void StudioWindow::pollCompAssembly(const std::shared_ptr<const ControllerSnapshot> &owner) {
+    const auto result=compAssembly_.snapshot();
+    if(compAssemblyApplying_ && !result->busy){
+        compAssemblyApplying_=false;
+        if(!compAssemblyCanWork() || !result->adoption || result->phase!=CompAssemblyPhase::Complete ||
+            result->canceled || result->stale || !owner->session || !result->project ||
+            result->project->projectEpoch!=owner->projectEpoch || result->project->root!=owner->root){
+            compAssemblyMessage_=tr("The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.");
+        }else{
+            ProjectCommand command{CommandKind::Structural};command.compAssemblyResult=result->adoption;
+            command.structuralGuard=StructuralGuard{result->project->projectEpoch,result->project->session->id,result->project->root};
+            command.structuralRequest=nextGesture_++;const auto token=command.structuralRequest;
+            if(submitEdit(std::move(command)))compAssemblyAdopting_=token;
+            else compAssemblyMessage_=tr("The edit queue is unavailable. Review the transition and retry Apply.");
+        }
+    }
+    if(compAssemblyAdopting_){
+        const auto *receipt=owner->structuralCompleted.request==compAssemblyAdopting_?&owner->structuralCompleted:
+            owner->structuralRejected.request==compAssemblyAdopting_?&owner->structuralRejected:nullptr;
+        if(receipt){
+            compAssemblyMessage_=receipt->error?tr("The transition was not applied because the project or sources changed. Retained files are available for review."):
+                tr("Transition applied. Undo restores both original clips; save to retain the change.");
+            compAssemblyAdopting_=0;compAssembly_.clearResult();notice_->setText(compAssemblyMessage_);
+        }
+    }
+}
+bool StudioWindow::showCompAssemblies() {
+    if(compAssemblyDialog_){compAssemblyDialog_->show();compAssemblyDialog_->raise();return true;}
+    if(!compAssemblyCanWork())return false;
+    const auto source=controller_.snapshot();
+    struct ListState {ResourceLease lease;std::size_t first=0;std::shared_ptr<const Session> shown;};
+    auto state=std::make_shared<ListState>();
+    try{state->lease=controller_.resourceLedger().reserve(128*8192);}
+    catch(const ProjectError &){notice_->setText(tr("Transition review needs more Project resources. Close unused previews and retry."));return false;}
+    auto *dialog=new QDialog(this);dialog->setObjectName("compAssemblyDialog");dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Rendered transitions — preview"));compAssemblyDialog_=dialog;
+    auto *layout=new QVBoxLayout(dialog);
+    auto *help=new QLabel(tr("Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix."));
+    help->setWordWrap(true);layout->addWidget(help);
+    auto *list=new QListWidget;list->setObjectName("compAssemblyList");layout->addWidget(list);
+    auto *status=new QLabel;status->setObjectName("compAssemblyStatus");status->setWordWrap(true);status->setTextFormat(Qt::PlainText);layout->addWidget(status);
+    auto *pages=new QHBoxLayout;layout->addLayout(pages);
+    auto *previous=new QPushButton(tr("Previous page"));pages->addWidget(previous);
+    auto *next=new QPushButton(tr("Next page"));pages->addWidget(next);pages->addStretch();
+    auto *buttons=new QDialogButtonBox(QDialogButtonBox::Close);layout->addWidget(buttons);
+    auto *review=buttons->addButton(tr("Review selected transition"),QDialogButtonBox::ActionRole);review->setObjectName("reviewCompAssembly");
+    auto *apply=buttons->addButton(tr("Apply reviewed audio"),QDialogButtonBox::ActionRole);apply->setObjectName("applyCompAssembly");
+    auto *cancel=buttons->addButton(tr("Cancel operation"),QDialogButtonBox::ActionRole);cancel->setObjectName("cancelCompAssembly");
+    auto *timer=new QTimer(dialog);timer->setInterval(100);
+    const auto refresh=[this,source,state,list,status,previous,next,review,apply,cancel]{
+        const auto owner=controller_.snapshot();const auto result=compAssembly_.snapshot();
+        const bool same=owner->session && owner->projectEpoch==source->projectEpoch && owner->root==source->root;
+        if(!same){list->clear();state->shown.reset();status->setText(tr("This review belongs to a previous project opening. Close it and review the current project."));
+            review->setEnabled(false);apply->setEnabled(false);previous->setEnabled(false);next->setEnabled(false);cancel->setEnabled(result->busy);return;}
+        const auto &refs=owner->session->compAssemblies;
+        if(state->shown!=owner->session){
+            QSignalBlocker blocked(list);
+            const auto selected=list->currentItem()?list->currentItem()->data(Qt::UserRole).toString():QString{};
+            list->clear();if(state->first>=refs.size())state->first=0;
+            for(std::size_t i=state->first;i<std::min(refs.size(),state->first+128);++i){
+                auto *item=new QListWidgetItem(tr("Saved transition %1").arg(QLocale().toString(qulonglong(i+1))),list);
+                item->setData(Qt::UserRole,text(refs[i].operation.str()));if(item->data(Qt::UserRole).toString()==selected)list->setCurrentItem(item);
+            }
+            state->shown=owner->session;
+        }
+        const auto selected=list->currentItem()?list->currentItem()->data(Qt::UserRole).toString():QString{};
+        const bool free=compAssemblyCanWork(),matches=result->operation && text(result->operation->str())==selected;
+        if(matches && result->selection && result->project){
+            const auto &transition=result->selection->recipe().plan().handles().transition();
+            const auto &tracks=result->project->session->tracks;
+            const auto track=std::find_if(tracks.begin(),tracks.end(),[&](const auto &t){return t.id==transition.track;});
+            if(track!=tracks.end())list->currentItem()->setText(tr("%1 · frames %2–%3").arg(text(track->name),
+                QLocale().toString(transition.startFrame),QLocale().toString(transition.endFrame)));
+        }
+        previous->setEnabled(free && state->first>0);next->setEnabled(free && state->first+128<refs.size());
+        review->setEnabled(free && !selected.isEmpty());cancel->setEnabled(result->busy && !compAssemblyAdopting_);
+        apply->setEnabled(free && matches && result->phase==CompAssemblyPhase::Complete && result->project && result->project->projectEpoch==owner->projectEpoch);
+        QString message=compAssemblyMessage_;
+        if(result->busy)message=compAssemblyApplying_?tr("Checking audio before Apply…"):tr("Reviewing transition audio…");
+        else if(compAssemblyAdopting_)message=tr("Applying both clips…");
+        else if(message.isEmpty()){
+            if(refs.empty())message=tr("No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.");
+            else if(result->phase==CompAssemblyPhase::Complete && matches)message=tr("Audio verified. Apply will check it again before changing the project.");
+            else if(result->phase==CompAssemblyPhase::RecoveryRequired || result->phase==CompAssemblyPhase::Fault || result->phase==CompAssemblyPhase::Canceled)
+                message=tr("This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.");
+            else message=tr("Select a saved transition to review its audio.");
+        }
+        status->setText(message);
+    };
+    connect(timer,&QTimer::timeout,dialog,refresh);
+    connect(list,&QListWidget::currentRowChanged,dialog,[refresh](int){refresh();});
+    connect(previous,&QPushButton::clicked,dialog,[state,refresh]{state->first-=std::min<std::size_t>(state->first,128);state->shown.reset();refresh();});
+    connect(next,&QPushButton::clicked,dialog,[state,refresh]{state->first+=128;state->shown.reset();refresh();});
+    connect(review,&QPushButton::clicked,dialog,[this,list,refresh]{if(auto *item=list->currentItem())reviewCompAssembly(Id(item->data(Qt::UserRole).toString().toStdString()));refresh();});
+    connect(apply,&QPushButton::clicked,dialog,[this,refresh]{applyCompAssembly();refresh();});
+    connect(cancel,&QPushButton::clicked,dialog,[this]{compAssemblyApplying_=false;compAssembly_.requestCancel();});
+    connect(buttons,&QDialogButtonBox::rejected,dialog,&QDialog::reject);
+    connect(dialog,&QDialog::finished,this,[this,dialog]{if(compAssemblyDialog_==dialog)compAssemblyDialog_.clear();compAssemblyApplying_=false;compAssembly_.requestCancel();});
+    refresh();timer->start();const auto area=screen()?screen()->availableGeometry():QRect(0,0,800,600);
+    dialog->resize(std::min(760,std::max(1,area.width()-40)),std::min(500,std::max(1,area.height()-40)));dialog->show();return true;
+}
 std::shared_ptr<const StretchSnapshot> StudioWindow::stretchSnapshot() const {
     return stretch_.snapshot();
 }
 bool StudioWindow::stretchCanRender() const {
     const auto m=controller_.snapshot();const auto p=playback_.snapshot()->phase;
     return m->session && m->io==IoOperation::None && !guiBlocked_ && !closing_ &&
-        !closeRequested_ && !closeAfterSave_ && !stretch_.snapshot()->busy && !stretchAdopting_ &&
+        !closeRequested_ && !closeAfterSave_ && !stretch_.snapshot()->busy && !stretchAdopting_ && !compAssembly_.snapshot()->busy && !compAssemblyAdopting_ && !compAssemblyApplying_ &&
         !recordingBusy() && !attachingTake_ && !playbackPrepareBarrier_ && !recordPrepareBarrier_ &&
         !manual_->busy() && (p==PlaybackPhase::Idle || p==PlaybackPhase::Fault || p==PlaybackPhase::Unsupported);
 }
@@ -1180,7 +1309,7 @@ void StudioWindow::pollExport() {
     exportState_->setText(status);
 }
 bool StudioWindow::submitEdit(ProjectCommand command) {
-    if(stretchAdopting_ && (command.kind==CommandKind::Open || command.kind==CommandKind::Create))return false;
+    if((stretchAdopting_ || compAssemblyAdopting_) && (command.kind==CommandKind::Open || command.kind==CommandKind::Create))return false;
     const bool structural = command.kind==CommandKind::Structural || command.kind==CommandKind::Monitoring ||
                             command.kind==CommandKind::Open || command.kind==CommandKind::Create;
     if (((manual_ && manual_->busy()) && structural) ||
@@ -3088,6 +3217,7 @@ void StudioWindow::reviewRecordings() {
 }
 
 void StudioWindow::shutdownWorkers() {
+    compAssembly_.requestShutdown();
     stretch_.requestShutdown();
     if (importDialog_) importDialog_->requestShutdown();
     manual_->requestShutdown();
@@ -3222,6 +3352,7 @@ void StudioWindow::poll() {
     QScopedValueRollback<bool> guard(polling_, true);
     const auto canonical = controller_.snapshot();
     pollStretch(canonical);
+    pollCompAssembly(canonical);
     if (!closeRequested_)
         manual_->cancelClose();
     manual_->poll();
@@ -3264,7 +3395,7 @@ void StudioWindow::poll() {
     refreshLoop();
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed && compAssembly_.snapshot()->closed &&
         manual_->snapshot()->closed && nativeClosed() && (!importDialog_ || importDialog_->retired()) && closing_) {
         close();
         return;
@@ -3381,7 +3512,7 @@ void StudioWindow::poll() {
     if (closeRequested_ && !closing_ && !closeAfterSave_ && !closePromptActive_ && !closeBarrier_ &&
         recording_.snapshot()->stopAcknowledged >= closeDrainToken_ &&
         !recording_.snapshot()->take && !attachingTake_ && !exporter_.snapshot()->busy &&
-        !stretch_.snapshot()->busy && !stretchAdopting_ &&
+        !stretch_.snapshot()->busy && !stretchAdopting_ && !compAssembly_.snapshot()->busy && !compAssemblyAdopting_ && !compAssemblyApplying_ &&
         view->io == IoOperation::None && manualCloseReady == 1 && nativeInactive()) {
         ProjectCommand barrier{CommandKind::Barrier};
         barrier.barrier = nextGesture_++;
@@ -3406,7 +3537,7 @@ void StudioWindow::poll() {
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = inspectorSnapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed && compAssembly_.snapshot()->closed &&
         manual_->snapshot()->closed && nativeClosed() && (!importDialog_ || importDialog_->retired())) {
         event->accept();
         return;
@@ -3418,6 +3549,8 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     if (auto *focused = focusWidget())
         focused->clearFocus();
     closeRequested_ = true;
+    compAssemblyApplying_=false;compAssembly_.requestCancel();
+    if(compAssemblyDialog_)compAssemblyDialog_->close();
     stretch_.requestCancel();
     if(stretchDialog_)stretchDialog_->close();
     manual_->beginClose();

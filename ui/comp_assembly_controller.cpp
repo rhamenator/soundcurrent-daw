@@ -15,7 +15,7 @@ bool contains(const Session &s,const CompAssemblyReference &r){return std::find(
 }
 struct CompAssemblyController::State : QThread {
     mutable QMutex mutex;QWaitCondition wake;CompAssemblyControllerOptions options;
-    std::optional<Id> queued;bool queuedReview=false,busy=false,closing=false,retire=false;
+    std::optional<Id> queued;bool queuedReview=false,queuedApply=false,busy=false,closing=false,retire=false;
     std::stop_source stop;CompAssemblySnapshot view;std::shared_ptr<const Session> checked;
     std::shared_ptr<const CompAssemblySnapshot> latest=std::make_shared<const CompAssemblySnapshot>();
     explicit State(CompAssemblyControllerOptions o):options(std::move(o)){check(bool(options.project),"Assembly needs a live project owner");}
@@ -50,7 +50,7 @@ struct CompAssemblyController::State : QThread {
         auto value=inspectCompAssembly(view.project->root,*view.project->session,context(*view.project),*view.selection,*view.request,options.memory,token);
         view.recovery=std::make_shared<const CompAssemblyRecovery>(std::move(value));
     }
-    void execute(const Id &operation,bool review,std::stop_token token){
+    void execute(const Id &operation,bool review,bool apply,std::stop_token token){
         poll(token);checked.reset();view.phase=CompAssemblyPhase::Loading;publish();view.project=project();const auto ctx=context(*view.project);
         const auto &refs=view.project->session->compAssemblies;
         const auto found=std::find_if(refs.begin(),refs.end(),[&](const auto &r){return r.operation==operation;});
@@ -70,15 +70,19 @@ struct CompAssemblyController::State : QThread {
             poll(token);inspect(token);
         }
         poll(token);fresh();
+        if(apply && !view.error && view.recovery && view.recovery->state==CompAssemblyRecoveryState::Complete){
+            auto result=verifyCompAssemblyAdoption(view.project->root,*view.project->session,ctx,*view.selection,*view.request,options.memory,token);
+            poll(token);fresh();view.adoption=std::make_shared<const VerifiedCompAssemblyAdoption>(std::move(result));
+        }
         view.phase=!view.error && view.recovery && view.recovery->result && view.recovery->state==CompAssemblyRecoveryState::Complete
             ?CompAssemblyPhase::Complete:CompAssemblyPhase::RecoveryRequired;
     }
     void run() override {
-        for(;;){std::optional<Id> op;bool review=false;std::stop_token token;
+        for(;;){std::optional<Id> op;bool review=false,apply=false;std::stop_token token;
             {QMutexLocker lock(&mutex);while(!queued && !closing && !retire)wake.wait(&mutex);
                 if(retire){view=*latest;checked.reset();retire=false;}if(!queued){if(closing)break;continue;}
-                op=std::move(queued);queued.reset();review=queuedReview;token=stop.get_token();view=*latest;}
-            try{execute(*op,review,token);}
+                op=std::move(queued);queued.reset();review=queuedReview;apply=queuedApply;token=stop.get_token();view=*latest;}
+            try{execute(*op,review,apply,token);}
             catch(const ProjectError &e){view.error=e.code();view.canceled=view.canceled || e.code()==ErrorCode::Canceled;
                 view.phase=view.request?CompAssemblyPhase::RecoveryRequired:view.canceled?CompAssemblyPhase::Canceled:CompAssemblyPhase::Fault;}
             catch(...){view.error=ErrorCode::Io;view.phase=CompAssemblyPhase::Fault;}
@@ -95,11 +99,12 @@ struct CompAssemblyController::State : QThread {
 };
 CompAssemblyController::CompAssemblyController(CompAssemblyControllerOptions o):state_(std::make_unique<State>(std::move(o))){state_->start();}
 CompAssemblyController::~CompAssemblyController(){requestShutdown();state_->wait();}
-Admission CompAssemblyController::submit(Id op,bool review){QMutexLocker lock(&state_->mutex);if(state_->closing)return Admission::Closing;if(state_->busy)return Admission::Full;
+Admission CompAssemblyController::submit(Id op,bool review,bool apply){QMutexLocker lock(&state_->mutex);if(state_->closing)return Admission::Closing;if(state_->busy)return Admission::Full;
     CompAssemblySnapshot value;value.operation=op;value.phase=CompAssemblyPhase::Queued;value.busy=true;
     auto published=std::make_shared<const CompAssemblySnapshot>(std::move(value));std::stop_source stop;
-    state_->stop=std::move(stop);state_->queued=std::move(op);state_->queuedReview=review;state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;}
+    state_->stop=std::move(stop);state_->queued=std::move(op);state_->queuedReview=review;state_->queuedApply=apply;state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;}
 Admission CompAssemblyController::render(Id op){return submit(std::move(op),false);}
+Admission CompAssemblyController::prepareApply(Id op){return submit(std::move(op),true,true);}
 Admission CompAssemblyController::review(Id op){return submit(std::move(op),true);}
 void CompAssemblyController::requestCancel() noexcept {QMutexLocker lock(&state_->mutex);if(state_->busy)state_->stop.request_stop();}
 void CompAssemblyController::requestShutdown() noexcept {QMutexLocker lock(&state_->mutex);state_->closing=true;state_->stop.request_stop();state_->wake.wakeOne();}
