@@ -224,3 +224,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Exact uniform comp span rendering](273-uniform-comp-span-rendering.md)
 - [ADR 161: exact-grid uniform comp span renderer](decisions/161-exact-uniform-comp-span-renderer.md)
+
+- [Owned comp span worker and completion verification](274-owned-comp-span-worker.md)
+- [ADR 162: owned exact-span process protocol](decisions/162-owned-comp-span-protocol.md)

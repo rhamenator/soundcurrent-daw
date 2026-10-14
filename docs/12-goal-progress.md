@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned comp span processes (2026-10-14)
+
+[Checkpoint 274](274-owned-comp-span-worker.md) renders actual candidates in an
+owned process with request/recipe/executable identity, resource/watchdog limits,
+source admission, readiness/start, no-overwrite completion and independent PCM
+verification. A source-bound 33-worker corpus passes with six completed spans and
+27 refusal/interruption paths. Original preceding CI passes all four jobs and
+retains actual Windows span reports; quality flags remain false. New worker native,
+controller/paired assembly/recovery/nonuniform/overlay/state/adoption/UI and full
+quality/installed-platform/Europe gates remain open.
+
 ## Exact uniform comp span renderer (2026-10-14)
 
 [Checkpoint 273](273-uniform-comp-span-rendering.md) renders exact fractional-grid
