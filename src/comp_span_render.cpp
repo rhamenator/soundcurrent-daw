@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_span_render.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 #include <rubberband/RubberBandStretcher.h>
 #include <algorithm>
 #include <cmath>
@@ -12,8 +13,8 @@ void check(bool v,const char *m,ErrorCode code=ErrorCode::InvalidParameter){if(!
 }
 CompSpanPlan prepareCompSpan(const CompHandleEnvelope &envelope,ResourceLedger ledger){
     const auto &e=envelope.data();
-    check(!e.regeneration,"Repeated comp spans require clock-aware production and historical file verification",ErrorCode::UnsupportedSchema);
-    check(e.expected.stretch.has_value(),"Comp span requires a processed source");
+    const auto &original=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
+    check(original.stretch.has_value(),"Comp span requires a processed source");
     check(e.map.size()>=2 && e.map.front().output==SourcePosition{0,0,1} && e.map.back().output==SourcePosition{e.outputFrames,0,1},"Comp span map endpoints differ");
     const auto span=subtractSourcePosition(e.map.back().raw,e.map.front().raw);
     const auto ratio=sourceIntervalRatio(span,{e.outputFrames,0,1});
@@ -24,10 +25,14 @@ CompSpanPlan prepareCompSpan(const CompHandleEnvelope &envelope,ResourceLedger l
     auto grid=SourceFrameMap::processingGrid(e.map.front().raw,span,count);
     check(scaleSourcePosition(grid.at(count),1,1)==scaleSourcePosition(e.map.back().raw,1,1) && grid.at(count-1).frame<e.raw.frames,"Comp processing grid exceeds actual source");
     check(e.raw.sampleRate>=8000 && e.raw.sampleRate<=192000 && e.raw.layout.channels>0 && e.raw.layout.channels<=256,"Unsupported comp span format",ErrorCode::UnsupportedSchema);
-    auto settings=e.expected.stretch->settings;validateStretchSettings(settings);
+    check(e.base.sampleRate>=8000 && e.base.sampleRate<=192000,"Unsupported comp output clock",ErrorCode::UnsupportedSchema);
+    auto settings=original.stretch->settings;validateStretchSettings(settings);
+    const auto clock=e.regeneration?e.regeneration->data().backendClockScale:scaleSourcePosition({1,0,1},e.raw.sampleRate,e.base.sampleRate);
+    const auto ratioClock=sourceIntervalRatio(clock,{1,0,1});
+    check(ratioClock.numerator>0 && ratioClock.denominator>0,"Invalid comp backend clock ratio");
     PayloadCharge payload("Retained comp span",SIZE_MAX);payload.add(sizeof(CompSpanPlan)+4096);payload.add(e.raw.relativePath.size()+e.raw.sha256.size());
     for(const auto &f:e.raw.nativeEvidence){payload.add(sizeof(ProjectEvidenceFile)+256);payload.add(f.relativePath.size()+f.sha256.size());}
-    auto lease=ledger.reserve(payload.bytes());return {std::move(lease),e.raw,grid,span,count,e.outputFrames,settings};
+    auto lease=ledger.reserve(payload.bytes());return {std::move(lease),e.raw,grid,span,count,e.outputFrames,settings,e.base.sampleRate,clock};
 }
 CompSpanReport renderCompSpan(const CompSpanPlan &p,const CompSpanRead &read,const CompSpanWrite &write,ResourceLedger ledger,const std::function<void()> &poll){
     check(bool(read) && bool(write) && bool(poll),"Missing comp span callbacks");poll();const auto &a=p.source();
@@ -38,8 +43,12 @@ CompSpanReport renderCompSpan(const CompSpanPlan &p,const CompSpanRead &read,con
     auto credit=ledger.reserve(scratch.bytes());std::vector<float> raw(sourceFrames*channels),interleaved(512*channels),input(512*channels),output(512*channels);
     std::vector<const float *> in(channels);std::vector<float *> out(channels);
     for(unsigned ch=0;ch<channels;++ch){in[ch]=input.data()+ch*512;out[ch]=output.data()+ch*512;}
+    const auto clock=sourceIntervalRatio(p.backendClockScale(),{1,0,1});
     CompSpanReport report;report.backendPitchFactor=std::exp2(double(p.settings().pitchMilliCents)/1200000.)*double(p.grid().denominator())/p.grid().numerator();
-    report.copied=p.grid().numerator()==p.grid().denominator() && p.processingFrames()==p.outputFrames() && p.settings().pitchMilliCents==0;
+    // Leave legacy arithmetic unchanged when the clock factor is one.
+    if(clock.numerator!=clock.denominator)report.backendPitchFactor*=double(clock.numerator)/double(clock.denominator);
+    check(std::isfinite(report.backendPitchFactor) && report.backendPitchFactor>0,"Invalid comp backend pitch scale");
+    report.copied=p.grid().numerator()==clock.numerator && p.grid().denominator()==clock.denominator && p.processingFrames()==p.outputFrames() && p.settings().pitchMilliCents==0;
     using RB=RubberBand::RubberBandStretcher;std::unique_ptr<RB> rb;
     if(!report.copied){
         const auto options=RB::OptionProcessOffline|RB::OptionEngineFiner|RB::OptionThreadingNever|

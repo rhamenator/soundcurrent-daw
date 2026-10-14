@@ -27,6 +27,6 @@ for root in sorted(roots[0].glob('inputs/run-*/case-*/project-*')):
     try:out,err=proc.communicate(json.dumps(dict(root=str(root),legacyRequests=requests[rate])),timeout=30)
     except BaseException:proc.kill();proc.communicate();raise
     (root/'resolver.stdout').write_text(out);(root/'resolver.stderr').write_text(err);processes.append(dict(pid=proc.pid,exitCode=proc.returncode));assert proc.returncode==0,(root,err);reports.append(json.loads(out))
-assert len(reports)==3 and all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and len(r['actualAdoptedSourceCases'])==2 and r['metadataOnlyAdditionalGenerations']==3 and r['stateUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['fileVerification'] and not r['qualityAdmission'] for r in reports)
+assert len(reports)==3 and all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and len(r['actualAdoptedSourceCases'])==2 and r['metadataOnlyAdditionalGenerations']==3 and r['stateUnchanged'] and r['joinedMemoryReleased'] and r['newRendering'] and len(r['clockRenders'])==5 and not r['ownedRegeneration'] and not r['fileVerification'] and not r['qualityAdmission'] for r in reports)
 result=dict(inputs=json.loads((roots[0]/'report.json').read_text()),resolverProcesses=processes,reports=reports)
 (scope/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(scope=str(scope),cases=6,metadataOnlyGenerations=9)))

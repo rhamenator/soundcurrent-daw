@@ -7,6 +7,10 @@
 #include <soundcurrent/comp_span_render.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
 #include <soundcurrent/comp_pair_recovery.hpp>
+#include <soundcurrent/media_cache.hpp>
+#include <complex>
+#include <numbers>
+#include <cmath>
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <fstream>
@@ -16,6 +20,7 @@ using namespace soundcurrent::daw;
 namespace {
 using Json=nlohmann::json;unsigned checks=0;
 unsigned plannedRecipes=0,legacyRecipes=0;
+Json clockRenders=Json::array();
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid regeneration source accepted");}
 std::string bytes(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Missing actual adopted source");return {(std::istreambuf_iterator<char>(f)),{}};}
@@ -36,6 +41,45 @@ Session layer(Session s,bool post,bool cropped,ResourceLedger ledger){
     const auto selection=Id::generate();const CompAssemblyReference assembly{Id::generate(),selection,std::string(64,'e'),{d.rendered.id,{}}};
     d.rendered.relativePath="media/comp-results/"+selection.str()+"/"+d.rendered.id.str()+".wav";d.playback.assetId=d.rendered.id;
     s.compPairSelections.push_back({selection,std::string(64,'d')});s.assets.push_back(d.rendered);s.compPlaybackSources.push_back({assembly,0,std::string(64,'d'),d});c=d.playback;validate(s);return s;
+}
+struct PitchObservation {double fundamental=0,globalPeak=0,fundamentalRelativeAmplitude=0;};
+PitchObservation frequency(const std::vector<float> &v,unsigned ch,unsigned rate,double wanted){
+    const auto first=v.size()/2/4,last=3*(v.size()/2)/4,count=last-first;std::size_t n=1;while(n<count*8)n*=2;
+    std::vector<std::complex<double>> spectrum(n);
+    for(std::size_t i=0;i<count;++i)spectrum[i]=double(v[(first+i)*2+ch])*(.5-.5*std::cos(2*std::numbers::pi*double(i)/double(count-1)));
+    for(std::size_t i=1,j=0;i<n;++i){auto bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j)std::swap(spectrum[i],spectrum[j]);}
+    for(std::size_t size=2;size<=n;size*=2){const auto unit=std::polar(1.,-2*std::numbers::pi/double(size));
+        for(std::size_t at=0;at<n;at+=size){std::complex<double> weight=1;for(std::size_t k=0;k<size/2;++k){const auto even=spectrum[at+k],odd=spectrum[at+k+size/2]*weight;spectrum[at+k]=even+odd;spectrum[at+k+size/2]=even-odd;weight*=unit;}}}
+    const auto peak=[&](double low,double high){const auto begin=std::max<std::size_t>(1,std::size_t(std::ceil(low*double(n)/rate))),end=std::min(n/2,std::size_t(std::floor(high*double(n)/rate)));check(begin<end,"Spectral pitch search empty");
+        auto best=begin;for(auto i=begin+1;i<=end;++i)if(std::norm(spectrum[i])>std::norm(spectrum[best]))best=i;return best;};
+    const auto fundamental=peak(wanted*.9,wanted*1.1),global=peak(wanted*.25,std::min(wanted*4,double(rate)*.49));
+    const auto relative=std::abs(spectrum[fundamental])/std::abs(spectrum[global]);
+    check(std::isfinite(relative) && relative>.01,"Requested fundamental absent from rendered spectrum");
+    return {double(fundamental)*rate/double(n),double(global)*rate/double(n),relative};
+}
+void renderedClock(Session s,const std::filesystem::path &root,double baked){
+    auto &t=s.tracks[0];t.clips[1].startFrame=t.clips[0].startFrame+t.clips[0].lengthFrames;validate(s);const auto original=s;
+    ResourceLedger ledger(192*1024*1024,"Regenerated clock DSP");
+    {
+        const auto &c=t.clips[0];auto envelope=prepareCompHandleEnvelope(s,t.id,c.id,c.startFrame-32,c.startFrame+c.lengthFrames+32,context,ledger);
+        auto span=prepareCompSpan(envelope,ledger);const auto &r=envelope.data().regeneration->data();
+        check(double(r.bakedPitchScale.frame)+double(r.bakedPitchScale.fraction)/double(r.bakedPitchScale.denominator)==baked,"Unexpected fixture baked speed");
+        check(span.outputSampleRate()==48000 && span.source().sampleRate==r.raw.sampleRate,"Lost output/source clock distinction");
+        MediaCacheConfig config;config.resources=ledger;config.maximumOpenFiles=1;config.pageFrames=512;config.cacheBudgetBytes=128*1024;config.registryBudgetBytes=256*1024;
+        MediaReadCache cache(root,std::span<const Asset>(&span.source(),1),s.sampleRate,config);
+        std::vector<float> output;const auto result=renderCompSpan(span,[&](Frame first,std::span<float> v){cache.read(0,first,v);},[&](auto v){output.insert(output.end(),v.begin(),v.end());},ledger,[]{});
+        const auto scale=std::exp2(double(r.originalNominalClip.stretch->settings.pitchMilliCents)/1200000.)*baked;
+        check(result.writtenFrames==span.outputFrames() && output.size()==std::size_t(span.outputFrames())*2,"Regenerated DSP duration changed");
+        const auto expectedFactor=scale*double(span.source().sampleRate)/span.outputSampleRate()*double(span.grid().denominator())/span.grid().numerator();
+        check(std::abs(result.backendPitchFactor/expectedFactor-1)<1e-12,"Clock-aware backend pitch factor differs");
+        Json channels=Json::array();for(unsigned channel=0;channel<2;++channel){const auto wanted=(channel?1703.:997.)*scale;
+            const auto observed=frequency(output,channel,span.outputSampleRate(),wanted);check(std::abs(observed.fundamental/wanted-1)<.01,"Regenerated spectral pitch differs by more than one percent");
+            channels.push_back({{"wantedHz",wanted},{"measuredHz",observed.fundamental},{"globalPeakHz",observed.globalPeak},{"relativeFundamental",observed.fundamentalRelativeAmplitude}});
+        }
+        const auto name="clock-span-"+std::to_string(clockRenders.size())+".pcm";std::ofstream f(root/name,std::ios::binary);f.write(reinterpret_cast<const char *>(output.data()),std::streamsize(output.size()*sizeof(float)));check(bool(f),"Cannot retain clock DSP samples");
+        clockRenders.push_back({{"rawRate",span.source().sampleRate},{"outputRate",span.outputSampleRate()},{"bakedSpeed",baked},{"currentPlaybackRate",{c.playbackRate.numerator,c.playbackRate.denominator}},{"pitchMilliCents",span.settings().pitchMilliCents},{"processingFrames",span.processingFrames()},{"outputFrames",span.outputFrames()},{"backendPitchFactor",result.backendPitchFactor},{"floatPeak",result.floatPeak},{"channels",channels},{"pcm",name},{"ownedRegeneration",false}});
+    }
+    check(s==original && !ledger.usage().reservedBytes,"Clock DSP changed canonical state or leaked memory");
 }
 void plannedRoundtrip(Session s){
     // Move the current fragments adjacent after metadata-only cropping. Their
@@ -65,10 +109,13 @@ void plannedRoundtrip(Session s){
             const auto newMap=clipSourceMap(playback.data().playback,asset.sampleRate,s.sampleRate);
             for(Frame f=0;f<e.expected.lengthFrames;f+=17)
                 check(playback.rawPosition(newMap.at(e.expected.startFrame-playback.data().playback.startFrame+f))==compRegenerationRawPosition(r,oldMap.at(f)),"Repeated plan shifted original audible raw timing");
-            try{(void)prepareCompSpan(h,ledger);throw std::runtime_error("Unverified repeated renderer enabled");}
-            catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Repeated renderer failed without explicit unsupported gate");}
+            auto span=prepareCompSpan(h,ledger);
+            check(span.source()==r.raw && span.outputSampleRate()==e.base.sampleRate && span.backendClockScale()==r.backendClockScale &&
+                span.settings()==r.originalNominalClip.stretch->settings,"Repeated span lost original settings or clock");
         }
         const auto operation=Id::generate();auto recipe=encodeCompProcessingRecipe(s,context,plan,operation,executor,ledger);
+        try{(void)encodeCompSpanRequest(recipe,executor,0,Id::generate(),std::string(64,'b'),ledger);throw std::runtime_error("Unverified repeated owned request enabled");}
+        catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Repeated owned request lost integration gate");}
         const auto j=Json::parse(recipe.bytes());check(j.at("format").get<std::string>()==compRegenerationRecipeFormat,"Repeated recipe used legacy schema");
         auto reopenedContext=context;++reopenedContext.projectEpoch;reopenedContext.rootIdentity="relocated-history";
         auto reopened=decodeCompProcessingRecipe(recipe.bytes(),operation,reopenedContext,executor,recipe.digest(),ledger);
@@ -117,8 +164,13 @@ int main(){try{
         const auto request=Json::parse(bytes(utf8Path(path.get<std::string>())));
         const auto &e=request.at("recipeExecutor");const CompRecipeExecutor executor{e.at("id"),e.at("buildSha256")};
         auto old=decodeCompProcessingRecipe(request.at("recipe").get<std::string>(),Id(request.at("recipeOperation").get<std::string>()),context,executor,request.at("recipeDigest").get<std::string>(),ResourceLedger(192*1024*1024,"Legacy recipe"));
-        check(old.bytes()==request.at("recipe").get<std::string>() && Json::parse(old.bytes()).at("format").get<std::string>()==compProcessingRecipeFormat,"Retained legacy recipe identity changed");++legacyRecipes;
+        check(old.bytes()==request.at("recipe").get<std::string>() && Json::parse(old.bytes()).at("format").get<std::string>()==compProcessingRecipeFormat,"Retained legacy recipe identity changed");
+        const auto requestPath=utf8Path(path.get<std::string>());const auto saved=bytes(requestPath);
+        auto legacySpan=decodeCompSpanRequest(saved,hashMediaFile(requestPath),context,request.at("executor").at("buildSha256").get<std::string>(),ResourceLedger(192*1024*1024,"Legacy span request"));
+        check(legacySpan.bytes()==saved && legacySpan.span().outputSampleRate()==legacySpan.span().source().sampleRate && legacySpan.span().backendClockScale()==SourcePosition{1,0,1},"Retained legacy span request or clock changed");++legacyRecipes;
     }
+    renderedClock(s,root,1.5);
+    auto currentSpeed=s;currentSpeed.tracks[0].clips[0].lengthFrames/=2;currentSpeed.tracks[0].clips[0].playbackRate={5,4};renderedClock(currentSpeed,root,1.5);
     plannedRoundtrip(s);
     mixedAdmission(s);
     check(s.compPlaybackSources.size()==2,"Expected actual paired adoption fixture");
@@ -165,7 +217,7 @@ int main(){try{
         check(r.history.size()==3+pass,"Nested source closure omitted ancestor/sibling");
         const auto &leaf=*findCompPlaybackSource(nested,nested.tracks[0].clips[0].assetId);
         for(Frame f=0;f<r.current.frames;f+=17)check(compRegenerationRawPosition(r,{f,2,5})==compPlaybackRawPosition(leaf.source,{f,2,5}),"Nested crop map differs");
-        check(decodeProject(encodeProject(nested))==nested,"Regeneration lineage changed across codec");plannedRoundtrip(nested);++depth;
+        check(decodeProject(encodeProject(nested))==nested,"Regeneration lineage changed across codec");plannedRoundtrip(nested);renderedClock(nested,root,pass==0?2.25:(pass==1?2.25:3.375));++depth;
     }
     check(ledger.usage().reservedBytes==0,"Nested resolution retained resources");
     const auto &c=s.tracks[0].clips[0];ResourceLedger tiny(1,"Tiny regeneration");
@@ -174,6 +226,6 @@ int main(){try{
     auto invalid=s;invalid.compPlaybackSources.clear();refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     invalid=s;invalid.compPlaybackSources[0].source.rawMap[0].raw.frame++;refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     check(ledger.usage().reservedBytes==0 && s==original,"Refusal changed state or leaked resources");
-    Json result{{"checks",checks},{"mixedAdmissionRefused",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",false},{"qualityAdmission",false}};
+    Json result{{"clockRenders",clockRenders},{"checks",checks},{"mixedAdmissionRefused",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",true},{"ownedRegeneration",false},{"qualityAdmission",false}};
     std::ofstream out(root/"regeneration-source-report.json");out<<result.dump(2)<<'\n';check(bool(out),"Report write failed");std::cout<<result.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

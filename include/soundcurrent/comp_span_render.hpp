@@ -16,20 +16,27 @@ class CompSpanPlan {
     Frame processingFrames() const noexcept {return processing_;}
     Frame outputFrames() const noexcept {return output_;}
     const StretchSettings &settings() const noexcept {return settings_;}
+    std::uint32_t outputSampleRate() const noexcept {return outputRate_;}
+    SourcePosition backendClockScale() const noexcept {return clockScale_;}
   private:
     friend CompSpanPlan prepareCompSpan(const CompHandleEnvelope &,ResourceLedger);
-    CompSpanPlan(ResourceLease lease,Asset source,SourceFrameMap grid,SourcePosition span,Frame processing,Frame output,StretchSettings settings)
-        :lease_(std::move(lease)),source_(std::move(source)),grid_(grid),span_(span),processing_(processing),output_(output),settings_(settings){}
+    CompSpanPlan(ResourceLease lease,Asset source,SourceFrameMap grid,SourcePosition span,Frame processing,Frame output,StretchSettings settings,std::uint32_t outputRate,SourcePosition clockScale)
+        :lease_(std::move(lease)),source_(std::move(source)),grid_(grid),span_(span),processing_(processing),output_(output),settings_(settings),outputRate_(outputRate),clockScale_(clockScale){}
     ResourceLease lease_;
     Asset source_;
     SourceFrameMap grid_;
     SourcePosition span_;
     Frame processing_,output_;
     StretchSettings settings_;
+    std::uint32_t outputRate_;
+    SourcePosition clockScale_;
 };
 // Exact uniform-map span preparation, including fractional origin/endpoints.
 // Nonuniform maps remain required; refuse explicitly until their producer exists.
-// This prepares physical candidate PCM, independently of clip playback speed.
+// This prepares physical candidate PCM at the current artifact's sample clock.
+// Preserves already baked varispeed while excluding current playback speed.
+// Metadata/DSP only: callers must verify original owned files independently.
+// The owned protocol still rejects regenerated recipes until integration.
 CompSpanPlan prepareCompSpan(const CompHandleEnvelope &,ResourceLedger);
 using CompSpanRead=std::function<void(Frame,std::span<float>)>;
 using CompSpanWrite=std::function<void(std::span<const float>)>;
