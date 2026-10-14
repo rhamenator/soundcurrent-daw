@@ -35,6 +35,11 @@ std::string persistCompPairSelection(const std::filesystem::path &,const Session
 CompPairSelection loadCompPairSelection(const std::filesystem::path &,const Session &,
     const CompHandlePlanContext &,const Id &,std::string_view trustedSelectionDigest,
     ResourceLedger,std::stop_token={});
+// Derive from the accepted selection; register only after sidecar publication.
+CompPairSelectionReference referenceCompPairSelection(const Session &,
+    const CompHandlePlanContext &,const CompPairSelection &);
+CompPairSelection loadReferencedCompPairSelection(const std::filesystem::path &,
+    const Session &,const CompHandlePlanContext &,const Id &,ResourceLedger,std::stop_token={});
 enum class CompPairChildState { Unneeded, Absent, Active, WaitingForStart, Interrupted, Canceled, Complete, Stale, Invalid };
 struct CompPairChildRecovery {
     CompPairChildState state=CompPairChildState::Unneeded;

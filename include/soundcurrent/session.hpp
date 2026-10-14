@@ -330,6 +330,13 @@ struct ImportedProjectSource {
     std::vector<ImportedMediaOrigin> media;
     bool operator==(const ImportedProjectSource &) const = default;
 };
+// Trusted project-owned reference to immutable comp selection sidecars. The
+// digest is never learned from the sidecar on recovery. No playback activation.
+struct CompPairSelectionReference {
+    Id operation;
+    std::string selectionSha256;
+    bool operator==(const CompPairSelectionReference &) const = default;
+};
 struct Session {
     Id id = Id::generate();
     std::string name;
@@ -343,6 +350,7 @@ struct Session {
     PunchSettings punch;
     LoopSettings loop;
     std::vector<ImportedProjectSource> imports;
+    std::vector<CompPairSelectionReference> compPairSelections;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
@@ -375,6 +383,8 @@ Session makeOneTrackSession(std::string name, std::string trackName,
                            std::uint32_t sampleRate = 48000);
 Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);
 // Control-thread edits, addressed by stable identity. A batch is all-or-nothing.
+struct AddCompPairSelection { CompPairSelectionReference value; };
+struct RemoveCompPairSelection { Id operation; };
 struct InsertTrack {
     Track track;
     std::optional<Id> before;
@@ -484,7 +494,7 @@ struct SelectTakeRegion {
     Frame startFrame = 0, endFrame = 0; // Fully covered project region [start,end).
 };
 using SessionEdit =
-    std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
+    std::variant<AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
                  SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
@@ -595,6 +605,7 @@ class EditHistory {
         std::optional<std::pair<std::optional<MasterBus>, std::optional<MasterBus>>> master;
         std::optional<std::pair<PunchSettings, PunchSettings>> punch;
         std::optional<std::pair<LoopSettings, LoopSettings>> loop;
+        std::optional<std::pair<std::vector<CompPairSelectionReference>, std::vector<CompPairSelectionReference>>> compPairSelections;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     struct Entry {

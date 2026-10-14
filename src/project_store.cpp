@@ -323,7 +323,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                  {"polarityInverted",c.processing.polarityInverted},
                                  {"fadeIn",fade(c.processing.fadeIn)},
                                  {"fadeOut",fade(c.processing.fadeOut)}}}};
-        if(hasCompHandles)result["compHandles"]=c.compHandles?Json{
+        if(hasCompHandles || !s.compPairSelections.empty())result["compHandles"]=c.compHandles?Json{
             {"processor","soundcurrent.comp-handles-window-v1"},{"version",1},
             {"baseAssetId",c.compHandles->baseAssetId.str()},{"baseSha256",c.compHandles->baseSha256},
             {"prefixFrames",c.compHandles->prefixFrames},{"suffixFrames",c.compHandles->suffixFrames},
@@ -373,7 +373,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", !s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -387,6 +387,12 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
           {"endFrame", s.punch.endFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
+    if (!s.compPairSelections.empty()) {
+        root["compPairSelections"] = Json::array();
+        for (const auto &reference : s.compPairSelections)
+            root["compPairSelections"].push_back({{"operation",reference.operation.str()},
+                {"selectionSha256",reference.selectionSha256}});
+    }
     root["imports"] = Json::array();
     const auto file = [](const ProjectEvidenceFile &f) {
         return Json{{"path", f.relativePath}, {"sha256", f.sha256}, {"bytes", f.bytes}};
@@ -517,7 +523,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 20),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 21),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -533,16 +539,30 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports"});
-        else
+        else if (minor < 21)
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback"});
+        else
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
         canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
         Session s;
         s.id = Id(string(j.at("projectId")));
         s.name = string(j.at("name"));
+        if (minor >= 21) {
+            const auto &references=j.at("compPairSelections");
+            array(references,budget.state.memoryBudgetBytes/sizeof(CompPairSelectionReference));
+            s.compPairSelections.reserve(references.size());
+            for (const auto &reference : references) {
+                keys(reference,{"operation","selectionSha256"});
+                s.compPairSelections.push_back({Id(string(reference.at("operation"))),
+                    string(reference.at("selectionSha256"))});
+            }
+        }
         s.sampleRate = u32(j.at("sampleRate"));
         s.playheadFrame = integer(j.at("playheadFrame"));
         const auto &range = j.at("exportRange");

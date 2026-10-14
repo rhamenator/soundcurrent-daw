@@ -287,7 +287,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 21;sc_test::eraseSchema16FixtureKeys(j);
+        j["schemaMinor"] = 22;sc_test::eraseSchema16FixtureKeys(j);
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

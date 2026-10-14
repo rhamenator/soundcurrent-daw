@@ -23,9 +23,14 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
         auto selectedPolicy=policy();selectedPolicy.deadlineMilliseconds=input.value("deadline",10000u);auto selection=prepareCompPairSelection(std::move(recipe),parent,binary,operations,selectedPolicy,ledger);const auto digest=persistCompPairSelection(root,current,context,selection,ledger);
         check(persistCompPairSelection(root,current,context,selection,ledger)==digest,"Repeated selection publication changed bytes");
         auto fresh=loadCompPairSelection(root,current,context,selection.recipe().operation(),digest,ledger);check(fresh.digest()==digest && fresh.manifest()==selection.manifest(),"Selection reopened differently");
-        const Json owner{{"operation",selection.recipe().operation().str()},{"digest",digest}};write(root/"trusted-owner-reference.json",owner.dump());std::cout<<owner.dump()<<'\n';return 0;
+        const auto reference=referenceCompPairSelection(current,context,selection);check(reference.selectionSha256==digest,"Reference not bound to published selection");
+        applySessionEdits(current,{AddCompPairSelection{reference}});ProjectStore(root).save(current);
+        const auto reopened=ProjectStore(root).load();auto fromProject=loadReferencedCompPairSelection(root,reopened,context,reference.operation,ledger);
+        check(fromProject.digest()==digest,"Saved project lost pair binding");
+        const Json owner{{"operation",reference.operation.str()},{"digest",digest}};std::cout<<owner.dump()<<'\n';return 0;
     }
-    const auto owner=Json::parse(read(root/"trusted-owner-reference.json"));const auto op=Id(owner.at("operation"));const auto digest=owner.at("digest").get<std::string>();auto pair=loadCompPairSelection(root,current,context,op,digest,ledger);
+    check(current.compPairSelections.size()==1,"Fixture trusted project selection missing");
+    const auto op=current.compPairSelections[0].operation;const auto digest=current.compPairSelections[0].selectionSha256;auto pair=loadReferencedCompPairSelection(root,current,context,op,ledger);
     if(std::string_view(argv[1])=="start"){
         const auto ready=input.at("ready").dump();const auto side=input.at("ready").at("fragment").get<unsigned>();
         const auto before=inspectCompPair(root,current,context,pair,ledger);check(before.children[side].state==CompPairChildState::Active,"Ready child not active");
@@ -58,6 +63,9 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
         check(current==original,"Existing media review changed project");std::cout<<Json{{"existingMediaRecovered",true},{"staleSelectionRejected",true},{"modelAdoptionChanged",false}}.dump()<<'\n';return 0;
     }
     check(std::string_view(argv[1])=="verify","Unknown pair fixture mode");
+    auto without=current;without.compPairSelections.clear();refuses([&]{loadReferencedCompPairSelection(root,without,context,op,ledger);});
+    auto wrong=current;wrong.compPairSelections[0].selectionSha256=std::string(64,'0');refuses([&]{loadReferencedCompPairSelection(root,wrong,context,op,ledger);});
+
     {auto recovered=inspectCompPair(root,current,context,pair,ledger);check(recovered.candidatesReady() && recovered.children[0].state==CompPairChildState::Complete && recovered.children[1].state==CompPairChildState::Complete,"Paired completed candidates not recovered");}
     auto stale=context;++stale.projectEpoch;auto staleResult=inspectCompPair(root,current,stale,pair,ledger);check(staleResult.staleSelection && !staleResult.candidatesReady(),"Stale pair authorized readiness");
     const auto pairPath=root/"media"/"comp-pairs"/(op.str()+".json");const auto before=read(pairPath);auto altered=Json::parse(before);altered["workerSha256"]=std::string(64,'0');write(pairPath,altered.dump());
@@ -68,6 +76,11 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
     const auto rawPath=root/"media/raw.wav";const auto raw=read(rawPath);bad=raw;bad.back()^=1;write(rawPath,bad);
     {auto r=inspectCompPair(root,current,context,pair,ledger);check(r.children[0].state==CompPairChildState::Stale && !r.candidatesReady(),"Changed source admitted recovered pair");}write(rawPath,raw);
     cancelCompPair(root,pair,ledger);{auto r=inspectCompPair(root,current,context,pair,ledger);check(r.candidatesReady() && r.children[0].cancellationRequested,"Late cancel hid committed pair");}
+    const auto relocated=root.parent_path()/utf8Path("relocated-é-日本");
+    std::filesystem::copy(root,relocated,std::filesystem::copy_options::recursive);
+    const auto moved=ProjectStore(relocated).load();const CompHandlePlanContext movedContext{91,"relocated-owner"};
+    auto movedPair=loadReferencedCompPairSelection(relocated,moved,movedContext,op,ledger);
+    check(moved==current && inspectCompPair(relocated,moved,movedContext,movedPair,ledger).candidatesReady(),"Relocated project lost verified pair");
     std::stop_source canceled;canceled.request_stop();refuses([&]{inspectCompPair(root,current,context,pair,ledger,canceled.get_token());});check(current==original,"Pair recovery changed project");
-    std::cout<<Json{{"checks",checks},{"pairedCandidatesRecovered",true},{"modelAdoptionChanged",false},{"qualityAdmission",false}}.dump()<<'\n';return 0;
+    std::cout<<Json{{"checks",checks},{"pairedCandidatesRecovered",true},{"trustedProjectReference",true},{"relocatedProjectRecovered",true},{"modelAdoptionChanged",false},{"qualityAdmission",false}}.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

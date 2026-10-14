@@ -292,6 +292,10 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
         bytes.add(a.nativeEvidence.capacity(),sizeof(ProjectEvidenceFile));
         for(const auto &f:a.nativeEvidence){string(f.relativePath);string(f.sha256);}
     }
+    bytes.add(s.compPairSelections.capacity(), sizeof(CompPairSelectionReference));
+    for (const auto &reference : s.compPairSelections) {
+        id(reference.operation); string(reference.selectionSha256);
+    }
     bytes.add(s.imports.capacity(), sizeof(ImportedProjectSource));
     const auto evidence = [&](const ProjectEvidenceFile &f) {
         string(f.relativePath); string(f.sha256);
@@ -375,6 +379,12 @@ void validate(const Session &s, StateBudget budget) {
         check(ids.insert(id.str()).second, "Duplicate object UUID");
     };
     unique(s.id);
+    for (const auto &reference : s.compPairSelections) {
+        unique(reference.operation);
+        check(reference.selectionSha256.size() == 64 &&
+              std::all_of(reference.selectionSha256.begin(),reference.selectionSha256.end(),lowerHex),
+              "Invalid comp selection SHA-256");
+    }
     std::unordered_map<std::string_view, const Asset *> assets;
     std::unordered_map<std::string_view, const Track *> tracks;
     for (const auto &t : s.tracks)

@@ -431,7 +431,17 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
         std::visit(
             [&](const auto &e) {
                 using E = std::decay_t<decltype(e)>;
-                if constexpr (std::is_same_v<E, InsertTrack>) {
+                if constexpr (std::is_same_v<E, AddCompPairSelection>) {
+                    const auto found=std::find_if(proposed.compPairSelections.begin(),proposed.compPairSelections.end(),
+                        [&](const auto &r){return r.operation==e.value.operation;});
+                    if(found==proposed.compPairSelections.end())proposed.compPairSelections.push_back(e.value);
+                    else require(*found==e.value,"Comp selection identity already names different bytes");
+                } else if constexpr (std::is_same_v<E, RemoveCompPairSelection>) {
+                    const auto found=std::find_if(proposed.compPairSelections.begin(),proposed.compPairSelections.end(),
+                        [&](const auto &r){return r.operation==e.operation;});
+                    require(found!=proposed.compPairSelections.end(),"Comp selection reference missing",ErrorCode::InvalidId);
+                    proposed.compPairSelections.erase(found);
+                } else if constexpr (std::is_same_v<E, InsertTrack>) {
                     proposed.tracks.insert(position(proposed.tracks, e.before), e.track);
                 } else if constexpr (std::is_same_v<E, RemoveTrack>) {
                     proposed.tracks.erase(find(proposed.tracks, e.track));
@@ -656,6 +666,12 @@ std::size_t EditHistory::weight(const Change &change) {
                     for (const auto &id : *ids)
                         stringWeight(charge, id.str());
                 }
+                if (c.compPairSelections) {
+                    for(const auto *references : {&c.compPairSelections->first,&c.compPairSelections->second}) {
+                        charge.add(references->capacity(),sizeof(CompPairSelectionReference));
+                        for(const auto &r:*references){stringWeight(charge,r.operation.str());stringWeight(charge,r.selectionSha256);}
+                    }
+                }
                 if (c.master) {
                     dynamicWeight(charge, c.master->first);
                     dynamicWeight(charge, c.master->second);
@@ -794,6 +810,8 @@ EditHistory::StructureChange EditHistory::difference(const Session &value) const
         change.punch = {{session_.punch, value.punch}};
     if (value.loop != session_.loop)
         change.loop = {{session_.loop, value.loop}};
+    if (value.compPairSelections != session_.compPairSelections)
+        change.compPairSelections = {{session_.compPairSelections,value.compPairSelections}};
     return change;
 }
 bool EditHistory::adopt(const Session &value) {
@@ -848,6 +866,11 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
                     require(proposed.loop == (forward ? c.loop->first : c.loop->second),
                             "Undo loop locators conflict with current state");
                     proposed.loop = forward ? c.loop->second : c.loop->first;
+                }
+                if(c.compPairSelections) {
+                    require(proposed.compPairSelections==(forward?c.compPairSelections->first:c.compPairSelections->second),
+                        "Undo comp selection references conflict with current state");
+                    proposed.compPairSelections=forward?c.compPairSelections->second:c.compPairSelections->first;
                 }
                 validate(proposed, budget_);
             }

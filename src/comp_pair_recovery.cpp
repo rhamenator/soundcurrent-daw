@@ -66,6 +66,17 @@ CompPairSelection loadCompPairSelection(const std::filesystem::path &root,const 
         poll(stop);verifyCompProcessingCurrent(current,context,result.recipe().plan());return result;
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid saved comp pair fields");}
 }
+CompPairSelectionReference referenceCompPairSelection(const Session &current,const CompHandlePlanContext &context,const CompPairSelection &selection) {
+    verifyCompProcessingCurrent(current,context,selection.recipe().plan());
+    return {selection.recipe().operation(),selection.digest()};
+}
+CompPairSelection loadReferencedCompPairSelection(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,const Id &operation,ResourceLedger ledger,std::stop_token stop) {
+    poll(stop);const StateBudget budget{ledger.usage().limitBytes};
+    auto validation=ledger.reserve(sessionPayloadBytes(current,budget));validate(current,budget);
+    const auto found=std::find_if(current.compPairSelections.begin(),current.compPairSelections.end(),[&](const auto &r){return r.operation==operation;});
+    check(found!=current.compPairSelections.end(),"No trusted project comp selection reference",ErrorCode::InvalidId);
+    return loadCompPairSelection(root,current,context,operation,found->selectionSha256,ledger,stop);
+}
 bool CompPairRecovery::candidatesReady() const noexcept {if(staleSelection)return false;return std::all_of(children.begin(),children.end(),[](const auto &c){return c.state==CompPairChildState::Unneeded || (c.state==CompPairChildState::Complete && c.candidate.has_value());});}
 CompPairRecovery inspectCompPair(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,const CompPairSelection &s,ResourceLedger ledger,std::stop_token stop){
     CompPairRecovery result;poll(stop);try{verifyCompProcessingCurrent(current,context,s.recipe().plan());}catch(const ProjectError &e){result.staleSelection=true;for(unsigned i=0;i<2;++i)if(s.children()[i]){result.children[i].state=CompPairChildState::Stale;result.children[i].error=e.code();}return result;}
