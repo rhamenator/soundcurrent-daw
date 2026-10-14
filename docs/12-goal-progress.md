@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Fractional comp processing grids (2026-10-14)
+
+[Checkpoint 267](267-comp-processing-grid.md) supplies exact raw intervals to an
+integer processing grid without changing clip speeds or nominal anchors. Seven
+focused Linux gates pass, including independent Fraction and existing FIR/rate
+oracles. Fourteen retained backend renders demonstrate input-grid pitch
+compensation and show that full rerendering changes every nominal sample in the
+tested comp case. Residual pitch error, formants, edge joins, general production
+generation and controller/UI delivery remain open. Windows checks are wired and
+pending; the full-suite and all-Europe goals remain active.
+
 ## Actual unity comp handle generation (2026-10-13)
 
 [Checkpoint 265](265-unity-comp-handle-renders.md) adds reviewed dual-buffer source
