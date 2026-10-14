@@ -231,3 +231,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Durable paired comp selection and recovery](275-paired-comp-recovery.md)
 
 - [Trusted comp selections in project state](276-project-comp-references.md)
+
+- [Paired comp process supervision](277-paired-comp-supervision.md)

@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Paired comp process supervision (2026-10-14)
+
+[Checkpoint 277](277-paired-comp-supervision.md) controls actual span children with
+live project/root/epoch/reference guards, joined memory reservations, bounded logs,
+start/cancel/reaping and asynchronous close. Ten source-bound Linux cases pass;
+nine processes/three completed spans cover stale edits/replacement, partial cancel,
+unsaved-reference refusal and the actual deadline watchdog. Previous pair API CI
+passes all four jobs with original native process evidence. Main-window wiring,
+new native schema/supervisor tests, final assembly/adoption and quality remain open.
+
 ## Trusted comp references in project state (2026-10-14)
 
 [Checkpoint 276](276-project-comp-references.md) adds strict schema1.21 operation/
