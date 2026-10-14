@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original-source history for repeated rendering (2026-10-14)
+
+[Checkpoint 288](288-comp-regeneration-source-history.md) adds immutable source
+resolution through adopted assembly histories, complete paired dependencies,
+exact raw-frame maps and explicit accumulated clock/pitch ratios. Two suites
+pass with six actual adopted sources, nine additional metadata generations and
+101,358 fractional-position comparisons. This is source resolution only:
+repeated rendering, original-file verification and application integration remain
+required. Existing producer refusals stay in place. Native Windows qualification,
+processing quality and the full frozen DAW goal remain open.
+
 ## Timeline creation of rendered transitions (2026-10-14)
 
 [Checkpoint 287](287-timeline-transition-creation.md) adds explicit Save and render

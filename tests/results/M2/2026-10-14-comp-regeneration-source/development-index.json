@@ -1,0 +1,63 @@
+{
+  "diagnosis": "The first test expected two retained takes, but both fragments share one retained take. Fixed the assertion and stale-take mutation index. All three retained actual fixture cases then passed; final clean source qualification regenerated fixtures and passed. No producer gate changed.",
+  "archive": {
+    "file": "development-logs.zip",
+    "bytes": 4595,
+    "sha256": "18dbcf9faf7b5f31984b201775bd3f9ef6d30eb9a02c5f0aafe1648ec062b459",
+    "files": {
+      "build-source.log": {
+        "bytes": 811,
+        "sha256": "dc436fc1ee643ef286b2952a0ccde67244e250c5ce0f4e879d7dc3d42d0f0b5c"
+      },
+      "build-tests-fixed.log": {
+        "bytes": 181,
+        "sha256": "a20df603a2f1039ce3067374b12c2aa8768d2b5ad647fe5af5a4d1d3089911d3"
+      },
+      "build-tests.log": {
+        "bytes": 1356,
+        "sha256": "a5fb7bb2085f13870c48d0f0fa930e7dd451ca8b8f31cc529e75134d962e95c7"
+      },
+      "development-tests.log": {
+        "bytes": 1255,
+        "sha256": "b0c007b061ed37b1f20e5fe0e0ef08a8b3581cf7c1a0710752032ce3ae7a23bf"
+      },
+      "initial-retained-take-expectation/inputs.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-retained-take-expectation/inputs.stdout": {
+        "bytes": 232,
+        "sha256": "8cd74fa630b047fe5761d2602cb63a1412ec7e3c0c90855937f03cce85ac333f"
+      },
+      "qualification.log": {
+        "bytes": 397,
+        "sha256": "cbba8b9607ed7cdf1ac76b1e3baef5682799d8dd70f157294ad9a2c5a0791f0c"
+      },
+      "recheck/case-44100.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recheck/case-44100.stdout": {
+        "bytes": 461,
+        "sha256": "67a0ab42f4be422c046d7bda49b7ee5aadf12b0f61e50ab80bec5ec7618741be"
+      },
+      "recheck/case-48000.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recheck/case-48000.stdout": {
+        "bytes": 461,
+        "sha256": "4ccd37b6f1ad28bf255de0eb95bd2d2af2b5f1f4ff02be98f77f090683320715"
+      },
+      "recheck/case-96000.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recheck/case-96000.stdout": {
+        "bytes": 457,
+        "sha256": "412623adb80071fce6fc25a554084b991521a996a579ba89d2caa6e79cc1c084"
+      }
+    }
+  },
+  "originalFailureRoot": ".cache/comp-pair-recovery/build/comp-regeneration-source-evidence/run-4dg8xzw0"
+}
