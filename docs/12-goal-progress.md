@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original nominal render review (2026-10-14)
+
+[Checkpoint 279](279-original-comp-nominal-review.md) binds assembly to original
+owned nominal assets/anchors and independently verifies their receipts before and
+after streaming. A source-bound workflow launches six nominal workers, applies
+verified edits with Undo/Redo/save/reopen, then runs six comp workers and assembles
+six fragments. Busy leases, wrong policies and changed original markers refuse.
+All preceding CI jobs pass with actual native schema/supervisor evidence retained.
+Original protocol executable attestation, final owned publication, post-SRC shared
+state, paired adoption/UI, new Windows assembly execution and sound quality remain
+open; the complete frozen DAW target is unchanged.
+
 ## Verified comp candidate assembly (2026-10-14)
 
 [Checkpoint 278](278-verified-comp-assembly.md) streams verified paired span outputs

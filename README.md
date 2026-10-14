@@ -44,7 +44,8 @@ native qualification remain open.
 
 Comp rendering now includes [verified candidate assembly](docs/278-verified-comp-assembly.md)
 with explicit physical and project-rate timing, bounded memory, cancellation and
-independent checks of unchanged audio. Final publication, sound-quality approval,
+[original-render receipt review](docs/279-original-comp-nominal-review.md). Independent
+checks preserve unchanged audio. Final publication, sound-quality qualification,
 undoable adoption and main-window controls for this path remain in development.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
