@@ -12,12 +12,12 @@ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 assert not git('status','--porcelain');head=git('rev-parse','HEAD');tree=git('rev-parse','HEAD^{tree}')
 files=[n for n in git('ls-files').splitlines() if (n.startswith(('include/','src/','ui/','third_party/','tests/','tools/','.github/')) and not n.startswith('tests/results/')) or n in ['CMakeLists.txt','research/linux-ci-test-durations.json']]
 sources={n:sha(repo/n) for n in files}
-inputs=[build/n for n in ['sc-comp-assembly-ui-tests','sc-comp-processing-plan-tests','sc-comp-regeneration-history-tests','sc-comp-span-v2-fixture','sc-comp-assembly-job-tests','sc-comp-span-worker','sc-comp-span-worker-fixture','sc-comp-pair-recovery-fixture','sc-comp-pair-assembly-tests','sc-stretch-render-worker']]+sorted(build.glob('lib*.a'))
+inputs=[build/n for n in ['sc-comp-regeneration-source-tests','sc-comp-assembly-ui-tests','sc-comp-processing-plan-tests','sc-comp-regeneration-history-tests','sc-comp-span-v2-fixture','sc-comp-assembly-job-tests','sc-comp-span-worker','sc-comp-span-worker-fixture','sc-comp-pair-recovery-fixture','sc-comp-pair-assembly-tests','sc-stretch-render-worker']]+sorted(build.glob('lib*.a'))
 binaries={str(n):sha(n) for n in inputs};evidence.mkdir(parents=True,exist_ok=True);scope=Path(tempfile.mkdtemp(prefix='qualified-',dir=evidence))
-roots=[build/n for n in ['comp-regeneration-history-evidence','comp-span-v2-evidence','comp-assembly-ui-evidence']]
+roots=[build/n for n in ['comp-regeneration-history-evidence','comp-span-v2-evidence','comp-assembly-ui-evidence','comp-regeneration-source-evidence']]
 for r in roots:r.mkdir(exist_ok=True)
 before=[set(r.iterdir()) for r in roots]
-command=['ctest','--test-dir',str(build),'--output-on-failure','--no-tests=error','-R','^(ci-shard-coverage|comp-transition-processing-permissions|comp-regeneration-history|comp-clocked-span-worker|desktop-comp-assembly-apply)$']
+command=['ctest','--test-dir',str(build),'--output-on-failure','--no-tests=error','-R','^(ci-shard-coverage|comp-transition-processing-permissions|comp-regeneration-source|comp-regeneration-history|comp-clocked-span-worker|desktop-comp-assembly-apply)$']
 start=time.monotonic()
 with (scope/'tests.stdout').open('w') as out,(scope/'tests.stderr').open('w') as err:
     proc=subprocess.Popen(command,cwd=repo,stdout=out,stderr=err);code=proc.wait()
@@ -25,7 +25,9 @@ seconds=time.monotonic()-start;(scope/'LastTest.log').write_bytes((build/'Testin
 runs=[];reports=[]
 for root,old in zip(roots,before):
     new=set(root.iterdir())-old;assert len(new)==1;run=new.pop();runs.append(run);reports.append(json.loads((run/'report.json').read_text()))
-history,v2,ui=reports
+history,v2,ui,plans=reports
+assert all(r['guardedPlans']==r['plannedRecipes']==4 and r['ancestorDependencyRefusals']>=8 and r['joinedMemoryReleased'] and r['stateUnchanged'] for r in plans['reports'])
+assert all(p['exitCode']==0 for p in plans['resolverProcesses'])
 reviews=[c for r in history['reports'] for c in r['reviews']]
 assert len(reviews)==6 and all(c['queuedDependencyGuard'] and c['queuedStaleRefusals']==8 for c in reviews)
 assert all(r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['qualityAdmission'] for r in history['reports'])
@@ -47,18 +49,18 @@ legacy=[r['adoption']['exportFileSha256'] for r in old['reports'][0]['inputs']['
 assert [c['exportFileSha256'] for c in normal]==legacy
 assert [r['adoption']['exportFileSha256'] for r in history['inputs']['reports']]==legacy
 assert [r['adoption']['exportFileSha256'] for r in v2['inputWorkflow']['reports']]==legacy
-for workflow in [history['inputs']['inputWorkflow'],v2['inputWorkflow']['inputWorkflow'],ui['inputWorkflow']]:
+for workflow in [history['inputs']['inputWorkflow'],v2['inputWorkflow']['inputWorkflow'],ui['inputWorkflow'],plans['inputs']['inputWorkflow']]:
     processes=[p for p in workflow['processes'] if p['kind'] in ['worker','nominal-worker']]
     assert len(processes)==12 and all(p['exitCode']==0 and not p['retirementPending'] and not p['observationTimedOut'] for p in processes)
 assert sources=={n:sha(repo/n) for n in files} and binaries=={str(n):sha(n) for n in inputs} and head==git('rev-parse','HEAD')
-receipt=dict(checkpoint=293,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,queuedHistoricalGuards=6,queuedStaleRefusals=48,historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),historicalPcmComparisons=sum(c['comparedSamples'] for c in reviews),successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2['completePcmSamples'],mainWindowCases=6,legacyExportHashesUnchanged=True,allObservedProcessesReaped=True,pairedRegenerationEnabled=False,nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
+receipt=dict(checkpoint=293,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,queuedHistoricalGuards=6,queuedStaleRefusals=48,layeredGuards=12,ancestorDependencyRefusals=sum(r['ancestorDependencyRefusals'] for r in plans['reports']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),historicalPcmComparisons=sum(c['comparedSamples'] for c in reviews),successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2['completePcmSamples'],mainWindowCases=6,legacyExportHashesUnchanged=True,allObservedProcessesReaped=True,pairedRegenerationEnabled=False,nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
 (scope/'qualification.json').write_text(json.dumps(receipt,indent=2)+'\n');public.mkdir(parents=True,exist_ok=True);archive=public/'acceptance.zip';assert not archive.exists()
 manifest={};blobs=set()
 with zipfile.ZipFile(archive,'x',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
     # Keep the receipt directly readable, and de-duplicate identical original
     # payloads across independently generated corpora without discarding bytes.
     z.write(scope/'qualification.json','qualification.json')
-    for root,prefix in [(scope,''),(runs[0],'history/'),(runs[1],'v2-workers/'),(runs[2],'main-window/')]:
+    for root,prefix in [(scope,''),(runs[0],'history/'),(runs[1],'v2-workers/'),(runs[2],'main-window/'),(runs[3],'layered-planning/')]:
         for f in sorted(root.rglob('*')):
             if not f.is_file() or f==scope/'qualification.json':continue
             name=prefix+f.relative_to(root).as_posix();b=f.read_bytes();digest=hashlib.sha256(b).hexdigest();blob='blobs/'+digest

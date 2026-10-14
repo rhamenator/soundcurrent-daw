@@ -19,7 +19,7 @@
 using namespace soundcurrent::daw;
 namespace {
 using Json=nlohmann::json;unsigned checks=0;
-unsigned plannedRecipes=0,legacyRecipes=0;
+unsigned plannedRecipes=0,legacyRecipes=0,guardedPlans=0,ancestorDependencyRefusals=0;
 Json clockRenders=Json::array();
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid regeneration source accepted");}
@@ -114,6 +114,18 @@ void plannedRoundtrip(Session s){
                 span.settings()==r.originalNominalClip.stretch->settings,"Repeated span lost original settings or clock");
         }
         const auto operation=Id::generate();auto recipe=encodeCompProcessingRecipe(s,context,plan,operation,executor,ledger);
+        // Start with only the current outgoing asset. The guard itself must
+        // reach paired siblings, old bases and retained sources at every layer.
+        {
+            auto selected=recipe.selection();selected.assets={plan.handles().outgoing().data().base};
+            selected.compPlaybackSources.clear();selected.compPairSelections.clear();
+            for(auto &track:selected.tracks){track.takeLanes.clear();std::erase_if(track.clips,[&](const auto &clip){return clip.id!=edit.outgoing;});}
+            auto guard=captureCompAssemblyDependencies(s,selected,{},ledger);verifyCompAssemblyDependencies(s,guard);
+            check(guard.data().history.size()==s.compPlaybackSources.size(),"Queued guard omitted an ancestor or paired sibling");
+            for(std::size_t index=0;index<s.compPlaybackSources.size();++index){auto stale=s;stale.compPlaybackSources[index].selectionSha256=std::string(64,'0');
+                refuses([&]{verifyCompAssemblyDependencies(stale,guard);});++ancestorDependencyRefusals;}
+            ++guardedPlans;
+        }
         auto request=encodeCompSpanRequest(recipe,executor,0,Id::generate(),std::string(64,'b'),ledger);
         check(request.requiresHistory() && request.protocol()==compRegenerationSpanProtocol,"Repeated span request lost history requirement");
         const auto j=Json::parse(recipe.bytes());check(j.at("format").get<std::string>()==compRegenerationRecipeFormat,"Repeated recipe used legacy schema");
@@ -228,6 +240,6 @@ int main(){try{
     auto invalid=s;invalid.compPlaybackSources.clear();refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     invalid=s;invalid.compPlaybackSources[0].source.rawMap[0].raw.frame++;refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     check(ledger.usage().reservedBytes==0 && s==original,"Refusal changed state or leaked resources");
-    Json result{{"clockRenders",clockRenders},{"checks",checks},{"mixedAdmissionRefused",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",true},{"ownedRegeneration",false},{"qualityAdmission",false}};
+    Json result{{"clockRenders",clockRenders},{"guardedPlans",guardedPlans},{"ancestorDependencyRefusals",ancestorDependencyRefusals},{"checks",checks},{"mixedAdmissionRefused",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",true},{"ownedRegeneration",false},{"qualityAdmission",false}};
     std::ofstream out(root/"regeneration-source-report.json");out<<result.dump(2)<<'\n';check(bool(out),"Report write failed");std::cout<<result.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
