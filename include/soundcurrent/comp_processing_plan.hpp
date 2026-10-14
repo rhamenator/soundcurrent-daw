@@ -20,14 +20,16 @@ class CompProcessingPlan {
     const CompTransitionHandlePlan &handles() const {return handles_;}
     const CompFragmentProcessing &outgoing() const;
     const CompFragmentProcessing &incoming() const;
+    Frame maximumBlendProjectFrames() const noexcept {return maximum_;}
   private:
     friend CompProcessingPlan prepareCompProcessing(const Session &,const PrepareCompTransition &,
         const CompHandlePlanContext &,Frame,ResourceLedger,CompHandlePlanLimits);
-    CompProcessingPlan(ResourceLease lease,CompTransitionHandlePlan handles,
+    CompProcessingPlan(ResourceLease lease,CompTransitionHandlePlan handles,Frame maximum,
         std::unique_ptr<const CompFragmentProcessing> out,std::unique_ptr<const CompFragmentProcessing> in)
-        :lease_(std::move(lease)),handles_(std::move(handles)),outgoing_(std::move(out)),incoming_(std::move(in)){}
+        :lease_(std::move(lease)),handles_(std::move(handles)),maximum_(maximum),outgoing_(std::move(out)),incoming_(std::move(in)){}
     ResourceLease lease_;
     CompTransitionHandlePlan handles_;
+    const Frame maximum_;
     std::unique_ptr<const CompFragmentProcessing> outgoing_,incoming_;
 };
 // Positive maximum in project frames; actual width is limited by the requested

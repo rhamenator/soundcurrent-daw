@@ -56,7 +56,7 @@ CompProcessingPlan prepareCompProcessing(const Session &s,const PrepareCompTrans
     auto handles=prepareCompTransitionHandles(s,e,context,ledger,limits);
     auto out=std::make_unique<const CompFragmentProcessing>(prepare(handles.outgoing(),e,maximum));
     auto in=std::make_unique<const CompFragmentProcessing>(prepare(handles.incoming(),e,maximum));
-    return {std::move(credit),std::move(handles),std::move(out),std::move(in)};
+    return {std::move(credit),std::move(handles),maximum,std::move(out),std::move(in)};
 }
 void verifyCompProcessingCurrent(const Session &s,const CompHandlePlanContext &c,const CompProcessingPlan &p){
     verifyCompTransitionHandlesCurrent(s,c,p.handles());
