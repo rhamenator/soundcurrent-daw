@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Exact uniform comp span renderer (2026-10-14)
+
+[Checkpoint 273](273-uniform-comp-span-rendering.md) renders exact fractional-grid
+uniform spans through positioned preparation and R3, retaining independent pitch
+and playback speed. Three source-bound gates pass; 36 fresh stereo renders cover
+rates/time/pitch/formant modes. Independent fundamental error reaches 0.506%; three
+off-fundamental dominant peaks keep quality open. Corrected native predecessor
+passes original recipe/media gates and all four jobs. Owned producer/completion,
+nonuniform maps, curve/alignment, overlay/adoption/UI/native and full-suite/Europe
+work remain required.
+
 ## Actual comp media scope review (2026-10-14)
 
 [Checkpoint 272](272-comp-media-review.md) independently validates actual WAVs and

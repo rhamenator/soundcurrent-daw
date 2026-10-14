@@ -221,3 +221,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Independent actual comp media review](272-comp-media-review.md)
 - [ADR 160: media scope review and adoption authority](decisions/160-independent-comp-media-review.md)
+
+- [Exact uniform comp span rendering](273-uniform-comp-span-rendering.md)
+- [ADR 161: exact-grid uniform comp span renderer](decisions/161-exact-uniform-comp-span-renderer.md)
