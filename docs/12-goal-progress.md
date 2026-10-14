@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Persistent comp playback and paired adoption (2026-10-14)
+
+[Checkpoint 285](285-comp-playback-state-and-adoption.md) adds conditional schema
+1.23 for original source provenance, atomic paired adoption and conflict-safe
+Undo/Redo. Six source-bound Linux suites pass: 54 persistent pairs and three
+actual assembly/save/reopen/playback/export workflows. All 202,404 playback
+samples exactly match exported WAV samples with floating headroom preserved.
+The preceding original CI passes all four jobs; both platform controller corpora
+and Windows bundle inputs are retained and audited. Main-window Apply, repeated
+source-aware regeneration, new native qualification and sound quality remain
+open. The full frozen DAW and localization goal remains active.
+
 ## Final comp playback source preparation (2026-10-14)
 
 [Checkpoint 284](284-comp-playback-source-preparation.md) prepares actual physical
