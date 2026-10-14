@@ -17,7 +17,7 @@ CompHandlePcmRead reader(const std::vector<float> &v,unsigned channels){return [
 }
 int main(){try{
     ResourceLedger ledger(8*1024*1024,"Blend test");
-    for(const unsigned channels:{1,2,4,8,32,128,256})for(const Frame width:{2,26,128}){
+    for(const unsigned channels:{1,2,4,8,32,128,256})for(const Frame width:{1,2,26,128}){
         const Frame frames=513,edge=31,total=frames+2*edge;
         std::vector<float> current(std::size_t(frames)*channels),candidate(std::size_t(total)*channels);
         for(Frame f=0;f<frames;++f)for(unsigned ch=0;ch<channels;++ch)current[std::size_t(f)*channels+ch]=float(2.5*std::sin(double(f)*.03))*float(1u<<(ch%3));
@@ -41,7 +41,7 @@ int main(){try{
     const CompHandlePcmSpec spec{1,1,4,1,1};const auto read=reader(current,1),generated=reader(candidate,1);
     const auto write=[&](std::span<const float> values){output.insert(output.end(),values.begin(),values.end());};
     const CompHandlePcmBlends valid{CompHandleInnerBlend{2,0,2},CompHandleInnerBlend{2,2,4}};
-    for(const auto bad:std::vector<CompHandlePcmBlends>{{CompHandleInnerBlend{1,0,2},{}},{CompHandleInnerBlend{3,0,2},{}},{CompHandleInnerBlend{2,1,2},{}},{CompHandleInnerBlend{2,-1,2},{}},{CompHandleInnerBlend{2,0,5},{}},{{},CompHandleInnerBlend{2,3,4}},{CompHandleInnerBlend{3,0,3},CompHandleInnerBlend{2,2,4}}})
+    for(const auto bad:std::vector<CompHandlePcmBlends>{{CompHandleInnerBlend{0,0,2},{}},{CompHandleInnerBlend{3,0,2},{}},{CompHandleInnerBlend{2,1,2},{}},{CompHandleInnerBlend{2,-1,2},{}},{CompHandleInnerBlend{2,0,5},{}},{{},CompHandleInnerBlend{2,3,4}},{CompHandleInnerBlend{3,0,3},CompHandleInnerBlend{2,2,4}}})
         refuses([&]{blendCompHandlePcm(spec,bad,read,generated,write,ledger,[]{});});
     check(output.empty(),"Invalid blend permissions emitted samples");
     auto noEdge=spec;noEdge.prefixFrames=0;refuses([&]{blendCompHandlePcm(noEdge,valid,read,generated,write,ledger,[]{});});

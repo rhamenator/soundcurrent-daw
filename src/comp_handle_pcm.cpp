@@ -72,7 +72,7 @@ CompHandlePcmReport blendCompHandlePcm(const CompHandlePcmSpec &s,
     require(bool(current) && bool(candidate) && bool(write) && bool(poll),"Missing comp blend I/O or cancellation poll");
     const auto validateBlend=[&](const std::optional<CompHandleInnerBlend> &b,bool prefix){
         if(!b)return;
-        require((prefix?s.prefixFrames:s.suffixFrames)>0 && b->frames>=2 && b->frames<=s.currentFrames,
+        require((prefix?s.prefixFrames:s.suffixFrames)>0 && b->frames>=1 && b->frames<=s.currentFrames,
             "Comp blend needs a generated edge and valid inner width");
         require(b->permittedFirst>=0 && b->permittedEnd>b->permittedFirst && b->permittedEnd<=s.currentFrames,
             "Invalid permitted comp processing region");
