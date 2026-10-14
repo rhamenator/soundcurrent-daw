@@ -13,6 +13,7 @@
 #include "import_inspection_controller.hpp"
 #include "stretch_controller.hpp"
 #include "comp_assembly_controller.hpp"
+#include "comp_pair_controller.hpp"
 #include <QPointer>
 #include <QMainWindow>
 #include <QCoreApplication>
@@ -38,6 +39,7 @@ class SessionListModel;
 class ImportInspectionDialog;
 class StretchDialog;
 struct MemoryPreferences;
+enum class CompRenderStage {Idle,Preparing,Registering,Saving,Spans,Assembly,Complete,Fault,Canceled};
 class StudioWindow : public QMainWindow {
     Q_DECLARE_TR_FUNCTIONS(StudioWindow)
   public:
@@ -51,7 +53,11 @@ class StudioWindow : public QMainWindow {
                           CompAssemblyControllerOptions compOptions = {});
     bool requestClipStretch(const Id &, const Id &, StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
     bool applyClipStretch();
-    bool showCompAssemblies();
+    bool showCompAssemblies(std::optional<Id> selected = {});
+    bool requestCompTransition(PrepareCompTransition,Frame maximumBlendFrames);
+    void cancelCompTransition();
+    CompRenderStage compRenderStage() const {return compRenderStage_;}
+    std::shared_ptr<const CompPairSnapshot> compPairSnapshot() const {return compPair_.snapshot();}
     bool reviewCompAssembly(const Id &);
     bool applyCompAssembly();
     std::shared_ptr<const CompAssemblySnapshot> compAssemblySnapshot() const;
@@ -99,6 +105,17 @@ class StudioWindow : public QMainWindow {
     ProjectController controller_;
     StretchController stretch_;
     CompAssemblyController compAssembly_;
+    CompPairController compPair_;
+    CompRenderStage compRenderStage_=CompRenderStage::Idle;
+    bool compRenderCancel_=false;
+    std::shared_ptr<const ControllerSnapshot> compRenderOwner_;
+    std::optional<Id> compRenderSelection_,compRenderOperation_;
+    std::uint64_t compRegistering_=0,compSaveRevision_=0,compSaveError_=0;
+    QPointer<QDialog> compRenderDialog_;
+    QString compRenderMessage_;
+    bool compRenderActive() const;
+    void pollCompRender(const std::shared_ptr<const ControllerSnapshot> &);
+    void showCompRenderProgress();
     QPointer<QDialog> compAssemblyDialog_;
     QString compAssemblyMessage_;
     bool compAssemblyApplying_=false;

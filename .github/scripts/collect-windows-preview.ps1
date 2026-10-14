@@ -14,7 +14,7 @@ try {
     $sources = Join-Path $out 'dependency-source'
     foreach ($p in @($stage,$verify,$sources)) { New-Item -ItemType Directory -Path $p | Out-Null }
     foreach ($name in @('soundcurrent-daw.exe','sc-import-inspect-worker.exe',
-        'sc-approved-wave-probe.exe','sc-media-import-worker.exe','sc-stretch-render-worker.exe')) {
+        'sc-approved-wave-probe.exe','sc-media-import-worker.exe','sc-stretch-render-worker.exe','sc-comp-span-worker.exe')) {
         Copy-Item -LiteralPath (Join-Path $build $name) -Destination $stage
     }
     Copy-Item -LiteralPath (Join-Path $root 'native-dependencies/sndfile-build/sndfile.dll') -Destination $stage

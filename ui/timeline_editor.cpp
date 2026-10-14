@@ -649,6 +649,10 @@ void TimelineEditor::editCrossfade() {
     handles->setObjectName("crossfadeUseTakeHandles");
     handles->setToolTip(tr("Create overlap from the retained takes without changing source audio."));
     form->addRow(handles);
+    auto *render=new QCheckBox(tr("Render extended processed handles (preview)"));
+    render->setObjectName("crossfadeRenderHandles");form->addRow(render);
+    auto *blend=new QSpinBox;blend->setRange(1,1000000);blend->setValue(8);blend->setObjectName("crossfadeInnerBlend");
+    form->addRow(tr("Inner blend limit (project frames)"),blend);
     auto *help = new WrappedHelpLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
     help->setObjectName("crossfadeHelp");help->setWordWrap(true);form->addRow(help);
     // Native fonts and translated captions must not force the scroll body wider
@@ -657,7 +661,7 @@ void TimelineEditor::editCrossfade() {
         const auto *item=form->itemAt(row,QFormLayout::LabelRole);
         if(auto *label=item?qobject_cast<QLabel *>(item->widget()):nullptr) {
             label->setWordWrap(true);
-            label->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);
+            label->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
         }
     }
     help->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);
@@ -677,6 +681,10 @@ void TimelineEditor::editCrossfade() {
             out->startFrame <= in->startFrame && out->startFrame+out->lengthFrames <= in->startFrame+in->lengthFrames &&
             in->startFrame <= out->startFrame+out->lengthFrames;
         handles->setEnabled(retainedPair);
+        render->setEnabled(retainedPair && handles->isChecked() && bool(compRenderRequested));
+        if(!render->isEnabled()){QSignalBlocker blocker(render);render->setChecked(false);}
+        blend->setEnabled(render->isChecked());
+        buttons->button(QDialogButtonBox::Ok)->setText(render->isChecked()?tr("Save and render"):tr("OK"));
         if (!retainedPair) {QSignalBlocker blocker(handles);handles->setChecked(false);}
         if (retainedPair && handles->isChecked() && last <= first) {
             const auto cut=in->startFrame;
@@ -684,7 +692,7 @@ void TimelineEditor::editCrossfade() {
             first=cut-std::min(half,cut-out->startFrame);
             last=cut+std::min(half,in->startFrame+in->lengthFrames-cut);
         }
-        help->setText(handles->isChecked()
+        help->setText(render->isChecked()?tr("Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental."):handles->isChecked()
             ? tr("This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.")
             : tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
         help->reflow();
@@ -705,6 +713,7 @@ void TimelineEditor::editCrossfade() {
     };
     connect(peer, &QComboBox::currentIndexChanged, &dialog, updateRange);
     connect(handles, &QCheckBox::toggled, &dialog, updateRange);
+    connect(render, &QCheckBox::toggled, &dialog, updateRange);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     peer->setCurrentIndex(0);updateRange();
@@ -716,7 +725,11 @@ void TimelineEditor::editCrossfade() {
         throw ProjectError(ErrorCode::InvalidState, tr("Crossfade selection changed; reopen the editor.").toUtf8().toStdString());
     const auto incoming = clipList_->idAt(peer->currentIndex());
     if (!incoming) return;
-    if (handles->isChecked())
+    if(render->isChecked()){
+        if(!compRenderRequested || !compRenderRequested({selectedTrack,outgoing,*incoming,frame(start),frame(end),
+            ClipFadeCurve(curve->currentData().toInt())},blend->value(),epoch))
+            throw ProjectError(ErrorCode::InvalidState,tr("Transition rendering could not start. Stop playback or recording and retry.").toUtf8().toStdString());
+    }else if (handles->isChecked())
         mutate({PrepareCompTransition{selectedTrack,outgoing,*incoming,frame(start),frame(end),
                                       ClipFadeCurve(curve->currentData().toInt())}});
     else

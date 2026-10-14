@@ -2818,6 +2818,94 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Transition preparation could not start. Check Project resources and the installed render helper.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project was reopened or replaced. Rendering stopped; owned job files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendering canceled. Already accepted project changes and saves may have completed; retained jobs remain available for review.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition could not be prepared. Check source handles, processing settings, Project resources and the installed helper. No audio was applied.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The edit queue is unavailable. The prepared job files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition sources changed before registration. No render started; prepared files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project could not be queued for saving. Save it before rendering the retained job.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project could not be saved. Rendering did not start; check the save error and retained job references.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The source render queue is unavailable. Saved references were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source rendering did not finish successfully. No audio was applied; inspect the retained job before retrying.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The assembly queue is unavailable. Rendered source spans were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition could not be assembled or verified. No audio was applied; retained files remain available for review.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition rendered and verified. Review it, then choose Apply. The timeline audio has not changed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Render transition</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel rendering</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Review rendered transition</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Canceling rendering and waiting for active work to retire…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preparing transition sources and owned job files…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Registering the transition against the current project…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saving the project and render references…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendering the two source spans…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Assembling and verifying transition audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Transition review could not start. Check Project resources and retry.</source>
       <translation type="unfinished" />
     </message>
@@ -4275,7 +4363,27 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Render extended processed handles (preview)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inner blend limit (project frames)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save and render</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>OK</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -4284,6 +4392,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Crossfade selection changed; reopen the editor.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition rendering could not start. Stop playback or recording and retry.</source>
       <translation type="unfinished" />
     </message>
     <message>

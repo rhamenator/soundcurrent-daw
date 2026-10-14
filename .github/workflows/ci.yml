@@ -144,6 +144,7 @@ jobs:
             build/comp-pair-assembly-evidence/**
             build/comp-assembly-controller-evidence/**
             build/comp-assembly-ui-evidence/**
+            build/comp-transition-ui-evidence/**
             build/comp-pair-controller-evidence/**
             build/comp-pair-state-evidence/**
             build/comp-pair-recovery-evidence/**
@@ -316,14 +317,14 @@ jobs:
           if errorlevel 1 exit /b 1
           cmake -S . -B build-desktop-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=ON -DSC_BUILD_WARP_MAP_PROBE=ON -DSC_BUILD_PROTECTED_WARP_PROBE=ON "-DCMAKE_PREFIX_PATH=%CD%/native-ui-dependencies/qt" "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
           if errorlevel 1 exit /b 1
-          cmake --build build-desktop-native --parallel 2 --target sc-comp-assembly-ui-tests sc-comp-assembly-controller-tests sc-comp-pair-controller-tests sc-crossfade-ui-tests sc-native-panel-tests sc-ui-tests sc-playback-controller-tests soundcurrent-daw sc-manual-panel-tests sc-stretch-parent-probe sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests sc-stretch-artifact-tests sc-protected-warp-probe
+          cmake --build build-desktop-native --parallel 2 --target sc-comp-transition-ui-tests sc-comp-assembly-ui-tests sc-comp-assembly-controller-tests sc-comp-pair-controller-tests sc-crossfade-ui-tests sc-native-panel-tests sc-ui-tests sc-playback-controller-tests soundcurrent-daw sc-manual-panel-tests sc-stretch-parent-probe sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests sc-stretch-artifact-tests sc-protected-warp-probe
           if errorlevel 1 exit /b 1
           set "PATH=%CD%\native-ui-dependencies\qt\bin;%CD%\native-dependencies\sndfile-build;%PATH%"
           set "QT_PLUGIN_PATH=%CD%\native-ui-dependencies\qt\plugins"
           rem The Windows offscreen plugin uses FreeType, not the native font database.
           set "QT_QPA_FONTDIR=%WINDIR%\Fonts"
           set "SC_PARENT_TIMING_EVIDENCE=%CD%\build-desktop-native\parent-observation-timing"
-          ctest --test-dir build-desktop-native -R "^(desktop-comp-assembly-apply|desktop-comp-assembly-ownership|desktop-comp-pair-supervision|desktop-take-audition|desktop-paired-crossfade|desktop-native-recording-panel|desktop-loop-recording|desktop-loop-controls|desktop-playback-controller|desktop-retained-takes|desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$" --output-on-failure --no-tests=error -V
+          ctest --test-dir build-desktop-native -R "^(desktop-comp-transition-create|desktop-comp-assembly-apply|desktop-comp-assembly-ownership|desktop-comp-pair-supervision|desktop-take-audition|desktop-paired-crossfade|desktop-native-recording-panel|desktop-loop-recording|desktop-loop-controls|desktop-playback-controller|desktop-retained-takes|desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$" --output-on-failure --no-tests=error -V
           if errorlevel 1 exit /b 1
       - name: Collect native preview deployment inputs (not an installer)
         if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'codex/windows-')
@@ -367,6 +368,7 @@ jobs:
           path: |
             build-desktop-native/comp-assembly-controller-evidence/**
             build-desktop-native/comp-assembly-ui-evidence/**
+            build-desktop-native/comp-transition-ui-evidence/**
             build-desktop-native/comp-pair-controller-evidence/**
             build-desktop-native/Testing/Temporary/*.log
             build-desktop-native/Testing/crossfade-ui/*.png

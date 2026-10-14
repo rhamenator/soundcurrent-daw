@@ -84,6 +84,9 @@ def run():
                 try:deploy_payload(archive,m,destination,require_stretch_worker=True)
                 except ValueError:pass
                 else:raise AssertionError('Stretch desktop payload admitted missing worker')
+                try:deploy_payload(archive,m,destination,require_comp_worker=True)
+                except ValueError:pass
+                else:raise AssertionError('Comp desktop payload admitted missing worker')
     trusted = json.loads((Path(__file__).resolve().parents[1] /
                           'research/windows-preview-dependencies.json').read_text())
     pinned = {'files': list(trusted['files'].values())}

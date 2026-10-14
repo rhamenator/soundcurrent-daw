@@ -55,7 +55,7 @@ def verify_build_source(cache, root):
             'Build tree belongs to another source checkout')
 EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker',
                     'usr/bin/sc-approved-wave-probe','usr/bin/sc-media-import-worker',
-                    'usr/bin/sc-stretch-render-worker'}
+                    'usr/bin/sc-stretch-render-worker','usr/bin/sc-comp-span-worker'}
 def installed_mode(relative):
     return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
 def normalize_staged_permissions(stage):
@@ -81,6 +81,8 @@ def verify_staged_install(stage, root, executable):
         expected['usr/bin/sc-approved-wave-probe']=executable.parent/'sc-approved-wave-probe'
     if (root/'ui/media_copy_controller.cpp').is_file():
         expected['usr/bin/sc-media-import-worker']=executable.parent/'sc-media-import-worker'
+    if (root/'include/soundcurrent/comp_transition_preparation.hpp').is_file():
+        expected['usr/bin/sc-comp-span-worker']=executable.parent/'sc-comp-span-worker'
     if (root/'ui/stretch_controller.cpp').is_file():
         expected['usr/bin/sc-stretch-render-worker']=executable.parent/'sc-stretch-render-worker'
         expected['usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt']=root/'third_party/rubberband/COPYING'
@@ -122,6 +124,10 @@ def package(args):
         worker=build/'sc-media-import-worker'
         require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
                 'Copy worker differs from qualified worker')
+    if (ROOT/'include/soundcurrent/comp_transition_preparation.hpp').is_file():
+        worker=build/'sc-comp-span-worker'
+        require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
+                'Comp worker differs from qualified worker')
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()

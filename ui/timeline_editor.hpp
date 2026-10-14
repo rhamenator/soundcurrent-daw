@@ -36,6 +36,7 @@ class TimelineEditor : public QGroupBox {
     std::function<bool(std::vector<SessionEdit>)> submit;
     std::function<void()> selectionChanged;
     std::function<void(Id, Id)> pitchStretchRequested;
+    std::function<bool(PrepareCompTransition,Frame,std::uint64_t)> compRenderRequested;
     std::function<bool(Id, Id, std::uint64_t)> takeAuditionRequested;
     void updateModel(std::shared_ptr<const Session>, std::uint64_t epoch, bool editable);
     std::optional<Id> selectedTrack() const {

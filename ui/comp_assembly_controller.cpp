@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "comp_assembly_controller.hpp"
 #include <soundcurrent/approved_media.hpp>
+#include <QCoreApplication>
+#include <QFileInfo>
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
@@ -15,10 +17,20 @@ bool contains(const Session &s,const CompAssemblyReference &r){return std::find(
 }
 struct CompAssemblyController::State : QThread {
     mutable QMutex mutex;QWaitCondition wake;CompAssemblyControllerOptions options;
+    struct Preparation {std::shared_ptr<const ControllerSnapshot> source;PrepareCompTransition transition;Frame maximum;};
+    std::optional<Preparation> queuedPreparation;
     std::optional<Id> queued;bool queuedReview=false,queuedApply=false,busy=false,closing=false,retire=false;
     std::stop_source stop;CompAssemblySnapshot view;std::shared_ptr<const Session> checked;
     std::shared_ptr<const CompAssemblySnapshot> latest=std::make_shared<const CompAssemblySnapshot>();
-    explicit State(CompAssemblyControllerOptions o):options(std::move(o)){check(bool(options.project),"Assembly needs a live project owner");}
+    explicit State(CompAssemblyControllerOptions o):options(std::move(o)){
+        check(bool(options.project),"Assembly needs a live project owner");
+        if(options.spanProgram.isEmpty())options.spanProgram=QCoreApplication::applicationDirPath()+
+#ifdef _WIN32
+            QStringLiteral("/sc-comp-span-worker.exe");
+#else
+            QStringLiteral("/sc-comp-span-worker");
+#endif
+    }
     void publish(){auto copy=std::make_shared<const CompAssemblySnapshot>(view);QMutexLocker lock(&mutex);latest=std::move(copy);}
     auto project(){auto p=options.project();check(p && p->session && p->projectEpoch && !p->closing && !p->closed && p->io!=IoOperation::Open && p->io!=IoOperation::Create,"Assembly project owner unavailable");return p;}
     CompAssemblyReference reference() const {return {view.request->operation(),view.selection->recipe().operation(),view.request->digest(),view.request->outputs()};}
@@ -77,12 +89,27 @@ struct CompAssemblyController::State : QThread {
         view.phase=!view.error && view.recovery && view.recovery->result && view.recovery->state==CompAssemblyRecoveryState::Complete
             ?CompAssemblyPhase::Complete:CompAssemblyPhase::RecoveryRequired;
     }
+    void prepare(const Preparation &input,std::stop_token token){
+        poll(token);view.project=input.source;view.phase=CompAssemblyPhase::Preparing;publish();
+        auto owner=project();check(view.project && view.project->session && owner->root==view.project->root &&
+            owner->projectEpoch==view.project->projectEpoch && owner->session==view.project->session,"Comp preparation selection changed before work");
+        check(QFileInfo(options.spanProgram).isAbsolute(),"Comp helper path must be absolute");
+        const auto helper=hashMediaFile(utf8Path(options.spanProgram.toUtf8().toStdString()));poll(token);
+        auto value=prepareOwnedCompTransition(view.project->root,*view.project->session,context(*view.project),
+            input.transition,input.maximum,helper,{},{},options.memory,token);
+        if(options.afterPreparation)options.afterPreparation();
+        poll(token);owner=project();
+        check(owner->root==view.project->root && owner->projectEpoch==view.project->projectEpoch,"Comp preparation owner changed");
+        verifyCompProcessingCurrent(*owner->session,context(*owner),value.selection().recipe().plan());
+        view.operation=value.request().operation();view.preparation=std::make_shared<const PreparedCompTransition>(std::move(value));
+        view.phase=CompAssemblyPhase::Complete;
+    }
     void run() override {
-        for(;;){std::optional<Id> op;bool review=false,apply=false;std::stop_token token;
-            {QMutexLocker lock(&mutex);while(!queued && !closing && !retire)wake.wait(&mutex);
-                if(retire){view=*latest;checked.reset();retire=false;}if(!queued){if(closing)break;continue;}
-                op=std::move(queued);queued.reset();review=queuedReview;apply=queuedApply;token=stop.get_token();view=*latest;}
-            try{execute(*op,review,apply,token);}
+        for(;;){std::optional<Id> op;std::optional<Preparation> preparation;bool review=false,apply=false;std::stop_token token;
+            {QMutexLocker lock(&mutex);while(!queued && !queuedPreparation && !closing && !retire)wake.wait(&mutex);
+                if(retire){view=*latest;checked.reset();retire=false;}if(!queued && !queuedPreparation){if(closing)break;continue;}
+                op=std::move(queued);queued.reset();preparation=std::move(queuedPreparation);queuedPreparation.reset();review=queuedReview;apply=queuedApply;token=stop.get_token();view=*latest;}
+            try{if(preparation)prepare(*preparation,token);else execute(*op,review,apply,token);}
             catch(const ProjectError &e){view.error=e.code();view.canceled=view.canceled || e.code()==ErrorCode::Canceled;
                 view.phase=view.request?CompAssemblyPhase::RecoveryRequired:view.canceled?CompAssemblyPhase::Canceled:CompAssemblyPhase::Fault;}
             catch(...){view.error=ErrorCode::Io;view.phase=CompAssemblyPhase::Fault;}
@@ -103,6 +130,14 @@ Admission CompAssemblyController::submit(Id op,bool review,bool apply){QMutexLoc
     CompAssemblySnapshot value;value.operation=op;value.phase=CompAssemblyPhase::Queued;value.busy=true;
     auto published=std::make_shared<const CompAssemblySnapshot>(std::move(value));std::stop_source stop;
     state_->stop=std::move(stop);state_->queued=std::move(op);state_->queuedReview=review;state_->queuedApply=apply;state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;}
+Admission CompAssemblyController::prepare(std::shared_ptr<const ControllerSnapshot> source,PrepareCompTransition transition,Frame maximum){
+    check(source && source->session && source->projectEpoch,"Missing comp preparation owner");
+    QMutexLocker lock(&state_->mutex);if(state_->closing)return Admission::Closing;if(state_->busy)return Admission::Full;
+    CompAssemblySnapshot view;view.phase=CompAssemblyPhase::Queued;view.busy=true;view.project=source;
+    auto published=std::make_shared<const CompAssemblySnapshot>(std::move(view));std::stop_source stop;
+    state_->queuedPreparation=State::Preparation{std::move(source),std::move(transition),maximum};
+    state_->stop=std::move(stop);state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;
+}
 Admission CompAssemblyController::render(Id op){return submit(std::move(op),false);}
 Admission CompAssemblyController::prepareApply(Id op){return submit(std::move(op),true,true);}
 Admission CompAssemblyController::review(Id op){return submit(std::move(op),true);}

@@ -1,8 +1,8 @@
 {
   "source_sha256": {
     "ui/accelerating_spinbox.hpp": "cea53fc8be41c2adee53101c6492e22b34d1dbba8fa8dff6aee9cb651bd9265c",
-    "ui/comp_assembly_controller.cpp": "fd63acb3192e6b304cde96bf7a1312d16b8767343124cfe2abc7ac99bfd2e731",
-    "ui/comp_assembly_controller.hpp": "cbbe5a7a9b1cf9f06b9ecb7741b2b6de5389c238e03a949ba0cb3191572acc63",
+    "ui/comp_assembly_controller.cpp": "426f6f48fc0b5aca2f8e83b121d5f15b297f6ad664955ddd7aef1f0dae224922",
+    "ui/comp_assembly_controller.hpp": "98c4570bd12dcfc066a48b30da70f20c26f40d5fde4a6837ad0d6345dff99976",
     "ui/comp_pair_controller.cpp": "7dd934c9d5bcaea813fff27cb5ece45c06c0214b7497c0dac169764d57dce783",
     "ui/comp_pair_controller.hpp": "25f9cf7dd394a3f6ca58f5d41e61e9125f163f69edd24cf5f12a86d7f082ba4f",
     "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
@@ -39,8 +39,8 @@
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "a20591cf2fc9b83995f8432644fb32f35090372cf8fc66be1815d0082df3a7a6",
     "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
-    "ui/project_controller.cpp": "0b7c938e1470f94a25cc2e383888a747d2985142abb1a8dba2f4359f5cfcefd7",
-    "ui/project_controller.hpp": "935783270558285dcbeb3458c5fa68a219fb307afca6533678476baa6f13b205",
+    "ui/project_controller.cpp": "00c62b8180f6de160e709c6ed1656f8993dae4a7cad3fc178515c83cd0358efb",
+    "ui/project_controller.hpp": "f72128041eb15fa30d6f27e0ea5f3ef7bba2dd3afd8d08ac78c208a062315bfa",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
@@ -51,10 +51,10 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "8935d68bc4b7efeb53eee574383c5d3757314bc7fbb6c5c557ac42f9b60bdcc9",
-    "ui/studio_window.hpp": "d5c960eb37ca179878d6880d16ea2ca9e14762060e3bcad8b201037debc6a61b",
-    "ui/timeline_editor.cpp": "d0a10802db7ee5e80845e59b0ae4f8106a8eb6c02fb0b40d1c46316f795de9e3",
-    "ui/timeline_editor.hpp": "545189c9208872db402001567e6a4a7fc537e6810a96d4b32aa46c9e9aa4bb89",
+    "ui/studio_window.cpp": "91e232979323c735dd9520e360a9454bced55ee5f16e748ee267786a2e0e073f",
+    "ui/studio_window.hpp": "143d477a7a39bb4ac1cca610ab1eed215c96447f20789123c854d0b465245404",
+    "ui/timeline_editor.cpp": "a0b9947628d6682ef54ccae5b10d735fdf94358c42e1d0b7086de674afdc3eda",
+    "ui/timeline_editor.hpp": "7e7c58783f6298dec40c02619484985d0177a4d64c0c8675388deee996d3a48e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
@@ -4200,6 +4200,138 @@
     ],
     [
       "StudioWindow",
+      "Transition preparation could not start. Check Project resources and the installed render helper.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project was reopened or replaced. Rendering stopped; owned job files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering canceled. Already accepted project changes and saves may have completed; retained jobs remain available for review.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition could not be prepared. Check source handles, processing settings, Project resources and the installed helper. No audio was applied.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The edit queue is unavailable. The prepared job files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition sources changed before registration. No render started; prepared files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project could not be queued for saving. Save it before rendering the retained job.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project could not be saved. Rendering did not start; check the save error and retained job references.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The source render queue is unavailable. Saved references were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Source rendering did not finish successfully. No audio was applied; inspect the retained job before retrying.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The assembly queue is unavailable. Rendered source spans were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition could not be assembled or verified. No audio was applied; retained files remain available for review.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Transition rendered and verified. Review it, then choose Apply. The timeline audio has not changed.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Render transition",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Cancel rendering",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review rendered transition",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Canceling rendering and waiting for active work to retire…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Preparing transition sources and owned job files…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Registering the transition against the current project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saving the project and render references…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering the two source spans…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Assembling and verifying transition audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Transition review could not start. Check Project resources and retry.",
       "",
       false
@@ -6366,7 +6498,37 @@
     ],
     [
       "TimelineEditor",
+      "Render extended processed handles (preview)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Inner blend limit (project frames)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Save and render",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "OK",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental.",
       "",
       false
     ],
@@ -6379,6 +6541,12 @@
     [
       "TimelineEditor",
       "Crossfade selection changed; reopen the editor.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Transition rendering could not start. Stop playback or recording and retry.",
       "",
       false
     ],
