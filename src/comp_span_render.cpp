@@ -11,7 +11,9 @@ namespace {
 void check(bool v,const char *m,ErrorCode code=ErrorCode::InvalidParameter){if(!v)throw ProjectError(code,m);}
 }
 CompSpanPlan prepareCompSpan(const CompHandleEnvelope &envelope,ResourceLedger ledger){
-    const auto &e=envelope.data();check(e.expected.stretch.has_value(),"Comp span requires a processed source");
+    const auto &e=envelope.data();
+    check(!e.regeneration,"Repeated comp spans require clock-aware production and historical file verification",ErrorCode::UnsupportedSchema);
+    check(e.expected.stretch.has_value(),"Comp span requires a processed source");
     check(e.map.size()>=2 && e.map.front().output==SourcePosition{0,0,1} && e.map.back().output==SourcePosition{e.outputFrames,0,1},"Comp span map endpoints differ");
     const auto span=subtractSourcePosition(e.map.back().raw,e.map.front().raw);
     const auto ratio=sourceIntervalRatio(span,{e.outputFrames,0,1});

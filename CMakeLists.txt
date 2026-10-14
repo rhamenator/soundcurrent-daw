@@ -603,7 +603,7 @@ if(SC_BUILD_MEDIA)
     endif()
     if(BUILD_TESTING)
       add_executable(sc-comp-regeneration-source-tests tests/comp_regeneration_source_tests.cpp)
-      target_link_libraries(sc-comp-regeneration-source-tests PRIVATE sc-project-store)
+      target_link_libraries(sc-comp-regeneration-source-tests PRIVATE sc-project-store sc-comp-processing-recipe sc-comp-span-render)
       target_include_directories(sc-comp-regeneration-source-tests SYSTEM PRIVATE third_party)
       add_dependencies(sc-comp-regeneration-source-tests sc-comp-span-worker sc-comp-span-worker-fixture sc-comp-pair-recovery-fixture sc-comp-pair-assembly-tests sc-stretch-render-worker sc-comp-assembly-job-tests)
       add_test(NAME comp-regeneration-source COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_regeneration_source_tests.py

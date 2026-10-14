@@ -9,7 +9,8 @@ with tempfile.TemporaryDirectory() as work:
     source=parent/str(uuid.uuid4());source.mkdir();extras=[]
     try:
         (source/'media').mkdir();(source/'media/take.wav').write_bytes(bytes([0,255,17,0]));(source/'project.json').write_text('{"title":"Ελληνικά 日本語"}',encoding='utf-8')
-        log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8');receipt=c.retain(build);assert len(receipt)==1 and len(receipt[0]['originalFiles'])==2
+        log.write_bytes(b'Unrelated legacy-code-page diagnostic: \xe9\xff\n'+(c.MARKER+str(source)+'\n').encode('utf-8'));originalLog=log.read_bytes()
+        receipt=c.retain(build);assert len(receipt)==1 and len(receipt[0]['originalFiles'])==2 and log.read_bytes()==originalLog
         target=build/'controller-failure-projects'/('controller-'+source.name)
         assert (target/'media/take.wav').read_bytes()==(source/'media/take.wav').read_bytes()
         assert json.loads((target/'retention.json').read_text(encoding='utf-8'))['atomicProjectSnapshot'] is False
@@ -20,6 +21,7 @@ with tempfile.TemporaryDirectory() as work:
         refuses() # Existing snapshot is never overwritten.
         import shutil
         shutil.rmtree(build/'controller-failure-projects')
+        log.write_bytes(c.MARKER.encode('ascii')+b'invalid-path-\xe9\n');refuses()
         log.write_text(c.MARKER+str(build)+'\n',encoding='utf-8');refuses()
         log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8')
         linked=False

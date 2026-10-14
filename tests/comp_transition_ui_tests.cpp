@@ -28,6 +28,7 @@ void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void wait(F f){QElapsedTimer t;t.start();while(!f()){if(t.elapsed()>30000)throw std::runtime_error("Transition UI observation deadline");QTest::qWait(2);}}
 template<class T>T *widget(QObject &p,const char *n){auto *v=p.findChild<T *>(n);check(v,"Transition control missing");return v;}
 struct Release {std::atomic<bool> &v;~Release(){v=true;}};
+QString qtPath(const std::filesystem::path &path){const auto bytes=path.generic_u8string();return QString::fromUtf8(reinterpret_cast<const char *>(bytes.data()),qsizetype(bytes.size()));}
 void save(StudioWindow &w){check(w.submitEdit({CommandKind::Save}),"Save refused");wait([&]{return !w.snapshot()->dirty && w.snapshot()->io==IoOperation::None;});}
 }
 int main(int argc,char **argv){QApplication app(argc,argv);try{
@@ -43,7 +44,7 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         std::atomic<bool> entered=false,release=false;
         CompAssemblyControllerOptions options;
         if(mode>=1 && mode<=3)options.afterPreparation=[&]{entered=true;while(!release)QThread::msleep(1);};
-        if(mode==4)options.spanProgram=QString::fromStdString((root/"missing-helper").string());
+        if(mode==4)options.spanProgram=qtPath(root/"missing-helper");
         ControllerOptions ownerOptions;
         if(mode==5)ownerOptions.beforeSavePublish=[]{throw ProjectError(ErrorCode::Io,"Injected save failure");};
         StudioWindow window(nullptr,{},{},{},{},ownerOptions,{},{},{},{},options);Release unlock{release};
@@ -77,7 +78,7 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
                         check(label->isVisible() && label->width()>20 && label->height()>0,"Crossfade field label collapsed");
                 }
                 check(buttons->button(QDialogButtonBox::Ok)->width()>=buttons->button(QDialogButtonBox::Ok)->sizeHint().width(),"Save and render caption clipped");
-                check(dialog->grab().save(QString::fromStdString((root.parent_path()/"create.png").string())),"Creation screenshot failed");
+                check(dialog->grab().save(qtPath(root.parent_path()/"create.png")),"Creation screenshot failed");
                 buttons->button(QDialogButtonBox::Ok)->click();
             }catch(...){error=std::current_exception();if(auto *d=qobject_cast<QDialog *>(QApplication::activeModalWidget()))d->reject();}});
             auto *action=widget<QPushButton>(*timeline,"crossfadeClips");check(action->isEnabled(),"Crossfade action disabled");action->click();if(error)std::rethrow_exception(error);
@@ -109,7 +110,7 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             const auto operation=*window.compAssemblySnapshot()->operation;
             check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Old fixture job reused");
             auto *reviewNew=widget<QPushButton>(window,"reviewCreatedComp");wait([&]{return reviewNew->isEnabled();});
-            check(widget<QDialog>(window,"compRenderProgress")->grab().save(QString::fromStdString((root.parent_path()/"rendered.png").string())),"Result screenshot failed");reviewNew->click();
+            check(widget<QDialog>(window,"compRenderProgress")->grab().save(qtPath(root.parent_path()/"rendered.png")),"Result screenshot failed");reviewNew->click();
             auto *list=widget<QListWidget>(window,"compAssemblyList");check(list->currentItem() && list->currentItem()->data(Qt::UserRole).toString()==QString::fromStdString(operation.str()),"New request not selected for review");
             auto *apply=widget<QPushButton>(window,"applyCompAssembly");wait([&]{return apply->isEnabled();});apply->click();
             wait([&]{return window.snapshot()->session->compPlaybackSources.size()==original.compPlaybackSources.size()+2 && window.compAssemblySnapshot()->phase==CompAssemblyPhase::Idle;});

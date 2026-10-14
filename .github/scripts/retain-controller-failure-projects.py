@@ -24,10 +24,13 @@ def retain(build):
     if len(inputs)>16:raise ValueError('Retention log count bound exceeded')
     for p in sorted(inputs):
         if plain(p).st_size>16*1024*1024:raise ValueError('Retention log bound exceeded')
-        for line in p.read_text(encoding='utf-8',errors='strict').splitlines():
-            marker=next((m for m in POLICIES if line.startswith(m)),None)
+        # CTest can combine UTF-8 fixture markers with locale-encoded compiler or
+        # Python diagnostics. Only our ASCII-prefixed marker lines carry paths.
+        # Decode those strictly; never repair or guess a path's encoding.
+        for line in p.read_bytes().splitlines():
+            marker=next((m for m in POLICIES if line.startswith(m.encode('ascii'))),None)
             if marker is None:continue
-            raw=line[len(marker):];source=Path(os.path.abspath(raw))
+            raw=line[len(marker):].decode('utf-8',errors='strict');source=Path(os.path.abspath(raw))
             parent=Path(tempfile.gettempdir())/POLICIES[marker]
             if source.parent!=parent or not UUID.fullmatch(source.name):raise ValueError('Foreign controller failure path refused')
             plain(parent,True);plain(source,True);sources.add(source)
@@ -70,4 +73,4 @@ def retain(build):
         (target/'retention.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');receipts.append(receipt)
     return receipts
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('build');a=p.parse_args();print(json.dumps(retain(a.build),ensure_ascii=False))
+    p=argparse.ArgumentParser();p.add_argument('build');a=p.parse_args();print(json.dumps(retain(a.build),ensure_ascii=True))

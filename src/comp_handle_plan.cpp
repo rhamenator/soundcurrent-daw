@@ -3,6 +3,7 @@
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/warp.hpp>
 #include <soundcurrent/comp_playback_state.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 #include <algorithm>
 #include <numeric>
 #include <limits>
@@ -98,16 +99,27 @@ CompHandleEnvelope prepareCompHandleEnvelope(const Session &s,const Id &trackId,
     validate(s);const auto &c=find(find(s.tracks,trackId).clips,clipId);
     require(c.takeOrigin && first>=0 && first<=c.startFrame && end>=c.startFrame+c.lengthFrames && end>first,"Handle envelope must extend a retained rendered clip");
     const auto &origin=*c.takeOrigin;const auto &retained=find(find(find(s.tracks,origin.trackId).takeLanes,origin.laneId).clips,origin.clipId);
-    const auto &raw=find(s.assets,c.stretch?c.stretch->sourceAssetId:c.assetId),&base=find(s.assets,c.assetId),&retainedAsset=find(s.assets,retained.assetId);
-    require(raw.id==retained.assetId || (c.stretch && retained.stretch && raw.id==retained.stretch->sourceAssetId && c.stretch->sourceSha256==retained.stretch->sourceSha256),"Handle render source differs from retained take");
-    auto preparedMap=clipMap(c,raw,base.frames,ledger);
+    std::shared_ptr<const CompRegenerationSource> regeneration;
+    if(findCompPlaybackSource(s,c.assetId))regeneration=std::make_shared<const CompRegenerationSource>(
+        resolveCompRegenerationSource(s,trackId,clipId,context,ledger,limits.maximumMapPoints));
+    const auto &raw=regeneration?regeneration->data().raw:find(s.assets,c.stretch?c.stretch->sourceAssetId:c.assetId);
+    const auto &base=find(s.assets,c.assetId),&retainedAsset=find(s.assets,retained.assetId);
+    const auto &original=regeneration?regeneration->data().originalNominalClip:c;
+    require(raw.id==retained.assetId || (original.stretch && retained.stretch && raw.id==retained.stretch->sourceAssetId && original.stretch->sourceSha256==retained.stretch->sourceSha256),"Handle render source differs from retained take");
+    PreparedMap preparedMap;
+    if(regeneration){
+        const auto &resolved=regeneration->data();
+        preparedMap.lease=ledger.reserve(resolved.rawMap.size()*sizeof(CompHandlePoint));
+        preparedMap.points=resolved.rawMap;
+        preparedMap.geometry={{},base.frames,base.frames,{},{base.frames,0,1},1,1};
+    }else preparedMap=clipMap(c,raw,base.frames,ledger);
     const auto &g=preparedMap.geometry;const auto &oldMap=preparedMap.points;
     require(oldMap.size()<=limits.maximumMapPoints,"Handle map exceeds point limit");
     const auto m=clipSourceMap(c,base.sampleRate,s.sampleRate);const auto outputFirst=coordinate(m,first-c.startFrame),outputLast=coordinate(m,end-1-c.startFrame),outputEnd=coordinate(m,end-c.startFrame);
     const auto rawFirst=rawAt(outputFirst,oldMap),rawLast=rawAt(outputLast,oldMap),rawEnd=rawAt(outputEnd,oldMap);
     const auto allowed=clipSourceMap(retained,retainedAsset.sampleRate,s.sampleRate);auto allowedFirst=allowed.at(0),allowedEnd=allowed.at(retained.lengthFrames);
     if(retained.assetId!=raw.id){require(bool(retained.stretch),"Missing retained raw map");auto rg=stretchGeometry(*retained.stretch,raw.frames);if(!retained.compHandles && sourcePositionLess(rg.visibleEnd,allowedEnd))allowedEnd=rg.visibleEnd;allowedFirst=processedClipOutputToRaw(retained,raw,allowedFirst);allowedEnd=processedClipOutputToRaw(retained,raw,allowedEnd);}
-        if(c.stretch)require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),"Requested handles exceed retained take");
+        if(c.stretch || regeneration)require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),"Requested handles exceed retained take");
     else require(!sourcePositionLess(rawFirst,allowedFirst) && !sourcePositionLess(allowed.at(retained.lengthFrames-1),rawLast),"Requested raw handles exceed retained take");
     const auto prefix=outputFirst.negative?ceil(outputFirst.magnitude):0;
     require(!outputLast.negative && outputLast.magnitude.frame<INT64_MAX,"Comp handle end is negative or overflowing");const auto last=outputLast.magnitude.frame+1;const auto suffix=std::max<Frame>(0,last-base.frames);
@@ -122,6 +134,7 @@ CompHandleEnvelope prepareCompHandleEnvelope(const Session &s,const Id &trackId,
     require(points<=limits.maximumMapPoints,"Expanded handle map exceeds point limit");auto mapCredit=ledger.reserve(points*sizeof(CompHandlePoint));
     CompHandleEnvelopeData result;result.context=context;result.project=s.id;result.projectRate=s.sampleRate;result.track=trackId;result.trackLayout=find(s.tracks,trackId).layout;result.expected=c;result.retained=retained;result.raw=raw;result.base=base;result.retainedAsset=retainedAsset;
     if(c.compHandles)result.nominalAsset=find(s.assets,c.compHandles->baseAssetId);
+    result.regeneration=std::move(regeneration);
     result.projectFirst=first;result.projectEnd=end;result.prefixFrames=prefix;result.suffixFrames=suffix;result.outputFrames=frames;
     result.clipOutputOrigin=outputFirst.negative?subtractSourcePosition({prefix,0,1},outputFirst.magnitude):addSourcePosition({prefix,0,1},outputFirst.magnitude);
     result.requestedRawFirst=rawFirst;result.requestedRawLast=rawLast;result.requestedRawEnd=rawEnd;
@@ -147,6 +160,7 @@ void verifyCompHandleEnvelopeCurrent(const Session &s,const CompHandlePlanContex
     const auto &track=find(s.tracks,p.track);require(track.layout==p.trackLayout && find(track.clips,p.expected.id)==p.expected,"Handle clip/layout changed after planning");
     require(find(s.assets,p.raw.id)==p.raw && find(s.assets,p.base.id)==p.base && find(s.assets,p.retainedAsset.id)==p.retainedAsset,"Handle source declaration changed after planning");
     if(p.nominalAsset)require(find(s.assets,p.nominalAsset->id)==*p.nominalAsset,"Nominal handle artifact changed after planning");
+    if(p.regeneration)verifyCompRegenerationSourceCurrent(s,context,*p.regeneration);
     require(p.expected.takeOrigin.has_value(),"Handle plan has no retained source identity");
     const auto &origin=*p.expected.takeOrigin;
     require(find(find(find(s.tracks,origin.trackId).takeLanes,origin.laneId).clips,origin.clipId)==p.retained,"Retained take changed after planning");

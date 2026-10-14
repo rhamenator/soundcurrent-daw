@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace soundcurrent::daw {
+class CompRegenerationSource;
 // Supplied by the control owner; planning performs no filesystem resolution.
 // A project replacement, edit or workspace change must advance this identity.
 struct CompHandlePlanContext {
@@ -27,6 +28,10 @@ struct CompHandleEnvelopeData {
     Clip expected, retained;
     Asset raw, base, retainedAsset;
     std::optional<Asset> nominalAsset;
+    // Present for an adopted assembled source. Owns the original raw/nominal
+    // history and its resource reservation; nominalAsset remains the immediate
+    // legacy comp-window anchor, never an assembled output.
+    std::shared_ptr<const CompRegenerationSource> regeneration;
     Frame projectFirst=0, projectEnd=0, prefixFrames=0, suffixFrames=0, outputFrames=0;
     SourcePosition clipOutputOrigin, requestedRawFirst, requestedRawLast, requestedRawEnd;
     std::vector<CompHandlePoint> map;

@@ -5,6 +5,7 @@
 #include <stop_token>
 namespace soundcurrent::daw {
 inline constexpr std::string_view compProcessingRecipeFormat="sc-comp-processing-recipe-v1";
+inline constexpr std::string_view compRegenerationRecipeFormat="sc-comp-processing-recipe-v2";
 struct CompRecipeExecutor {
     std::string id="soundcurrent.comp-join-quintic-v1",buildSha256;
     bool operator==(const CompRecipeExecutor &) const=default;

@@ -3,6 +3,9 @@
 #include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/clip_timing.hpp>
+#include <soundcurrent/comp_processing_recipe.hpp>
+#include <soundcurrent/comp_span_render.hpp>
+#include <soundcurrent/comp_playback_source.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <fstream>
@@ -11,6 +14,7 @@
 using namespace soundcurrent::daw;
 namespace {
 using Json=nlohmann::json;unsigned checks=0;
+unsigned plannedRecipes=0,legacyRecipes=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid regeneration source accepted");}
 std::string bytes(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Missing actual adopted source");return {(std::istreambuf_iterator<char>(f)),{}};}
@@ -32,10 +36,69 @@ Session layer(Session s,bool post,bool cropped,ResourceLedger ledger){
     d.rendered.relativePath="media/comp-results/"+selection.str()+"/"+d.rendered.id.str()+".wav";d.playback.assetId=d.rendered.id;
     s.compPairSelections.push_back({selection,std::string(64,'d')});s.assets.push_back(d.rendered);s.compPlaybackSources.push_back({assembly,0,std::string(64,'d'),d});c=d.playback;validate(s);return s;
 }
+void plannedRoundtrip(Session s){
+    // Move the current fragments adjacent after metadata-only cropping. Their
+    // immutable historical positions stay intact in the source closure.
+    auto &t=s.tracks[0];t.clips[1].startFrame=t.clips[0].startFrame+t.clips[0].lengthFrames;
+    validate(s);const auto original=s;const auto boundary=t.clips[1].startFrame;
+    const PrepareCompTransition edit{t.id,t.clips[0].id,t.clips[1].id,boundary-32,boundary+32,ClipFadeCurve::EqualPower};
+    const CompRecipeExecutor executor{"soundcurrent.comp-join-quintic-v1",std::string(64,'a')};
+    ResourceLedger ledger(192*1024*1024,"Regeneration recipe");
+    {
+        auto plan=prepareCompProcessing(s,edit,context,8,ledger);
+        for(unsigned side=0;side<2;++side){const auto &h=side?plan.handles().incoming():plan.handles().outgoing();const auto &e=h.data();
+            check(bool(e.regeneration) && !e.nominalAsset && e.raw.id!=e.base.id,"Regeneration envelope lost original source distinction");
+            const auto &r=e.regeneration->data();
+            check(e.needsNewSpan && e.map.front().output==SourcePosition{} && e.map.back().output==SourcePosition{e.outputFrames,0,1},"Repeated envelope failed to extend current artifact");
+            // A fresh playback-source declaration validates independently against
+            // the existing schema's layered raw-map reconstruction.
+            const auto &p=side?plan.incoming():plan.outgoing();auto asset=e.base;asset.id=Id::generate();asset.sha256=std::string(64,'a');asset.nativeEvidence.clear();
+            asset.frames=p.pcm.prefixFrames+p.pcm.currentFrames+p.pcm.suffixFrames;
+            asset.sampleRate=p.domain==CompProcessingDomain::ProjectAfterSrc?s.sampleRate:e.base.sampleRate;
+            const auto selection=Id::generate();asset.relativePath="media/comp-results/"+selection.str()+"/"+asset.id.str()+".wav";
+            auto playback=prepareCompPlaybackSource(s,context,plan,side,asset,ledger);auto candidate=s;
+            CompAssemblyReference assembly{Id::generate(),selection,std::string(64,'b'),{}};assembly.outputs[side]=asset.id;
+            candidate.assets.push_back(asset);candidate.compPairSelections.push_back({selection,std::string(64,'c')});
+            candidate.compPlaybackSources.push_back({assembly,side,std::string(64,'c'),playback.data()});candidate.tracks[0].clips[side]=playback.data().playback;validate(candidate);
+            const auto oldMap=clipSourceMap(e.expected,e.base.sampleRate,s.sampleRate);
+            const auto newMap=clipSourceMap(playback.data().playback,asset.sampleRate,s.sampleRate);
+            for(Frame f=0;f<e.expected.lengthFrames;f+=17)
+                check(playback.rawPosition(newMap.at(e.expected.startFrame-playback.data().playback.startFrame+f))==compRegenerationRawPosition(r,oldMap.at(f)),"Repeated plan shifted original audible raw timing");
+            try{(void)prepareCompSpan(h,ledger);throw std::runtime_error("Unverified repeated renderer enabled");}
+            catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Repeated renderer failed without explicit unsupported gate");}
+        }
+        const auto operation=Id::generate();auto recipe=encodeCompProcessingRecipe(s,context,plan,operation,executor,ledger);
+        const auto j=Json::parse(recipe.bytes());check(j.at("format")==compRegenerationRecipeFormat,"Repeated recipe used legacy schema");
+        auto reopenedContext=context;++reopenedContext.projectEpoch;reopenedContext.rootIdentity="relocated-history";
+        auto reopened=decodeCompProcessingRecipe(recipe.bytes(),operation,reopenedContext,executor,recipe.digest(),ledger);
+        check(recipe.bytes()==reopened.bytes() && recipe.digest()==reopened.digest(),"Repeated recipe changed canonical identity");
+        verifyCompProcessingCurrent(s,reopenedContext,reopened.plan());
+        for(unsigned change=0;change<5;++change){auto changed=s;
+            if(change==0)changed.compPlaybackSources.back().selectionSha256=std::string(64,'0');
+            if(change==1)changed.compPairSelections.front().selectionSha256=std::string(64,'0');
+            if(change==2)changed.tracks[0].takeLanes[0].clips[0].processing.gainDb+=1;
+            if(change==3)changed.assets.front().sha256=std::string(64,'0');
+            if(change==4)changed.compPlaybackSources.erase(changed.compPlaybackSources.begin());
+            refuses([&]{verifyCompProcessingCurrent(changed,reopenedContext,reopened.plan());});
+        }
+        auto shuffled=s;std::reverse(shuffled.assets.begin(),shuffled.assets.end());std::reverse(shuffled.compPlaybackSources.begin(),shuffled.compPlaybackSources.end());std::reverse(shuffled.compPairSelections.begin(),shuffled.compPairSelections.end());
+        auto stable=encodeCompProcessingRecipe(shuffled,context,plan,operation,executor,ledger);check(stable.bytes()==recipe.bytes(),"History container order changed recipe identity");
+        auto tiny=CompRecipeLimits{};tiny.maximumBytes=256;refuses([&]{encodeCompProcessingRecipe(s,context,plan,operation,executor,ledger,tiny);});
+        check(s==original,"Repeated planning changed canonical state");++plannedRecipes;
+    }
+    check(!ledger.usage().reservedBytes,"Repeated recipe leaked joined resources");
+}
 }
 int main(){try{
     Json input;std::cin>>input;const auto root=utf8Path(input.at("root").get<std::string>());
     auto s=decodeProject(bytes(root/"adopted-project.json"));validate(s);const auto original=s;
+    for(const auto &path:input.at("legacyRequests")){
+        const auto request=Json::parse(bytes(utf8Path(path.get<std::string>())));
+        const auto &e=request.at("recipeExecutor");const CompRecipeExecutor executor{e.at("id"),e.at("buildSha256")};
+        auto old=decodeCompProcessingRecipe(request.at("recipe").get<std::string>(),Id(request.at("recipeOperation").get<std::string>()),context,executor,request.at("recipeDigest").get<std::string>(),ResourceLedger(192*1024*1024,"Legacy recipe"));
+        check(old.bytes()==request.at("recipe").get<std::string>() && Json::parse(old.bytes()).at("format")==compProcessingRecipeFormat,"Retained legacy recipe identity changed");++legacyRecipes;
+    }
+    plannedRoundtrip(s);
     check(s.compPlaybackSources.size()==2,"Expected actual paired adoption fixture");
     ResourceLedger ledger(32*1024*1024,"Regeneration source test");Json reports=Json::array();
     for(unsigned side=0;side<2;++side){const auto &c=s.tracks[0].clips[side];
@@ -80,7 +143,7 @@ int main(){try{
         check(r.history.size()==3+pass,"Nested source closure omitted ancestor/sibling");
         const auto &leaf=*findCompPlaybackSource(nested,nested.tracks[0].clips[0].assetId);
         for(Frame f=0;f<r.current.frames;f+=17)check(compRegenerationRawPosition(r,{f,2,5})==compPlaybackRawPosition(leaf.source,{f,2,5}),"Nested crop map differs");
-        check(decodeProject(encodeProject(nested))==nested,"Regeneration lineage changed across codec");++depth;
+        check(decodeProject(encodeProject(nested))==nested,"Regeneration lineage changed across codec");plannedRoundtrip(nested);++depth;
     }
     check(ledger.usage().reservedBytes==0,"Nested resolution retained resources");
     const auto &c=s.tracks[0].clips[0];ResourceLedger tiny(1,"Tiny regeneration");
@@ -89,6 +152,6 @@ int main(){try{
     auto invalid=s;invalid.compPlaybackSources.clear();refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     invalid=s;invalid.compPlaybackSources[0].source.rawMap[0].raw.frame++;refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     check(ledger.usage().reservedBytes==0 && s==original,"Refusal changed state or leaked resources");
-    Json result{{"checks",checks},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",false},{"qualityAdmission",false}};
+    Json result{{"checks",checks},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",false},{"qualityAdmission",false}};
     std::ofstream out(root/"regeneration-source-report.json");out<<result.dump(2)<<'\n';check(bool(out),"Report write failed");std::cout<<result.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
