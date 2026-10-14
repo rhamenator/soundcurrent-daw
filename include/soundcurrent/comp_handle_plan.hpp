@@ -27,6 +27,7 @@ struct CompHandleEnvelopeData {
     ChannelLayout trackLayout;
     Clip expected, retained;
     Asset raw, base, retainedAsset;
+    std::optional<Asset> nominalAsset;
     Frame projectFirst=0, projectEnd=0, prefixFrames=0, suffixFrames=0, outputFrames=0;
     SourcePosition clipOutputOrigin, requestedRawFirst, requestedRawLast, requestedRawEnd;
     std::vector<CompHandlePoint> map;
@@ -76,4 +77,8 @@ CompTransitionHandlePlan prepareCompTransitionHandles(const Session &,const Prep
     const CompHandlePlanContext &,ResourceLedger,CompHandlePlanLimits={});
 void verifyCompTransitionHandlesCurrent(const Session &,const CompHandlePlanContext &,
                                        const CompTransitionHandlePlan &);
+// Control-side provenance lookup; never use in an audio callback.
+SourcePosition processedClipOutputToRaw(const Clip &,const Asset &raw,SourcePosition);
+void validateCompHandleWindow(const Clip &,const Asset &raw,const Asset &nominal,
+                              const Asset &rendered);
 } // namespace soundcurrent::daw

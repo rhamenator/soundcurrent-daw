@@ -238,7 +238,7 @@ void validateClipStretch(const ClipStretchAnchor &p,const Asset &source,const As
 }
 void validateStretchClipWindow(const Clip &c,const Asset &source,const Asset &rendered,std::uint32_t projectRate) {
     require(c.stretch.has_value(),"Missing stretch window anchor");
-    if(!c.stretch->context && !c.stretch->warp)return;
+    if(c.compHandles || (!c.stretch->context && !c.stretch->warp))return;
     const auto g=stretchGeometry(*c.stretch,source.frames);
     const auto map=clipSourceMap(c,rendered.sampleRate,projectRate);
     require(!sourcePositionLess(map.at(0),g.visibleBegin) && sourcePositionLess(map.at(c.lengthFrames-1),g.visibleEnd),
@@ -246,6 +246,7 @@ void validateStretchClipWindow(const Clip &c,const Asset &source,const Asset &re
 }
 ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
     validate(s);const auto &c=find(find(s.tracks,track).clips,clip);
+    require(!c.compHandles,"Processed comp handles require paired regeneration",ErrorCode::UnsupportedSchema);
     const auto &current=find(s.assets,c.assetId);
     ClipStretchPlan result{track,c,{}, {}};
     if(c.stretch) {
@@ -270,6 +271,7 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
     auto &destination=find(clips,e.clip);
     auto c=destination;
     require(c==e.expected,"Clip changed before stretch adoption",ErrorCode::InvalidState);
+    require(!c.compHandles,"Processed comp handles require paired regeneration",ErrorCode::UnsupportedSchema);
     const auto plan=prepareClipStretch(s,e.track,e.clip,e.value.settings,e.value.context,e.value.warp);
     auto intended=plan.anchor;intended.renderKey=e.value.renderKey;
     require(plan.source==e.source && intended==e.value,"Stretch raw anchor changed before adoption",ErrorCode::InvalidState);

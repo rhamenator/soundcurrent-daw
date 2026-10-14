@@ -2,6 +2,7 @@
 #include <soundcurrent/session.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_handle_plan.hpp>
 #include <soundcurrent/warp.hpp>
 #include <numeric>
 #include <algorithm>
@@ -149,6 +150,10 @@ void dynamicWeight(PayloadCharge &charge, const Clip &c) {
         stringWeight(charge, c.stretch->processor);
         if (c.stretch->warp) charge.add(warpPayloadBytes(*c.stretch->warp));
     }
+    if(c.compHandles) {
+        stringWeight(charge,c.compHandles->baseAssetId.str());
+        stringWeight(charge,c.compHandles->baseSha256);stringWeight(charge,c.compHandles->renderKey);
+    }
     if (c.takeOrigin) {
         stringWeight(charge, c.takeOrigin->trackId.str());
         stringWeight(charge, c.takeOrigin->laneId.str());
@@ -283,12 +288,12 @@ Clip extendedCompCopy(Session &s, const Clip &clip, Frame first, Frame end) {
         if(retained.assetId!=raw.id) {
             require(retained.stretch.has_value(),"Retained derivative has no raw anchor");
             const auto geometry=stretchGeometry(*retained.stretch,raw.frames);
-            if(sourcePositionLess(geometry.visibleEnd,allowedEnd))allowedEnd=geometry.visibleEnd;
-            allowedFirst=stretchOutputToRaw(*retained.stretch,allowedFirst);
-            allowedEnd=stretchOutputToRaw(*retained.stretch,allowedEnd);
+            if(!retained.compHandles && sourcePositionLess(geometry.visibleEnd,allowedEnd))allowedEnd=geometry.visibleEnd;
+            allowedFirst=processedClipOutputToRaw(retained,raw,allowedFirst);
+            allowedEnd=processedClipOutputToRaw(retained,raw,allowedEnd);
         }
-        const auto rawFirst=stretchOutputToRaw(*clip.stretch,source.at(0));
-        const auto rawLast=stretchOutputToRaw(*clip.stretch,source.at(end-first-1));
+        const auto rawFirst=processedClipOutputToRaw(clip,raw,source.at(0));
+        const auto rawLast=processedClipOutputToRaw(clip,raw,source.at(end-first-1));
         // A rendered sample can map between the final retained physical sample
         // and the exclusive raw interval end. It must remain inside that interval.
         require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),

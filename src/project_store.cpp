@@ -297,8 +297,14 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                 {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
                 {"formantPreserved",p.settings.formantPreserved}}},{"renderKey",p.renderKey}};
     };
+    bool hasCompHandles=false;
+    for(const auto &track:s.tracks) {
+        for(const auto &c:track.clips)hasCompHandles=hasCompHandles || c.compHandles.has_value();
+        for(const auto &lane:track.takeLanes)for(const auto &c:lane.clips)
+            hasCompHandles=hasCompHandles || c.compHandles.has_value();
+    }
     const auto encodeClip = [&](const Clip &c) -> Json {
-        return {{"id", c.id.str()},
+        Json result={{"id", c.id.str()},
                              {"assetId", c.assetId.str()},
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
@@ -317,6 +323,12 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                  {"polarityInverted",c.processing.polarityInverted},
                                  {"fadeIn",fade(c.processing.fadeIn)},
                                  {"fadeOut",fade(c.processing.fadeOut)}}}};
+        if(hasCompHandles)result["compHandles"]=c.compHandles?Json{
+            {"processor","soundcurrent.comp-handles-window-v1"},{"version",1},
+            {"baseAssetId",c.compHandles->baseAssetId.str()},{"baseSha256",c.compHandles->baseSha256},
+            {"prefixFrames",c.compHandles->prefixFrames},{"suffixFrames",c.compHandles->suffixFrames},
+            {"renderKey",c.compHandles->renderKey}}:Json(nullptr);
+        return result;
     };
     for (const auto &t : s.tracks) {
         Json bands = Json::array(), clips = Json::array();
@@ -361,7 +373,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -505,7 +517,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 19),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 20),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -579,8 +591,10 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate"});
             else if (minor < 16)
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch"});
-            else
+            else if(minor<20)
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch", "takeOrigin"});
+            else
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch", "takeOrigin", "compHandles"});
             Clip clip;
             clip.id = Id(string(c.at("id")));
             clip.assetId = Id(string(c.at("assetId")));
@@ -613,6 +627,16 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     std::int32_t(pitch),boolean(settings.at("formantPreserved"))};
                 if(minor>=15 && !p.at("warp").is_null())v.warp=warp_codec::decode(p.at("warp"),v.sourceFrames,stretchOutputFrames(v.sourceFrames,v.settings),budget.state.memoryBudgetBytes);
                 clip.stretch=std::move(v);
+            }
+            if(minor>=20 && !c.at("compHandles").is_null()) {
+                const auto &w=c.at("compHandles");
+                keys(w,{"processor","version","baseAssetId","baseSha256","prefixFrames","suffixFrames","renderKey"});
+                require(string(w.at("processor"))=="soundcurrent.comp-handles-window-v1" && integer(w.at("version"))==1,
+                    "Unsupported processed handle window",ErrorCode::UnsupportedSchema);
+                ClipCompHandleWindow window;
+                window.baseAssetId=Id(string(w.at("baseAssetId")));window.baseSha256=string(w.at("baseSha256"));
+                window.prefixFrames=integer(w.at("prefixFrames"));window.suffixFrames=integer(w.at("suffixFrames"));
+                window.renderKey=string(w.at("renderKey"));clip.compHandles=std::move(window);
             }
             if(minor>=11) {
                 const auto &rate=c.at("playbackRate");keys(rate,{"numerator","denominator","mode"});

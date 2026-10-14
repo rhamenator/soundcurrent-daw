@@ -7,6 +7,7 @@
 #include <soundcurrent/session.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_handle_plan.hpp>
 #include <set>
 #include <filesystem>
 #include <unordered_map>
@@ -328,6 +329,10 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
                 string(c.takeOrigin->laneId.str());
                 string(c.takeOrigin->clipId.str());
             }
+            if(c.compHandles) {
+                string(c.compHandles->baseAssetId.str());
+                string(c.compHandles->baseSha256);string(c.compHandles->renderKey);
+            }
         };
         bytes.add(t.clips.capacity(), sizeof(Clip));
         for (const auto &c : t.clips) clipPayload(c);
@@ -493,10 +498,15 @@ void validate(const Session &s, StateBudget budget) {
             check(c.startFrame <= std::numeric_limits<Frame>::max() - c.lengthFrames,
                   "Clip timeline overflow");
             check(t.layout == a.layout, "Clip/track layout mismatch");
+            check(!c.compHandles || c.stretch,"Processed handle window has no nominal anchor");
             if(c.stretch) {
                 const auto raw=assets.find(c.stretch->sourceAssetId.str());
                 check(raw!=assets.end(),"Stretch refers to missing raw asset");
-                validateClipStretch(*c.stretch,*raw->second,a);
+                if(c.compHandles) {
+                    const auto base=assets.find(c.compHandles->baseAssetId.str());
+                    check(base!=assets.end(),"Processed handles refer to missing nominal artifact");
+                    validateCompHandleWindow(c,*raw->second,*base->second,a);
+                } else validateClipStretch(*c.stretch,*raw->second,a);
                 validateStretchClipWindow(c,*raw->second,a,s.sampleRate);
             }
         };
@@ -538,6 +548,22 @@ void validate(const Session &s, StateBudget budget) {
                               (source.stretch && c.stretch->sourceAssetId == source.stretch->sourceAssetId &&
                                c.stretch->sourceSha256 == source.stretch->sourceSha256))),
                       "Comp source asset differs from retained take");
+                if(c.compHandles) {
+                    const auto &raw=*assets.at(c.stretch->sourceAssetId.str());
+                    const auto &retainedAsset=*assets.at(source.assetId.str());
+                    const auto allowed=clipSourceMap(source,retainedAsset.sampleRate,s.sampleRate);
+                    auto first=allowed.at(0),end=allowed.at(source.lengthFrames);
+                    if(source.stretch) {
+                        const auto geometry=stretchGeometry(*source.stretch,raw.frames);
+                        if(!source.compHandles && sourcePositionLess(geometry.visibleEnd,end))end=geometry.visibleEnd;
+                        first=processedClipOutputToRaw(source,raw,first);
+                        end=processedClipOutputToRaw(source,raw,end);
+                    }
+                    const auto map=clipSourceMap(c,assets.at(c.assetId.str())->sampleRate,s.sampleRate);
+                    check(!sourcePositionLess(processedClipOutputToRaw(c,raw,map.at(0)),first) &&
+                        sourcePositionLess(processedClipOutputToRaw(c,raw,map.at(c.lengthFrames-1)),end),
+                        "Processed comp handles exceed retained take coverage");
+                }
             }
     for (const auto &[group, extent] : takeGroups) {
         (void)extent;

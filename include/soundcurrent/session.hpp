@@ -241,6 +241,12 @@ struct ClipTakeOrigin {
     Id trackId, laneId, clipId; // Retained source; survives moves between tracks.
     bool operator==(const ClipTakeOrigin &) const = default;
 };
+struct ClipCompHandleWindow {
+    Id baseAssetId = Id::generate(); // Original nominal artifact, retained unchanged.
+    std::string baseSha256, renderKey;
+    Frame prefixFrames=0, suffixFrames=0; // At the artifact's physical rate.
+    bool operator==(const ClipCompHandleWindow &) const = default;
+};
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
@@ -252,6 +258,7 @@ struct Clip {
     ClipPlaybackRate playbackRate;
     std::optional<ClipStretchAnchor> stretch = {};
     std::optional<ClipTakeOrigin> takeOrigin = {};
+    std::optional<ClipCompHandleWindow> compHandles = {};
     bool operator==(const Clip &) const = default;
 };
 struct TakeLane {
