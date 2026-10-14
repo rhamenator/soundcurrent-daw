@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original assembly history review (2026-10-14)
+
+[Checkpoint 290](290-original-assembly-history-review.md) verifies saved rendering
+jobs through their original source selections without restoring old live clips.
+Three suites pass: six actual adopted-source reviews, 405,432 PCM comparisons,
+393 history assertions and 132 refusal cases, with legacy recipe compatibility
+retained. A native Windows JSON-comparison build failure is corrected; new native
+confirmation remains due. Repeated production and queued adoption still need
+clock-aware integration. The full frozen DAW goal remains active.
+
 ## Repeated-edit plans and desktop corrections (2026-10-14)
 
 [Checkpoint 289](289-regeneration-plans-and-ci-corrections.md) integrates original
