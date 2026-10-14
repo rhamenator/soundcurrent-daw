@@ -48,8 +48,10 @@ with explicit physical and project-rate timing, bounded memory, cancellation and
 checks preserve unchanged audio. [Owned candidate publication and recovery](docs/280-owned-comp-assembly-jobs.md)
 now reject partial or altered results. [Project-owned request references](docs/281-project-assembly-recovery.md)
 preserve recovery across save/reopen and relocation, with Undo/Redo and reserved
-output identities. Desktop integration, sound-quality qualification and undoable
-audio adoption for this path remain in development.
+output identities. A [background desktop controller](docs/282-desktop-assembly-ownership.md)
+now has cancellation, recovery and stale-project acceptance evidence. Main-window
+integration, sound-quality qualification and undoable audio adoption for this path
+remain in development.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.

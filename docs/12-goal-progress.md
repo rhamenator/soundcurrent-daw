@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Desktop assembly ownership (2026-10-14)
+
+[Checkpoint 282](282-desktop-assembly-ownership.md) queues final publication and
+recovery on a control thread with durable references, shared memory accounting,
+live owner/root/epoch guards and asynchronous close. Fifteen source-bound Linux
+cases pass in 23.88 seconds using actual source workers and the real project
+controller. GUI event processing, stale/same-root-reopen refusal, cancellation,
+late committed recovery and resource retirement are covered. Main-window wiring,
+post-SRC live/offline state, paired audio adoption, native verification and quality
+remain open. Preceding CI is still active; its head is preserved pending audit.
+
 ## Project-owned assembly requests (2026-10-14)
 
 [Checkpoint 281](281-project-assembly-recovery.md) adds conditional schema 1.22,
