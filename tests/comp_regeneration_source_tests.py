@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Resolve actual adopted source histories, keeping original producer evidence."""
 from pathlib import Path
-import argparse,hashlib,json,subprocess,sys,tempfile,zipfile
+import argparse,hashlib,json,subprocess,sys,tempfile
 p=argparse.ArgumentParser()
 for name in ['worker','span_fixture','pair_fixture','assembly_fixture','nominal_worker','job_fixture','resolver']:p.add_argument(name,type=Path)
 p.add_argument('--evidence',type=Path,required=True);a=p.parse_args();a.evidence.mkdir(parents=True,exist_ok=True)
@@ -11,14 +11,15 @@ command=[sys.executable,str(Path(__file__).with_name('comp_assembly_job_tests.py
 with (scope/'inputs.stdout').open('w') as out,(scope/'inputs.stderr').open('w') as err:
     proc=subprocess.Popen(command,stdout=out,stderr=err);code=proc.wait();assert code==0,(scope,code)
 roots=list((scope/'inputs').glob('run-*'));assert len(roots)==1
-legacy=Path(__file__).resolve().parent/'results/M2/2026-10-14-comp-regeneration-source/acceptance.zip'
-assert hashlib.sha256(legacy.read_bytes()).hexdigest()=='d348cb34c8ca0331f4c493b8811724ee761b84d5a752990b940381614a7e4a16'
+legacy=json.loads((Path(__file__).resolve().parent/'fixtures/comp-regeneration-legacy-recipes.json').read_text(encoding='utf-8'))
+assert legacy['format']=='sc-retained-legacy-recipes-v1' and legacy['sourceArchiveSha256']=='d348cb34c8ca0331f4c493b8811724ee761b84d5a752990b940381614a7e4a16'
 requests={rate:[] for rate in [44100,48000,96000]};(scope/'legacy').mkdir()
-with zipfile.ZipFile(legacy) as z:
-    for rate in requests:
-        for side in [0,1]:
-            matches=[n for n in z.namelist() if f'/case-{rate}/project-' in n and n.endswith(f'/request-{side}.json')];assert len(matches)==1
-            path=scope/'legacy'/f'{rate}-{side}.json';path.write_bytes(z.read(matches[0]));requests[rate].append(str(path))
+assert len(legacy['requests'])==6
+for rate in requests:
+    for side in [0,1]:
+        rows=[r for r in legacy['requests'] if r['rate']==rate and r['side']==side];assert len(rows)==1
+        row=rows[0];b=row['requestBytes'].encode('utf-8');assert hashlib.sha256(b).hexdigest()==row['requestSha256']
+        path=scope/'legacy'/f'{rate}-{side}.json';path.write_bytes(b);requests[rate].append(str(path))
 reports=[];processes=[]
 for root in sorted(roots[0].glob('inputs/run-*/case-*/project-*')):
     proc=subprocess.Popen([str(a.resolver.resolve())],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)

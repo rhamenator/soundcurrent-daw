@@ -66,6 +66,8 @@ CompSpanRequest decodeCompSpanRequest(std::string_view bytes,std::string_view ex
         const auto operation=Id(j.at("operation").get<std::string>()),recipeOperation=Id(j.at("recipeOperation").get<std::string>());check(operation!=recipeOperation,"Span reused parent operation");
         const auto fragment=unsigned(warp_codec::unsignedInteger(j.at("fragment"),1));
         auto recipe=decodeCompProcessingRecipe(j.at("recipe").get_ref<const std::string &>(),recipeOperation,context,parent,j.at("recipeDigest").get<std::string>(),ledger);
+        check(!recipe.plan().handles().outgoing().data().regeneration && !recipe.plan().handles().incoming().data().regeneration,
+            "Repeated comp requests require historical file verification",ErrorCode::UnsupportedSchema);
         const auto &handles=recipe.plan().handles();auto span=prepareCompSpan(fragment?handles.incoming():handles.outgoing(),ledger);
         for(const auto *envelope:{&handles.outgoing(),&handles.incoming()}){const auto &e=envelope->data();check(operation!=e.raw.id && operation!=e.base.id && operation!=e.retainedAsset.id && (!e.nominalAsset || operation!=e.nominalAsset->id),"Span reused an input identity");}
         return {std::move(retained),std::move(recipe),std::move(span),operation,fragment,std::string(expectedDigest),std::string(executable),std::string(bytes)};

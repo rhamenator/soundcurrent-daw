@@ -6,6 +6,7 @@
 #include <soundcurrent/comp_processing_recipe.hpp>
 #include <soundcurrent/comp_span_render.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
+#include <soundcurrent/comp_pair_recovery.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <fstream>
@@ -88,6 +89,26 @@ void plannedRoundtrip(Session s){
     }
     check(!ledger.usage().reservedBytes,"Repeated recipe leaked joined resources");
 }
+void mixedAdmission(Session s){
+    auto &t=s.tracks[0];auto &out=t.clips[0];auto &in=t.clips[1];
+    out.sourceFrame+=64;out.lengthFrames-=128;
+    const auto *history=findCompPlaybackSource(s,in.assetId);check(history,"Missing mixed source history");
+    in=history->source.original;in.sourceFrame=0;in.sourceTiming={};in.lengthFrames=1000;in.startFrame=out.startFrame+out.lengthFrames;
+    validate(s);const auto original=s;const auto boundary=in.startFrame;
+    const PrepareCompTransition edit{t.id,out.id,in.id,boundary-32,boundary+32,ClipFadeCurve::EqualPower};
+    const CompRecipeExecutor executor{"soundcurrent.comp-join-quintic-v1",std::string(64,'a')};ResourceLedger ledger(192*1024*1024,"Mixed regeneration admission");
+    {
+        auto plan=prepareCompProcessing(s,edit,context,8,ledger);
+        check(plan.outgoing().domain==CompProcessingDomain::ExistingMedia && plan.incoming().domain!=CompProcessingDomain::ExistingMedia &&
+            plan.handles().outgoing().data().regeneration && !plan.handles().incoming().data().regeneration,"Mixed corpus failed to reach unchanged assembled side");
+        auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),executor,ledger);
+        const auto unsupported=[&](auto f){try{f();throw std::runtime_error("Mixed unverified history admitted");}
+            catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Mixed history lacked explicit producer refusal");}};
+        unsupported([&]{(void)encodeCompSpanRequest(recipe,executor,1,Id::generate(),std::string(64,'b'),ledger);});
+        unsupported([&]{(void)prepareCompPairSelection(std::move(recipe),executor,std::string(64,'b'),{Id::generate(),Id::generate()},{},ledger);});
+    }
+    check(s==original && !ledger.usage().reservedBytes,"Mixed admission modified state or leaked resources");
+}
 }
 int main(){try{
     Json input;std::cin>>input;const auto root=utf8Path(input.at("root").get<std::string>());
@@ -99,6 +120,7 @@ int main(){try{
         check(old.bytes()==request.at("recipe").get<std::string>() && Json::parse(old.bytes()).at("format")==compProcessingRecipeFormat,"Retained legacy recipe identity changed");++legacyRecipes;
     }
     plannedRoundtrip(s);
+    mixedAdmission(s);
     check(s.compPlaybackSources.size()==2,"Expected actual paired adoption fixture");
     ResourceLedger ledger(32*1024*1024,"Regeneration source test");Json reports=Json::array();
     for(unsigned side=0;side<2;++side){const auto &c=s.tracks[0].clips[side];
@@ -152,6 +174,6 @@ int main(){try{
     auto invalid=s;invalid.compPlaybackSources.clear();refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     invalid=s;invalid.compPlaybackSources[0].source.rawMap[0].raw.frame++;refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     check(ledger.usage().reservedBytes==0 && s==original,"Refusal changed state or leaked resources");
-    Json result{{"checks",checks},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",false},{"qualityAdmission",false}};
+    Json result{{"checks",checks},{"mixedAdmissionRefused",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",false},{"qualityAdmission",false}};
     std::ofstream out(root/"regeneration-source-report.json");out<<result.dump(2)<<'\n';check(bool(out),"Report write failed");std::cout<<result.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

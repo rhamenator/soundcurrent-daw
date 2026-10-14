@@ -42,3 +42,8 @@ pitch and historical owned-file verification paths are implemented. Existing
 requests remain readable; new producer semantics will be bound explicitly in
 their own versioned protocol. Repeated real rendering, adoption and export still
 require independent acceptance evidence.
+
+The paired-job factory and request decoder also reject any pair containing an
+assembled source, including an unchanged assembled side paired with a new
+first-generation render. Checking only the side sent to the worker would leave
+that mixed-source path without historical verification.
