@@ -1,0 +1,19 @@
+Start testing: Oct 14 19:10 EDT
+----------------------------------------------------------
+181/186 Testing: native-media-long-path
+181/186 Test: native-media-long-path
+Command: "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-native-media-path-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build
+"native-media-long-path" start time: Oct 14 19:10 EDT
+Output:
+----------------------------------------------------------
+{"checks":12,"rootNativeUnits":356,"unprefixedWin32Error":0,"journalPublished":true,"overwriteRefused":true,"leaseConflictRefused":true}
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"native-media-long-path" end time: Oct 14 19:10 EDT
+"native-media-long-path" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 14 19:10 EDT

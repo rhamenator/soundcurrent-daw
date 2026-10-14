@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Versioned comp span workers (2026-10-14)
+
+[Checkpoint 292](292-versioned-comp-span-workers.md) binds explicit clocks in
+version-two requests and reviews original histories around actual child rendering.
+Five suites pass: nine successful workers, four required failures and 350,902
+worker PCM comparisons, alongside original-history and legacy regressions.
+Paired regeneration and queued canonical adoption remain gated. Native Windows
+version-two execution and full processing-quality qualification remain due.
+The preceding native CI exposed long journal paths; the correction has a focused
+Linux test and Windows syntax check, with native confirmation still pending.
+The complete frozen DAW goal remains active.
+
 ## Explicit comp-span sample clocks (2026-10-14)
 
 [Checkpoint 291](291-comp-span-output-clocks.md) adds direct span rendering with

@@ -1,0 +1,61 @@
+{
+  "run": 38650069106,
+  "head": "df7d5901a3a6da33534d6135c7bd926299e19680",
+  "artifactId": 11933709708,
+  "archiveBytes": 108388612,
+  "archiveSha256": "f04ed1832ecfabfe9fbc70b4f94a74ab2623f6332c9b5ef4f4390e01425e68a9",
+  "originalArchiveRetained": true,
+  "crcPassed": true,
+  "stderr": [
+    {
+      "path": "comp-regeneration-history-evidence/run-zbn4z62z/inputs/run-qpcjitxa/input-workflow.stderr",
+      "bytes": 757,
+      "sha256": "b4f53e5fcb95b32a99cbdb00569e09ec908244e2c113d9ef546c5f3b8a818c67",
+      "text": "Traceback (most recent call last):\r\n  File \"D:\\a\\soundcurrent-daw\\soundcurrent-daw\\tests\\comp_pair_assembly_tests.py\", line 27, in <module>\r\n    assert result.returncode==0 and not result.retirement_pending and not result.observation_timed_out,diagnostic(result)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: {\"pid\": 3488, \"exitCode\": 1, \"exitCodeHex\": \"00000001\", \"seconds\": 0.063273099999833, \"observationTimedOut\": false, \"outputLimited\": false, \"inputError\": null, \"retirementPending\": false, \"stdout\": \"\", \"stderr\": \"{\\\"complete\\\":false,\\\"errorCode\\\":4,\\\"messageId\\\":\\\"stretch.render_failed\\\",\\\"protocol\\\":\\\"sc-stretch-render-v4\\\",\\\"publicationMayHaveCommitted\\\":false}\\r\\n\"}\r\n"
+    },
+    {
+      "path": "comp-regeneration-history-evidence/run-zbn4z62z/inputs/run-qpcjitxa/inputs/run-2qkwxrzy/case-48000/project-\u00e9-\u65e5\u672c/2-nominal.stderr",
+      "bytes": 141,
+      "sha256": "64275a0678b235cef2cb74f18ec81053eaca40d723335e656e283f59d6a57e9b",
+      "text": "{\"complete\":false,\"errorCode\":4,\"messageId\":\"stretch.render_failed\",\"protocol\":\"sc-stretch-render-v4\",\"publicationMayHaveCommitted\":false}\r\r\n"
+    },
+    {
+      "path": "comp-regeneration-history-evidence/run-zbn4z62z/inputs.stderr",
+      "bytes": 490,
+      "sha256": "9be150067f43d7e98e79939e56aa36066f6fd417a3728e5806459e563a8db7c5",
+      "text": "Traceback (most recent call last):\r\n  File \"D:\\a\\soundcurrent-daw\\soundcurrent-daw\\tests\\comp_assembly_job_tests.py\", line 11, in <module>\r\n    proc=subprocess.Popen(command,stdout=out,stderr=err);code=proc.wait();assert code==0,(scope,code)\r\n                                                                                 ^^^^^^^\r\nAssertionError: (WindowsPath('D:/a/soundcurrent-daw/soundcurrent-daw/build-native/comp-regeneration-history-evidence/run-zbn4z62z/inputs/run-qpcjitxa'), 1)\r\n"
+    },
+    {
+      "path": "comp-regeneration-source-evidence/run-w4rl52sx/inputs/run-dzqkqowe/input-workflow.stderr",
+      "bytes": 759,
+      "sha256": "9573afbe2eaa4020e91d2564b0541d18f6fd1d35550d2cf5074d4cb5b7f19f8d",
+      "text": "Traceback (most recent call last):\r\n  File \"D:\\a\\soundcurrent-daw\\soundcurrent-daw\\tests\\comp_pair_assembly_tests.py\", line 27, in <module>\r\n    assert result.returncode==0 and not result.retirement_pending and not result.observation_timed_out,diagnostic(result)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: {\"pid\": 9020, \"exitCode\": 1, \"exitCodeHex\": \"00000001\", \"seconds\": 0.06661360000020977, \"observationTimedOut\": false, \"outputLimited\": false, \"inputError\": null, \"retirementPending\": false, \"stdout\": \"\", \"stderr\": \"{\\\"complete\\\":false,\\\"errorCode\\\":4,\\\"messageId\\\":\\\"stretch.render_failed\\\",\\\"protocol\\\":\\\"sc-stretch-render-v4\\\",\\\"publicationMayHaveCommitted\\\":false}\\r\\n\"}\r\n"
+    },
+    {
+      "path": "comp-regeneration-source-evidence/run-w4rl52sx/inputs/run-dzqkqowe/inputs/run-stafdpnp/case-48000/project-\u00e9-\u65e5\u672c/2-nominal.stderr",
+      "bytes": 141,
+      "sha256": "64275a0678b235cef2cb74f18ec81053eaca40d723335e656e283f59d6a57e9b",
+      "text": "{\"complete\":false,\"errorCode\":4,\"messageId\":\"stretch.render_failed\",\"protocol\":\"sc-stretch-render-v4\",\"publicationMayHaveCommitted\":false}\r\r\n"
+    },
+    {
+      "path": "comp-regeneration-source-evidence/run-w4rl52sx/inputs.stderr",
+      "bytes": 489,
+      "sha256": "5288270ec0f49c2454ded2170a007b644a255a842b2703ee6cc92678d97ac304",
+      "text": "Traceback (most recent call last):\r\n  File \"D:\\a\\soundcurrent-daw\\soundcurrent-daw\\tests\\comp_assembly_job_tests.py\", line 11, in <module>\r\n    proc=subprocess.Popen(command,stdout=out,stderr=err);code=proc.wait();assert code==0,(scope,code)\r\n                                                                                 ^^^^^^^\r\nAssertionError: (WindowsPath('D:/a/soundcurrent-daw/soundcurrent-daw/build-native/comp-regeneration-source-evidence/run-w4rl52sx/inputs/run-dzqkqowe'), 1)\r\n"
+    }
+  ],
+  "paths": [
+    {
+      "retainedLock": "comp-regeneration-history-evidence/run-zbn4z62z/inputs/run-qpcjitxa/inputs/run-2qkwxrzy/case-48000/project-\u00e9-\u65e5\u672c/media/derived/f1d2fa8e-8963-468e-a7a0-fa939fb335fc/writer.lock",
+      "lockPathNativeUnits": 226,
+      "temporaryJournalPathNativeUnits": 267
+    },
+    {
+      "retainedLock": "comp-regeneration-source-evidence/run-w4rl52sx/inputs/run-dzqkqowe/inputs/run-stafdpnp/case-48000/project-\u00e9-\u65e5\u672c/media/derived/6f33981b-ba6c-4b77-8e17-509ca942753c/writer.lock",
+      "lockPathNativeUnits": 225,
+      "temporaryJournalPathNativeUnits": 266
+    }
+  ],
+  "interpretation": "I/O refusal after writer.lock before intent. Temporary journal exceeds traditional MAX_PATH. Extended file API representation correction requires fresh native confirmation.",
+  "allRunArtifactsAudited": false
+}

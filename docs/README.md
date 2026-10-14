@@ -233,3 +233,7 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Trusted comp selections in project state](276-project-comp-references.md)
 
 - [Paired comp process supervision](277-paired-comp-supervision.md)
+
+- [Versioned comp span workers](292-versioned-comp-span-workers.md)
+- [ADR 177: versioned comp span history](decisions/177-versioned-comp-span-history.md)
+- [ADR 178: Windows owned media paths](decisions/178-windows-media-paths.md)
