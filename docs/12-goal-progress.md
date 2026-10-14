@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Actual unity comp handle generation (2026-10-13)
+
+[Checkpoint 265](265-unity-comp-handle-renders.md) adds reviewed dual-buffer source
+admission as one structural change. Sixteen existing-worker renders across four
+software scenarios preserve nominal/current PCM and pass all three fade curves,
+atomic Undo/reopen, live/export equality and refusal paths. Eight selected Linux
+gates pass; the preceding window-state source passes all original hosted jobs.
+Current Windows checks are pending. Nonunity/pitch/general producers, paired
+regeneration, controller/UI and broader sonic/SRC qualification remain open;
+installed previews and full-suite/Europe delivery are unchanged.
+
+
 ## Processed comp handle window state (2026-10-13)
 
 [Checkpoint 264](264-processed-comp-window-state.md) adds conditional project schema
