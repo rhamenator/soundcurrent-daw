@@ -45,7 +45,8 @@ native qualification remain open.
 Comp rendering now includes [verified candidate assembly](docs/278-verified-comp-assembly.md)
 with explicit physical and project-rate timing, bounded memory, cancellation and
 [original-render receipt review](docs/279-original-comp-nominal-review.md). Independent
-checks preserve unchanged audio. Final publication, sound-quality qualification,
+checks preserve unchanged audio. [Owned candidate publication and recovery](docs/280-owned-comp-assembly-jobs.md)
+now reject partial or altered results. Project integration, sound-quality qualification,
 undoable adoption and main-window controls for this path remain in development.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration

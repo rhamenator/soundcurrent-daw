@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned comp assembly publication and recovery (2026-10-14)
+
+[Checkpoint 280](280-owned-comp-assembly-jobs.md) publishes immutable final candidate
+files and commits the pair only after complete recomputation and scope checks.
+Source-bound Linux evidence covers three complete, six interrupted and three
+canceled jobs; 202,716 output samples match. A forged within-blend sample with
+repaired hashes is refused. The running executable is hashed through its actual
+Linux image, including a real pathname-replacement probe. Trusted request references
+in project state, desktop ownership, post-SRC live/offline state, paired adoption,
+new native execution and sonic quality remain open. Full parity is not claimed.
+
 ## Original nominal render review (2026-10-14)
 
 [Checkpoint 279](279-original-comp-nominal-review.md) binds assembly to original
