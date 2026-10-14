@@ -2,6 +2,7 @@
 #include <soundcurrent/comp_assembly_job.hpp>
 #include <soundcurrent/comp_media_review.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
+#include <soundcurrent/comp_assembly_dependencies.hpp>
 #include <soundcurrent/playback_reader.hpp>
 #include <soundcurrent/export.hpp>
 #include "media_io.hpp"
@@ -36,7 +37,8 @@ Json adoptionWorkflow(const std::filesystem::path &root,const Session &registere
     const auto selection=std::find_if(s.compPairSelections.begin(),s.compPairSelections.end(),[&](const auto &p){return p.operation==reference.selectionOperation;});
     check(selection!=s.compPairSelections.end(),"Actual assembly has no independent selection");
     ApplyCompAssembly edit{plan.handles().transition(),reference,*selection,
-        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{}};
+        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{},
+        std::make_shared<const CompAssemblyDependencies>(captureCompAssemblyDependencies(s,pair.recipe().selection(),{},ledger))};
     check(verified.requestDigest()==reference.requestSha256,"Adoption lacks independent request binding");
     for(unsigned side=0;side<2;++side)if(verified.outputs()[side])
         edit.sources[side]=prepareCompPlaybackSource(s,context,plan,side,verified.outputs()[side],ledger).data();

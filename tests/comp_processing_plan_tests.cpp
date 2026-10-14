@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_processing_plan.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
+#include <soundcurrent/comp_assembly_dependencies.hpp>
 #include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <nlohmann/json.hpp>
@@ -113,7 +114,8 @@ void persistentPair(const Session &initial,const CompHandlePlanContext &context,
     applySessionEdits(s,{AddCompPairSelection{{reference.selectionOperation,std::string(64,'a')}},AddCompAssembly{reference}});
     const auto identity=[](const CompHandleEnvelopeData &h){return CompAssemblySourceIdentity{h.expected,h.retained,h.raw,h.base,h.retainedAsset,h.nominalAsset};};
     const auto registered=s;ApplyCompAssembly edit{plan.handles().transition(),reference,s.compPairSelections.back(),
-        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{}};
+        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{},
+        std::make_shared<const CompAssemblyDependencies>(captureCompAssemblyDependencies(s,initial,{},ledger))};
     for(unsigned side=0;side<2;++side)if(outputs[side])edit.sources[side]=prepareCompPlaybackSource(s,context,plan,side,outputs[side],ledger).data();
     EditHistory history(s);check(history.structural({edit}),"Paired comp adoption was not recorded");++persistedPairs;
     const auto adopted=s;
@@ -126,6 +128,13 @@ void persistentPair(const Session &initial,const CompHandlePlanContext &context,
     check(history.undo() && s==registered,"Comp adoption Undo lost original state/reservations");
     check(history.redo() && s==adopted,"Comp adoption Redo lost playback provenance");
     auto current=s;
+    auto missing=edit;missing.dependencies.reset();auto withoutGuard=registered;
+    refuses([&]{applySessionEdits(withoutGuard,{missing});});check(withoutGuard==registered,"Missing guard changed project");
+    auto emptySelection=registered;emptySelection.assets.clear();emptySelection.tracks.clear();emptySelection.compPlaybackSources.clear();emptySelection.compPairSelections.clear();
+    auto incomplete=edit;incomplete.dependencies=std::make_shared<const CompAssemblyDependencies>(captureCompAssemblyDependencies(registered,emptySelection,{},ledger));
+    refuses([&]{applySessionEdits(withoutGuard,{incomplete});});check(withoutGuard==registered,"Incomplete guard changed project");
+    auto unrelated=registered;unrelated.name="Unrelated rename";unrelated.tracks[0].eq.bands[0].gainDb+=1;
+    applySessionEdits(unrelated,{edit});check(unrelated.name=="Unrelated rename" && unrelated.tracks[0].eq.bands[0].gainDb==registered.tracks[0].eq.bands[0].gainDb+1,"Guard rejected or replaced unrelated edits");
     auto malformed=edit;malformed.expected[0].clip.processing.gainDb++;
     auto rejected=registered;refuses([&]{applySessionEdits(rejected,{malformed});});check(rejected==registered,"Rejected pair changed first fragment");
     malformed=edit;malformed.expected[1].retained.processing.gainDb++;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "comp_assembly_job.hpp"
+#include "comp_assembly_dependencies.hpp"
 
 namespace soundcurrent::daw {
 // Immutable file-verified edit bound to one live owner and joined memory grant.
@@ -14,7 +15,7 @@ class VerifiedCompAssemblyAdoption {
     const Id &project() const noexcept {return project_;}
     const std::filesystem::path &root() const noexcept {return root_;}
     const CompHandlePlanContext &context() const noexcept {return context_;}
-    bool ownedBy(ResourceLedger ledger) const noexcept {return ledger.owns(lease_);}
+    bool ownedBy(ResourceLedger ledger) const noexcept {return ledger.owns(lease_) && edit_.dependencies && edit_.dependencies->ownedBy(ledger);}
   private:
     friend VerifiedCompAssemblyAdoption verifyCompAssemblyAdoption(const std::filesystem::path &,
         const Session &,const CompHandlePlanContext &,const CompPairSelection &,

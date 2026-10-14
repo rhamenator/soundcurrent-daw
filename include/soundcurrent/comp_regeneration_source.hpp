@@ -1,12 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "comp_handle_plan.hpp"
+#include "comp_assembly_dependencies.hpp"
 namespace soundcurrent::daw {
-struct CompRetainedSourceSnapshot {
-    ClipTakeOrigin origin;
-    Clip clip;
-    Asset asset;
-};
 struct CompRegenerationSourceData {
     CompHandlePlanContext context;
     Id project=Id::generate(),track=Id::generate();

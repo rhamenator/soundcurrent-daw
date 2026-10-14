@@ -56,6 +56,33 @@ int main(){try{
             auto snapshot=loadCompPairSelectionSnapshot(root,context,selection,entry.selectionSha256,ledger);
             check(snapshot.recipe().selection()!=s,"Snapshot restored live adopted state");
             verifyCompProcessingCurrent(snapshot.recipe().selection(),context,snapshot.recipe().plan());
+            const auto beforeGuard=ledger.usage().reservedBytes;
+            {
+                const auto &d=review.data();const std::array<CompAssemblyDependencyView,1> views{{{d.assets,d.history,d.selections,d.retained,d.tracks}}};
+                auto guard=std::make_shared<const CompAssemblyDependencies>(captureCompAssemblyDependencies(s,snapshot.recipe().selection(),views,ledger));
+                check(guard->ownedBy(ledger) && !guard->ownedBy(ResourceLedger(1024,"Other ledger")),"Guard lost joined ownership");
+                check(guard->data().history.size()==source->data().history.size() && guard->data().history.size()==2,"Guard omitted paired ancestry");
+                check(!guard->data().retained.empty() && !guard->data().tracks.empty(),"Guard omitted retained sources/layouts");
+                std::vector<std::shared_ptr<const CompAssemblyDependencies>> queue{guard};const auto queuedBytes=ledger.usage().reservedBytes;guard.reset();
+                check(ledger.usage().reservedBytes==queuedBytes,"Queued guard released its memory too early");
+                const auto &queued=*queue.front();verifyCompAssemblyDependencies(s,queued);
+                auto unrelated=s;unrelated.name="Unrelated title";unrelated.tracks[0].name="Renamed track";unrelated.tracks[0].eq.bands[0].gainDb+=1;
+                validate(unrelated);verifyCompAssemblyDependencies(unrelated,queued);
+                for(unsigned mutation=0;mutation<8;++mutation){auto changed=s;
+                    if(mutation==0)changed.id=Id::generate();
+                    if(mutation==1)changed.sampleRate=88200;
+                    if(mutation==2)changed.assets.front().sha256=std::string(64,'0');
+                    if(mutation==3)changed.compPlaybackSources.back().selectionSha256=std::string(64,'0');
+                    if(mutation==4)changed.compPairSelections.front().selectionSha256=std::string(64,'0');
+                    if(mutation==5)changed.tracks.front().takeLanes.front().clips.front().processing.gainDb+=1;
+                    if(mutation==6)changed.tracks.front().layout.channels=1;
+                    if(mutation==7)changed.compPlaybackSources.erase(changed.compPlaybackSources.begin());
+                    const auto before=changed;refuses("queued dependency changed",[&]{verifyCompAssemblyDependencies(changed,queued);});check(changed==before,"Guard mutated stale project");
+                }
+                refuses("tiny dependency guard memory",[&]{captureCompAssemblyDependencies(s,snapshot.recipe().selection(),views,ResourceLedger(1,"Tiny guard"));});
+                queue.clear();check(ledger.usage().reservedBytes==beforeGuard,"Last queued guard retained credits");
+            }
+            check(ledger.usage().reservedBytes==beforeGuard,"Dependency guard leaked memory");
             if(side==0){
                 const auto attempt=[&]{(void)reviewCompRegenerationHistory(root,s,context,source,ledger);};
                 const auto missing=[&](const char *label,const std::filesystem::path &p){const auto parked=std::filesystem::path(p.native()+std::filesystem::path(".history-test-parked").native());
@@ -83,7 +110,7 @@ int main(){try{
                 {media_io::JobLease active(assembly,false,true);check(active.status()==media_io::LeaseStatus::Held,"Fixture original writer unavailable");refuses("original writer still active",attempt);}
                 auto restored=reviewCompRegenerationHistory(root,s,context,source,ledger);check(restored.data().entries[0].comparedSamples==samples,"Restored original verification failed");
             }
-            reviewed.push_back({{"side",side},{"assemblies",review.data().entries.size()},{"comparedSamples",samples},{"originalSelectionAssets",review.data().assets.size()}});
+            reviewed.push_back({{"side",side},{"assemblies",review.data().entries.size()},{"comparedSamples",samples},{"originalSelectionAssets",review.data().assets.size()},{"queuedDependencyGuard",true},{"queuedStaleRefusals",8}});
             const auto reserved=ledger.usage().reservedBytes;auto moved=std::move(review);refuses("moved review",[&]{review.data();});check(ledger.usage().reservedBytes==reserved,"Move released review credit");verifyCompRegenerationHistoryCurrent(s,context,moved);
         }
         check(ledger.usage().reservedBytes==sourceBytes,"Historical review leaked memory");

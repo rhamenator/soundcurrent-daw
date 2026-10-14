@@ -9,7 +9,7 @@ struct CompHistoryReviewLimits {
     std::uint64_t maximumComparedSamples=64ULL*1024*1024;
     std::uint64_t maximumInputFileBytes=8ULL*1024*1024*1024;
 };
-struct CompHistoryTrackLayout {Id track;ChannelLayout layout;};
+using CompHistoryTrackLayout=CompSourceTrackSnapshot;
 struct CompHistoryReviewEntry {
     CompAssemblyReference assembly;
     std::string selectionSha256;

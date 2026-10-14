@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_assembly_adoption.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
+#include <soundcurrent/comp_regeneration_history.hpp>
 #include <algorithm>
 
 namespace soundcurrent::daw {
@@ -21,9 +22,20 @@ VerifiedCompAssemblyAdoption verifyCompAssemblyAdoption(const std::filesystem::p
     const auto verified=verifyCompAssembly(root,s,context,pair,request,ledger,stop);poll();
     check(verified.requestDigest()==reference.requestSha256,"Comp adoption request changed");
     const auto &plan=pair.recipe().plan();
+    std::vector<ReviewedCompRegenerationHistory> reviews;
+    for(const auto *envelope:{&plan.handles().outgoing(),&plan.handles().incoming()})if(envelope->data().regeneration){
+        poll();CompHistoryReviewLimits limits;limits.maximumInputFileBytes=request.policy().maximumFileBytes;
+        reviews.push_back(reviewCompRegenerationHistory(root,s,context,envelope->data().regeneration,ledger,limits,stop));
+    }
+    std::vector<CompAssemblyDependencyView> dependencies;
+    for(const auto &review:reviews){const auto &d=review.data();
+        verifyCompRegenerationHistoryCurrent(s,context,review);
+        dependencies.push_back({d.assets,d.history,d.selections,d.retained,d.tracks});
+    }
+    auto guard=std::make_shared<const CompAssemblyDependencies>(captureCompAssemblyDependencies(s,pair.recipe().selection(),dependencies,ledger));
     const auto identity=[](const CompHandleEnvelopeData &h){return CompAssemblySourceIdentity{h.expected,h.retained,h.raw,h.base,h.retainedAsset,h.nominalAsset};};
     ApplyCompAssembly edit{plan.handles().transition(),reference,parent,
-        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{}};
+        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{},std::move(guard)};
     for(unsigned side=0;side<2;++side){poll();if(verified.outputs()[side])
         edit.sources[side]=prepareCompPlaybackSource(s,context,plan,side,verified.outputs()[side],ledger).data();}
     auto proposed=s;applySessionEdits(proposed,{edit});poll();

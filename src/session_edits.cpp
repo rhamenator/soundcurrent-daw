@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/session.hpp>
+#include <soundcurrent/comp_assembly_dependencies.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
 #include <soundcurrent/comp_handle_plan.hpp>
@@ -359,6 +360,8 @@ void adoptCompHandlePair(Session &s,const ApplyCompHandlePair &e,StateBudget bud
     prepareCompTransition(s,e.transition,budget);
 }
 void adoptCompAssembly(Session &s,const ApplyCompAssembly &e,StateBudget budget) {
+    verifyCompAssemblyDependencyCoverage(e);
+    verifyCompAssemblyDependencies(s,*e.dependencies);
     auto reference=std::find_if(s.compAssemblies.begin(),s.compAssemblies.end(),[&](const auto &r){return r.operation==e.expectedReference.operation;});
     require(reference!=s.compAssemblies.end() && *reference==e.expectedReference,"Comp request changed before adoption");
     require(e.expectedSelection.operation==reference->selectionOperation &&

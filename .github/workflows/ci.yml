@@ -12,6 +12,21 @@ concurrency:
 jobs:
   linux-desktop:
     name: Linux desktop and synthetic tests
+    needs: linux-tests
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require every Linux shard to pass
+        env:
+          LINUX_RESULT: ${{ needs.linux-tests.result }}
+        run: test "$LINUX_RESULT" = success
+  linux-tests:
+    name: Linux synthetic shard ${{ matrix.shard }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -27,7 +42,7 @@ jobs:
       - name: Build
         run: cmake --build build --parallel 2
       - name: Test synthetic workflows
-        run: ctest --test-dir build --output-on-failure --parallel 1
+        run: python3 .github/scripts/run-linux-test-shard.py build ${{ matrix.shard }}
       - name: Verify relocated native startup evidence (no audio replay)
         run: |
           python3 tests/native_startup_archive_integrity_tests.py
@@ -135,9 +150,11 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           archive: true
-          name: linux-synthetic-test-log
+          name: linux-synthetic-test-log-${{ matrix.shard }}
           path: |
             build/Testing/Temporary/*.log
+            build/ci-test-inventory.json
+            build/ci-shard-plan.json
             build/controller-failure-projects/**
             build/comp-assembly-state-evidence/**
             build/comp-assembly-job-evidence/**

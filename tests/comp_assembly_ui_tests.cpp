@@ -55,6 +55,8 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             auto livePair=loadReferencedCompPairSelection(root,*opened->session,liveContext,reference.selectionOperation,preparation);
             auto liveRequest=loadReferencedCompAssemblyRequest(root,*opened->session,liveContext,livePair,reference.operation,preparation);
             auto token=std::make_shared<const VerifiedCompAssemblyAdoption>(verifyCompAssemblyAdoption(root,*opened->session,liveContext,livePair,liveRequest,preparation));
+            check(token->edit().dependencies && token->edit().dependencies->ownedBy(preparation),"Verified Apply omitted joined dependency guard");
+            verifyCompAssemblyDependencies(*opened->session,*token->edit().dependencies);
             for(unsigned attempt=0;attempt<2;++attempt){
                 ProjectCommand command{CommandKind::Structural};command.structuralRequest=900+attempt;
                 command.structuralGuard=StructuralGuard{opened->projectEpoch,opened->session->id,root};
@@ -94,7 +96,7 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             window.findChild<QDialog *>("compAssemblyDialog")->close();QTest::qWait(110);
             check(window.grab().save(QString::fromStdString((root.parent_path()/"applied.png").string())),"Applied screenshot failed");
             row["undoRedoSaveReopen"]=true;row["exportFrames"]=exported.frames;row["exportPeak"]=exported.peak;row["exportFileSha256"]=exported.fileSha256;
-            row["rawAndForeignLedgerRefused"]=true;
+            row["rawAndForeignLedgerRefused"]=true;row["queuedDependencyGuard"]=true;
         }else if(mode==1){
             const auto output=window.compAssemblySnapshot()->recovery->result->outputs()[0];check(output.has_value(),"Missing corruption fixture output");
             std::fstream f(root/utf8Path(output->relativePath),std::ios::in|std::ios::out|std::ios::binary);f.seekg(-1,std::ios::end);char byte=0;f.get(byte);f.seekp(-1,std::ios::end);f.put(char(byte^1));f.close();check(bool(f),"Output corruption injection failed");

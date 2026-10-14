@@ -12,6 +12,7 @@
 #include <utility>
 #include <unordered_map>
 #include <limits>
+#include <memory>
 
 namespace soundcurrent::daw {
 using Frame = std::int64_t;
@@ -505,12 +506,14 @@ struct CompAssemblySourceIdentity {
     Asset raw, base, retainedAsset;
     std::optional<Asset> nominal;
 };
+class CompAssemblyDependencies;
 struct ApplyCompAssembly {
     PrepareCompTransition transition;
     CompAssemblyReference expectedReference;
     CompPairSelectionReference expectedSelection;
     std::array<CompAssemblySourceIdentity,2> expected;
     std::array<std::optional<CompPlaybackSourceData>,2> sources;
+    std::shared_ptr<const CompAssemblyDependencies> dependencies;
 };
 struct MoveClip {
     Id from, to, clip;
