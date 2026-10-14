@@ -1,5 +1,14 @@
 # Active full-suite goal: progress and completion evidence
 
+## Explicit comp-span sample clocks (2026-10-14)
+
+[Checkpoint 291](291-comp-span-output-clocks.md) adds direct span rendering with
+explicit output clocks and previously baked pitch. Four suites pass, including
+15 new tone renders, 36 legacy renders, unchanged legacy export hashes and the
+original-history checks. Owned regenerated jobs remain gated pending protocol
+and adoption integration. Original CI is fully retained: Linux passes 187 tests;
+the native Windows compiler fix awaits a fresh run. The full goal remains active.
+
 ## Original assembly history review (2026-10-14)
 
 [Checkpoint 290](290-original-assembly-history-review.md) verifies saved rendering
