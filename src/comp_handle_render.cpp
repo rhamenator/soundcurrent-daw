@@ -50,7 +50,13 @@ VerifiedCompHandlePair verifyUnityCompHandlePair(const std::filesystem::path &ro
     const auto replace=[&](const CompHandleEnvelope &envelope,const VerifiedClipStretch *child)
         ->std::optional<CompHandleReplacement> {
         const auto &p=envelope.data();
-        hashAsset(p.raw);hashAsset(p.base);if(p.nominalAsset)hashAsset(*p.nominalAsset);
+        // The retained take can be a separately processed artifact whose map
+        // establishes the allowed raw interval.  Hash it independently even
+        // when the raw source and current nominal artifact have already been
+        // checked: otherwise a changed retained file can silently invalidate
+        // the provenance used during planning.
+        hashAsset(p.raw);hashAsset(p.base);hashAsset(p.retainedAsset);
+        if(p.nominalAsset)hashAsset(*p.nominalAsset);
         if(!child){check(!p.needsNewSpan && !p.needsNominalExposure,"Missing reviewed comp handle artifact");return {};}
         auto request=prepareUnityCompHandleRender(envelope);
         request.anchor.renderKey=stretchRenderKey(request.source,request.anchor,ledger);

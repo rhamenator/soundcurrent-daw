@@ -8,6 +8,7 @@
 #include "rt_audit.hpp"
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <numbers>
@@ -51,6 +52,17 @@ int main(int argc,char **argv){try{
             verifyStretchRenderReady(ready[n].dump(),p,op,ledger);auto verified=verifyOwnedClipStretch(root,p,op,policy(),ledger);
             c.assetId=verified.edit().rendered.id;c.stretch=verified.edit().value;s.assets.push_back(verified.edit().rendered);t.clips.push_back(c);
         }
+        // Keep a distinct processed take which spans both comp fragments. The
+        // handle planner uses its raw map to define the allowed extension, so
+        // admission must rehash this artifact as well as raw/current/nominal.
+        ClipStretchPlan retainedPlan{t.id,t.takeLanes[0].clips[0],raw,anchor(requests[2],raw)};
+        const auto retainedOp=Id(requests[2].at("operation"));
+        verifyStretchRenderReady(ready[2].dump(),retainedPlan,retainedOp,ledger);
+        auto retainedVerified=verifyOwnedClipStretch(root,retainedPlan,retainedOp,policy(),ledger);
+        t.takeLanes[0].clips[0].assetId=retainedVerified.edit().rendered.id;
+        t.takeLanes[0].clips[0].lengthFrames=retainedVerified.edit().rendered.frames;
+        t.takeLanes[0].clips[0].stretch=retainedVerified.edit().value;
+        s.assets.push_back(retainedVerified.edit().rendered);
         validate(s);ProjectStore(root).save(s);auto pair=plan(s,ledger);Json outputs=Json::array();
         for(const auto *e:{&pair.outgoing(),&pair.incoming()}){auto p=prepareUnityCompHandleRender(*e);auto bytes=encodeStretchRenderRequest(p,Id::generate(),policy(),ledger);outputs.push_back(Json::parse(bytes.bytes()));}
         write(root/"comp-requests.json",outputs);std::cout<<outputs.dump()<<'\n';return 0;
@@ -72,6 +84,15 @@ int main(int argc,char **argv){try{
     {std::ofstream changed(changedPath,std::ios::binary|std::ios::trunc);auto bytes=originalBytes;bytes.back()^=1;changed.write(bytes.data(),std::streamsize(bytes.size()));}
     refusal([&]{verifyUnityCompHandlePair(root,s,context(s),pair,&out,&in,policy(),ledger);});
     {std::ofstream restore(changedPath,std::ios::binary|std::ios::trunc);restore.write(originalBytes.data(),std::streamsize(originalBytes.size()));}
+    const auto &retainedClip=s.tracks[0].takeLanes[0].clips[0];
+    const auto retainedIt=std::find_if(s.assets.begin(),s.assets.end(),[&](const Asset &asset){return asset.id==retainedClip.assetId;});
+    check(retainedIt!=s.assets.end(),"Processed retained asset disappeared");
+    const auto &retainedAsset=*retainedIt;
+    const auto retainedPath=root/utf8Path(retainedAsset.relativePath);
+    std::ifstream retainedFile(retainedPath,std::ios::binary);std::string retainedBytes((std::istreambuf_iterator<char>(retainedFile)),{});retainedFile.close();
+    {std::ofstream changed(retainedPath,std::ios::binary|std::ios::trunc);auto bytes=retainedBytes;bytes.back()^=1;changed.write(bytes.data(),std::streamsize(bytes.size()));}
+    refusal([&]{verifyUnityCompHandlePair(root,s,context(s),pair,&out,&in,policy(),ledger);});
+    {std::ofstream restore(retainedPath,std::ios::binary|std::ios::trunc);restore.write(retainedBytes.data(),std::streamsize(retainedBytes.size()));}
     check(s==original,"Refused comp review changed canonical state");
     auto bad=verified.edit();bad.incoming->window.baseSha256=std::string(64,'f');const auto beforeResources=ledger.usage();
     try{applySessionEdits(s,{bad});throw std::runtime_error("Last fragment corruption accepted");}catch(const ProjectError &){++checks;}

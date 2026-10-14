@@ -22,7 +22,8 @@ The original nominal state remains separate from this processing request.
 
 The child result must first pass the existing owned completion-marker, raw input,
 full RF64/sample/hash and policy verifier. `verifyUnityCompHandlePair` then checks
-current model/revision, pins and hashes source/current/nominal files, and streams
+current model/revision, pins and hashes raw/current/nominal files plus the separately
+processed retained-take artifact when present, and streams
 candidate samples through bounded slabs. Its current and nominal inner regions
 must have identical float PCM hashes to the original buffers. It rechecks source
 bytes and current expected state before producing a private verified edit owner.
@@ -67,8 +68,17 @@ APIs/logs/five ZIPs are retained; independent byte/source audit verifies 14
 payload files, 1,519 corresponding source files and both reviewed media DLLs.
 Native main-window, physical audio and installer flags remain false.
 
-This implementation is under [run 38491971110](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38491971110)
-at this checkpoint. Retain its original terminal evidence before branch updates.
+The original [run 38491971110](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38491971110)
+completed successfully: Linux synthetic tests, Windows core cross-build, Windows
+native packet tests and Windows desktop/import/localization tests all passed. Its
+original job APIs, logs and five artifact ZIPs are retained before this follow-up
+source change.
+
+The follow-up fixture uses a third, separately rendered retained take spanning
+both fragments. It changes that file after child verification and confirms that
+paired admission refuses it. Twenty actual worker renders (five per scenario) and
+63 fixture checks per scenario pass in the focused local run. This adds provenance
+coverage; it does not qualify general processed-take rendering or sonic quality.
 
 ## Next work
 

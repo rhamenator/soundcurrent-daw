@@ -7,7 +7,9 @@ admission as one structural change. Sixteen existing-worker renders across four
 software scenarios preserve nominal/current PCM and pass all three fade curves,
 atomic Undo/reopen, live/export equality and refusal paths. Eight selected Linux
 gates pass; the preceding window-state source passes all original hosted jobs.
-Current Windows checks are pending. Nonunity/pitch/general producers, paired
+The original hosted run for this source has now passed all four jobs. A follow-up
+uses a distinct processed retained take and refuses a changed retained-artifact
+file across 20 real renders. Nonunity/pitch/general producers, paired
 regeneration, controller/UI and broader sonic/SRC qualification remain open;
 installed previews and full-suite/Europe delivery are unchanged.
 

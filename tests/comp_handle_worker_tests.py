@@ -39,6 +39,7 @@ for channels,fraction in [(1,0),(2,0),(2,1),(4,0)]:
     wav=b'RIFF'+struct.pack('<I',36+len(payload))+b'WAVEfmt '+struct.pack('<I',16)+fmt+b'data'+struct.pack('<I',len(payload))+payload
     path=root/'media/raw.wav';path.write_bytes(wav);raw_hash=hashlib.sha256(wav).hexdigest();asset=str(uuid.uuid4())
     requests=[dict(protocol='sc-stretch-render-v4',processor='soundcurrent.stretch-positioned-copy-v1',operation=str(uuid.uuid4()),assetId=asset,relative='media/raw.wav',sha256=raw_hash,rate=rate,channels=channels,sourceFrames=frames,first=512+n*384,firstFraction=fraction,firstDenominator=7 if fraction else 1,frames=384,timeNumerator=1,timeDenominator=1,pitchMilliCents=0,formantPreserved=False,contextEnabled=False,contextBefore=0,contextAfter=0) for n in range(2)]
+    requests.append(dict(protocol='sc-stretch-render-v4',processor='soundcurrent.stretch-positioned-copy-v1',operation=str(uuid.uuid4()),assetId=asset,relative='media/raw.wav',sha256=raw_hash,rate=rate,channels=channels,sourceFrames=frames,first=512,firstFraction=fraction,firstDenominator=7 if fraction else 1,frames=768,timeNumerator=1,timeDenominator=1,pitchMilliCents=0,formantPreserved=False,contextEnabled=False,contextBefore=0,contextAfter=0))
     (root/'base-requests.json').write_text(json.dumps(requests));ready=[run_worker(root,r) for r in requests];(root/'base-ready.json').write_text(json.dumps(ready))
     generated=driver('prepare',root);ready=[run_worker(root,r) for r in generated];(root/'comp-ready.json').write_text(json.dumps(ready));report=driver('admit',root)
     assert path.read_bytes()==wav
@@ -53,5 +54,5 @@ for channels,fraction in [(1,0),(2,0),(2,1),(4,0)]:
                 for ch in range(channels):
                     assert abs(actual[f*channels+ch]-source[(512+f)*channels+ch]*gain)<2e-6
     rows.append({'mode':'independent-pcm','root':str(root),'channels':channels,'fraction':fraction,'full_pcm_oracle':not fraction,'report':report})
-(scope/'summary.json').write_text(json.dumps({'actual_worker_renders':16,'scenarios':4,'rows':rows,'full_sonic_quality':False,'physical_endpoints_used':False},indent=2)+'\n')
-print('actual_comp_handle_renders=16 scenarios=4 atomic_admission_undo_reopen_live_export=true full_sonic_quality=false')
+(scope/'summary.json').write_text(json.dumps({'actual_worker_renders':20,'scenarios':4,'rows':rows,'full_sonic_quality':False,'physical_endpoints_used':False},indent=2)+'\n')
+print('actual_comp_handle_renders=20 scenarios=4 atomic_admission_undo_reopen_live_export=true full_sonic_quality=false')

@@ -14,6 +14,10 @@ completion, then independently compare streamed current/nominal inner PCM before
 creating a private verified pair owner. Keep review, resource leases, filesystem
 operations and decoding off callbacks. Do not waive ordinary stretch adoption guards.
 
+When the retained take is itself a rendered asset, independently hash that file
+during review. Its raw map constrains the permitted handle interval, so checking
+only raw/current/nominal files would leave a planning dependency unchecked.
+
 ## Consequences
 
 Real software workflows can test generation, dual review, atomic Undo/reopen and
