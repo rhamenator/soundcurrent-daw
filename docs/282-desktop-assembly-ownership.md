@@ -66,11 +66,32 @@ completeness claim is added.
 
 ## CI and remaining integration
 
-The preceding original CI run 38626732345 at
-`54c7276a0f0ab9d3a77635ecf201987c092acf90` is still running at this checkpoint.
-Retain its terminal APIs, full logs, ZIPs and PNGs and audit before advancing
-PR 194's head. This controller has no independent Windows execution evidence yet;
-its native desktop target, test and artifact retention are configured.
+Checkpoint 283 follow-up, 2026-10-14: the preceding original
+[CI run 38626732345](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38626732345)
+at `54c7276a0f0ab9d3a77635ecf201987c092acf90` passed all four jobs. Linux passed
+183 tests; native Windows passed 14 comp tests plus 93 existing tests; Windows
+desktop passed 23 tests; the core cross-build passed. Terminal APIs, complete job
+logs and all five original artifact ZIPs (including screenshots) were retained
+before advancing PR 194. See the
+[CI evidence index](../tests/results/M2/2026-10-14-comp-assembly-controller/pr194-state-ci/index.json).
+
+Both original Linux and Windows publication workflows retired twelve nominal/span
+workers and three publisher fixtures. Each compared 202,716 output samples across
+44.1/48/96 kHz sources, retained three complete/six injected-interruption/three
+canceled jobs, and passed 267 publication checks plus 119 project-state checks.
+The request references survive save/reopen and relocation; orphan/missing sidecars
+do not become authority. A separate retained-byte audit verifies all twelve output
+WAV hashes and relocated copies, independent request digests, reserved output IDs
+and original completion bytes. This audit does not rerun native code or DSP.
+
+The independent Windows deployment audit verifies fourteen payloads, 1,626 source
+files against the recorded Git revision using Windows checkout filters, every
+collection hash and both media DLL builds against the reviewed dependency pin.
+It does not qualify the main window, native audio endpoints or an installer.
+
+That original CI run qualifies the publication and schema 1.22 recovery code.
+The newer controller still needs independent Windows execution; its native
+desktop target, test and artifact retention are configured for the next PR run.
 
 Next implement explicit project-rate post-SRC state shared by live playback and
 offline rendering, paired atomic adoption/Undo consuming the reserved output IDs,

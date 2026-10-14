@@ -9,7 +9,11 @@ cases pass in 23.88 seconds using actual source workers and the real project
 controller. GUI event processing, stale/same-root-reopen refusal, cancellation,
 late committed recovery and resource retirement are covered. Main-window wiring,
 post-SRC live/offline state, paired audio adoption, native verification and quality
-remain open. Preceding CI is still active; its head is preserved pending audit.
+remain open. Checkpoint 283 retains and audits the completed preceding CI: all
+four jobs pass, including native Windows publication and schema 1.22 relocation.
+Both platform corpora preserve their original process/file evidence. The Windows
+bundle audit verifies fourteen payloads and 1,626 source files. This clears the
+pending head-update gate; Windows execution of the newer controller is still due.
 
 ## Project-owned assembly requests (2026-10-14)
 
