@@ -373,7 +373,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", !s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", !s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -392,6 +392,16 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
         for (const auto &reference : s.compPairSelections)
             root["compPairSelections"].push_back({{"operation",reference.operation.str()},
                 {"selectionSha256",reference.selectionSha256}});
+    }
+    if (!s.compAssemblies.empty()) {
+        root["compAssemblies"] = Json::array();
+        for (const auto &reference : s.compAssemblies) {
+            Json outputs=Json::array();
+            for(const auto &output:reference.outputs)outputs.push_back(output?Json(output->str()):Json(nullptr));
+            root["compAssemblies"].push_back({{"operation",reference.operation.str()},
+                {"selectionOperation",reference.selectionOperation.str()},
+                {"requestSha256",reference.requestSha256},{"outputs",outputs}});
+        }
     }
     root["imports"] = Json::array();
     const auto file = [](const ProjectEvidenceFile &f) {
@@ -523,7 +533,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 21),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 22),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -543,10 +553,14 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback"});
-        else
+        else if (minor == 21)
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections"});
+        else
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections", "compAssemblies"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
         canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
@@ -561,6 +575,20 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                 keys(reference,{"operation","selectionSha256"});
                 s.compPairSelections.push_back({Id(string(reference.at("operation"))),
                     string(reference.at("selectionSha256"))});
+            }
+        }
+        if (minor >= 22) {
+            const auto &references=j.at("compAssemblies");
+            array(references,budget.state.memoryBudgetBytes/sizeof(CompAssemblyReference));
+            s.compAssemblies.reserve(references.size());
+            for (const auto &reference : references) {
+                keys(reference,{"operation","selectionOperation","requestSha256","outputs"});
+                const auto &outputs=reference.at("outputs");array(outputs,2);
+                require(outputs.size()==2,"Invalid comp assembly output count");
+                CompAssemblyReference value{Id(string(reference.at("operation"))),
+                    Id(string(reference.at("selectionOperation"))),string(reference.at("requestSha256")),{}};
+                for(unsigned side=0;side<2;++side)if(!outputs[side].is_null())value.outputs[side]=Id(string(outputs[side]));
+                s.compAssemblies.push_back(std::move(value));
             }
         }
         s.sampleRate = u32(j.at("sampleRate"));

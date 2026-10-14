@@ -42,6 +42,31 @@ int main(int argc,char **argv){try{
     const auto duplicate=std::string("{\"protocol\":\"sc-comp-assembly-v1\",")+std::string(r.bytes()).substr(1);refuses([&]{decodeCompAssemblyRequest(duplicate,hash(duplicate),s,context,pair,ledger);});
     const auto folder=[&](const CompAssemblyRequest &v){return root/"media/comp-assemblies"/v.operation().str();};
     const auto record=[&](const CompAssemblyRequest &v,std::string_view label){write(root/(v.operation().str()+".request.json"),v.bytes());jobs.push_back({{"case",label},{"operation",v.operation().str()},{"requestDigest",v.digest()}});};
+    auto registered=s;const auto reference=persistCompAssemblyRequest(root,s,context,pair,r,ledger);
+    check(persistCompAssemblyRequest(root,s,context,pair,r,ledger)==reference,"Idempotent request persistence changed reference");
+    EditHistory history(registered);check(history.structural({AddCompAssembly{reference}}),"Trusted assembly registration failed");
+    ProjectStore(root).save(registered);check(ProjectStore(root).load()==registered,"Assembly reference did not reopen");
+    auto loaded=loadReferencedCompAssemblyRequest(root,registered,context,pair,r.operation(),ledger);
+    check(loaded.bytes()==r.bytes(),"Saved request bytes changed");
+    check(history.undo() && registered==s,"Reference Undo changed source project");
+    refuses([&]{loadReferencedCompAssemblyRequest(root,registered,context,pair,r.operation(),ledger);});
+    check(history.redo(),"Reference Redo failed");
+    auto badReference=registered;badReference.compAssemblies[0].requestSha256=std::string(64,'0');
+    refuses([&]{loadReferencedCompAssemblyRequest(root,badReference,context,pair,r.operation(),ledger);});
+    badReference=registered;badReference.compAssemblies[0].outputs[0]=Id::generate();
+    refuses([&]{loadReferencedCompAssemblyRequest(root,badReference,context,pair,r.operation(),ledger);});
+    const auto sidecar=root/"media/comp-assembly-requests"/(r.operation().str()+".json");
+    write(sidecar,std::string(r.bytes())+" ");refuses([&]{loadReferencedCompAssemblyRequest(root,registered,context,pair,r.operation(),ledger);});
+    refuses([&]{persistCompAssemblyRequest(root,registered,context,pair,r,ledger);});write(sidecar,r.bytes());
+    auto missingSidecar=sidecar;missingSidecar+=".missing";
+    std::filesystem::rename(sidecar,missingSidecar);
+    check(ProjectStore(root).load()==registered,"Missing request prevented project reopen");
+    refuses([&]{loadReferencedCompAssemblyRequest(root,registered,context,pair,r.operation(),ledger);});
+    std::filesystem::rename(missingSidecar,sidecar);
+    for(unsigned slot=0;slot<2;++slot){auto bad=prepareCompAssemblyRequest(s,context,pair,slot?Id::generate():s.tracks[0].id,
+        {slot?s.tracks[0].id:Id::generate(),Id::generate()},executable,{},ledger);
+        refuses([&]{persistCompAssemblyRequest(root,s,context,pair,bad,ledger);});
+        check(!std::filesystem::exists(root/"media/comp-assembly-requests"/(bad.operation().str()+".json")),"Colliding request sidecar published");}
     record(r,"complete");check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Absent,"Fresh job not absent");unsigned observed=0;
     publishCompAssembly(root,s,context,pair,r,ledger,[&](auto,unsigned){check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Active,"Live writer not active");refuses([&]{verifyCompAssembly(root,s,context,pair,r,ledger);});++observed;});check(observed==5,"Publication stages missing");
     auto result=verifyCompAssembly(root,s,context,pair,r,ledger);check(result.comparedSamples()>0 && result.requestDigest()==r.digest(),"Verified pair lost request binding");const auto outputs=result.outputs();const auto originalComplete=read(folder(r)/"complete.json");
@@ -66,5 +91,13 @@ int main(int argc,char **argv){try{
     auto tinyRequest=request();ResourceLedger tiny(1,"Refused job quota");refuses([&]{publishCompAssembly(root,s,context,pair,tinyRequest,tiny);});check(!std::filesystem::exists(folder(tinyRequest)) && !tiny.usage().reservedBytes,"Quota refusal modified job or leaked credit");
     auto wrong=prepareCompAssemblyRequest(s,context,pair,Id::generate(),{Id::generate(),Id::generate()},std::string(64,'0'),{},ledger);refuses([&]{publishCompAssembly(root,s,context,pair,wrong,ledger);});check(!std::filesystem::exists(folder(wrong)),"Wrong executable created job");
     {auto checked=verifyCompAssembly(root,s,context,pair,r,ledger);check(checked.outputs()==outputs,"Restored pair changed verified identity");}
-    check(ProjectStore(root).load()==s,"Assembly publication mutated project");Json report{{"checks",checks},{"executorSha256",executable},{"jobs",jobs},{"comparedSamples",result.comparedSamples()},{"completedJobs",1},{"interruptedJobs",2},{"canceledJobs",1},{"sourceBasedFullPcmRefusal",true},{"modelAdoptionChanged",false},{"qualityAdmission",false},{"osMemoryCeilingClaimed",false},{"actualPowerLossTested",false}};write(root/"assembly-job-report.json",report.dump(2));std::cout<<report.dump()<<'\n';return 0;
+    check(ProjectStore(root).load()==registered,"Assembly publication mutated registered project");
+    const auto relocated=root.parent_path()/"relocated-assembly";std::filesystem::copy(root,relocated,std::filesystem::copy_options::recursive);
+    const auto moved=ProjectStore(relocated).load();const CompHandlePlanContext movedContext{61,"relocated-assembly-owner"};
+    auto movedPair=loadReferencedCompPairSelection(relocated,moved,movedContext,reference.selectionOperation,ledger);
+    auto movedRequest=loadReferencedCompAssemblyRequest(relocated,moved,movedContext,movedPair,reference.operation,ledger);
+    auto recovered=inspectCompAssembly(relocated,moved,movedContext,movedPair,movedRequest,ledger);
+    check(moved==registered && recovered.state==CompAssemblyRecoveryState::Complete && recovered.result->outputs()==outputs,
+        "Relocated trusted request did not recover exact completed output");
+    Json report{{"checks",checks},{"executorSha256",executable},{"jobs",jobs},{"comparedSamples",result.comparedSamples()},{"completedJobs",1},{"interruptedJobs",2},{"canceledJobs",1},{"sourceBasedFullPcmRefusal",true},{"requestReferenceInProject",true},{"requestSidecarReopenRelocation",true},{"modelAdoptionChanged",false},{"qualityAdmission",false},{"osMemoryCeilingClaimed",false},{"actualPowerLossTested",false}};write(root/"assembly-job-report.json",report.dump(2));std::cout<<report.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include <array>
 #include <cstdint>
 #include <deque>
 #include <optional>
@@ -337,6 +338,14 @@ struct CompPairSelectionReference {
     std::string selectionSha256;
     bool operator==(const CompPairSelectionReference &) const = default;
 };
+// Reserved candidate identities and trusted immutable request bytes. These do
+// not activate audio. Adoption must consume reservations in the same edit.
+struct CompAssemblyReference {
+    Id operation, selectionOperation;
+    std::string requestSha256;
+    std::array<std::optional<Id>, 2> outputs;
+    bool operator==(const CompAssemblyReference &) const = default;
+};
 struct Session {
     Id id = Id::generate();
     std::string name;
@@ -351,6 +360,7 @@ struct Session {
     LoopSettings loop;
     std::vector<ImportedProjectSource> imports;
     std::vector<CompPairSelectionReference> compPairSelections;
+    std::vector<CompAssemblyReference> compAssemblies;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
@@ -385,6 +395,8 @@ Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampl
 // Control-thread edits, addressed by stable identity. A batch is all-or-nothing.
 struct AddCompPairSelection { CompPairSelectionReference value; };
 struct RemoveCompPairSelection { Id operation; };
+struct AddCompAssembly { CompAssemblyReference value; };
+struct RemoveCompAssembly { Id operation; };
 struct InsertTrack {
     Track track;
     std::optional<Id> before;
@@ -494,7 +506,7 @@ struct SelectTakeRegion {
     Frame startFrame = 0, endFrame = 0; // Fully covered project region [start,end).
 };
 using SessionEdit =
-    std::variant<AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
+    std::variant<AddCompAssembly, RemoveCompAssembly, AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
                  SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
@@ -606,6 +618,7 @@ class EditHistory {
         std::optional<std::pair<PunchSettings, PunchSettings>> punch;
         std::optional<std::pair<LoopSettings, LoopSettings>> loop;
         std::optional<std::pair<std::vector<CompPairSelectionReference>, std::vector<CompPairSelectionReference>>> compPairSelections;
+        std::optional<std::pair<std::vector<CompAssemblyReference>, std::vector<CompAssemblyReference>>> compAssemblies;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     struct Entry {

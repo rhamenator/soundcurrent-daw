@@ -296,6 +296,12 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
     for (const auto &reference : s.compPairSelections) {
         id(reference.operation); string(reference.selectionSha256);
     }
+    bytes.add(s.compAssemblies.capacity(), sizeof(CompAssemblyReference));
+    for (const auto &reference : s.compAssemblies) {
+        id(reference.operation); string(reference.selectionOperation.str());
+        string(reference.requestSha256);
+        for (const auto &output : reference.outputs) if (output) id(*output);
+    }
     bytes.add(s.imports.capacity(), sizeof(ImportedProjectSource));
     const auto evidence = [&](const ProjectEvidenceFile &f) {
         string(f.relativePath); string(f.sha256);
@@ -384,6 +390,17 @@ void validate(const Session &s, StateBudget budget) {
         check(reference.selectionSha256.size() == 64 &&
               std::all_of(reference.selectionSha256.begin(),reference.selectionSha256.end(),lowerHex),
               "Invalid comp selection SHA-256");
+    }
+    for (const auto &reference : s.compAssemblies) {
+        unique(reference.operation);
+        check(reference.requestSha256.size() == 64 &&
+              std::all_of(reference.requestSha256.begin(),reference.requestSha256.end(),lowerHex),
+              "Invalid comp assembly request SHA-256");
+        check(std::any_of(s.compPairSelections.begin(),s.compPairSelections.end(),
+                         [&](const auto &r){return r.operation==reference.selectionOperation;}),
+              "Comp assembly has no trusted selection reference");
+        check(reference.outputs[0] || reference.outputs[1], "Comp assembly has no generated output");
+        for (const auto &output : reference.outputs) if (output) unique(*output);
     }
     std::unordered_map<std::string_view, const Asset *> assets;
     std::unordered_map<std::string_view, const Track *> tracks;
@@ -544,6 +561,11 @@ void validate(const Session &s, StateBudget budget) {
                 check(ranges[n-1].second <= ranges[n].first, "Retained take clips overlap");
         }
         for (const auto &c : t.clips) validateClip(c);
+    }
+    for (const auto &reference : s.compAssemblies) {
+        check(!takeGroups.contains(reference.operation.str()), "Assembly operation reuses a take group UUID");
+        for (const auto &output : reference.outputs) if (output)
+            check(!takeGroups.contains(output->str()), "Assembly output reuses a take group UUID");
     }
     for (const auto &t : s.tracks)
         for (const auto &c : t.clips)

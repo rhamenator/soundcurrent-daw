@@ -35,6 +35,16 @@ CompAssemblyRequest prepareCompAssemblyRequest(const Session &,const CompHandleP
     std::string executorSha256,CompAssemblyJobPolicy,ResourceLedger);
 CompAssemblyRequest decodeCompAssemblyRequest(std::string_view,std::string_view trustedDigest,
     const Session &,const CompHandlePlanContext &,const CompPairSelection &,ResourceLedger);
+// Off GUI/audio. Persist immutable sidecar first, then register/save its returned
+// reference through the canonical owner. Removal never deletes job/media files.
+CompAssemblyReference referenceCompAssembly(const Session &,const CompHandlePlanContext &,
+    const CompPairSelection &,const CompAssemblyRequest &,ResourceLedger);
+CompAssemblyReference persistCompAssemblyRequest(const std::filesystem::path &,const Session &,
+    const CompHandlePlanContext &,const CompPairSelection &,const CompAssemblyRequest &,
+    ResourceLedger,std::stop_token={});
+// Uses the independent project reference, never a completion-supplied digest.
+CompAssemblyRequest loadReferencedCompAssemblyRequest(const std::filesystem::path &,const Session &,
+    const CompHandlePlanContext &,const CompPairSelection &,const Id &,ResourceLedger,std::stop_token={});
 // Hash the actual running image using native process identity. Runtime libraries
 // still require the application's qualified deployment/dependency contract.
 std::string compAssemblyExecutableSha256();

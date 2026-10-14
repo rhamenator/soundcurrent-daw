@@ -83,6 +83,47 @@ CompAssemblyRequest decodeCompAssemblyRequest(std::string_view bytes,std::string
         auto r=prepareCompAssemblyRequest(s,ctx,p,Id(j.at("operation").get<std::string>()),outputs,j.at("executorSha256").get<std::string>(),policy(j.at("policy")),ledger);check(r.bytes()==bytes,"Assembly request differs from canonical current selection");return r;
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid assembly request fields");}
 }
+CompAssemblyReference referenceCompAssembly(const Session &s,const CompHandlePlanContext &ctx,
+    const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger){
+    fresh(s,ctx,p,r);
+    const StateBudget budget{ledger.usage().limitBytes};
+    const auto payload=sessionPayloadBytes(s,budget);
+    PayloadCharge charge("Assembly registration staging",budget.memoryBudgetBytes);
+    charge.add(payload,2);charge.add(8192);auto staging=ledger.reserve(charge.bytes());
+    auto candidate=s;
+    CompAssemblyReference reference{r.operation(),p.recipe().operation(),r.digest(),r.outputs()};
+    applySessionEdits(candidate,{AddCompAssembly{reference}},budget);
+    return reference;
+}
+CompAssemblyReference persistCompAssemblyRequest(const std::filesystem::path &root,const Session &s,
+    const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,
+    ResourceLedger ledger,std::stop_token stop){
+    rootPath(root);auto poll=polling(root,r,stop,false);poll();
+    const auto reference=referenceCompAssembly(s,ctx,p,r,ledger);auto staging=ledger.reserve(65536);
+    directory(root/"media");const auto folder=root/"media/comp-assembly-requests";directory(folder);
+    const bool newLock=!present(folder/"writer.lock");media_io::JobLease owner(folder,newLock,!newLock);
+    check(owner.status()==media_io::LeaseStatus::Held,"Assembly request publication busy",ErrorCode::Io);
+    const auto relative="media/comp-assembly-requests/"+r.operation().str()+".json";
+    if(present(root/utf8Path(relative))){ApprovedMediaRoot approved(root,ledger,{1});
+        check(read(approved,relative,stop,poll)==r.bytes(),"Saved assembly request differs",ErrorCode::MediaMismatch);
+    }else{poll();immutable(root/utf8Path(relative),r.bytes());}
+    poll();fresh(s,ctx,p,r);return reference;
+}
+CompAssemblyRequest loadReferencedCompAssemblyRequest(const std::filesystem::path &root,const Session &s,
+    const CompHandlePlanContext &ctx,const CompPairSelection &p,const Id &operation,
+    ResourceLedger ledger,std::stop_token stop){
+    check(!stop.stop_requested(),"Assembly request load canceled",ErrorCode::Canceled);
+    const StateBudget budget{ledger.usage().limitBytes};auto validation=ledger.reserve(sessionPayloadBytes(s,budget));validate(s,budget);
+    const auto found=std::find_if(s.compAssemblies.begin(),s.compAssemblies.end(),[&](const auto &r){return r.operation==operation;});
+    check(found!=s.compAssemblies.end(),"No trusted project assembly reference",ErrorCode::InvalidId);
+    check(found->selectionOperation==p.recipe().operation(),"Assembly reference selects a different pair");
+    auto staging=ledger.reserve(65536);ApprovedMediaRoot approved(root,ledger,{1});
+    const auto poll=[&]{check(!stop.stop_requested(),"Assembly request load canceled",ErrorCode::Canceled);};
+    const auto bytes=read(approved,"media/comp-assembly-requests/"+operation.str()+".json",stop,poll);
+    auto r=decodeCompAssemblyRequest(bytes,found->requestSha256,s,ctx,p,ledger);
+    check(referenceCompAssembly(s,ctx,p,r,ledger)==*found,"Assembly request differs from reserved project identities");
+    poll();return r;
+}
 std::string compAssemblyExecutableSha256(){return media_io::executingImageSha256();}
 void publishCompAssembly(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,CompAssemblyProgress progress,std::stop_token stop){
     rootPath(root);fresh(s,ctx,p,r);check(compAssemblyExecutableSha256()==r.executorSha256(),"Running assembler differs from original request",ErrorCode::MediaMismatch);auto poll=polling(root,r,stop,true);poll();auto work=ledger.reserve(2*1024*1024);

@@ -431,7 +431,17 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
         std::visit(
             [&](const auto &e) {
                 using E = std::decay_t<decltype(e)>;
-                if constexpr (std::is_same_v<E, AddCompPairSelection>) {
+                if constexpr (std::is_same_v<E, AddCompAssembly>) {
+                    const auto found=std::find_if(proposed.compAssemblies.begin(),proposed.compAssemblies.end(),
+                        [&](const auto &r){return r.operation==e.value.operation;});
+                    if(found==proposed.compAssemblies.end())proposed.compAssemblies.push_back(e.value);
+                    else require(*found==e.value,"Comp assembly identity already names a different request");
+                } else if constexpr (std::is_same_v<E, RemoveCompAssembly>) {
+                    const auto found=std::find_if(proposed.compAssemblies.begin(),proposed.compAssemblies.end(),
+                        [&](const auto &r){return r.operation==e.operation;});
+                    require(found!=proposed.compAssemblies.end(),"Comp assembly reference missing",ErrorCode::InvalidId);
+                    proposed.compAssemblies.erase(found);
+                } else if constexpr (std::is_same_v<E, AddCompPairSelection>) {
                     const auto found=std::find_if(proposed.compPairSelections.begin(),proposed.compPairSelections.end(),
                         [&](const auto &r){return r.operation==e.value.operation;});
                     if(found==proposed.compPairSelections.end())proposed.compPairSelections.push_back(e.value);
@@ -672,6 +682,16 @@ std::size_t EditHistory::weight(const Change &change) {
                         for(const auto &r:*references){stringWeight(charge,r.operation.str());stringWeight(charge,r.selectionSha256);}
                     }
                 }
+                if (c.compAssemblies) {
+                    for(const auto *references : {&c.compAssemblies->first,&c.compAssemblies->second}) {
+                        charge.add(references->capacity(),sizeof(CompAssemblyReference));
+                        for(const auto &r:*references) {
+                            stringWeight(charge,r.operation.str());stringWeight(charge,r.selectionOperation.str());
+                            stringWeight(charge,r.requestSha256);
+                            for(const auto &output:r.outputs)if(output)stringWeight(charge,output->str());
+                        }
+                    }
+                }
                 if (c.master) {
                     dynamicWeight(charge, c.master->first);
                     dynamicWeight(charge, c.master->second);
@@ -812,6 +832,8 @@ EditHistory::StructureChange EditHistory::difference(const Session &value) const
         change.loop = {{session_.loop, value.loop}};
     if (value.compPairSelections != session_.compPairSelections)
         change.compPairSelections = {{session_.compPairSelections,value.compPairSelections}};
+    if (value.compAssemblies != session_.compAssemblies)
+        change.compAssemblies = {{session_.compAssemblies,value.compAssemblies}};
     return change;
 }
 bool EditHistory::adopt(const Session &value) {
@@ -866,6 +888,11 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
                     require(proposed.loop == (forward ? c.loop->first : c.loop->second),
                             "Undo loop locators conflict with current state");
                     proposed.loop = forward ? c.loop->second : c.loop->first;
+                }
+                if(c.compAssemblies) {
+                    require(proposed.compAssemblies==(forward?c.compAssemblies->first:c.compAssemblies->second),
+                            "Undo comp assembly references conflict with current state");
+                    proposed.compAssemblies=forward?c.compAssemblies->second:c.compAssemblies->first;
                 }
                 if(c.compPairSelections) {
                     require(proposed.compPairSelections==(forward?c.compPairSelections->first:c.compPairSelections->second),
