@@ -16,7 +16,15 @@ int main(int argc,char **argv){try{
     std::filesystem::create_directories(root);auto s=makeOneTrackSession("Assembly recovery","Audio");
     const auto ordinary=s;CompPairSelectionReference pair{Id::generate(),std::string(64,'a')};
     applySessionEdits(s,{AddCompPairSelection{pair}});
-    Asset a;a.frames=100;a.relativePath="media/source.wav";a.sha256=std::string(64,'b');s.assets.push_back(a);
+    // Real mono PCM16 source: project persistence verifies every referenced file.
+    std::filesystem::create_directory(root/"media");
+    {std::ofstream wave(root/"media/source.wav",std::ios::binary);
+        const auto u16=[&](unsigned v){wave.put(char(v&255));wave.put(char((v>>8)&255));};
+        const auto u32=[&](unsigned v){u16(v&65535);u16(v>>16);};
+        wave.write("RIFF",4);u32(236);wave.write("WAVEfmt ",8);u32(16);u16(1);u16(1);
+        u32(48000);u32(96000);u16(2);u16(16);wave.write("data",4);u32(200);
+        for(unsigned i=0;i<100;++i)u16(0);wave.close();check(bool(wave),"Source fixture write failed");}
+    Asset a;a.frames=100;a.relativePath="media/source.wav";a.sha256=hashMediaFile(root/"media/source.wav");s.assets.push_back(a);
     Clip clip;clip.assetId=a.id;clip.lengthFrames=100;s.tracks[0].clips.push_back(clip);
     TakeLane lane;lane.name="Original";lane.captureEndFrame=100;clip.id=Id::generate();lane.clips.push_back(clip);s.tracks[0].takeLanes.push_back(lane);
     validate(s);const auto initial=s;
