@@ -5,7 +5,7 @@ from pathlib import Path
 import argparse,hashlib,json,subprocess,tempfile
 from worker_observation import observe,diagnostic
 p=argparse.ArgumentParser()
-for name in ['worker','span_fixture','pair_fixture','assembly_fixture']:p.add_argument(name,type=Path)
+for name in ['worker','span_fixture','pair_fixture','assembly_fixture','nominal_worker']:p.add_argument(name,type=Path)
 p.add_argument('--evidence',type=Path,required=True);a=p.parse_args();worker=a.worker.resolve();binary=hashlib.sha256(worker.read_bytes()).hexdigest();a.evidence.mkdir(parents=True,exist_ok=True);scope=Path(tempfile.mkdtemp(prefix='run-',dir=a.evidence)).resolve();rows=[];reports=[]
 def driver(exe,mode,root,**data):
     proc=subprocess.Popen([str(exe.resolve()),mode],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
@@ -16,6 +16,16 @@ def driver(exe,mode,root,**data):
 for rate,physical in [(48000,True),(44100,False),(96000,False)]:
     root=scope/f'case-{rate}'/'project-é-日本';root.mkdir(parents=True)
     driver(a.span_fixture,'prepare',root,rate=rate,pitch=700007)
+    nominal_requests=driver(a.assembly_fixture,'nominal-prepare',root);jobs=root/'media/derived';jobs.mkdir(exist_ok=True)
+    for side,nominal in enumerate(nominal_requests):
+        def ready_nominal(line):
+            packet=json.loads(line)
+            if packet.get('event')=='ready':driver(a.assembly_fixture,'nominal-ready',root,fragment=side,ready=packet)
+        command=[str(a.nominal_worker.resolve()),'--project-root',str(root),'--jobs-root',str(jobs),'--memory-mib','256','--maximum-input-frames','1000000000','--maximum-output-bytes',str(8*1024*1024*1024),'--deadline-ms','60000']
+        result=observe(command,json.dumps(nominal),ready_nominal,timeout=15);prefix=f'{len(rows)}-nominal';(root/(prefix+'.stdout')).write_text(result.stdout);(root/(prefix+'.stderr')).write_text(result.stderr)
+        rows.append(dict(kind='nominal-worker',pid=result.pid,exitCode=result.returncode,seconds=result.elapsed_seconds,retirementPending=result.retirement_pending,observationTimedOut=result.observation_timed_out))
+        assert result.returncode==0 and not result.retirement_pending and not result.observation_timed_out,diagnostic(result)
+    driver(a.assembly_fixture,'nominal-adopt',root)
     requests=driver(a.assembly_fixture,'prepare',root,physical=physical)
     driver(a.pair_fixture,'prepare',root);driver(a.assembly_fixture,'unready',root)
     for i,request in enumerate(requests):
@@ -29,6 +39,6 @@ for rate,physical in [(48000,True),(44100,False),(96000,False)]:
         if i==0:driver(a.assembly_fixture,'unready',root)
     report=driver(a.assembly_fixture,'verify',root);reports.append(report)
     assert all(side['domain']==(1 if physical else 2) for side in report['sides'])
-    assert not report['nominalProducerQualified'] and not report['qualityAdmission'] and not report['modelAdoptionChanged']
-result=dict(workerSha256=binary,processes=rows,reports=reports,completedWorkers=6,physicalFragments=2,postSrcFragments=4,nominalProducerQualified=False,qualityAdmission=False,modelAdoptionChanged=False)
+    assert report['ownedNominalWorkflowQualified'] and not report['nominalBinaryBoundByProtocol'] and not report['qualityAdmission'] and not report['modelAdoptionChanged']
+result=dict(workerSha256=binary,processes=rows,reports=reports,completedWorkers=6,physicalFragments=2,postSrcFragments=4,completedNominalWorkers=6,nominalWorkerSha256=hashlib.sha256(a.nominal_worker.read_bytes()).hexdigest(),ownedNominalWorkflowQualified=True,nominalBinaryBoundByProtocol=False,qualityAdmission=False,modelAdoptionChanged=False)
 (scope/'processes.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(scope=str(scope),completedWorkers=6,physicalFragments=2,postSrcFragments=4)))

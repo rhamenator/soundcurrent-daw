@@ -570,13 +570,15 @@ if(SC_BUILD_MEDIA)
       set_tests_properties(comp-paired-selection-recovery PROPERTIES TIMEOUT 120)
     endif()
     add_library(sc-comp-pair-assembly src/comp_pair_assembly.cpp)
-    target_link_libraries(sc-comp-pair-assembly PUBLIC sc-comp-pair-recovery PRIVATE sc-media)
+    target_link_libraries(sc-comp-pair-assembly PUBLIC sc-comp-pair-recovery sc-stretch-render-protocol PRIVATE sc-media)
+    target_include_directories(sc-comp-pair-assembly PRIVATE src)
     if(BUILD_TESTING)
       add_executable(sc-comp-pair-assembly-tests tests/comp_pair_assembly_tests.cpp)
       target_link_libraries(sc-comp-pair-assembly-tests PRIVATE sc-comp-pair-assembly sc-comp-media-review ${SNDFILE_LIBRARY})
+      target_include_directories(sc-comp-pair-assembly-tests PRIVATE src)
       target_include_directories(sc-comp-pair-assembly-tests SYSTEM PRIVATE third_party third_party/libsndfile)
       add_test(NAME comp-verified-pair-assembly COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_pair_assembly_tests.py
-        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture> $<TARGET_FILE:sc-comp-pair-assembly-tests>
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture> $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-pair-assembly-evidence)
       set_tests_properties(comp-verified-pair-assembly PROPERTIES TIMEOUT 120)
     endif()

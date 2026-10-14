@@ -2,6 +2,7 @@
 #include <soundcurrent/comp_pair_assembly.hpp>
 #include <soundcurrent/media_cache.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
+#include "media_io.hpp"
 #include <algorithm>
 #include <chrono>
 namespace soundcurrent::daw {
@@ -35,6 +36,25 @@ CompPairAssemblyReport streamCompPairFragment(const std::filesystem::path &root,
     const auto outputFrames=p.pcm.prefixFrames+p.pcm.currentFrames+p.pcm.suffixFrames;
     check(std::uint64_t(outputFrames)<=limits.maximumPcmBytes/(std::uint64_t(p.pcm.channels)*sizeof(float)),
         "Comp assembled PCM exceeds output grant",ErrorCode::ResourceLimit);
+    const auto reviewNominals=[&]{
+        std::array<std::optional<Asset>,2> nominals;
+        for(unsigned side=0;side<2;++side){poll();
+            const auto &source=(side?plan.handles().incoming():plan.handles().outgoing()).data();
+            if(!source.expected.stretch)continue;
+            const auto &nominal=source.nominalAsset?*source.nominalAsset:source.base;
+            const auto relative="media/derived/"+nominal.id.str();
+            check(nominal.relativePath==relative+"/audio.wav","Nominal comp media lacks its original owned render path");
+            media_io::JobLease lease(root/utf8Path(relative),false);
+            check(lease.status()==media_io::LeaseStatus::Held,"Original nominal render has not retired");
+            const ClipStretchPlan original{source.track,source.expected,source.raw,*source.expected.stretch};
+            const auto reviewed=verifyOwnedClipStretch(root,original,nominal.id,limits.nominalPolicies[side],ledger,stop);
+            check(reviewed.edit().rendered==nominal && reviewed.edit().value==*source.expected.stretch,
+                "Original nominal completion differs from canonical comp asset or anchor");
+            nominals[side]=nominal;poll();
+        }
+        return nominals;
+    };
+    const auto nominals=reviewNominals();
     // Admission precedes callbacks: an incomplete sibling never exposes a usable
     // pair. inspectCompPair rechecks original intent, owned completion and files.
     auto verified=inspectCompPair(root,current,context,pair,ledger,stop);
@@ -78,7 +98,8 @@ CompPairAssemblyReport streamCompPairFragment(const std::filesystem::path &root,
     fresh();auto after=inspectCompPair(root,current,context,pair,ledger,stop);
     check(after.candidatesReady() && after.children[fragment].candidate &&
         after.children[fragment].candidate->asset()==span.asset(),"Comp pair changed during assembly");
-    fresh();return {std::move(payload),pair.digest(),pair.recipe().digest(),span.requestDigest(),context,span.asset(),p.domain,
+    check(reviewNominals()==nominals,"Original nominal media changed during assembly");
+    fresh();return {std::move(payload),pair.digest(),pair.recipe().digest(),span.requestDigest(),context,span.asset(),nominals,p.domain,
         p.domain==CompProcessingDomain::PhysicalArtifact?e.base.sampleRate:e.projectRate,report};
 }
 } // namespace soundcurrent::daw
