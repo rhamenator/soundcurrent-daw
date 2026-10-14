@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/approved_media.hpp>
 #include "media_hash.hpp"
+#include "windows_file_path.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -129,7 +130,7 @@ ApprovedMediaRoot::ApprovedMediaRoot(const std::filesystem::path &path,ResourceL
     auto grant=resources.reserve(sizeof(ApprovedMediaRootState)+sizeof(ApprovedMediaRoot)+256);
     state_=std::make_shared<ApprovedMediaRootState>(std::move(grant),resources,limits);
 #ifdef _WIN32
-    state_->root.value=CreateFileW(path.c_str(),FILE_LIST_DIRECTORY|FILE_TRAVERSE|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
+    state_->root.value=CreateFileW(windowsFileApiPath(path).c_str(),FILE_LIST_DIRECTORY|FILE_TRAVERSE|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
         FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
     require(state_->root.value!=INVALID_HANDLE_VALUE,"Cannot open approved media directory");
