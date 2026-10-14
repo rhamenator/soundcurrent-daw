@@ -57,5 +57,9 @@
     }
   ],
   "interpretation": "I/O refusal after writer.lock before intent. Temporary journal exceeds traditional MAX_PATH. Extended file API representation correction requires fresh native confirmation.",
-  "allRunArtifactsAudited": false
+  "allRunArtifactsAudited": false,
+  "nativeJobLog": {
+    "bytes": 1290746,
+    "sha256": "fe1ca45f37ff4b03c11d106e62f9631679ac2d39d05a88064d64a4ee911fc625"
+  }
 }
