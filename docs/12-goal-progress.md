@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Main-window comp review and Apply (2026-10-14)
+
+[Checkpoint 286](286-main-window-comp-adoption.md) connects saved assembly jobs
+to a bounded review dialog, fresh background verification and guarded atomic
+Apply. Six actual main-window cases pass alongside fifteen controller regression
+cases. Undo/Redo, save/reopen, changed-file and stale-owner refusal, cancellation
+and asynchronous close are covered; three exported WAVs exactly match the prior
+engine qualification. Creating new rendered transitions from the timeline remains
+open, along with repeated regeneration, processing quality and new native Windows
+qualification. The full frozen goal remains active. Localization extraction now
+contains 1,062 keys; native review and full language UI coverage remain open.
+
 ## Persistent comp playback and paired adoption (2026-10-14)
 
 [Checkpoint 285](285-comp-playback-state-and-adoption.md) adds conditional schema
