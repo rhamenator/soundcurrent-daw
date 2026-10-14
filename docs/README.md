@@ -218,3 +218,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Versioned comp processing recipes and immutable sidecars](271-comp-processing-recipes.md)
 - [ADR 159: source-bound portable comp processing recipes](decisions/159-versioned-comp-recipes.md)
+
+- [Independent actual comp media review](272-comp-media-review.md)
+- [ADR 160: media scope review and adoption authority](decisions/160-independent-comp-media-review.md)

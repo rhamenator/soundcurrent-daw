@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Actual comp media scope review (2026-10-14)
+
+[Checkpoint 272](272-comp-media-review.md) independently validates actual WAVs and
+source companion bytes and compares physical/project PCM outside permitted edits.
+Three source-bound Linux gates pass across 36 paired file cases, including all
+nine rate/encoding combinations, with about 2.8 million outside-project samples
+bit-identical. The result remains separate from adoption/producer/quality authority.
+Original native Windows recipe compilation failed; its logs/artifacts are retained
+and the typed-string correction is implemented, awaiting native confirmation.
+Owned jobs, general producer/curve alignment, overlay/state/playback/UI, quality,
+installed platforms and all-Europe/full-suite gates remain open.
+
 ## Portable comp recipes (2026-10-14)
 
 [Checkpoint 271](271-comp-processing-recipes.md) adds versioned source snapshots,
