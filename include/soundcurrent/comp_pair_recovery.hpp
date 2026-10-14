@@ -35,6 +35,11 @@ std::string persistCompPairSelection(const std::filesystem::path &,const Session
 CompPairSelection loadCompPairSelection(const std::filesystem::path &,const Session &,
     const CompHandlePlanContext &,const Id &,std::string_view trustedSelectionDigest,
     ResourceLedger,std::stop_token={});
+// Original immutable selection, bound to the caller's recorded digest. This
+// validates metadata/requests only, not completed audio or current clip state.
+CompPairSelection loadCompPairSelectionSnapshot(const std::filesystem::path &,
+    const CompHandlePlanContext &,const Id &,std::string_view trustedSelectionDigest,
+    ResourceLedger,std::stop_token={});
 // Derive from the accepted selection; register only after sidecar publication.
 CompPairSelectionReference referenceCompPairSelection(const Session &,
     const CompHandlePlanContext &,const CompPairSelection &);

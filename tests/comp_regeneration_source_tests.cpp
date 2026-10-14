@@ -69,7 +69,7 @@ void plannedRoundtrip(Session s){
             catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Repeated renderer failed without explicit unsupported gate");}
         }
         const auto operation=Id::generate();auto recipe=encodeCompProcessingRecipe(s,context,plan,operation,executor,ledger);
-        const auto j=Json::parse(recipe.bytes());check(j.at("format")==compRegenerationRecipeFormat,"Repeated recipe used legacy schema");
+        const auto j=Json::parse(recipe.bytes());check(j.at("format").get<std::string>()==compRegenerationRecipeFormat,"Repeated recipe used legacy schema");
         auto reopenedContext=context;++reopenedContext.projectEpoch;reopenedContext.rootIdentity="relocated-history";
         auto reopened=decodeCompProcessingRecipe(recipe.bytes(),operation,reopenedContext,executor,recipe.digest(),ledger);
         check(recipe.bytes()==reopened.bytes() && recipe.digest()==reopened.digest(),"Repeated recipe changed canonical identity");
@@ -117,7 +117,7 @@ int main(){try{
         const auto request=Json::parse(bytes(utf8Path(path.get<std::string>())));
         const auto &e=request.at("recipeExecutor");const CompRecipeExecutor executor{e.at("id"),e.at("buildSha256")};
         auto old=decodeCompProcessingRecipe(request.at("recipe").get<std::string>(),Id(request.at("recipeOperation").get<std::string>()),context,executor,request.at("recipeDigest").get<std::string>(),ResourceLedger(192*1024*1024,"Legacy recipe"));
-        check(old.bytes()==request.at("recipe").get<std::string>() && Json::parse(old.bytes()).at("format")==compProcessingRecipeFormat,"Retained legacy recipe identity changed");++legacyRecipes;
+        check(old.bytes()==request.at("recipe").get<std::string>() && Json::parse(old.bytes()).at("format").get<std::string>()==compProcessingRecipeFormat,"Retained legacy recipe identity changed");++legacyRecipes;
     }
     plannedRoundtrip(s);
     mixedAdmission(s);

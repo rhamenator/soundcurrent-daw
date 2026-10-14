@@ -56,17 +56,21 @@ std::string persistCompPairSelection(const std::filesystem::path &root,const Ses
     for(const auto &r:s.children())if(r)immutable(root,requestPath(r->operation()),r->bytes(),ledger,stop);
     immutable(root,pairPath(s.recipe().operation()),s.manifest(),ledger,stop);return s.digest();
 }
-CompPairSelection loadCompPairSelection(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,const Id &op,std::string_view digest,ResourceLedger ledger,std::stop_token stop){
+CompPairSelection loadCompPairSelectionSnapshot(const std::filesystem::path &root,const CompHandlePlanContext &context,const Id &op,std::string_view digest,ResourceLedger ledger,std::stop_token stop){
     poll(stop);check(sha(digest),"Missing trusted comp pair selection digest");auto work=ledger.reserve(512*1024);ApprovedMediaRoot approved(root,ledger,{1});const auto bytes=read(approved,pairPath(op),16384,ledger,stop);check(hash(bytes)==digest,"Saved comp pair changed from trusted owner",ErrorCode::MediaMismatch);
     try{const auto j=parse(bytes);check(j.is_object() && j.size()==7 && j.at("format")=="sc-comp-pair-selection-v1" && j.at("operation")==op.str(),"Invalid comp pair identity/schema");
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id").get<std::string>(),j.at("recipeExecutor").at("buildSha256").get<std::string>()};const auto worker=j.at("workerSha256").get<std::string>();const auto p=policy(j.at("policy"));
-        auto recipe=loadCompProcessingRecipe(root,current,context,op,parent,j.at("recipeDigest").get<std::string>(),ledger,{},stop);
+        auto recipe=loadCompProcessingRecipeSnapshot(root,context,op,parent,j.at("recipeDigest").get<std::string>(),ledger,{},stop);
         const auto &list=j.at("children");check(list.is_array() && list.size()==2,"Invalid pair child count");std::array<Id,2> ops{Id::generate(),Id::generate()};
         for(unsigned side=0;side<2;++side)if(!list[side].is_null()){check(list[side].is_object() && list[side].size()==3 && warp_codec::unsignedInteger(list[side].at("fragment"),1)==side,"Wrong saved child fragment");ops[side]=Id(list[side].at("operation").get<std::string>());}
         auto result=prepareCompPairSelection(std::move(recipe),parent,worker,ops,p,ledger);check(result.manifest()==bytes.bytes && result.digest()==digest,"Saved pair differs from rederived requests");
         for(unsigned side=0;side<2;++side)if(result.children()[side]){const auto &r=*result.children()[side];const auto saved=read(approved,requestPath(r.operation()),compSpanRequestMaximum,ledger,stop);check(saved.bytes==r.bytes() && hash(saved)==r.digest(),"Original paired request changed",ErrorCode::MediaMismatch);}
-        poll(stop);verifyCompProcessingCurrent(current,context,result.recipe().plan());return result;
+        poll(stop);return result;
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid saved comp pair fields");}
+}
+CompPairSelection loadCompPairSelection(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,const Id &op,std::string_view digest,ResourceLedger ledger,std::stop_token stop){
+    auto result=loadCompPairSelectionSnapshot(root,context,op,digest,ledger,stop);
+    verifyCompProcessingCurrent(current,context,result.recipe().plan());return result;
 }
 CompPairSelectionReference referenceCompPairSelection(const Session &current,const CompHandlePlanContext &context,const CompPairSelection &selection) {
     verifyCompProcessingCurrent(current,context,selection.recipe().plan());

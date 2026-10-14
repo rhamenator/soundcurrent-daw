@@ -20,16 +20,18 @@ class CompProcessingRecipe {
     CompProcessingRecipe &operator=(CompProcessingRecipe &&)=delete;
     CompProcessingRecipe(const CompProcessingRecipe &)=delete;
     const CompProcessingPlan &plan() const {return plan_;}
+    const Session &selection() const;
     std::string_view bytes() const noexcept {return bytes_;}
     const std::string &digest() const noexcept {return digest_;}
     const Id &operation() const noexcept {return operation_;}
   private:
     friend CompProcessingRecipe decodeCompProcessingRecipe(std::string_view,const Id &,
         const CompHandlePlanContext &,const CompRecipeExecutor &,std::string_view,ResourceLedger,CompRecipeLimits,std::stop_token);
-    CompProcessingRecipe(ResourceLease lease,CompProcessingPlan plan,Id op,std::string bytes,std::string digest)
-        :lease_(std::move(lease)),plan_(std::move(plan)),operation_(std::move(op)),bytes_(std::move(bytes)),digest_(std::move(digest)){}
+    CompProcessingRecipe(ResourceLease lease,CompProcessingPlan plan,std::unique_ptr<const Session> selection,Id op,std::string bytes,std::string digest)
+        :lease_(std::move(lease)),plan_(std::move(plan)),selection_(std::move(selection)),operation_(std::move(op)),bytes_(std::move(bytes)),digest_(std::move(digest)){}
     ResourceLease lease_;
     CompProcessingPlan plan_;
+    std::unique_ptr<const Session> selection_;
     Id operation_;
     std::string bytes_,digest_;
 };
@@ -47,6 +49,11 @@ std::string persistCompProcessingRecipe(const std::filesystem::path &,const Sess
     const CompHandlePlanContext &,const CompProcessingPlan &,const Id &,
     const CompRecipeExecutor &,ResourceLedger,CompRecipeLimits={},std::stop_token={});
 CompProcessingRecipe loadCompProcessingRecipe(const std::filesystem::path &,const Session &,
+    const CompHandlePlanContext &,const Id &,const CompRecipeExecutor &,std::string_view expectedDigest,ResourceLedger,
+    CompRecipeLimits={},std::stop_token={});
+// Read the original source selection using an independently retained digest.
+// No comparison with today's edited clips and no file/adoption authority.
+CompProcessingRecipe loadCompProcessingRecipeSnapshot(const std::filesystem::path &,
     const CompHandlePlanContext &,const Id &,const CompRecipeExecutor &,std::string_view expectedDigest,ResourceLedger,
     CompRecipeLimits={},std::stop_token={});
 } // namespace soundcurrent::daw

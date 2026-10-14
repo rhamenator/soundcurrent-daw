@@ -98,13 +98,18 @@ std::string digest(std::string_view bytes){media_io::SampleHash h;h.updateBytes(
 std::string relative(const Id &op){return "media/comp-recipes/"+op.str()+".json";}
 void mkdir(const std::filesystem::path &p){if(!std::filesystem::exists(std::filesystem::symlink_status(p))){check(std::filesystem::create_directory(p),"Cannot create comp recipe folder",ErrorCode::Io);media_io::flushDirectory(p.parent_path());}media_io::plainDirectory(p);}
 }
+const Session &CompProcessingRecipe::selection() const {
+    check(bool(selection_),"Comp recipe selection was moved from");return *selection_;
+}
 CompProcessingRecipe decodeCompProcessingRecipe(std::string_view bytes,const Id &op,const CompHandlePlanContext &context,
     const CompRecipeExecutor &expected,std::string_view expectedDigest,ResourceLedger ledger,CompRecipeLimits l,std::stop_token stop){
     policy(l);executor(expected);poll(stop);check(!bytes.empty() && bytes.size()<=l.maximumBytes,"Comp recipe exceeds byte limit",ErrorCode::ResourceLimit);
     check(expectedDigest.size()==64 && std::all_of(expectedDigest.begin(),expectedDigest.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}),"Invalid trusted comp recipe digest");
     auto work=ledger.reserve(l.codecBytes);auto retained=ledger.reserve(bytes.size()*2+65536);
     try{
-        const auto j=parse(bytes,l.codecBytes/8);check(j.is_object() && j.size()==10 && j.at("format").is_string() && (j.at("format")==compProcessingRecipeFormat || j.at("format")==compRegenerationRecipeFormat) && j.at("operation")==op.str(),"Unknown comp recipe identity/schema");
+        const auto j=parse(bytes,l.codecBytes/8);check(j.is_object() && j.size()==10 && j.at("format").is_string(),"Unknown comp recipe schema");
+        const auto &format=j.at("format").get_ref<const std::string &>();
+        check((format==compProcessingRecipeFormat || format==compRegenerationRecipeFormat) && j.at("operation")==op.str(),"Unknown comp recipe identity/schema");
         check(warp_codec::exact(j.at("executor"),Json{{"id",expected.id},{"buildSha256",expected.buildSha256}}),"Comp executor differs from trusted identity");
         check(j.at("selection").is_string(),"Missing comp source snapshot");auto s=decodeProject(j.at("selection").get_ref<const std::string &>(),budget(l));
         const auto &t=j.at("transition");check(t.is_object() && t.size()==6 && t.at("track").is_string() && t.at("outgoing").is_string() && t.at("incoming").is_string(),"Invalid comp transition fields");
@@ -113,7 +118,9 @@ CompProcessingRecipe decodeCompProcessingRecipe(std::string_view bytes,const Id 
         const auto maximum=Frame(warp_codec::unsignedInteger(j.at("maximumBlendProjectFrames"),1000000000));auto p=prepareCompProcessing(s,transition,context,maximum,ledger,l.planning);poll(stop);
         check(warp_codec::exact(j,document(s,p,op,expected,l)),"Saved comp scope/source snapshot differs from recomputed plan");
         auto canonical=j.dump();check(canonical.size()<=l.maximumBytes,"Canonical comp recipe exceeds limit",ErrorCode::ResourceLimit);const auto hash=digest(canonical);check(hash==expectedDigest,"Comp recipe differs from trusted selection digest",ErrorCode::MediaMismatch);
-        return {std::move(retained),std::move(p),op,std::move(canonical),hash};
+        PayloadCharge selectionCharge("Retained comp recipe source selection",SIZE_MAX);selectionCharge.add(retained.bytes());selectionCharge.add(sessionPayloadBytes(s));selectionCharge.add(sizeof(Session));
+        retained.resize(selectionCharge.bytes());
+        return {std::move(retained),std::move(p),std::make_unique<const Session>(std::move(s)),op,std::move(canonical),hash};
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid comp recipe JSON");}
 }
 CompProcessingRecipe encodeCompProcessingRecipe(const Session &s,const CompHandlePlanContext &context,const CompProcessingPlan &p,
@@ -135,11 +142,16 @@ std::string persistCompProcessingRecipe(const std::filesystem::path &root,const 
     catch(...){if(owned){std::error_code ignored;std::filesystem::remove(temporary,ignored);}throw;}
     return recipe.digest();
 }
-CompProcessingRecipe loadCompProcessingRecipe(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,
+CompProcessingRecipe loadCompProcessingRecipeSnapshot(const std::filesystem::path &root,const CompHandlePlanContext &context,
     const Id &op,const CompRecipeExecutor &executor,std::string_view expectedDigest,ResourceLedger ledger,CompRecipeLimits l,std::stop_token stop){
     policy(l);poll(stop);ApprovedMediaRoot approved(root,ledger,{1});auto file=approved.open(relative(op),l.maximumBytes,stop);
     auto credit=ledger.reserve(std::size_t(file.size())*2);std::string bytes(std::size_t(file.size()),'\0');
     for(std::size_t at=0;at<bytes.size();at+=65536){poll(stop);file.readAt(at,{bytes.data()+at,std::min<std::size_t>(65536,bytes.size()-at)},stop);}
-    auto recipe=decodeCompProcessingRecipe(bytes,op,context,executor,expectedDigest,ledger,l,stop);file.verifyUnchanged();poll(stop);verifyCompProcessingCurrent(current,context,recipe.plan());return recipe;
+    auto recipe=decodeCompProcessingRecipe(bytes,op,context,executor,expectedDigest,ledger,l,stop);file.verifyUnchanged();poll(stop);return recipe;
+}
+CompProcessingRecipe loadCompProcessingRecipe(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,
+    const Id &op,const CompRecipeExecutor &executor,std::string_view expectedDigest,ResourceLedger ledger,CompRecipeLimits l,std::stop_token stop){
+    auto recipe=loadCompProcessingRecipeSnapshot(root,context,op,executor,expectedDigest,ledger,l,stop);
+    verifyCompProcessingCurrent(current,context,recipe.plan());return recipe;
 }
 } // namespace soundcurrent::daw
