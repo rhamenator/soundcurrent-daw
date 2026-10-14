@@ -3,6 +3,7 @@
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
 #include <soundcurrent/comp_handle_plan.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/warp.hpp>
 #include <numeric>
 #include <algorithm>
@@ -275,12 +276,13 @@ Clip extendedCompCopy(Session &s, const Clip &clip, Frame first, Frame end) {
                 !sourcePositionLess(allowed.at(retained.lengthFrames-1),source.at(end-first-1)),
                 "Retained take does not cover the requested transition handles");
     } else {
-        require(clip.stretch && (clip.stretch->sourceAssetId==retained.assetId ||
+        const auto *assembled=findCompPlaybackSource(s,clip.assetId);
+        require(assembled || (clip.stretch && (clip.stretch->sourceAssetId==retained.assetId ||
                     (retained.stretch && clip.stretch->sourceAssetId==retained.stretch->sourceAssetId &&
-                     clip.stretch->sourceSha256==retained.stretch->sourceSha256)),
+                     clip.stretch->sourceSha256==retained.stretch->sourceSha256))),
                 "Comp transition requires matching rendered source handles; prepare the derivative first");
-        const auto &raw=*find(s.assets,clip.stretch->sourceAssetId);
-        require(clip.stretch->sourceSha256==raw.sha256,
+        const auto &raw=assembled?assembled->source.raw:*find(s.assets,clip.stretch->sourceAssetId);
+        require(assembled || clip.stretch->sourceSha256==raw.sha256,
                 "Comp derivative does not match retained source bytes");
         const auto &retainedAsset=*find(s.assets,retained.assetId);
         const auto allowed=clipSourceMap(retained,retainedAsset.sampleRate,s.sampleRate);
@@ -292,8 +294,8 @@ Clip extendedCompCopy(Session &s, const Clip &clip, Frame first, Frame end) {
             allowedFirst=processedClipOutputToRaw(retained,raw,allowedFirst);
             allowedEnd=processedClipOutputToRaw(retained,raw,allowedEnd);
         }
-        const auto rawFirst=processedClipOutputToRaw(clip,raw,source.at(0));
-        const auto rawLast=processedClipOutputToRaw(clip,raw,source.at(end-first-1));
+        const auto rawFirst=assembled?compPlaybackRawPosition(assembled->source,source.at(0)):processedClipOutputToRaw(clip,raw,source.at(0));
+        const auto rawLast=assembled?compPlaybackRawPosition(assembled->source,source.at(end-first-1)):processedClipOutputToRaw(clip,raw,source.at(end-first-1));
         // A rendered sample can map between the final retained physical sample
         // and the exclusive raw interval end. It must remain inside that interval.
         require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),
@@ -355,6 +357,56 @@ void adoptCompHandlePair(Session &s,const ApplyCompHandlePair &e,StateBudget bud
     require(e.transition.outgoing!=e.transition.incoming,"Handle adoption needs distinct fragments");
     replace(e.outgoing,e.transition.outgoing);replace(e.incoming,e.transition.incoming);
     prepareCompTransition(s,e.transition,budget);
+}
+void adoptCompAssembly(Session &s,const ApplyCompAssembly &e,StateBudget budget) {
+    auto reference=std::find_if(s.compAssemblies.begin(),s.compAssemblies.end(),[&](const auto &r){return r.operation==e.expectedReference.operation;});
+    require(reference!=s.compAssemblies.end() && *reference==e.expectedReference,"Comp request changed before adoption");
+    require(e.expectedSelection.operation==reference->selectionOperation &&
+        std::find(s.compPairSelections.begin(),s.compPairSelections.end(),e.expectedSelection)!=s.compPairSelections.end(),"Comp selection changed before adoption");
+    const std::array<Id,2> ids{e.transition.outgoing,e.transition.incoming};
+    require(ids[0]!=ids[1],"Comp assembly needs two distinct fragments");
+    auto &clips=track(s,e.transition.track).clips;
+    const auto &out=*find(clips,ids[0]),&in=*find(clips,ids[1]);
+    const auto outEnd=out.startFrame+out.lengthFrames,inEnd=in.startFrame+in.lengthFrames;
+    require(out.startFrame<=in.startFrame && outEnd<=inEnd && in.startFrame<=outEnd &&
+        e.transition.startFrame>=out.startFrame && e.transition.startFrame<outEnd &&
+        e.transition.endFrame>in.startFrame && e.transition.endFrame<=inEnd &&
+        e.transition.endFrame>e.transition.startFrame,"Comp assembly transition changed before adoption");
+    for(unsigned side=0;side<2;++side){
+        const auto &current=*find(clips,ids[side]);
+        const auto &expected=e.expected[side];
+        require(current==expected.clip && retainedSource(s,current)==expected.retained,"Comp fragment or retained take changed before adoption");
+        for(const auto *a:{&expected.raw,&expected.base,&expected.retainedAsset})
+            require(*find(s.assets,a->id)==*a,"Comp source asset changed before adoption");
+        require(expected.base.id==current.assetId && expected.retainedAsset.id==expected.retained.assetId,"Comp source identity is inconsistent");
+        if(expected.nominal)require(*find(s.assets,expected.nominal->id)==*expected.nominal,"Nominal comp asset changed before adoption");
+        require(bool(e.sources[side])==bool(reference->outputs[side]),"Comp adoption output set changed");
+        if(e.sources[side]){
+            const auto &d=*e.sources[side];
+            require(d.original==current && d.rendered.id==*reference->outputs[side] && d.projectRate==s.sampleRate,"Comp playback source differs from requested fragment");
+            require(d.raw==expected.raw && d.base==expected.base && d.nominal==expected.nominal,"Comp playback provenance differs from original assets");
+            require(d.rendered.relativePath=="media/comp-results/"+reference->selectionOperation.str()+"/"+d.rendered.id.str()+".wav","Comp output is outside its owned assembly");
+            const auto end=current.startFrame+current.lengthFrames;
+            require(d.playback.startFrame==(side?std::min(current.startFrame,e.transition.startFrame):current.startFrame) &&
+                    d.playback.startFrame+d.playback.lengthFrames==(side?end:std::max(end,e.transition.endFrame)),"Comp adoption changed requested span");
+        }
+    }
+    const auto originalReference=*reference;s.compAssemblies.erase(reference);
+    for(unsigned side=0;side<2;++side)if(e.sources[side]){
+        const auto &d=*e.sources[side];
+        require(std::none_of(s.assets.begin(),s.assets.end(),[&](const auto &a){return a.id==d.rendered.id;}),"Comp output asset already exists");
+        s.assets.push_back(d.rendered);s.compPlaybackSources.push_back({originalReference,side,e.expectedSelection.selectionSha256,d});
+        *find(clips,ids[side])=d.playback;
+    }
+    // Existing nominal context can be exposed without generating new PCM. Its
+    // same-rate marker still describes that original artifact, not post-SRC data.
+    for(unsigned side=0;side<2;++side)if(!e.sources[side]){
+        auto &c=*find(clips,ids[side]);if(c.stretch && !c.compHandles){
+            const auto &asset=*find(s.assets,c.assetId);
+            c.compHandles=ClipCompHandleWindow{asset.id,asset.sha256,c.stretch->renderKey,0,0};
+        }
+    }
+    validate(s,budget);prepareCompTransition(s,e.transition,budget);
 }
 } // namespace
 void validateClipProcessing(const ClipProcessing &p) {
@@ -597,6 +649,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     adoptClipStretch(proposed,e);
                 } else if constexpr (std::is_same_v<E, ApplyCompHandlePair>) {
                     adoptCompHandlePair(proposed,e,budget);
+                } else if constexpr (std::is_same_v<E, ApplyCompAssembly>) {
+                    adoptCompAssembly(proposed,e,budget);
                 } else if constexpr (std::is_same_v<E, MoveClip>) {
                     auto &from = track(proposed, e.from).clips;
                     auto &to = track(proposed, e.to).clips;
@@ -691,6 +745,10 @@ std::size_t EditHistory::weight(const Change &change) {
                             for(const auto &output:r.outputs)if(output)stringWeight(charge,output->str());
                         }
                     }
+                }
+                if(c.compPlaybackSources)for(const auto *sources:{&c.compPlaybackSources->first,&c.compPlaybackSources->second}) {
+                    charge.add(sources->capacity(),sizeof(CompPlaybackSourceState));
+                    for(const auto &source:*sources)charge.add(compPlaybackSourcePayloadBytes(source)-sizeof(CompPlaybackSourceState));
                 }
                 if (c.master) {
                     dynamicWeight(charge, c.master->first);
@@ -834,6 +892,8 @@ EditHistory::StructureChange EditHistory::difference(const Session &value) const
         change.compPairSelections = {{session_.compPairSelections,value.compPairSelections}};
     if (value.compAssemblies != session_.compAssemblies)
         change.compAssemblies = {{session_.compAssemblies,value.compAssemblies}};
+    if(value.compPlaybackSources!=session_.compPlaybackSources)
+        change.compPlaybackSources={{session_.compPlaybackSources,value.compPlaybackSources}};
     return change;
 }
 bool EditHistory::adopt(const Session &value) {
@@ -893,6 +953,10 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
                     require(proposed.compAssemblies==(forward?c.compAssemblies->first:c.compAssemblies->second),
                             "Undo comp assembly references conflict with current state");
                     proposed.compAssemblies=forward?c.compAssemblies->second:c.compAssemblies->first;
+                }
+                if(c.compPlaybackSources) {
+                    require(proposed.compPlaybackSources==(forward?c.compPlaybackSources->first:c.compPlaybackSources->second),"Undo comp playback provenance conflicts with current state");
+                    proposed.compPlaybackSources=forward?c.compPlaybackSources->second:c.compPlaybackSources->first;
                 }
                 if(c.compPairSelections) {
                     require(proposed.compPairSelections==(forward?c.compPairSelections->first:c.compPairSelections->second),

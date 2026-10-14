@@ -2,6 +2,7 @@
 #include <soundcurrent/comp_handle_plan.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/warp.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <algorithm>
 #include <numeric>
 #include <limits>
@@ -195,6 +196,33 @@ void validateCompHandleWindow(const Clip &c,const Asset &raw,const Asset &nomina
     require(rendered.frames==map.geometry.outputFrames,"Processed handle artifact extent mismatch");
     require(sourcePositionLess(rawAt({false,{rendered.frames-1,0,1}},map.points),{raw.frames,0,1}),
         "Processed handles exceed real source samples");
+}
+
+void validateCompPlaybackRawMap(const CompPlaybackSourceData &d,const CompPlaybackSourceData *previous) {
+    std::vector<CompHandlePoint> original;
+    if(previous) {
+        require(!d.original.stretch && !d.original.compHandles && !d.nominal && d.raw==previous->raw,
+                "Layered comp source lost its original raw identity");
+        const auto first=previous->expandedOrigin;
+        const auto last=addSourcePosition(first,scaleSourcePosition({previous->rendered.frames,0,1},previous->expandedNumerator,previous->expandedDenominator));
+        original.push_back({compPlaybackRawPosition(*previous,{}),{}});
+        for(const auto &k:previous->rawMap)if(sourcePositionLess(first,k.output) && sourcePositionLess(k.output,last))
+            original.push_back({k.raw,scaleSourcePosition(subtractSourcePosition(k.output,first),previous->expandedDenominator,previous->expandedNumerator)});
+        original.push_back({compPlaybackRawPosition(*previous,{previous->rendered.frames,0,1}),{previous->rendered.frames,0,1}});
+    } else {
+        require(d.original.stretch.has_value() || d.base.id==d.raw.id,"Comp provenance has no raw source anchor");
+        require(d.original.compHandles.has_value()==d.nominal.has_value(),"Comp nominal window declaration differs");
+        if(d.original.compHandles)validateCompHandleWindow(d.original,d.raw,*d.nominal,d.base);
+        else if(d.original.stretch)validateClipStretch(*d.original.stretch,d.raw,d.base);
+        if(d.original.stretch)validateStretchClipWindow(d.original,d.raw,d.base,d.projectRate);
+        auto map=clipMap(d.original,d.raw,d.base.frames,ResourceLedger(8*1024*1024,"Comp provenance validation"));
+        original=std::move(map.points);
+    }
+    std::vector<CompHandlePoint> expanded;
+    if(d.prefixFrames)expanded.push_back({rawAt({true,{d.prefixFrames,0,1}},original),{}});
+    for(auto k:original){k.output=addSourcePosition(k.output,{d.prefixFrames,0,1});expanded.push_back(k);}
+    if(d.suffixFrames)expanded.push_back({rawAt({false,{d.base.frames+d.suffixFrames,0,1}},original),{d.base.frames+d.prefixFrames+d.suffixFrames,0,1}});
+    require(expanded==d.rawMap,"Comp provenance map differs from original source timing");
 }
 
 }

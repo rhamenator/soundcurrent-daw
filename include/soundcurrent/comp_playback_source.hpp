@@ -7,18 +7,6 @@ namespace soundcurrent::daw {
 // artifact; original source/nominal/take metadata remains separate. This is NOT a
 // canonical edit or permission to adopt a file. Persistence/adoption must retain
 // this provenance together with the playback clip in one atomic operation.
-struct CompPlaybackSourceData {
-    Clip original, playback;
-    Asset raw, base, rendered;
-    std::optional<Asset> nominal;
-    CompProcessingDomain domain=CompProcessingDomain::ExistingMedia;
-    std::uint32_t projectRate=0;
-    // Exact affine transform from final artifact frames to the expanded source
-    // grid. That grid's piecewise map retains nonuniform raw timing as well.
-    SourcePosition expandedOrigin;
-    std::uint32_t expandedNumerator=1, expandedDenominator=1;
-    std::vector<CompHandlePoint> rawMap;
-};
 class CompPlaybackSource {
   public:
     CompPlaybackSource(CompPlaybackSource &&) noexcept=default;

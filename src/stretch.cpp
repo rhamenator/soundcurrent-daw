@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <algorithm>
 #include <numeric>
@@ -247,6 +248,7 @@ void validateStretchClipWindow(const Clip &c,const Asset &source,const Asset &re
 ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
     validate(s);const auto &c=find(find(s.tracks,track).clips,clip);
     require(!c.compHandles,"Processed comp handles require paired regeneration",ErrorCode::UnsupportedSchema);
+    require(!findCompPlaybackSource(s,c.assetId),"Assembled comp audio requires source-aware paired regeneration",ErrorCode::UnsupportedSchema);
     const auto &current=find(s.assets,c.assetId);
     ClipStretchPlan result{track,c,{}, {}};
     if(c.stretch) {

@@ -3,7 +3,6 @@
 #include "comp_handle_plan.hpp"
 #include "comp_handle_pcm.hpp"
 namespace soundcurrent::daw {
-enum class CompProcessingDomain { ExistingMedia=0, PhysicalArtifact=1, ProjectAfterSrc=2 };
 struct CompFragmentProcessing {
     CompProcessingDomain domain=CompProcessingDomain::ExistingMedia;
     CompHandlePcmSpec pcm;

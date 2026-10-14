@@ -181,6 +181,11 @@ struct SourcePosition {
     std::uint64_t fraction = 0, denominator = 1;
     bool operator==(const SourcePosition &) const = default;
 };
+struct CompHandlePoint {
+    SourcePosition raw, output;
+    bool operator==(const CompHandlePoint &) const = default;
+};
+enum class CompProcessingDomain { ExistingMedia=0, PhysicalArtifact=1, ProjectAfterSrc=2 };
 // Exact physical-frame offsets from the retained nominal raw origin.
 struct WarpAnchor {
     Id id = Id::generate();
@@ -346,6 +351,27 @@ struct CompAssemblyReference {
     std::array<std::optional<Id>, 2> outputs;
     bool operator==(const CompAssemblyReference &) const = default;
 };
+// Immutable provenance of an assembled artifact. The two clip values are
+// historical snapshots, not additional active timeline objects/identities.
+struct CompPlaybackSourceData {
+    Clip original, playback;
+    Asset raw, base, rendered;
+    std::optional<Asset> nominal;
+    CompProcessingDomain domain=CompProcessingDomain::ExistingMedia;
+    std::uint32_t projectRate=0;
+    Frame prefixFrames=0, suffixFrames=0;
+    SourcePosition expandedOrigin;
+    std::uint32_t expandedNumerator=1, expandedDenominator=1;
+    std::vector<CompHandlePoint> rawMap;
+    bool operator==(const CompPlaybackSourceData &) const = default;
+};
+struct CompPlaybackSourceState {
+    CompAssemblyReference assembly; // Historical intent, not a reservation.
+    unsigned side=0;
+    std::string selectionSha256;
+    CompPlaybackSourceData source;
+    bool operator==(const CompPlaybackSourceState &) const = default;
+};
 struct Session {
     Id id = Id::generate();
     std::string name;
@@ -361,6 +387,7 @@ struct Session {
     std::vector<ImportedProjectSource> imports;
     std::vector<CompPairSelectionReference> compPairSelections;
     std::vector<CompAssemblyReference> compAssemblies;
+    std::vector<CompPlaybackSourceState> compPlaybackSources;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
@@ -471,6 +498,20 @@ struct ApplyCompHandlePair {
     PrepareCompTransition transition;
     std::optional<CompHandleReplacement> outgoing, incoming;
 };
+// Caller verifies owned files and current workspace/epoch before submission.
+// Consumes one request and adopts both fragments atomically; no file deletion.
+struct CompAssemblySourceIdentity {
+    Clip clip, retained;
+    Asset raw, base, retainedAsset;
+    std::optional<Asset> nominal;
+};
+struct ApplyCompAssembly {
+    PrepareCompTransition transition;
+    CompAssemblyReference expectedReference;
+    CompPairSelectionReference expectedSelection;
+    std::array<CompAssemblySourceIdentity,2> expected;
+    std::array<std::optional<CompPlaybackSourceData>,2> sources;
+};
 struct MoveClip {
     Id from, to, clip;
     Frame start;
@@ -507,7 +548,7 @@ struct SelectTakeRegion {
 };
 using SessionEdit =
     std::variant<AddCompAssembly, RemoveCompAssembly, AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
+                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, ApplyCompAssembly, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
@@ -619,6 +660,7 @@ class EditHistory {
         std::optional<std::pair<LoopSettings, LoopSettings>> loop;
         std::optional<std::pair<std::vector<CompPairSelectionReference>, std::vector<CompPairSelectionReference>>> compPairSelections;
         std::optional<std::pair<std::vector<CompAssemblyReference>, std::vector<CompAssemblyReference>>> compAssemblies;
+        std::optional<std::pair<std::vector<CompPlaybackSourceState>, std::vector<CompPlaybackSourceState>>> compPlaybackSources;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     struct Entry {

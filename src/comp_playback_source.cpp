@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_playback_source.hpp>
 #include <soundcurrent/clip_timing.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <algorithm>
 #include <limits>
 
@@ -9,26 +10,12 @@ namespace {
 void require(bool v,const char *message) {
     if(!v)throw ProjectError(ErrorCode::InvalidState,message);
 }
-SourcePosition interpolate(SourcePosition position,const CompHandlePoint &a,const CompHandlePoint &b) {
-    const auto ratio=sourceIntervalRatio(subtractSourcePosition(b.raw,a.raw),
-                                         subtractSourcePosition(b.output,a.output));
-    return addSourcePosition(a.raw,scaleSourcePosition(subtractSourcePosition(position,a.output),
-                                                      ratio.numerator,ratio.denominator));
-}
 }
 const CompPlaybackSourceData &CompPlaybackSource::data() const {
     require(bool(data_),"Comp playback source was moved from");return *data_;
 }
 SourcePosition CompPlaybackSource::rawPosition(SourcePosition position) const {
-    const auto &d=data();position=scaleSourcePosition(position,1,1);
-    require(!sourcePositionLess({d.rendered.frames,0,1},position),"Comp provenance position exceeds artifact");
-    const auto expanded=addSourcePosition(d.expandedOrigin,
-        scaleSourcePosition(position,d.expandedNumerator,d.expandedDenominator));
-    const auto right=std::upper_bound(d.rawMap.begin(),d.rawMap.end(),expanded,
-        [](SourcePosition x,const auto &point){return sourcePositionLess(x,point.output);});
-    require(right!=d.rawMap.begin(),"Comp provenance precedes expanded source");
-    if(right==d.rawMap.end())return interpolate(expanded,d.rawMap[d.rawMap.size()-2],d.rawMap.back());
-    return interpolate(expanded,*(right-1),*right);
+    return compPlaybackRawPosition(data(),position);
 }
 CompPlaybackSource prepareCompPlaybackSource(const Session &s,const CompHandlePlanContext &context,
     const CompProcessingPlan &plan,unsigned side,const std::optional<Asset> &asset,ResourceLedger ledger) {
@@ -59,6 +46,7 @@ CompPlaybackSource prepareCompPlaybackSource(const Session &s,const CompHandlePl
     CompPlaybackSourceData d;
     d.original=h.expected;d.playback=h.expected;d.raw=h.raw;d.base=h.base;d.rendered=rendered;
     d.nominal=h.nominalAsset;d.domain=processing.domain;d.projectRate=h.projectRate;d.rawMap=h.map;
+    d.prefixFrames=h.prefixFrames;d.suffixFrames=h.suffixFrames;
     d.playback.assetId=rendered.id;d.playback.startFrame=h.projectFirst;
     d.playback.lengthFrames=h.projectEnd-h.projectFirst;
     shiftClipProcessing(d.playback.processing,h.projectFirst-h.expected.startFrame);

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_processing_plan.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
+#include <soundcurrent/project_store.hpp>
+#include <nlohmann/json.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
 #include <algorithm>
 #include <array>
@@ -11,7 +14,7 @@
 #include <vector>
 using namespace soundcurrent::daw;
 namespace {
-unsigned checks=0,preparedSources=0;
+unsigned checks=0,preparedSources=0,persistedPairs=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F> void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid permission accepted");}
 Session fixture(unsigned rate,ClipPlaybackRate speed,bool fractional,Frame offset=0){
@@ -94,6 +97,75 @@ void playbackSource(const Session &s,const CompHandlePlanContext &context,const 
         refuses([&]{prepareCompPlaybackSource(s,context,p,side,{},ledger);});
     } else refuses([&]{prepareCompPlaybackSource(s,context,p,side,h.base,ledger);});
 }
+void persistentPair(const Session &initial,const CompHandlePlanContext &context,const CompProcessingPlan &plan,ResourceLedger ledger) {
+    if(plan.outgoing().domain==CompProcessingDomain::ExistingMedia && plan.incoming().domain==CompProcessingDomain::ExistingMedia)return;
+    auto s=initial;CompAssemblyReference reference{Id::generate(),Id::generate(),std::string(64,'e'),{}};
+    std::array<std::optional<Asset>,2> outputs;
+    for(unsigned side=0;side<2;++side){
+        const auto &h=(side?plan.handles().incoming():plan.handles().outgoing()).data();
+        const auto &p=side?plan.incoming():plan.outgoing();if(p.domain==CompProcessingDomain::ExistingMedia)continue;
+        auto a=h.base;a.id=Id::generate();a.sha256=std::string(64,'d');reference.outputs[side]=a.id;
+        a.relativePath="media/comp-results/"+reference.selectionOperation.str()+"/"+a.id.str()+".wav";
+        a.sampleRate=p.domain==CompProcessingDomain::ProjectAfterSrc?h.projectRate:h.base.sampleRate;
+        a.frames=p.domain==CompProcessingDomain::ProjectAfterSrc?h.projectEnd-h.projectFirst:h.outputFrames;
+        outputs[side]=a;
+    }
+    applySessionEdits(s,{AddCompPairSelection{{reference.selectionOperation,std::string(64,'a')}},AddCompAssembly{reference}});
+    const auto identity=[](const CompHandleEnvelopeData &h){return CompAssemblySourceIdentity{h.expected,h.retained,h.raw,h.base,h.retainedAsset,h.nominalAsset};};
+    const auto registered=s;ApplyCompAssembly edit{plan.handles().transition(),reference,s.compPairSelections.back(),
+        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{}};
+    for(unsigned side=0;side<2;++side)if(outputs[side])edit.sources[side]=prepareCompPlaybackSource(s,context,plan,side,outputs[side],ledger).data();
+    EditHistory history(s);check(history.structural({edit}),"Paired comp adoption was not recorded");++persistedPairs;
+    const auto adopted=s;
+    std::size_t provenanceBytes=0;for(const auto &source:s.compPlaybackSources)provenanceBytes+=compPlaybackSourcePayloadBytes(source);
+    check(history.resources().retainedBytes>=provenanceBytes,"History omitted comp provenance payload");
+    check(s.compAssemblies.empty() && s.compPlaybackSources.size()==std::size_t(bool(outputs[0]))+std::size_t(bool(outputs[1])),"Adoption did not consume exact reservations");
+    check(s.tracks[0].takeLanes==initial.tracks[0].takeLanes,"Adoption changed retained takes");
+    const auto bytes=encodeProject(s);auto document=nlohmann::json::parse(bytes);
+    check(document.at("schemaMinor")==23 && decodeProject(bytes)==s,"Playback provenance roundtrip changed state");
+    check(history.undo() && s==registered,"Comp adoption Undo lost original state/reservations");
+    check(history.redo() && s==adopted,"Comp adoption Redo lost playback provenance");
+    auto current=s;
+    auto malformed=edit;malformed.expected[0].clip.processing.gainDb++;
+    auto rejected=registered;refuses([&]{applySessionEdits(rejected,{malformed});});check(rejected==registered,"Rejected pair changed first fragment");
+    malformed=edit;malformed.expected[1].retained.processing.gainDb++;
+    refuses([&]{applySessionEdits(rejected,{malformed});});check(rejected==registered,"Stale retained take changed first fragment");
+    malformed=edit;malformed.expected[1].base.sha256=std::string(64,'0');
+    refuses([&]{applySessionEdits(rejected,{malformed});});check(rejected==registered,"Stale asset changed first fragment");
+    malformed=edit;malformed.expectedSelection.selectionSha256=std::string(64,'0');
+    refuses([&]{applySessionEdits(rejected,{malformed});});check(rejected==registered,"Stale selection consumed request");
+    malformed=edit;malformed.sources[outputs[0]?0:1].reset();
+    refuses([&]{applySessionEdits(rejected,{malformed});});check(rejected==registered,"Incomplete pair consumed reservations");
+    refuses([&]{applySessionEdits(current,{RemoveCompPairSelection{reference.selectionOperation}});});check(current==s,"Failed parent removal changed state");
+    for(unsigned mode=0;mode<8;++mode){auto bad=document;auto &record=bad["compPlaybackSources"][0];
+        if(mode==0)record["expandedDenominator"]=0;
+        if(mode==1)record["rawMap"][0]["raw"]["frame"]=0;
+        if(mode==2)record["protocol"]="unsupported";
+        if(mode==3)record["baseAsset"]["sha256"]=std::string(64,'0');
+        if(mode==4)record["original"]["sourceTiming"]["denominator"]=0;
+        if(mode==5)record["side"]=2;
+        if(mode==6)record["extra"]=true;
+        if(mode==7)bad["compPlaybackSources"].push_back(record);
+        refuses([&]{decodeProject(bad.dump());});
+    }
+    auto duplicate=s;duplicate.compAssemblies.push_back(reference);refuses([&]{validate(duplicate);});
+    if(s.compPlaybackSources.size()==2){
+        auto half=s;half.compPlaybackSources.pop_back();refuses([&]{validate(half);});
+        std::swap(s.compPlaybackSources[0],s.compPlaybackSources[1]);validate(s);const auto conflicted=s;
+        refuses([&]{history.undo();});check(s==conflicted,"Conflicting history edit partially applied");s=adopted;
+    }
+    const auto clip=s.tracks[0].clips[0];
+    applySessionEdits(s,{CropClip{s.tracks[0].id,clip.id,clip.startFrame+2,2,clip.lengthFrames-4}});
+    const auto cropped=s.tracks[0].clips[0];
+    applySessionEdits(s,{SplitClip{s.tracks[0].id,cropped.id,Id::generate(),cropped.startFrame+cropped.lengthFrames/2}});
+    applySessionEdits(s,{SetClipPlaybackRate{s.tracks[0].id,cropped.id,{3,2}}});
+    check(decodeProject(encodeProject(s))==s,"Edited playback lost persisted raw provenance");
+    check(s.compPlaybackSources==adopted.compPlaybackSources,"Crop/split/rate rewrote immutable source provenance");
+    StateBudget tiny;tiny.memoryBudgetBytes=sizeof(Session);refuses([&]{validate(adopted,tiny);});
+    HistoryBudget historyLimit;historyLimit.retainedBytes=1;
+    auto limited=registered;EditHistory limitedHistory(limited,{},historyLimit);
+    refuses([&]{limitedHistory.structural({edit});});check(limited==registered && !limitedHistory.resources().undoCommands,"History quota partially adopted a pair");
+}
 }
 int main(){try{
     static_assert(!std::is_copy_constructible_v<CompProcessingPlan>);
@@ -106,6 +178,7 @@ int main(){try{
         const CompHandlePlanContext context{7,s.id.str()};ResourceLedger ledger(8*1024*1024,"Permission test");
         {
             auto p=prepareCompProcessing(s,e,context,8,ledger);verifyCompProcessingCurrent(s,context,p);check(s==original,"Permission preparation modified project");
+            persistentPair(s,context,p,ledger);
             const std::array<const CompHandleEnvelope *,2> env{&p.handles().outgoing(),&p.handles().incoming()};
             const std::array<const CompFragmentProcessing *,2> views{&p.outgoing(),&p.incoming()};
             for(unsigned side=0;side<2;++side){const auto &h=env[side]->data();const auto &v=*views[side];
@@ -159,6 +232,7 @@ int main(){try{
         const CompHandlePlanContext context{8,layered.id.str()};const auto boundary=track.clips[1].startFrame;
         auto plan=prepareCompProcessing(layered,{track.id,track.clips[0].id,track.clips[1].id,boundary-64,boundary+64,ClipFadeCurve::EqualPower},context,8,resources);
         playbackSource(layered,context,plan,0,resources);playbackSource(layered,context,plan,1,resources);
+        persistentPair(layered,context,plan,resources);
     }
     auto small=fixture(48000,{1,1},false);auto &t=small.tracks[0];const auto boundary=t.clips[1].startFrame;
     ResourceLedger ledger(8*1024*1024,"One frame");auto p=prepareCompProcessing(small,{t.id,t.clips[0].id,t.clips[1].id,boundary-1,boundary+1,ClipFadeCurve::Linear},{1,small.id.str()},8,ledger);
@@ -168,5 +242,5 @@ int main(){try{
     check(existing.outgoing().domain==CompProcessingDomain::ExistingMedia && existing.incoming().domain==CompProcessingDomain::ExistingMedia,"Raw existing handles created processing permissions");
     playbackSource(raw,{1,raw.id.str()},existing,0,ledger);playbackSource(raw,{1,raw.id.str()},existing,1,ledger);
     ResourceLedger tiny(1,"Tiny");refuses([&]{prepareCompProcessing(small,p.handles().transition(),{1,small.id.str()},8,tiny);});check(!tiny.usage().reservedBytes,"Permission resource refusal leaked");
-    std::cout<<"comp_processing_checks="<<checks<<" physical_cases="<<physical<<" project_after_src_cases="<<project<<" prepared_playback_sources="<<preparedSources<<" outside_project_pcm_exact=true actual_renderer=false canonical_adoption=false\n";return 0;
+    std::cout<<"comp_processing_checks="<<checks<<" physical_cases="<<physical<<" project_after_src_cases="<<project<<" prepared_playback_sources="<<preparedSources<<" persisted_pairs="<<persistedPairs<<" outside_project_pcm_exact=true actual_renderer=false canonical_adoption=true\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

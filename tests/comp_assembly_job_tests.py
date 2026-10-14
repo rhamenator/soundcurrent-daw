@@ -28,5 +28,6 @@ if sys.platform.startswith('linux'):
         result=observe([str(image),'--image-probe',str(ack)],'',ready_image,timeout=10)
         assert result.returncode==0 and not result.retirement_pending and not result.observation_timed_out and packets==[expected,expected],diagnostic(result)
         image_probe=dict(pid=result.pid,exitCode=result.returncode,originalSha256=expected,before=packets[0],after=packets[1],replacementPathSha256=hashlib.sha256(image.read_bytes()).hexdigest(),runningInodeHashPreserved=True)
-result=dict(inputWorkflow=json.loads((root/'processes.json').read_text()),publicationProcesses=rows,reports=reports,runningImageProbe=image_probe,actualPowerLossTested=False,qualityAdmission=False,modelAdoptionChanged=False)
+assert all(r['modelAdoptionChanged'] and r['adoption']['savedReopened'] and r['adoption']['undoRedo'] and r['adoption']['liveEqualsExport'] and r['adoption']['registeredProjectRestored'] for r in reports)
+result=dict(inputWorkflow=json.loads((root/'processes.json').read_text()),publicationProcesses=rows,reports=reports,runningImageProbe=image_probe,actualPowerLossTested=False,qualityAdmission=False,modelAdoptionChanged=True)
 (scope/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(scope=str(scope),publicationProcesses=len(rows),completedJobs=3,interruptedJobs=6,canceledJobs=3)))

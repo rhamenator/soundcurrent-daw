@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_assembly_job.hpp>
 #include <soundcurrent/comp_media_review.hpp>
+#include <soundcurrent/comp_playback_source.hpp>
+#include <soundcurrent/playback_reader.hpp>
+#include <soundcurrent/export.hpp>
 #include "media_io.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
@@ -26,6 +29,56 @@ SNDFILE *open(const std::filesystem::path &p,int mode,SF_INFO &info){
 }
 std::vector<float> decode(const std::filesystem::path &p){SF_INFO info{};auto f=open(p,SFM_READ,info);check(f && info.channels==2 && info.frames>0,"Invalid job wave");std::vector<float> values(std::size_t(info.frames)*2);const auto n=sf_readf_float(f,values.data(),info.frames);const auto close=sf_close(f);check(n==info.frames && close==0,"Job wave read failed");return values;}
 void wave(const std::filesystem::path &p,const Asset &a,const std::vector<float> &v){SF_INFO info{};info.channels=2;info.samplerate=int(a.sampleRate);info.format=SF_FORMAT_RF64|SF_FORMAT_FLOAT;auto f=open(p,SFM_WRITE,info);check(f!=nullptr,"Cannot rewrite fixture wave");const auto n=sf_writef_float(f,v.data(),a.frames);const auto close=sf_close(f);check(n==a.frames && close==0,"Fixture wave write failed");}
+Json adoptionWorkflow(const std::filesystem::path &root,const Session &registered,const CompHandlePlanContext &context,
+    const CompPairSelection &pair,const CompAssemblyReference &reference,const VerifiedCompAssembly &verified,ResourceLedger ledger){
+    auto s=registered;const auto &plan=pair.recipe().plan();
+    const auto identity=[](const CompHandleEnvelopeData &h){return CompAssemblySourceIdentity{h.expected,h.retained,h.raw,h.base,h.retainedAsset,h.nominalAsset};};
+    const auto selection=std::find_if(s.compPairSelections.begin(),s.compPairSelections.end(),[&](const auto &p){return p.operation==reference.selectionOperation;});
+    check(selection!=s.compPairSelections.end(),"Actual assembly has no independent selection");
+    ApplyCompAssembly edit{plan.handles().transition(),reference,*selection,
+        {identity(plan.handles().outgoing().data()),identity(plan.handles().incoming().data())},{}};
+    check(verified.requestDigest()==reference.requestSha256,"Adoption lacks independent request binding");
+    for(unsigned side=0;side<2;++side)if(verified.outputs()[side])
+        edit.sources[side]=prepareCompPlaybackSource(s,context,plan,side,verified.outputs()[side],ledger).data();
+    EditHistory history(s);check(history.structural({edit}),"Actual assembly adoption failed");
+    const auto adopted=s;check(history.undo() && s==registered,"Actual assembly Undo lost original state");
+    check(history.redo() && s==adopted,"Actual assembly Redo lost source provenance");
+    ProjectStore(root).save(s);auto reopened=ProjectStore(root).load();check(reopened==adopted,"Actual assembly did not reopen");
+    write(root/"adopted-project.json",read(root/"project.json"));
+    const auto &track=reopened.tracks.at(0);check(track.layout.channels==2,"Playback fixture needs stereo");
+    const auto first=track.clips.front().startFrame;
+    Frame end=first;for(const auto &c:track.clips)end=std::max(end,c.startFrame+c.lengthFrames);
+    PlaybackConfig config;config.sampleRate=reopened.sampleRate;config.layout=track.layout;
+    config.startFrame=first;config.endFrame=end;config.maximumCallbackFrames=193;config.slabFrames=512;
+    std::vector<float> live;live.reserve(std::size_t(end-first)*2);
+    {
+        PlaybackPipe pipe(config);TrackReader reader(pipe,root,reopened,track.id);
+        PlaybackProcessor processor(reopened,track.id,pipe);
+        std::array<float,193> left{},right{};std::array<float *,2> views{left.data(),right.data()};
+        for(Frame at=first;at<end;){
+            while(reader.fillOne()){}
+            const auto count=std::uint32_t(std::min<Frame>(193,end-at));
+            const auto report=processor.process(views,count);
+            check((report.status==PlaybackStatus::Running || report.status==PlaybackStatus::Complete) &&
+                report.timelineFrames==count && !report.missingFrames,"Reopened live core playback failed");
+            for(unsigned i=0;i<count;++i){live.push_back(left[i]);live.push_back(right[i]);}at+=count;
+        }
+        check(!pipe.missingFrames() && !reader.sanitizedSamples(),"Comp playback lost or sanitized samples");
+    }
+    std::filesystem::create_directory(root/"exports");
+    ExportSpec spec(track.id);spec.startFrame=first;spec.endFrame=end;spec.blockFrames=127;
+    const auto exported=exportTrackWav(root,reopened,root/"exports/assembled.wav",spec);
+    const auto output=decode(exported.destination);check(output==live,"Live core and offline export differ after assembly reopen");
+    check(exported.sampleRate==reopened.sampleRate && exported.frames==end-first && exported.peak>1,
+        "Assembly export changed rate/extent or floating headroom");
+    check(ProjectStore(root).load()==adopted,"Playback/export mutated adopted project");
+    check(history.undo() && s==registered,"Post-playback Undo lost original project");
+    ProjectStore(root).save(s);check(ProjectStore(root).load()==registered,"Pending reference was not restored after Undo");
+    return {{"schema","1.23"},{"savedReopened",true},{"undoRedo",true},{"liveCoreSamples",live.size()},
+        {"liveCallbackFrames",193},{"exportBlockFrames",127},{"liveEqualsExport",true},{"exportPeak",exported.peak},
+        {"exportFileSha256",exported.fileSha256},{"exportSampleSha256",exported.sampleSha256},
+        {"physicalAudio",false},{"mainWindow",false},{"registeredProjectRestored",true}};
+}
 }
 int main(int argc,char **argv){try{
     if(argc==3 && std::string_view(argv[1])=="--image-probe"){
@@ -70,6 +123,7 @@ int main(int argc,char **argv){try{
     record(r,"complete");check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Absent,"Fresh job not absent");unsigned observed=0;
     publishCompAssembly(root,s,context,pair,r,ledger,[&](auto,unsigned){check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Active,"Live writer not active");refuses([&]{verifyCompAssembly(root,s,context,pair,r,ledger);});++observed;});check(observed==5,"Publication stages missing");
     auto result=verifyCompAssembly(root,s,context,pair,r,ledger);check(result.comparedSamples()>0 && result.requestDigest()==r.digest(),"Verified pair lost request binding");const auto outputs=result.outputs();const auto originalComplete=read(folder(r)/"complete.json");
+    const auto adoption=adoptionWorkflow(root,registered,context,pair,reference,result,ledger);
     refuses([&]{publishCompAssembly(root,s,context,pair,r,ledger);});check(read(folder(r)/"complete.json")==originalComplete,"Retry replaced completed job");
     write(folder(r)/"cancel.request","cancel\n");{auto recovered=inspectCompAssembly(root,s,context,pair,r,ledger);check(recovered.state==CompAssemblyRecoveryState::Complete && recovered.cancellationRequested && recovered.result.has_value(),"Late cancel hid committed assembly");}
     // Counterfeit internally consistent hashes: scope-only review passes because
@@ -99,5 +153,5 @@ int main(int argc,char **argv){try{
     auto recovered=inspectCompAssembly(relocated,moved,movedContext,movedPair,movedRequest,ledger);
     check(moved==registered && recovered.state==CompAssemblyRecoveryState::Complete && recovered.result->outputs()==outputs,
         "Relocated trusted request did not recover exact completed output");
-    Json report{{"checks",checks},{"executorSha256",executable},{"jobs",jobs},{"comparedSamples",result.comparedSamples()},{"completedJobs",1},{"interruptedJobs",2},{"canceledJobs",1},{"sourceBasedFullPcmRefusal",true},{"requestReferenceInProject",true},{"requestSidecarReopenRelocation",true},{"modelAdoptionChanged",false},{"qualityAdmission",false},{"osMemoryCeilingClaimed",false},{"actualPowerLossTested",false}};write(root/"assembly-job-report.json",report.dump(2));std::cout<<report.dump()<<'\n';return 0;
+    Json report{{"checks",checks},{"executorSha256",executable},{"jobs",jobs},{"comparedSamples",result.comparedSamples()},{"completedJobs",1},{"interruptedJobs",2},{"canceledJobs",1},{"sourceBasedFullPcmRefusal",true},{"requestReferenceInProject",true},{"requestSidecarReopenRelocation",true},{"modelAdoptionChanged",true},{"adoption",adoption},{"qualityAdmission",false},{"osMemoryCeilingClaimed",false},{"actualPowerLossTested",false}};write(root/"assembly-job-report.json",report.dump(2));std::cout<<report.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

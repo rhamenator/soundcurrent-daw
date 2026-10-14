@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include "warp_codec.hpp"
 #include <soundcurrent/positioned_resampling.hpp>
 #include <unordered_set>
@@ -323,7 +324,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                  {"polarityInverted",c.processing.polarityInverted},
                                  {"fadeIn",fade(c.processing.fadeIn)},
                                  {"fadeOut",fade(c.processing.fadeOut)}}}};
-        if(hasCompHandles || !s.compPairSelections.empty())result["compHandles"]=c.compHandles?Json{
+        if(hasCompHandles || !s.compPairSelections.empty() || !s.compPlaybackSources.empty())result["compHandles"]=c.compHandles?Json{
             {"processor","soundcurrent.comp-handles-window-v1"},{"version",1},
             {"baseAssetId",c.compHandles->baseAssetId.str()},{"baseSha256",c.compHandles->baseSha256},
             {"prefixFrames",c.compHandles->prefixFrames},{"suffixFrames",c.compHandles->suffixFrames},
@@ -373,7 +374,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", !s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", !s.compPlaybackSources.empty()?23:!s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -387,13 +388,13 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
           {"endFrame", s.punch.endFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
-    if (!s.compPairSelections.empty()) {
+    if (!s.compPairSelections.empty() || !s.compPlaybackSources.empty()) {
         root["compPairSelections"] = Json::array();
         for (const auto &reference : s.compPairSelections)
             root["compPairSelections"].push_back({{"operation",reference.operation.str()},
                 {"selectionSha256",reference.selectionSha256}});
     }
-    if (!s.compAssemblies.empty()) {
+    if (!s.compAssemblies.empty() || !s.compPlaybackSources.empty()) {
         root["compAssemblies"] = Json::array();
         for (const auto &reference : s.compAssemblies) {
             Json outputs=Json::array();
@@ -401,6 +402,25 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
             root["compAssemblies"].push_back({{"operation",reference.operation.str()},
                 {"selectionOperation",reference.selectionOperation.str()},
                 {"requestSha256",reference.requestSha256},{"outputs",outputs}});
+        }
+    }
+    if(!s.compPlaybackSources.empty()) {
+        root["compPlaybackSources"]=Json::array();
+        const auto position=[](SourcePosition p){return Json{{"frame",p.frame},{"fraction",p.fraction},{"denominator",p.denominator}};};
+        const auto asset=[](const Asset &a){return Json{{"id",a.id.str()},{"sha256",a.sha256}};};
+        for(const auto &r:s.compPlaybackSources){const auto &d=r.source;
+            Json outputs=Json::array();for(const auto &o:r.assembly.outputs)outputs.push_back(o?Json(o->str()):Json(nullptr));
+            Json map=Json::array();for(const auto &k:d.rawMap)map.push_back({{"raw",position(k.raw)},{"output",position(k.output)}});
+            root["compPlaybackSources"].push_back({{"protocol","sc-comp-playback-source-v1"},{"side",r.side},{"selectionSha256",r.selectionSha256},
+                {"assembly",{{"operation",r.assembly.operation.str()},{"selectionOperation",r.assembly.selectionOperation.str()},
+                    {"requestSha256",r.assembly.requestSha256},{"outputs",outputs}}},
+                {"original",encodeClip(d.original)},{"playback",encodeClip(d.playback)},
+                {"rawAsset",asset(d.raw)},{"baseAsset",asset(d.base)},{"renderedAsset",asset(d.rendered)},
+                {"nominalAsset",d.nominal?asset(*d.nominal):Json(nullptr)},
+                {"domain",d.domain==CompProcessingDomain::PhysicalArtifact?"physical-artifact":"project-after-src"},
+                {"projectRate",d.projectRate},{"prefixFrames",d.prefixFrames},{"suffixFrames",d.suffixFrames},
+                {"expandedOrigin",position(d.expandedOrigin)},{"expandedNumerator",d.expandedNumerator},
+                {"expandedDenominator",d.expandedDenominator},{"rawMap",map}});
         }
     }
     root["imports"] = Json::array();
@@ -533,7 +553,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 22),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 23),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -557,10 +577,12 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections"});
-        else
+        else if(minor==22)
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections", "compAssemblies"});
+        else
+            keys(j,{"format","schemaMajor","schemaMinor","projectId","name","sampleRate","playheadFrame","exportRange","tracks","assets","master","punchRecording","imports","loopPlayback","compPairSelections","compAssemblies","compPlaybackSources"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
         canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
@@ -733,6 +755,38 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             }
             return clip;
         };
+        if(minor>=23){
+            const auto &records=j.at("compPlaybackSources");array(records,budget.state.memoryBudgetBytes/sizeof(CompPlaybackSourceState));
+            canonical.add(records.size(),sizeof(CompPlaybackSourceState));
+            s.compPlaybackSources.reserve(records.size());
+            const auto position=[&](const Json &p){keys(p,{"frame","fraction","denominator"});return SourcePosition{integer(p.at("frame")),u64(p.at("fraction")),u64(p.at("denominator"))};};
+            const auto asset=[&](const Json &a){keys(a,{"id","sha256"});const Id id(string(a.at("id")));
+                const auto it=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &v){return v.id==id;});
+                require(it!=s.assets.end() && it->sha256==string(a.at("sha256")),"Comp provenance asset reference mismatch");
+                canonical.add(sizeof(Asset)+it->relativePath.size()+it->sha256.size()+it->id.str().size());
+                canonical.add(it->nativeEvidence.size(),sizeof(ProjectEvidenceFile));
+                for(const auto &f:it->nativeEvidence)canonical.add(f.relativePath.size()+f.sha256.size());
+                return *it;};
+            for(const auto &r:records){
+                keys(r,{"protocol","side","selectionSha256","assembly","original","playback","rawAsset","baseAsset","renderedAsset","nominalAsset","domain","projectRate","prefixFrames","suffixFrames","expandedOrigin","expandedNumerator","expandedDenominator","rawMap"});
+                require(string(r.at("protocol"))=="sc-comp-playback-source-v1","Unsupported comp playback provenance",ErrorCode::UnsupportedSchema);
+                const auto &a=r.at("assembly");
+                keys(a,{"operation","selectionOperation","requestSha256","outputs"});
+                CompPlaybackSourceState value{{Id(string(a.at("operation"))),Id(string(a.at("selectionOperation"))),string(a.at("requestSha256")),{}},u32(r.at("side")),string(r.at("selectionSha256")),{}};
+                const auto &outputs=a.at("outputs");array(outputs,2);require(outputs.size()==2,"Invalid historical comp output count");
+                for(unsigned side=0;side<2;++side)if(!outputs[side].is_null())value.assembly.outputs[side]=Id(string(outputs[side]));
+                auto &d=value.source;d.original=readClip(r.at("original"));d.playback=readClip(r.at("playback"));
+                d.raw=asset(r.at("rawAsset"));d.base=asset(r.at("baseAsset"));d.rendered=asset(r.at("renderedAsset"));
+                if(!r.at("nominalAsset").is_null())d.nominal=asset(r.at("nominalAsset"));
+                const auto domain=string(r.at("domain"));require(domain=="physical-artifact" || domain=="project-after-src","Unsupported comp playback domain",ErrorCode::UnsupportedSchema);
+                d.domain=domain=="physical-artifact"?CompProcessingDomain::PhysicalArtifact:CompProcessingDomain::ProjectAfterSrc;
+                d.projectRate=u32(r.at("projectRate"));d.prefixFrames=integer(r.at("prefixFrames"));d.suffixFrames=integer(r.at("suffixFrames"));
+                d.expandedOrigin=position(r.at("expandedOrigin"));d.expandedNumerator=u32(r.at("expandedNumerator"));d.expandedDenominator=u32(r.at("expandedDenominator"));
+                const auto &map=r.at("rawMap");array(map,16388);canonical.add(map.size()+4,sizeof(CompHandlePoint)*3);d.rawMap.reserve(map.size());
+                for(const auto &k:map){keys(k,{"raw","output"});d.rawMap.push_back({position(k.at("raw")),position(k.at("output"))});}
+                s.compPlaybackSources.push_back(std::move(value));
+            }
+        }
         for (const auto &t : j.at("tracks")) {
             if (minor == 0)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors",

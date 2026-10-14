@@ -14,7 +14,6 @@ struct CompHandlePlanContext {
     std::string rootIdentity;
     bool operator==(const CompHandlePlanContext &) const = default;
 };
-struct CompHandlePoint { SourcePosition raw, output; };
 struct CompHandlePlanLimits {
     Frame maximumOutputFrames=1000000000;
     std::uint64_t maximumOutputBytes=8ULL*1024*1024*1024;
