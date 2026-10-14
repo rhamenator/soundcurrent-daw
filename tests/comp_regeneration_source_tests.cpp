@@ -114,8 +114,8 @@ void plannedRoundtrip(Session s){
                 span.settings()==r.originalNominalClip.stretch->settings,"Repeated span lost original settings or clock");
         }
         const auto operation=Id::generate();auto recipe=encodeCompProcessingRecipe(s,context,plan,operation,executor,ledger);
-        try{(void)encodeCompSpanRequest(recipe,executor,0,Id::generate(),std::string(64,'b'),ledger);throw std::runtime_error("Unverified repeated owned request enabled");}
-        catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Repeated owned request lost integration gate");}
+        auto request=encodeCompSpanRequest(recipe,executor,0,Id::generate(),std::string(64,'b'),ledger);
+        check(request.requiresHistory() && request.protocol()==compRegenerationSpanProtocol,"Repeated span request lost history requirement");
         const auto j=Json::parse(recipe.bytes());check(j.at("format").get<std::string>()==compRegenerationRecipeFormat,"Repeated recipe used legacy schema");
         auto reopenedContext=context;++reopenedContext.projectEpoch;reopenedContext.rootIdentity="relocated-history";
         auto reopened=decodeCompProcessingRecipe(recipe.bytes(),operation,reopenedContext,executor,recipe.digest(),ledger);
@@ -151,7 +151,8 @@ void mixedAdmission(Session s){
         auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),executor,ledger);
         const auto unsupported=[&](auto f){try{f();throw std::runtime_error("Mixed unverified history admitted");}
             catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Mixed history lacked explicit producer refusal");}};
-        unsupported([&]{(void)encodeCompSpanRequest(recipe,executor,1,Id::generate(),std::string(64,'b'),ledger);});
+        auto mixed=encodeCompSpanRequest(recipe,executor,1,Id::generate(),std::string(64,'b'),ledger);
+        check(mixed.requiresHistory() && mixed.protocol()==compRegenerationSpanProtocol,"Unchanged assembled sibling lost history requirement");
         unsupported([&]{(void)prepareCompPairSelection(std::move(recipe),executor,std::string(64,'b'),{Id::generate(),Id::generate()},{},ledger);});
     }
     check(s==original && !ledger.usage().reservedBytes,"Mixed admission modified state or leaked resources");

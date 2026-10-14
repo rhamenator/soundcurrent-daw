@@ -36,7 +36,8 @@ class CompSpanPlan {
 // This prepares physical candidate PCM at the current artifact's sample clock.
 // Preserves already baked varispeed while excluding current playback speed.
 // Metadata/DSP only: callers must verify original owned files independently.
-// The owned protocol still rejects regenerated recipes until integration.
+// Owned spans require version-two clock binding and historical-file review;
+// paired publication/adoption remains gated until its integration is qualified.
 CompSpanPlan prepareCompSpan(const CompHandleEnvelope &,ResourceLedger);
 using CompSpanRead=std::function<void(Frame,std::span<float>)>;
 using CompSpanWrite=std::function<void(std::span<const float>)>;

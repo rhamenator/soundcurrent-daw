@@ -7,6 +7,7 @@ namespace soundcurrent::daw {
 struct CompHistoryReviewLimits {
     std::size_t maximumAssemblies=64;
     std::uint64_t maximumComparedSamples=64ULL*1024*1024;
+    std::uint64_t maximumInputFileBytes=8ULL*1024*1024*1024;
 };
 struct CompHistoryTrackLayout {Id track;ChannelLayout layout;};
 struct CompHistoryReviewEntry {

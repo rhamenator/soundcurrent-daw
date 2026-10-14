@@ -3,6 +3,7 @@
 #include <soundcurrent/approved_media.hpp>
 #include <soundcurrent/wave_validation.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 #include "media_io.hpp"
 #include "warp_codec.hpp"
 #include <algorithm>
@@ -45,38 +46,54 @@ Json parse(std::string_view bytes,std::size_t maximum,unsigned depthLimit=4){
     Preflight preflight(maximum*3+65536);preflight.charge.add(bytes.size());check(Json::sax_parse(bytes.begin(),bytes.end(),&preflight),"Malformed span protocol");
     try{return Json::parse(bytes.begin(),bytes.end(),callback);}catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid comp span JSON");}
 }
+bool historyRequired(const CompProcessingRecipe &r){return bool(r.plan().handles().outgoing().data().regeneration) || bool(r.plan().handles().incoming().data().regeneration);}
+Json clockBinding(const CompProcessingRecipe &r,const CompSpanPlan &s,unsigned fragment){
+    const auto &e=(fragment?r.plan().handles().incoming():r.plan().handles().outgoing()).data();
+    return {{"inputRate",s.source().sampleRate},{"outputRate",s.outputSampleRate()},
+        {"backendClockScale",warp_codec::position(s.backendClockScale())},
+        {"bakedPitchScale",warp_codec::position(e.regeneration?e.regeneration->data().bakedPitchScale:SourcePosition{1,0,1})},
+        {"processingStep",Json::array({s.grid().numerator(),s.grid().denominator()})}};
+}
 Json intent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p){policy(p);const auto &s=r.span();const auto &a=s.source();
     check(std::uint64_t(s.outputFrames())<=(p.maximumOutputBytes-std::min<std::uint64_t>(1048576,p.maximumOutputBytes))/(a.layout.channels*4ULL),"Comp span exceeds output grant",ErrorCode::ResourceLimit);
-    return {{"protocol",compSpanProtocol},{"processor",compSpanProcessorId},{"sourceAlgorithm",positionedResamplingAlgorithmId},{"operation",r.operation().str()},
+    Json result={{"protocol",r.protocol()},{"processor",r.processor()},{"sourceAlgorithm",positionedResamplingAlgorithmId},{"operation",r.operation().str()},
         {"recipeDigest",r.recipe().digest()},{"requestDigest",r.digest()},{"fragment",r.fragment()},{"executorSha256",r.executorSha256()},
         {"sourceSha256",a.sha256},{"rawOrigin",warp_codec::position(scaleSourcePosition(s.grid().at(0),1,1))},{"rawSpan",warp_codec::position(s.rawSpan())},
         {"processingFrames",s.processingFrames()},{"outputFrames",s.outputFrames()},{"processingStep",Json::array({s.grid().numerator(),s.grid().denominator()})},
-        {"rate",a.sampleRate},{"channels",a.layout.channels},{"pitchMilliCents",s.settings().pitchMilliCents},{"formantPreserved",s.settings().formantPreserved},
+        {"rate",s.outputSampleRate()},{"channels",a.layout.channels},{"pitchMilliCents",s.settings().pitchMilliCents},{"formantPreserved",s.settings().formantPreserved},
         {"memoryCeilingBytes",p.memoryBytes},{"deadlineMilliseconds",p.deadlineMilliseconds},{"maximumSourceBytes",p.maximumSourceBytes},{"maximumOutputBytes",p.maximumOutputBytes}};
+    if(r.requiresHistory())result["clock"]=clockBinding(r.recipe(),s,r.fragment());
+    return result;
 }
 WaveValidationLimits waveLimits(const Asset &a,std::uint64_t cap){WaveValidationLimits l;l.maximumFrames=std::uint64_t(a.frames);l.maximumChannels=a.layout.channels;l.blockFrames=512;l.maximumBytesRead=cap*4+65536;l.maximumIoOperations=16000000;return l;}
 }
 CompSpanRequest decodeCompSpanRequest(std::string_view bytes,std::string_view expectedDigest,const CompHandlePlanContext &context,std::string_view executable,ResourceLedger ledger){
     check(sha(expectedDigest) && sha(executable),"Invalid trusted span identities");check(bytes.size()<=compSpanRequestMaximum,"Span request too large",ErrorCode::ResourceLimit);
     auto work=ledger.reserve(16*1024*1024);auto retained=ledger.reserve(bytes.size()*2+65536);check(hash(bytes)==expectedDigest,"Span request changed from trusted parent",ErrorCode::MediaMismatch);
-    try{const auto j=parse(bytes,compSpanRequestMaximum);check(j.is_object() && j.size()==8 && j.at("protocol").is_string() && j.at("protocol").get_ref<const std::string &>()==compSpanProtocol,"Unknown comp span schema");
-        check(warp_codec::exact(j.at("executor"),Json{{"id",compSpanProcessorId},{"buildSha256",executable}}),"Span executable differs from trusted request");
+    try{const auto j=parse(bytes,compSpanRequestMaximum);check(j.is_object() && j.at("protocol").is_string(),"Unknown comp span schema");
+        const auto &protocol=j.at("protocol").get_ref<const std::string &>();const bool history=protocol==compRegenerationSpanProtocol;
+        check((protocol==compSpanProtocol || history) && j.size()==(history?9:8),"Unknown comp span schema");
+        check(warp_codec::exact(j.at("executor"),Json{{"id",history?compRegenerationSpanProcessorId:compSpanProcessorId},{"buildSha256",executable}}),"Span executable differs from trusted request");
         check(j.at("recipeExecutor").is_object() && j.at("recipeExecutor").size()==2,"Invalid recipe executor");
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id").get<std::string>(),j.at("recipeExecutor").at("buildSha256").get<std::string>()};
         const auto operation=Id(j.at("operation").get<std::string>()),recipeOperation=Id(j.at("recipeOperation").get<std::string>());check(operation!=recipeOperation,"Span reused parent operation");
         const auto fragment=unsigned(warp_codec::unsignedInteger(j.at("fragment"),1));
         auto recipe=decodeCompProcessingRecipe(j.at("recipe").get_ref<const std::string &>(),recipeOperation,context,parent,j.at("recipeDigest").get<std::string>(),ledger);
-        check(!recipe.plan().handles().outgoing().data().regeneration && !recipe.plan().handles().incoming().data().regeneration,
-            "Repeated comp requests require historical file verification",ErrorCode::UnsupportedSchema);
+        check(history==historyRequired(recipe),"Span protocol does not match original history requirements");
         const auto &handles=recipe.plan().handles();auto span=prepareCompSpan(fragment?handles.incoming():handles.outgoing(),ledger);
+        if(history)check(warp_codec::exact(j.at("clock"),clockBinding(recipe,span,fragment)),"Span clock binding differs from original source history");
+        else check(span.outputSampleRate()==span.source().sampleRate && span.backendClockScale()==SourcePosition{1,0,1},"Legacy span has a nonlegacy sample clock");
         for(const auto *envelope:{&handles.outgoing(),&handles.incoming()}){const auto &e=envelope->data();check(operation!=e.raw.id && operation!=e.base.id && operation!=e.retainedAsset.id && (!e.nominalAsset || operation!=e.nominalAsset->id),"Span reused an input identity");}
-        return {std::move(retained),std::move(recipe),std::move(span),operation,fragment,std::string(expectedDigest),std::string(executable),std::string(bytes)};
+        return {std::move(retained),std::move(recipe),std::move(span),operation,fragment,std::string(expectedDigest),std::string(executable),std::string(bytes),history};
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid comp span request fields");}
 }
 CompSpanRequest encodeCompSpanRequest(const CompProcessingRecipe &r,const CompRecipeExecutor &parent,unsigned fragment,const Id &op,std::string_view executable,ResourceLedger ledger){
     auto work=ledger.reserve(16*1024*1024);auto encoded=ledger.reserve(compSpanRequestMaximum*2);check(fragment<=1 && sha(executable),"Invalid span selection/executor");
-    const auto bytes=Json{{"protocol",compSpanProtocol},{"operation",op.str()},{"recipeOperation",r.operation().str()},{"recipeDigest",r.digest()},{"recipe",r.bytes()},
-        {"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},{"executor",{{"id",compSpanProcessorId},{"buildSha256",executable}}},{"fragment",fragment}}.dump();
+    const bool history=historyRequired(r);
+    Json document={{"protocol",history?compRegenerationSpanProtocol:compSpanProtocol},{"operation",op.str()},{"recipeOperation",r.operation().str()},{"recipeDigest",r.digest()},{"recipe",r.bytes()},
+        {"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},{"executor",{{"id",history?compRegenerationSpanProcessorId:compSpanProcessorId},{"buildSha256",executable}}},{"fragment",fragment}};
+    if(history){auto span=prepareCompSpan(fragment?r.plan().handles().incoming():r.plan().handles().outgoing(),ledger);document["clock"]=clockBinding(r,span,fragment);}
+    const auto bytes=document.dump();
     const auto context=r.plan().handles().outgoing().data().context;work.resize(0);return decodeCompSpanRequest(bytes,hash(bytes),context,executable,ledger);
 }
 std::string compSpanIntent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){auto work=ledger.reserve(65536);auto bytes=intent(r,p).dump();check(bytes.size()<=16384,"Span intent exceeds marker bank");return bytes;}
@@ -87,7 +104,8 @@ void admitCompSpanSources(const std::filesystem::path &root,const CompSpanReques
         check(wave.frames==std::uint64_t(a.frames) && wave.rate==a.sampleRate && wave.channels==a.layout.channels && std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==a.sha256,"Comp span input changed",ErrorCode::MediaMismatch);file.verifyUnchanged();
         for(const auto &e:a.nativeEvidence){poll();auto f=approved.open(e.relativePath,std::min(p.maximumSourceBytes,e.bytes));check(f.size()==e.bytes,"Span input evidence extent changed");const auto h=f.digest({},poll);check(std::string(h.begin(),h.end())==e.sha256,"Span input evidence changed",ErrorCode::MediaMismatch);f.verifyUnchanged();}
     };
-    const auto &h=r.recipe().plan().handles();for(const auto *envelope:{&h.outgoing(),&h.incoming()}){const auto &e=envelope->data();verify(e.raw);verify(e.base);verify(e.retainedAsset);if(e.nominalAsset)verify(*e.nominalAsset);}
+    const auto &h=r.recipe().plan().handles();for(const auto *envelope:{&h.outgoing(),&h.incoming()}){const auto &e=envelope->data();verify(e.raw);verify(e.base);verify(e.retainedAsset);if(e.nominalAsset)verify(*e.nominalAsset);
+        if(e.regeneration)for(const auto &a:e.regeneration->data().assets)verify(a);}
 }
 VerifiedCompSpan verifyOwnedCompSpan(const std::filesystem::path &root,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger,std::stop_token stop){
     policy(p);const auto deadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(p.deadlineMilliseconds);
@@ -108,7 +126,7 @@ VerifiedCompSpan verifyOwnedCompSpan(const std::filesystem::path &root,const Com
 #endif
     const auto audioSha=marker.at("audioSha256").get<std::string>(),sampleSha=marker.at("sampleSha256").get<std::string>();check(sha(audioSha) && sha(sampleSha),"Invalid span completion hashes");
     check(marker.at("peakLinear").is_number() && std::isfinite(marker.at("peakLinear").get<double>()),"Invalid span completion peak");
-    admitCompSpanSources(root,r,p,ledger,poll);Asset output=r.span().source();output.id=r.operation();output.nativeEvidence.clear();output.frames=r.span().outputFrames();output.relativePath="media/comp-spans/"+r.operation().str()+"/audio.wav";output.sha256=audioSha;
+    admitCompSpanSources(root,r,p,ledger,poll);Asset output=r.span().source();output.id=r.operation();output.nativeEvidence.clear();output.frames=r.span().outputFrames();output.sampleRate=r.span().outputSampleRate();output.relativePath="media/comp-spans/"+r.operation().str()+"/audio.wav";output.sha256=audioSha;
     auto file=approved.open(output.relativePath,p.maximumOutputBytes,stop);std::array<char,4> magic{};file.readAt(0,magic,stop);check(std::string_view(magic.data(),4)=="RF64","Span result must be RF64");
     auto slabLease=ledger.reserve(512*output.layout.channels*sizeof(float));std::vector<float> slab(512*output.layout.channels);media_io::SampleHash samples;
     const auto wave=validateApprovedWave(file,waveLimits(output,p.maximumOutputBytes),stop,[&](std::uint64_t,std::span<const double> values){poll();check(values.size()<=slab.size(),"Span PCM observer exceeds slab");for(std::size_t i=0;i<values.size();++i)slab[i]=float(values[i]);samples.update({slab.data(),values.size()});},poll);

@@ -3,6 +3,7 @@
 #include <soundcurrent/comp_assembly_job.hpp>
 #include <soundcurrent/comp_playback_source.hpp>
 #include <soundcurrent/comp_playback_state.hpp>
+#include <soundcurrent/approved_media.hpp>
 #include <algorithm>
 #include <set>
 namespace soundcurrent::daw {
@@ -38,7 +39,7 @@ ReviewedCompRegenerationHistory reviewCompRegenerationHistory(const std::filesys
     const Session &s,const CompHandlePlanContext &context,std::shared_ptr<const CompRegenerationSource> source,
     ResourceLedger ledger,CompHistoryReviewLimits limits,std::stop_token stop){
     poll(stop);check(bool(source),"Missing comp history source");
-    check(limits.maximumAssemblies>0 && limits.maximumAssemblies<=1024 && limits.maximumComparedSamples>0 && limits.maximumComparedSamples<=1024ULL*1024*1024,"Invalid comp history review bounds");
+    check(limits.maximumAssemblies>0 && limits.maximumAssemblies<=1024 && limits.maximumComparedSamples>0 && limits.maximumComparedSamples<=1024ULL*1024*1024 && limits.maximumInputFileBytes>0 && limits.maximumInputFileBytes<=8ULL*1024*1024*1024,"Invalid comp history review bounds");
     verifyCompRegenerationSourceCurrent(s,context,*source);
     PayloadCharge charge("Comp history dependency review",SIZE_MAX);charge.add(sessionPayloadBytes(s),8);charge.add(65536);charge.add(limits.maximumAssemblies,sizeof(CompHistoryReviewEntry)+512);
     auto lease=ledger.reserve(charge.bytes());validate(s);
@@ -58,6 +59,15 @@ ReviewedCompRegenerationHistory reviewCompRegenerationHistory(const std::filesys
         const auto h=*std::find_if(d.history.begin(),d.history.end(),[&](const auto &x){return x.assembly.operation.str()==op;});
         auto pair=loadCompPairSelectionSnapshot(root,context,h.assembly.selectionOperation,h.selectionSha256,ledger,stop);
         capture(pair.recipe().selection(),s,d);admit();
+        // Preflight extents against the current grant before historical reads.
+        // This relies on the same immutable-owned-file contract as the original
+        // verifier; it is not a cumulative or OS-enforced I/O budget.
+        {ApprovedMediaRoot approved(root,ledger,{1});
+            const auto extent=[&](const std::string &path){poll(stop);auto file=approved.open(path,limits.maximumInputFileBytes,stop);file.verifyUnchanged();};
+            for(const auto &a:pair.recipe().selection().assets)extent(a.relativePath);
+            for(const auto &a:d.history)if(a.assembly.operation==h.assembly.operation)extent(a.source.rendered.relativePath);
+            for(const auto &child:pair.children())if(child)extent("media/comp-spans/"+child->operation().str()+"/audio.wav");
+        }
         PayloadCharge temporary("Historical comp selection staging",SIZE_MAX);temporary.add(sessionPayloadBytes(pair.recipe().selection()),4);temporary.add(65536);
         auto temporaryLease=ledger.reserve(temporary.bytes());auto selected=pair.recipe().selection();
         const CompPairSelectionReference ref{h.assembly.selectionOperation,h.selectionSha256};
