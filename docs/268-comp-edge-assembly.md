@@ -60,7 +60,10 @@ are retained before updating the PR head. The artifact hashes match the server's
 advertised digests. The independent Windows build-input audit verifies all 14
 payload files, 1,536 source files under actual Windows checkout filters and both
 pinned media DLL builds. Main-window/native-audio/installer flags remain false.
-The new assembly gate is wired into native Windows CI; its current run is pending.
+Original run38567970097 passes the new native Windows assembly gate and Linux171.
+Its desktop job fails an existing fast-task timer assertion; checkpoint269 retains
+that failure and the revised controlled observation. No preview bundle is produced
+by the failed run.
 
 ## Next work
 

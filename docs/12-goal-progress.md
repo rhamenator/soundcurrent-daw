@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Explicit comp processing region (2026-10-14)
+
+[Checkpoint 269](269-explicit-comp-processing-region.md) evaluates scoped,
+permission-checked inner blending while preserving original assets and outside
+PCM. Both core gates and the corrected desktop import gate pass locally;36
+assemblies retain independent curve/scope and artifact measurements. Joins improve
+but quality observations remain mixed. Original preceding CI has one Windows UI
+timer-observation failure; its actual logs/artifacts are retained, and the test
+now observes GUI dispatch during held work. New Windows execution and production
+permission/state/adoption integration remain open. Full-suite/Europe goal active.
+
 ## Separate comp edges and bounded assembly (2026-10-14)
 
 [Checkpoint 268](268-comp-edge-assembly.md) adds bounded PCM assembly with original
