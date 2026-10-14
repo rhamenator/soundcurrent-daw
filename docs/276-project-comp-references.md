@@ -47,6 +47,30 @@ epochs are not restored from saved references.
 
 ## Acceptance and remaining work
 
+[Source-bound acceptance](../tests/results/M2/2026-10-14-comp-pair-state/index.json)
+binds implementation `8e44da455b817176b2f2ba6148bd0be0f257dadc`, source/library/executable hashes
+and CTest process 3854791. All six focused suites pass in 5.75 seconds:
+project-reference state, paired worker recovery, ordinary session state, existing
+comp-window state, history resources and multitrack edits. Four actual workers
+produce two completed spans plus cancellation and watchdog retirement. Reopening
+the relocated completed pair uses the actual saved project reference and a fresh
+root/context. This is integrity/recovery acceptance, not DSP quality admission.
+
+The frozen archive includes actual projects/previous generations, worker/media/
+selection/control/completion files, relocation copies and source/process receipts:
+4,120,777 bytes, 148 entries,
+SHA-256 `e28666b4fa96a2aae03d0adcb704806b23b42b10da8a0aeea8aaf55d622fe5d8`. The dedicated Release build was incrementally
+rebuilt for the changed session ABI with one low-priority worker. Existing GCC
+mix-reader/playback warnings remain recorded. Localization extraction remains
+1,038 keys/34 partial catalogs/3,168 drafts/zero reviewed or fully UI-qualified
+languages. No production GUI source changed.
+
+Original previous [CI 38611054401](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38611054401)
+at `1b2c651` is still running at this checkpoint. Its exact original terminal
+results must be retained before advancing the PR head. This project's new native
+Windows reference gate is pending; prior worker evidence does not qualify it.
+
+
 The acceptance receipt records strict state roundtrips, registration/removal
 Undo/Redo, conflicts, malformed/colliding entries, count/resource admission,
 previous generations, interrupted publication and missing sidecars. The paired

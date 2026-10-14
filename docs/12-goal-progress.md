@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Trusted comp references in project state (2026-10-14)
+
+[Checkpoint 276](276-project-comp-references.md) adds strict schema1.21 operation/
+selection-digest references, budgeted validation and atomic registration/removal
+Undo/Redo. The actual worker fixture saves/reopens those references and verifies
+a relocated completed pair with fresh context. Six source-bound Linux suites pass
+in 5.75 seconds. Previous original CI is still active; new Windows state execution
+is pending. Desktop process supervision, final comp assembly/adoption, quality,
+installation and European localization remain open.
+
 ## Durable paired comp recovery (2026-10-14)
 
 [Checkpoint 275](275-paired-comp-recovery.md) persists immutable selection/recipe/

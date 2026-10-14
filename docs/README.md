@@ -229,3 +229,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [ADR 162: owned exact-span process protocol](decisions/162-owned-comp-span-protocol.md)
 
 - [Durable paired comp selection and recovery](275-paired-comp-recovery.md)
+
+- [Trusted comp selections in project state](276-project-comp-references.md)
