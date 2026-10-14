@@ -237,3 +237,7 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Versioned comp span workers](292-versioned-comp-span-workers.md)
 - [ADR 177: versioned comp span history](decisions/177-versioned-comp-span-history.md)
 - [ADR 178: Windows owned media paths](decisions/178-windows-media-paths.md)
+
+- [Queued comp dependency checks](293-queued-comp-dependencies.md)
+- [ADR 179: immutable queued comp dependencies](decisions/179-queued-comp-dependencies.md)
+- [ADR 180: complete Linux CI partition](decisions/180-complete-linux-ci-partition.md)

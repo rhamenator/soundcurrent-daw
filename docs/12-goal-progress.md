@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Queued comp dependency checks (2026-10-14)
+
+[Checkpoint 293](293-queued-comp-dependencies.md) retains immutable source-history
+closure through canonical Apply, rejects stale ancestry, and preserves unrelated
+edits. Six suites pass in 172.64 seconds, including actual desktop
+Apply/Undo/Redo/save/reopen/export, exact legacy WAV hashes and queued resource
+release. Original CI artifacts are fully retained: Windows desktop/cross-build
+passed; native history setup failed and Linux exceeded its job deadline. Fresh
+CI will test the path correction and complete Linux partitions. Repeated paired
+production remains gated; the complete frozen DAW goal remains active.
+
 ## Versioned comp span workers (2026-10-14)
 
 [Checkpoint 292](292-versioned-comp-span-workers.md) binds explicit clocks in
