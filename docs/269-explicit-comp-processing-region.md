@@ -67,7 +67,9 @@ Existing deadlines and close/retirement/commit assertions are unchanged.
 
 The corrected Linux desktop gate passes75 checks in0.84 seconds. The source-bound
 receipt records this actual run. It does not prove the new Windows test until its
-hosted execution passes. Product UI source is untouched; catalog check remains
+hosted execution passes. Original run38572570686 now passes that corrected Windows
+gate and all four jobs; checkpoint270 retains its complete evidence. Product UI
+source is untouched; catalog check remains
 1038 keys/34 partial catalogs, zero native-reviewed or UI-qualified languages.
 
 ## Next work

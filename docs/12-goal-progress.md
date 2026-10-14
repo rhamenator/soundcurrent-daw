@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Derived comp processing permissions (2026-10-14)
+
+[Checkpoint270](270-comp-processing-permissions.md) derives immutable permissions
+from requested transitions and includes real FIR read neighborhoods.51 physical
+and35 post-SRC cases retain byte-exact outside project PCM across rate/speed/
+fraction/offset variants. One-frame edits retain their width. Three local gates
+pass; prior source passes all original Windows/Linux jobs and reviewed build-input
+bytes. Persisted recipes, renderer/adoption/live-offline integration and quality
+remain open. Full frozen-suite, installed-platform and all-Europe goals stay active.
+
 ## Explicit comp processing region (2026-10-14)
 
 [Checkpoint 269](269-explicit-comp-processing-region.md) evaluates scoped,
