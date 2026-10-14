@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Portable comp recipes (2026-10-14)
+
+[Checkpoint 271](271-comp-processing-recipes.md) adds versioned source snapshots,
+recomputed permissions, owner-supplied digest/executor identity and immutable
+Unicode-safe sidecar publication/reload. Four source-bound local gates pass,
+including 618 recipe checks over 11 cases. Preceding permission CI passes all four
+original jobs, with full logs/ZIPs retained and build inputs independently audited.
+New recipe Windows execution, owned jobs, project references, media review,
+post-SRC live/offline integration, adoption/UI and processing quality remain open.
+Full frozen-suite, installed-platform and all-Europe requirements stay active.
+
 ## Derived comp processing permissions (2026-10-14)
 
 [Checkpoint270](270-comp-processing-permissions.md) derives immutable permissions

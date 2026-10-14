@@ -215,3 +215,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Shared prepared recording control endpoints](233-monitor-control-endpoints.md)
 
 - [Typed PipeWire recording controller and panel](234-pipewire-monitor-controller.md)
+
+- [Versioned comp processing recipes and immutable sidecars](271-comp-processing-recipes.md)
+- [ADR 159: source-bound portable comp processing recipes](decisions/159-versioned-comp-recipes.md)
