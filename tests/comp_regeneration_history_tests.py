@@ -18,7 +18,9 @@ for root in sorted(roots[0].glob('inputs/run-*/case-*/project-*')):
     try:out,err=proc.communicate(json.dumps(dict(root=str(root))),timeout=90)
     except BaseException:proc.kill();proc.communicate();raise
     (root/'review.stdout').write_text(out);(root/'review.stderr').write_text(err)
-    processes.append(dict(pid=proc.pid,exitCode=proc.returncode));assert proc.returncode==0,(root,err);reports.append(json.loads(out))
+    processes.append(dict(pid=proc.pid,exitCode=proc.returncode))
+    (scope/'review-processes.json').write_text(json.dumps(processes,indent=2)+'\n')
+    assert proc.returncode==0,(root,proc.returncode,err);reports.append(json.loads(out))
 assert len(reports)==3 and all(len(r['reviews'])==2 and r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['qualityAdmission'] for r in reports)
 assert all(c['assemblies']==1 and c['comparedSamples']>0 for r in reports for c in r['reviews'])
 result=dict(inputs=json.loads((roots[0]/'report.json').read_text()),reviewProcesses=processes,reports=reports)

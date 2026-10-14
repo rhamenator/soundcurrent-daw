@@ -66,7 +66,10 @@ int main(){try{
                 std::vector<std::shared_ptr<const CompAssemblyDependencies>> queue{guard};const auto queuedBytes=ledger.usage().reservedBytes;guard.reset();
                 check(ledger.usage().reservedBytes==queuedBytes,"Queued guard released its memory too early");
                 const auto &queued=*queue.front();verifyCompAssemblyDependencies(s,queued);
-                auto unrelated=s;unrelated.name="Unrelated title";unrelated.tracks[0].name="Renamed track";unrelated.tracks[0].eq.bands[0].gainDb+=1;
+                auto unrelated=s;unrelated.name="Unrelated title";unrelated.tracks[0].name="Renamed track";
+                // The real adopted fixture deliberately has no track EQ bands.
+                unrelated.tracks[0].eq.bands.push_back(EqBand{});
+                unrelated.tracks[0].eq.bands.back().gainDb=1;
                 validate(unrelated);verifyCompAssemblyDependencies(unrelated,queued);
                 for(unsigned mutation=0;mutation<8;++mutation){auto changed=s;
                     if(mutation==0)changed.id=Id::generate();
