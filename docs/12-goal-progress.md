@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Protected desktop transitions (2026-10-15)
+
+[Checkpoint 304](304-protected-desktop-transitions.md) enables protected original
+handles through the timeline's Save and render and explicit Review/Apply path.
+Twelve new desktop cases cover five pair/rate combinations and seven refusal,
+cancel or close paths. One Debug and three Release suites pass; five new exports
+match across builds and nine legacy repeated exports are unchanged. Cleanup
+assertions now observe the actual project ledger, correcting an earlier unused
+options-ledger check. Original CI evidence remains unchanged and its derived audit
+records that limitation. The preceding CI passes 197 Linux, 116 native Windows
+core and 27 desktop tests with all original artifacts retained, including the
+previously missing detailed protected corpus. New native assembly/desktop and
+cleanup confirmation, installed delivery and the full goal remain incomplete.
+
+
 ## Protected assembly and model adoption (2026-10-15)
 
 [Checkpoint 303](303-protected-comp-assembly.md) qualifies the real nominal/span

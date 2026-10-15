@@ -75,7 +75,10 @@ geometry and validates isolated output, with 69 worker cases per configuration.
 Existing rendering hashes remain unchanged. [Explicit protected-pair recovery](docs/302-protected-comp-pair-recovery.md)
 now survives save/reopen and relocation with guarded readiness. The [protected assembly/model workflow](docs/303-protected-comp-assembly.md) now
 passes actual nominal-worker, mixed-pair publication, Undo/Redo/save/reopen,
-live/export and abrupt-process-exit checks. Desktop integration remains pending.
+live/export and abrupt-process-exit checks. The [protected desktop workflow](docs/304-protected-desktop-transitions.md)
+now passes timeline creation, Review/Apply, Undo/Redo/save/reopen/export and failure
+checks in Debug/Release, including mixed pairs and actual project-memory cleanup.
+Native confirmation of the new workflow and installed delivery remain pending.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.

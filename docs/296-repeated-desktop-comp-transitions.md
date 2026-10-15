@@ -1,5 +1,11 @@
 # Repeated rendered transitions in the desktop workflow
 
+**Evidence correction, 2026-10-15:** the repeated-desktop cleanup assertion
+reported below observed an unused options ledger, not the actual project ledger.
+It did not establish actual project-memory release. Original reports are retained;
+[checkpoint 304](304-protected-desktop-transitions.md) corrects the fixture and
+qualifies cleanup locally. Native confirmation of that correction is pending.
+
 Checkpoint 296, 2026-10-14. Full DAW goal remains active; this is source
 development, not a replacement for the installed preview.
 
