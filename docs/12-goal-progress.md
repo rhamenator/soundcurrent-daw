@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Waveform cache and projection (2026-10-15)
+
+[Checkpoint 345](345-waveform-cache.md) adds complete-view cache admission,
+immutable source reuse, explicit invalidation/retry and stale-project rejection.
+Rational projection exposes only fully covered bins and identifies crop edges
+needing finer data. Release and ASan/UBSan pass 112,881 cache/projection checks
+and 106 controller checks. Real Qt Linguist refresh repairs the stale source
+inventory found in preceding CI. Its Windows crossfade timeout remains open.
+Timeline drawing, worker packaging and native Windows cache qualification are
+next; installed previews are unchanged and full DAW parity remains incomplete.
+
 ## Waveform control-thread supervision (2026-10-15)
 
 [Checkpoint 344](344-waveform-controller.md) adds single-operation child supervision,

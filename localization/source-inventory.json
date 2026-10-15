@@ -51,8 +51,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "6748660cb2b81b7b91f113730292fc2d202181962a2335cb04d55a1a6d2d5ce9",
-    "ui/studio_window.hpp": "b1f10a38dbcf2fdea37dbe8d95645232ffcc26d96fad2aeede62fd7b9e33eeaa",
+    "ui/studio_window.cpp": "d02c8f0753b0870d22fd9e818be3d089d37e9ffce7f4a8db7a01e9b9822c8dc8",
+    "ui/studio_window.hpp": "3907db316be960a0a5c7eaa9b44e9b61138feb087d67a26bb4c71690e4b975d9",
     "ui/timeline_editor.cpp": "676bf20e5a509cef254da5f4b14d6865a203db6e28d8bf51ba9c6937729691fe",
     "ui/timeline_editor.hpp": "7e7c58783f6298dec40c02619484985d0177a4d64c0c8675388deee996d3a48e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -60,7 +60,11 @@
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
     "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
-    "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
+    "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9",
+    "ui/waveform_cache.cpp": "6f9a8b77e8740e09fb47bf463dd055982d783c12aaf2493e8f811112320d94b5",
+    "ui/waveform_cache.hpp": "70e9a87090a7baef9c2acb1bd2c2d8d8c60ac6ec07d2ac47d757d27a45091998",
+    "ui/waveform_controller.cpp": "ad90d6adba7a79adbe75e94d0fcb8e8ff7a6dbfb289f028b13f38f6789226711",
+    "ui/waveform_controller.hpp": "7222ca3dce1f833ad1c4bf057939125b6fc4f7209c9e719112ca1a0195babc0b"
   },
   "seed_sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6",
   "translator_notes_sha256": "7bd09dee3f5a9a02e0438410be9265e3d82fdb05c243837723edaf5320c8b9bb",

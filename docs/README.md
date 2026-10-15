@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Bounded waveform cache and source geometry](345-waveform-cache.md)
 - [Asynchronous waveform supervision](344-waveform-controller.md)
 - [Immediate comp-review invalidation on project replacement](343-comp-review-invalidation.md)
 - [Isolated waveform worker and bounded reply](342-waveform-worker-protocol.md)
