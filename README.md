@@ -61,12 +61,16 @@ now passes timeline creation, explicit Review/Apply and recovery tests. Current
 native Windows and installed-preview qualification remain in development.
 [Native build follow-up](docs/297-native-comp-build-followup.md) addresses deep
 Windows fixture paths and compiles the desktop window once across UI targets.
-Twenty selected local suites have current-build coverage; fresh native confirmation
-remains required.
+The subsequent original CI run passes 194 Linux tests, 113 native Windows core
+tests and 27 Windows desktop tests; installed audio qualification remains separate.
 [Per-admission source verification](docs/298-comp-source-admission-performance.md)
 now removes repeated checks of identical declarations within each admission, while
 keeping fresh verification across operations. Four Debug and eleven Release suites
-pass with unchanged export hashes; native CI remains a separate gate.
+pass with unchanged export hashes; the subsequent native CI also passes.
+An [owned protected-comp core](docs/300-owned-protected-comp-spans.md) now preserves
+semantic anchors and raw-source timing across expanded integer-clock handles.
+Debug/Release checks cover two anchors and failure/lifetime handling; worker and
+desktop integration remain pending.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.

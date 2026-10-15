@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned protected comp spans (2026-10-14)
+
+[Checkpoint 300](300-owned-protected-comp-spans.md) adds a move-only core plan
+and guarded rendering callbacks with a distinct protected-comp identity. Debug
+and Release each pass 18 renders, 264 independent exact-map checks, 34,560
+protected samples and twelve failure/lifetime checks. All 18 output hashes match
+between builds. Owned-worker/publication/UI integration, fractional clocks and
+history, independent quality and native Windows execution remain open.
+The preceding production head independently passed all six original CI jobs:
+194 Linux tests, 113 native Windows core tests and 27 Windows desktop tests. Full
+original logs, six artifact ZIPs and 94 PNGs are retained and audited before the
+next PR update. Those results do not include the new protected component.
+
 ## Protected comp-handle feasibility (2026-10-14)
 
 [Checkpoint 299](299-protected-comp-candidate.md) records nine isolated Release
