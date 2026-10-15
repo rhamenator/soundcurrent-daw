@@ -15,6 +15,14 @@ ExactProcessingGrid ExactProcessingGrid::processingGrid(SourcePosition origin,So
 }
 SourcePosition ExactProcessingGrid::at(Frame offset) const {
     require(offset>=0,"Negative exact processing offset");
+    // Most sample indices have a directly representable product, even when
+    // the reduced ratio needs 64 bits. Keep the checked wide fallback for the
+    // full admitted domain instead of paying its bitwise division per sample.
+    if(std::uint64_t(offset)<=UINT64_MAX/numerator_){
+        const auto product=std::uint64_t(offset)*numerator_,whole=product/denominator_;
+        require(whole<=std::uint64_t(INT64_MAX),"Exact processing coordinate overflow");
+        return addSourcePosition(origin_,{Frame(whole),product%denominator_,denominator_});
+    }
     return addSourcePosition(origin_,scaleSourcePosition({offset,0,1},numerator_,denominator_));
 }
 ExactProcessingGrid ExactProcessingGrid::advanced(Frame offset) const {auto result=*this;result.origin_=at(offset);return result;}

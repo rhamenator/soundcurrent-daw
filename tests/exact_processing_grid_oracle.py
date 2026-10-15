@@ -12,6 +12,8 @@ cases=[]
 for origin in [Fraction(0),Fraction(4096)+Fraction(1,7),Fraction(2**53+11)+Fraction(3,11),Fraction(2**63-65536)]:
  for span in [Fraction(8192)+Fraction(1,1000003),Fraction(4096)+Fraction(17,1000033),Fraction(16384)+Fraction(13,999983)]:
   for count in [4096,8193,16384]:cases.append(dict(origin=triple(origin),span=triple(span),frames=count,offsets=[0,1,37,count//2,count-1,count]))
+# The product 7*(2**63-1) requires the portable wide fallback; the result fits.
+cases.append(dict(origin=triple(Fraction(0)),span=triple(Fraction(7,11)),frames=1,offsets=[0,1,2,2**63-1]))
 a.evidence.mkdir(parents=True,exist_ok=True);root=Path(tempfile.mkdtemp(prefix='run-',dir=a.evidence));raw=json.dumps(cases).encode();(root/'input.json').write_bytes(raw)
 binary=Path(a.fixture).resolve();digest=hashlib.sha256(binary.read_bytes()).hexdigest();r=subprocess.run([str(binary),'--oracle'],input=raw,capture_output=True,timeout=30)
 (root/'stdout.json').write_bytes(r.stdout);(root/'stderr.log').write_bytes(r.stderr);assert r.returncode==0,r.stderr
