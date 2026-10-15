@@ -102,7 +102,24 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     auto *retryWaveforms = new QPushButton(tr("Retry waveforms"));
     retryWaveforms->setObjectName("retryTimelineWaveforms");
     retryWaveforms->setToolTip(tr("Recheck source files and retry waveform preparation without changing audio or project edits."));
-    waveformRow->addWidget(retryWaveforms); waveformRow->addStretch();
+    waveformRow->addWidget(retryWaveforms);
+    auto *waveformMode = new FocusCombo;
+    waveformMode->setObjectName("waveformChannelMode");
+    waveformMode->setAccessibleName(tr("Waveform display"));
+    waveformMode->addItem(tr("Overview"));waveformMode->addItem(tr("Single channel"));
+    auto *waveformChannel = new QSpinBox;
+    waveformChannel->setObjectName("waveformDisplayChannel");waveformChannel->setRange(1,1024);
+    waveformChannel->setKeyboardTracking(false);waveformChannel->setEnabled(false);
+    waveformChannel->setAccessibleName(tr("Source channel number"));
+    waveformChannel->setToolTip(tr("Source channel number; does not change routing or audio."));
+    auto *channelLabel = new QLabel(tr("Channel"));channelLabel->setBuddy(waveformChannel);
+    waveformRow->addWidget(waveformMode);waveformRow->addWidget(channelLabel);waveformRow->addWidget(waveformChannel);waveformRow->addStretch();
+    const auto showChannel=[this,waveformMode,waveformChannel] {
+        const bool single=waveformMode->currentIndex()==1;waveformChannel->setEnabled(single);
+        view_->setWaveformChannel(single ? std::optional<std::uint32_t>(std::uint32_t(waveformChannel->value()-1)) : std::nullopt);
+    };
+    connect(waveformMode,&QComboBox::currentIndexChanged,this,showChannel);
+    connect(waveformChannel,&QSpinBox::valueChanged,this,showChannel);
     body->addLayout(waveformRow);
     connect(retryWaveforms, &QPushButton::clicked, view_, &TimelineView::retryWaveforms);
     auto *trackRow = new QHBoxLayout;

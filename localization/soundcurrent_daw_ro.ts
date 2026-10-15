@@ -4051,6 +4051,30 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Waveform display</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Overview</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Single channel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source channel number</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source channel number; does not change routing or audio.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Channel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Selected track name</source>
       <translation type="unfinished" />
     </message>
@@ -4485,7 +4509,19 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Source PCM · channel %1 absent from some sources</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source PCM · channel %1 · shaded edges need finer detail</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No channel %1</source>
       <translation type="unfinished" />
     </message>
   </context>

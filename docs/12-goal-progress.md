@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Individual waveform channels (2026-10-15)
+
+[Checkpoint 349](349-waveform-channel-inspection.md) adds an Overview / Single
+channel display selector without changing audio, routing, project state or the
+prepared source cache. Actual-window fixtures now include synthetic 256-channel
+material, independently check selected channel levels/colors, and expose absent
+channels explicitly. Eight focused Linux Release suites pass; rendered-view
+selection also receives ASan/UBSan coverage. Windows and installed-preview gates,
+fine-window/large-file support and the full DAW parity goal remain incomplete.
+Installed previews are unchanged.
+
 ## Full-window waveform recovery (2026-10-15)
 
 [Checkpoint 348](348-studio-waveform-recovery.md) adds explicit source-waveform

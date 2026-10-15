@@ -2,6 +2,7 @@
 #include "timeline_waveforms.hpp"
 #include <soundcurrent/waveform_projection.hpp>
 #include <QCoreApplication>
+#include <QLocale>
 #include <algorithm>
 #include <cmath>
 namespace soundcurrent::daw::ui {
@@ -60,7 +61,18 @@ QString TimelineWaveforms::status() const {
         return tr("Some source waveforms are unavailable; use Retry waveforms");
     if (std::any_of(items_.begin(), items_.end(), [](const auto &i) { return !i.result.waveform; }))
         return tr("Preparing source waveforms…");
-    return items_.empty() ? QString() : tr("Source PCM · shaded edges need finer detail · >2 channels combined");
+    if (items_.empty()) return {};
+    if (channel_) {
+        const auto number=QLocale().toString(qulonglong(*channel_)+1);
+        if (std::any_of(items_.begin(),items_.end(),[&](const auto &i){return i.result.waveform && *channel_>=i.result.waveform->source().channels;}))
+            return tr("Source PCM · channel %1 absent from some sources").arg(number);
+        return tr("Source PCM · channel %1 · shaded edges need finer detail").arg(number);
+    }
+    return tr("Source PCM · shaded edges need finer detail · >2 channels combined");
+}
+void TimelineWaveforms::setChannel(std::optional<std::uint32_t> channel) {
+    if (channel && *channel>=1024) throw ProjectError(ErrorCode::InvalidParameter,"Waveform display channel exceeds source policy");
+    channel_=channel;
 }
 bool TimelineWaveforms::pending() const {
     return std::any_of(items_.begin(),items_.end(),[](const auto &i) {
@@ -77,6 +89,10 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
     const auto k = rect.width() / double(clip.lengthFrames);
     const auto area = rect.adjusted(3, 5, -3, -5).intersected(viewport);
     if (area.isEmpty()) return;
+    if (channel_ && *channel_>=wave.source().channels) {
+        p.save(); p.setClipRect(area,Qt::IntersectClip);p.fillRect(area,QColor(35,45,55));p.setPen(QColor(240,205,120));
+        p.drawText(area,Qt::AlignCenter,tr("No channel %1").arg(QLocale().toString(qulonglong(*channel_)+1)));p.restore();return;
+    }
     bool saved = false;
     try {
         std::size_t level = 0;
@@ -86,7 +102,7 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
         };
         // At most about one bin per pixel; for combined multichannel envelopes,
         // also bound channel/bin work per visible clip to roughly 65,536.
-        const auto minimumPixels = std::max(1., area.width() * wave.source().channels / 65536.);
+        const auto minimumPixels = std::max(1., area.width() * (channel_ ? 1 : wave.source().channels) / 65536.);
         while (level + 1 < wave.levels().size() && binPixels(level) < minimumPixels) ++level;
         const auto first = std::clamp<Frame>(Frame(std::floor((area.left()-rect.left())/k)), 0, clip.lengthFrames);
         const auto end = std::clamp<Frame>(Frame(std::ceil((area.right()-rect.left())/k)), first, clip.lengthFrames);
@@ -94,14 +110,14 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
         p.save(); saved = true; p.setClipRect(area, Qt::IntersectClip);
         p.fillRect(area, QColor(35,45,55));
         const auto channels = wave.source().channels;
-        const unsigned lanes = channels <= 2 ? channels : 1;
+        const unsigned lanes = channel_ ? 1 : channels <= 2 ? channels : 1;
         for (unsigned lane = 0; lane < lanes; ++lane) {
             const auto middle = rect.top() + 5 + (rect.height()-10) * (lane+.5) / lanes;
             const auto height = (rect.height()-10) / (2*lanes);
             p.setPen(QColor(100, 115, 135)); p.drawLine(QPointF(area.left(), middle), QPointF(area.right(), middle));
             for (auto bin = span.firstFullBin; bin < span.endFullBin; ++bin) {
-                auto peak = wave.peak(level, bin, lane);
-                if (channels > 2) for (unsigned c = 1; c < channels; ++c) {
+                auto peak = wave.peak(level, bin, channel_.value_or(lane));
+                if (!channel_ && channels > 2) for (unsigned c = 1; c < channels; ++c) {
                     const auto v = wave.peak(level, bin, c);
                     peak.minimum = std::min(peak.minimum, v.minimum); peak.maximum = std::max(peak.maximum, v.maximum);
                 }

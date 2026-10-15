@@ -12,6 +12,7 @@ class TimelineWaveforms {
     void update(const std::vector<Id> &visibleAssets);
     void draw(QPainter &, const Clip &, const QRectF &, const QRectF &viewport) const;
     QString status() const;
+    void setChannel(std::optional<std::uint32_t>);
     void retry();
     void shutdown();
     bool closed() const;
@@ -27,5 +28,6 @@ class TimelineWaveforms {
     std::uint64_t epoch_ = 0;
     std::vector<Item> items_;
     bool closing_ = false, refused_ = false;
+    std::optional<std::uint32_t> channel_;
 };
 } // namespace soundcurrent::daw::ui

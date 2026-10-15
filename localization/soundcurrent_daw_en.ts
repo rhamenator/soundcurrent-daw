@@ -4068,6 +4068,30 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Recheck source files and retry waveform preparation without changing audio or project edits.</translation>
     </message>
     <message>
+      <source>Waveform display</source>
+      <translation>Waveform display</translation>
+    </message>
+    <message>
+      <source>Overview</source>
+      <translation>Overview</translation>
+    </message>
+    <message>
+      <source>Single channel</source>
+      <translation>Single channel</translation>
+    </message>
+    <message>
+      <source>Source channel number</source>
+      <translation>Source channel number</translation>
+    </message>
+    <message>
+      <source>Source channel number; does not change routing or audio.</source>
+      <translation>Source channel number; does not change routing or audio.</translation>
+    </message>
+    <message>
+      <source>Channel</source>
+      <translation>Channel</translation>
+    </message>
+    <message>
       <source>Selected track name</source>
       <translation>Selected track name</translation>
     </message>
@@ -4502,8 +4526,20 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Preparing source waveforms…</translation>
     </message>
     <message>
+      <source>Source PCM · channel %1 absent from some sources</source>
+      <translation>Source PCM · channel %1 absent from some sources</translation>
+    </message>
+    <message>
+      <source>Source PCM · channel %1 · shaded edges need finer detail</source>
+      <translation>Source PCM · channel %1 · shaded edges need finer detail</translation>
+    </message>
+    <message>
       <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
       <translation>Source PCM · shaded edges need finer detail · &gt;2 channels combined</translation>
+    </message>
+    <message>
+      <source>No channel %1</source>
+      <translation>No channel %1</translation>
     </message>
   </context>
 </TS>

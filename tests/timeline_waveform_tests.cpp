@@ -43,6 +43,9 @@ int main(int argc,char **argv) {
             for(int y=0;y<screenshot.height();++y)for(int x=0;x<screenshot.width();++x){const auto color=screenshot.pixelColor(x,y);peaks+=color==QColor(225,245,255);overs+=color==QColor(255,80,75);}
             check(peaks>100,"Actual timeline has no visible source peaks");check(overs>0,"Floating headroom not indicated");
             if(argc==2)check(screenshot.save(QString::fromLocal8Bit(argv[1])),"Screenshot write failed");
+            view.setWaveformChannel(1);check(view.waveformReadyCount()==1,"Single-channel inspection invalidated source cache");
+            bool invalidChannel=false;try{view.setWaveformChannel(1024);}catch(const ProjectError &e){invalidChannel=e.code()==ErrorCode::InvalidParameter;}
+            check(invalidChannel,"Invalid display channel accepted");view.setWaveformChannel({});
             view.retryWaveforms();check(view.waveformReadyCount()==0,"Retry retained displayed source authority");
             wait([&]{return view.waveformReadyCount()==1;});
             view.setZoom(80);view.horizontalScrollBar()->setValue(400);QTest::qWait(100);

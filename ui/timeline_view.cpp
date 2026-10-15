@@ -381,6 +381,11 @@ void TimelineView::pollWaveforms() {
     if (waveformsDirty_ || before!=waveforms_.readyCount() || message!=waveformStatus_) viewport()->update();
     waveformStatus_=message; setAccessibleDescription(message); waveformsDirty_=false;
 }
+void TimelineView::setWaveformChannel(std::optional<std::uint32_t> channel) {
+    waveforms_.setChannel(channel);
+    waveformStatus_=waveforms_.status();setAccessibleDescription(waveformStatus_);
+    viewport()->update();
+}
 void TimelineView::retryWaveforms() {
     waveforms_.retry(); waveformsDirty_=true; waveformStatus_.clear();
     setAccessibleDescription({}); viewport()->update();
