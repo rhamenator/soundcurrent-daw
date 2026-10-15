@@ -273,6 +273,15 @@
     "windows-startup-analysis": 2.45,
     "windows-stop-analysis": 3.93,
     "worker-observation-failures": 4.44,
-    "writer-phase-timing": 0.0
-  }
+    "writer-phase-timing": 0.0,
+    "comp-uniform-original-context": 48.38187672197819
+  },
+  "newEstimates": [
+    {
+      "test": "comp-uniform-original-context",
+      "seconds": 48.38187672197819,
+      "basis": "Twice local Debug elapsed CTest time, scheduling estimate only",
+      "sourceHead": "d4729b9231a28a0ef1df5e2f4ac4877dfb1689d7"
+    }
+  ]
 }

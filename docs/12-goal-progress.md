@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original-context uniform renderer (2026-10-15)
+
+[Checkpoint 316](316-uniform-original-context-renderer.md) implements a new core
+producer for short edits using original analysis context and exact candidate
+sampling. Release and Debug pass the 4,054-frame regression, fractional histories,
+stereo pitch, source edges and failure cleanup; seven PCM files match across builds.
+Worker-protocol, paired-adoption and desktop integration remain the next delivery
+steps. The current original CI still qualifies checkpoint 314, not this new source.
+
+
 ## Short uniform context feasibility (2026-10-15)
 
 [Checkpoint 315](315-uniform-short-context-feasibility.md) confirms that the failing
