@@ -65,13 +65,30 @@ bytes fixes that harness mismatch without relaxing request/ready verification.
 
 ## Preceding native adapter evidence
 
-The preceding adapter run [38708881154](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38708881154)
-is still running at `37f390824adfe3a35a0047847228be13a35f86cd` as this local checkpoint
-is recorded. Its terminal results, original logs and artifacts must be retained
-before advancing the draft PR. No native pass for either the preceding adapter
-or the new worker is inferred from compilation. The existing draft PR remains at
-that preceding head while this worker checkpoint is backed up separately.
+[Original CI 38708881154](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38708881154)
+completed successfully at `37f390824adfe3a35a0047847228be13a35f86cd`, qualifying the
+preceding geometry adapter. All ten full logs, terminal APIs, nine original ZIPs
+and 214 PNGs were retained before any draft-PR advance.
 
+- Linux: 212 suites pass in disjoint 71/71/70 shards; CTest times are
+  680.62 / 698.05 / 551.11 seconds. Archive and aggregate gates pass.
+- Native Windows: 36 comp and 93 other suites pass; desktop 22/6/1 banks pass.
+- The new adapter's native three-rate reports pass every original gate; native
+  candidate crops exactly match their earlier-window references. Its 45-case
+  exact-clock oracle matches all three Linux builds and the tested source bytes.
+- Raw fixture PCM and all cropped candidate/reference files match Linux exactly.
+  The initial full candidate differs at 48 kHz (maximum `2.9802322387695312e-8`)
+  and 96 kHz (maximum `2.384185791015625e-7`). These measured differences are retained;
+  cross-platform byte identity and broad quality admission are not asserted.
+- Repeated native desktop checks retain nine adoptions, three mixed cases, fifteen
+  reaped workers and five failure/close cases. All fourteen stage observations
+  pass, maximum 8,388 ms. Nine exports match current and prior Windows core.
+- Source/deployment audit verifies fifteen payloads and 1,766 corresponding-source
+  files using actual Windows checkout filters.
+
+[Portable original-CI review](../tests/results/M2/2026-10-15-comp-clocked-protected-worker/original-ci-index.json)
+retains the audits, scoped native corpora and exact/numeric comparisons. This run
+predates the new worker protocol; native execution of that protocol is still pending.
 
 ## Next task
 

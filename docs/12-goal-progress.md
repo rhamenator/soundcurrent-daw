@@ -9,8 +9,10 @@ and four Debug suites pass, including legacy worker regressions. Eight new worke
 outputs match across builds; 82 refusal cases and 1,385,714 PCM comparisons pass.
 MinGW syntax passes. The real-history fixture uses an actual published physical
 ancestor; new paired adoption and post-SRC history coverage remain required.
-Preceding adapter CI is still running at the recorded checkpoint. New worker native
-execution, editor delivery, quality/localization and full DAW parity remain open.
+Preceding adapter CI passes all ten jobs; its native exact-clock oracle and crop
+checks pass, with small measured full-render platform differences retained. New
+worker native execution, editor delivery, quality/localization and full DAW parity
+remain open.
 
 
 ## Complete original geometry for cropped comp rendering (2026-10-15)
