@@ -17,9 +17,9 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
-The [current installed Ubuntu preview](docs/323-installed-portable-comp.md)
+The [current installed Ubuntu preview](docs/337-installed-batched-preview.md)
 is available locally as **SoundCurrent DAW Preview** in Applications, with a
-**previous** entry for rollback. Its Release DEB and matching GPL source are
+**before batched verification** entry for rollback. Its Release DEB and matching GPL source are
 prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
 recording/playback and packaged save/reopen/export have scoped evidence.
 New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)

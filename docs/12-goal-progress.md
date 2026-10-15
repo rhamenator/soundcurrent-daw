@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Updated installed Linux preview (2026-10-15)
+
+[Checkpoint 337](337-installed-batched-preview.md) prepares the `97e9ecd` DEB
+and verifies all 8,101 corresponding-source files. All 27 preview gates pass in
+229.70 seconds. Installed Render/Review/Apply/Undo/Redo/save/reopen/export passes,
+with a bit-exact independent export and unchanged original media. The observed
+render completes in 4.316 seconds, compared with the previous 5.496-second run
+of this fixture; this is not a general performance guarantee. The Applications
+entry now uses the new preview, with the `b5dc256` version retained for rollback.
+Normal launcher startup and Quit pass. No VM or physical audio used. Hosted CI
+is still live; preserve its original results before advancing PR194. Windows
+preview refresh and full goal remain incomplete.
+
 ## Native Windows batched verification (2026-10-15)
 
 [Checkpoint 336](336-windows-batched-comp-verification.md) qualifies the batched

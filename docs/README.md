@@ -263,3 +263,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Batched comp verification with measured work reduction](335-batched-comp-verification.md)
 - [ADR 203: batched comp recomputation](decisions/203-batched-comp-recomputation.md)
 - [Native Windows batched comp verification](336-windows-batched-comp-verification.md)
+- [Installed Linux preview with batched verification](337-installed-batched-preview.md)
