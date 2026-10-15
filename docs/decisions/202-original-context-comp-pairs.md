@@ -1,6 +1,6 @@
 # ADR 202: Bind original-context rendering to an explicit paired selection
 
-Status: implemented; qualification in progress.
+Status: accepted; paired and desktop Linux qualification complete, native Windows qualification pending.
 Date: 2026-10-15.
 
 ## Decision

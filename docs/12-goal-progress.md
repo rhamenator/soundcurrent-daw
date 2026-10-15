@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original-context paired and desktop edits (2026-10-15)
+
+[Checkpoint 318](318-original-context-pairs.md) connects the original-context
+producer to versioned paired selection and the desktop's repeated-edit controls.
+Release and Debug paired/desktop workflows pass the short 4,054-frame crop, five
+workers and three adoptions per workflow; six export PCM files match across
+builds. Ordinary repeated edits and legacy mixed exports also pass. A test-driver
+mode omission was corrected with production binaries unchanged; the original
+failure is retained. Native execution of this source and updated installable
+previews are the next delivery gates. Full DAW and quality parity remain open.
+
 ## Original-context owned worker (2026-10-15)
 
 [Checkpoint 317](317-uniform-context-worker.md) publishes short uniform candidates

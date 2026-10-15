@@ -275,7 +275,8 @@
     "worker-observation-failures": 4.44,
     "writer-phase-timing": 0.0,
     "comp-uniform-original-context": 48.38187672197819,
-    "comp-owned-uniform-context-worker": 166.11124962591566
+    "comp-owned-uniform-context-worker": 166.11124962591566,
+    "comp-original-context-paired-production": 160.8
   },
   "newEstimates": [
     {
@@ -291,6 +292,13 @@
       "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
       "receipt": "qualified-worker-Debug-covyqe5l/receipt.json",
       "evidence": "tests/results/M2/2026-10-15-uniform-context-worker/acceptance.zip"
+    },
+    {
+      "test": "comp-original-context-paired-production",
+      "seconds": 160.8,
+      "basis": "Twice local Debug CTest test duration, scheduling estimate only",
+      "sourceHead": "a5fc7d6d3446d8fa70175738aa92af3bd6868414",
+      "evidence": "tests/results/M2/2026-10-15-original-context-pairs/acceptance.zip"
     }
   ]
 }
