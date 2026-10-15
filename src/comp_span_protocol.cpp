@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cmath>
 #include <set>
+#include <vector>
 namespace soundcurrent::daw {
 namespace {
 using Json=nlohmann::json;
@@ -99,12 +100,27 @@ CompSpanRequest encodeCompSpanRequest(const CompProcessingRecipe &r,const CompRe
 std::string compSpanIntent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){auto work=ledger.reserve(65536);auto bytes=intent(r,p).dump();check(bytes.size()<=16384,"Span intent exceeds marker bank");return bytes;}
 void verifyCompSpanReady(std::string_view bytes,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){auto work=ledger.reserve(256*1024);auto j=parse(bytes,16384);auto expected=intent(r,p);expected["event"]="ready";check(warp_codec::exact(j,expected),"Span readiness differs from owned request");}
 void admitCompSpanSources(const std::filesystem::path &root,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger,const std::function<void()> &poll){
-    policy(p);check(bool(poll),"Missing source admission poll");ApprovedMediaRoot approved(root,ledger,{2});
-    const auto verify=[&](const Asset &a){poll();auto file=approved.open(a.relativePath,p.maximumSourceBytes);const auto wave=validateApprovedWave(file,waveLimits(a,p.maximumSourceBytes),{}, {},poll);
+    policy(p);check(bool(poll),"Missing source admission poll");poll();
+    const auto &h=r.recipe().plan().handles();
+    // The two sides and their history can repeat the exact same declaration.
+    // Retain only completed checks within this one immutable-source admission.
+    // A later admission starts empty, including the post-render/post-review pass.
+    PayloadCharge seenCharge("Comp source admission declarations",SIZE_MAX);
+    seenCharge.add(8,sizeof(const Asset *));
+    for(const auto *envelope:{&h.outgoing(),&h.incoming()})
+        if(envelope->data().regeneration)seenCharge.add(envelope->data().regeneration->data().assets.size(),sizeof(const Asset *));
+    auto seenLease=ledger.reserve(seenCharge.bytes());
+    std::vector<const Asset *> seen;seen.reserve(seenCharge.bytes()/sizeof(const Asset *));
+    ApprovedMediaRoot approved(root,ledger,{2});
+    const auto verify=[&](const Asset &a){poll();
+        for(const auto *checked:seen){poll();if(*checked==a)return;}
+        auto file=approved.open(a.relativePath,p.maximumSourceBytes);const auto wave=validateApprovedWave(file,waveLimits(a,p.maximumSourceBytes),{}, {},poll);
         check(wave.frames==std::uint64_t(a.frames) && wave.rate==a.sampleRate && wave.channels==a.layout.channels && std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==a.sha256,"Comp span input changed",ErrorCode::MediaMismatch);file.verifyUnchanged();
         for(const auto &e:a.nativeEvidence){poll();auto f=approved.open(e.relativePath,std::min(p.maximumSourceBytes,e.bytes));check(f.size()==e.bytes,"Span input evidence extent changed");const auto h=f.digest({},poll);check(std::string(h.begin(),h.end())==e.sha256,"Span input evidence changed",ErrorCode::MediaMismatch);f.verifyUnchanged();}
+        // Register only after the WAV and every declared companion completed.
+        seen.push_back(&a);
     };
-    const auto &h=r.recipe().plan().handles();for(const auto *envelope:{&h.outgoing(),&h.incoming()}){const auto &e=envelope->data();verify(e.raw);verify(e.base);verify(e.retainedAsset);if(e.nominalAsset)verify(*e.nominalAsset);
+    for(const auto *envelope:{&h.outgoing(),&h.incoming()}){const auto &e=envelope->data();verify(e.raw);verify(e.base);verify(e.retainedAsset);if(e.nominalAsset)verify(*e.nominalAsset);
         if(e.regeneration)for(const auto &a:e.regeneration->data().assets)verify(a);}
 }
 VerifiedCompSpan verifyOwnedCompSpan(const std::filesystem::path &root,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger,std::stop_token stop){

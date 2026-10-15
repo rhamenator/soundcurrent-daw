@@ -5,6 +5,7 @@
 #include <soundcurrent/comp_transition_preparation.hpp>
 #include <soundcurrent/media_cache.hpp>
 #include "media_io.hpp"
+#include "windows_file_path.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <bit>
@@ -15,8 +16,8 @@ namespace {
 using Json=nlohmann::json;unsigned checks=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid v2 span accepted");}
-std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Missing v2 fixture file");return {(std::istreambuf_iterator<char>(f)),{}};}
-void write(const std::filesystem::path &p,std::string_view b){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(b.data(),std::streamsize(b.size()));check(bool(f),"Cannot write v2 fixture");}
+std::string read(const std::filesystem::path &p){std::ifstream f(fileSystemApiPath(p),std::ios::binary);check(bool(f),"Missing v2 fixture file");return {(std::istreambuf_iterator<char>(f)),{}};}
+void write(const std::filesystem::path &p,std::string_view b){std::ofstream f(fileSystemApiPath(p),std::ios::binary|std::ios::trunc);f.write(b.data(),std::streamsize(b.size()));check(bool(f),"Cannot write v2 fixture");}
 std::string hash(std::string_view b){media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(b.data()),b.size()});return h.digest();}
 CompSpanWorkerPolicy policy(){return {256*1024*1024,64*1024*1024,64*1024*1024,10000};}
 const CompHandlePlanContext context{121,"v2-span-owner/é-日本"};
@@ -85,6 +86,24 @@ int main(int argc,char **argv){try{
         std::stop_source canceled;canceled.request_stop();refuses([&]{verifyCompSpanHistory(root,request,policy(),ledger,[]{},canceled.get_token());});
         auto small=policy();small.maximumSourceBytes=1;refuses([&]{verifyCompSpanHistory(root,request,small,ledger,[]{});});
         refuses([&]{verifyCompSpanHistory(root,request,policy(),ResourceLedger(1,"Tiny history"),[]{});});
+        // Exact repeated declarations may share a completed check only inside
+        // one admission. A later call must observe changed bytes and release all
+        // temporary credit on cancellation, low-memory refusal and hash failure.
+        const auto admissionReserved=ledger.usage().reservedBytes;
+        admitCompSpanSources(root,request,policy(),ledger,[]{});
+        const auto rawPath=root/utf8Path(request.span().source().relativePath);
+        const auto rawBytes=read(rawPath);check(!rawBytes.empty(),"Empty source fixture");
+        auto alteredRaw=rawBytes;alteredRaw.back()=char(static_cast<unsigned char>(alteredRaw.back())^1U);write(rawPath,alteredRaw);
+        try{refuses([&]{admitCompSpanSources(root,request,policy(),ledger,[]{});});}
+        catch(...){write(rawPath,rawBytes);throw;}write(rawPath,rawBytes);
+        admitCompSpanSources(root,request,policy(),ledger,[]{});
+        check(read(rawPath)==rawBytes,"Source admission changed restored input");
+        ResourceLedger tinyAdmission(1,"Tiny source admission");
+        refuses([&]{admitCompSpanSources(root,request,policy(),tinyAdmission,[]{});});
+        check(!tinyAdmission.usage().reservedBytes,"Failed source admission retained credit");
+        unsigned admissionPolls=0;
+        refuses([&]{admitCompSpanSources(root,request,policy(),ledger,[&]{if(++admissionPolls==4)throw ProjectError(ErrorCode::Canceled,"Injected source cancellation");});});
+        check(ledger.usage().reservedBytes==admissionReserved,"Source admission leaked temporary credit");
         MediaCacheConfig config;config.resources=ledger;config.maximumOpenFiles=2;config.pageFrames=256;config.cacheBudgetBytes=256*1024;config.registryBudgetBytes=256*1024;
         const std::array<Asset,2> assets{request.span().source(),verified.asset()};MediaReadCache cache(root,assets,48000,config);
         Frame at=0;std::array<float,1024> actual{};std::uint64_t compared=0;
@@ -96,7 +115,7 @@ int main(int argc,char **argv){try{
         try{refuses([&]{verifyOwnedCompSpan(root,request,policy(),ledger);});}catch(...){write(marker,original);throw;}write(marker,original);
         verifyCompSpanHistory(root,request,policy(),ledger,[]{});
         check(read(root/"project.json")==projectBytes,"V2 verification changed project state");
-        result=Json{{"checks",checks},{"comparedSamples",compared},{"outputRate",verified.asset().sampleRate},{"sourceRate",request.span().source().sampleRate},{"fileSha256",verified.asset().sha256},{"historyReviewed",true},{"projectUnchanged",true},{"assemblyAdoption",false},{"qualityAdmission",false}};
+        result=Json{{"checks",checks},{"comparedSamples",compared},{"outputRate",verified.asset().sampleRate},{"sourceRate",request.span().source().sampleRate},{"fileSha256",verified.asset().sha256},{"historyReviewed",true},{"freshSourceReadAfterChangedBytes",true},{"sourceAdmissionCancellationAndBudget",true},{"projectUnchanged",true},{"assemblyAdoption",false},{"qualityAdmission",false}};
     }
     check(ledger.usage().reservedBytes==reserved,"V2 review leaked joined payload credits");
     result["joinedMemoryReleased"]=true;result["checks"]=checks;std::cout<<result.dump()<<'\n';
