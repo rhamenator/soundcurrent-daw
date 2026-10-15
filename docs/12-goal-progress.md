@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Protected assembly and model adoption (2026-10-15)
+
+[Checkpoint 303](303-protected-comp-assembly.md) qualifies the real nominal/span
+worker path through protected/protected, protected/uniform and protected/existing
+media pairs. Five pairs per configuration publish and pass canonical Undo/Redo,
+save/reopen and shared live/export checks. Fifteen abrupt publication exits recover
+as interrupted with no accepted output or completion and cannot resume/overwrite.
+Two Debug and four Release suites pass; all 14 assembly/export hashes match across
+builds and six legacy assembly hashes are unchanged. Native execution, desktop
+entry, repeated protected history, fractional clocks, independent quality and full
+scope remain open. Installed previews are unchanged.
+
+
 ## Protected pair selection and recovery (2026-10-15 UTC)
 
 [Checkpoint 302](302-protected-comp-pair-recovery.md) adds an explicit saved policy,
