@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 from pathlib import Path
-import argparse,hashlib,json,subprocess,tempfile,uuid
+import argparse,hashlib,json,os,subprocess,tempfile,uuid
 from worker_observation import observe,diagnostic
 p=argparse.ArgumentParser();p.add_argument('worker',type=Path);p.add_argument('fixture',type=Path);p.add_argument('--evidence',type=Path,required=True);a=p.parse_args();worker=a.worker.resolve();fixture=a.fixture.resolve();sha=lambda b:hashlib.sha256(b).hexdigest();binary=sha(worker.read_bytes())
 a.evidence.mkdir(parents=True,exist_ok=True);scope=Path(tempfile.mkdtemp(prefix='run-',dir=a.evidence)).resolve();rows=[]
@@ -11,6 +11,7 @@ def run(root,body,expected,mode='start',deadline=10000):
  op=json.loads(body)['operation'];packets=[]
  def packet(line):
   j=json.loads(line);packets.append(j)
+  if j.get('complete'):assert j['memoryMetric']==('process-commit' if os.name=='nt' else 'address-space')
   if j.get('event')=='ready':
    if mode=='start' and root.parent.name=='case-44100':driver('active',root,fragment=j['fragment'])
    (root/(op+'.ready.json')).write_text(json.dumps(j))

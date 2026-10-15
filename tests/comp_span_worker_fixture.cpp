@@ -54,6 +54,20 @@ int main(int argc,char **argv){try{check(argc==2,"Expected fixture mode");Json i
         std::stop_source canceled;canceled.request_stop();refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger,canceled.get_token());});
         const auto path=root/utf8Path(verified.asset().relativePath);const auto audio=bytes(path);auto corrupt=audio;corrupt.back()^=1;write(path,corrupt);refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger);});write(path,audio);
         const auto marker=path.parent_path()/"complete.json";const auto complete=bytes(marker);auto altered=Json::parse(complete);altered["fragment"]=1-side;write(marker,altered.dump());refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger);});write(marker,complete);
+        for(const char *metric:{"address-space","process-commit"}) {
+            auto portable=Json::parse(complete);portable["memoryMetric"]=metric;write(marker,portable.dump());
+            auto reviewed=verifyOwnedCompSpan(root,r,policy(),ledger);
+            check(reviewed.asset()==verified.asset() && reviewed.requestDigest()==verified.requestDigest(),
+                  "Producer memory metric changed portable span identity");
+            portable["sampleSha256"]=std::string(64,'f');write(marker,portable.dump());
+            refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger);});
+        }
+        for(const Json &metric:{Json("resident-set"),Json(""),Json(nullptr),Json(1),Json(true),Json::array(),Json::object()}) {
+            auto bad=Json::parse(complete);bad["memoryMetric"]=metric;write(marker,bad.dump());
+            refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger);});
+        }
+        auto missingMetric=Json::parse(complete);missingMetric.erase("memoryMetric");write(marker,missingMetric.dump());
+        refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger);});write(marker,complete);
         const auto rawPath=root/"media/raw.wav";const auto raw=bytes(rawPath);auto bad=raw;bad.back()^=1;write(rawPath,bad);refusal([&]{verifyOwnedCompSpan(root,r,policy(),ledger);});write(rawPath,raw);
         auto changed=s;changed.tracks[0].clips[side].processing.gainDb=1;refusal([&]{verifyCompProcessingCurrent(changed,{7,"parent-fixture"},r.recipe().plan());});
         check(s==original,"Owned verification modified project");

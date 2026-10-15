@@ -12,6 +12,10 @@ launcher. The Windows installer now passes
 [installation, save/reopen/export and uninstall/reinstall acceptance](321-windows-installed-comp-preview.md)
 in the existing independent test clone; installed short-comp editing and hardware
 qualification remain open.
+A subsequent installed test found a
+[render-history portability defect](322-portable-render-history.md): Linux can
+reject Windows-created stretch history during further comp rendering. A source
+fix has focused tests, but these unchanged packages still contain the defect.
 Neither candidate has been uploaded as a binary release.
 
 ## Current local Ubuntu preview (2026-10-15)

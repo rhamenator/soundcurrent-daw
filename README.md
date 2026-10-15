@@ -30,6 +30,9 @@ save/reopen and independently verified export. The
 also pass in the independent acceptance clone, including preservation during
 uninstall/reinstall. Installed short-comp editing and sustained hardware
 qualification remain required.
+An installed test also found a [render-history portability defect](docs/322-portable-render-history.md)
+when editing a Windows-created comp on Linux. The source fix passes focused worker tests;
+current installed packages still contain the defect.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).

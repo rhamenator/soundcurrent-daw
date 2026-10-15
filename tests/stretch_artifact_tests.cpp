@@ -63,6 +63,23 @@ int run(const std::vector<std::string> &args){try{
         auto verified=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
         check(verified.edit().rendered.relativePath==relative && (warp?verified.peak()>0:verified.peak()>1),"Parent returned wrong owned artifact/headroom");
         auto refusal=[&](auto action){try {action();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Unverified stretch completion accepted");};
+        // Portability: verify either producer's metric without rewriting PCM or
+        // weakening the existing grant, digest, geometry and source checks.
+        for(const char *metric:{"address-space","process-commit"}) {
+            auto portable=receipt;portable["memoryMetric"]=metric;
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<portable.dump();}
+            auto reviewed=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
+            check(reviewed.edit().value==verified.edit().value && reviewed.edit().rendered==verified.edit().rendered,
+                  "Producer memory metric changed the portable stretch edit");
+            portable["sampleSha256"]=std::string(64,'f');
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<portable.dump();}
+            refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+        }
+        for(const nlohmann::json &metric:{nlohmann::json("resident-set"),nlohmann::json(""),nlohmann::json(nullptr),nlohmann::json(1),nlohmann::json(true),nlohmann::json::array(),nlohmann::json::object()}) {
+            auto bad=receipt;bad["memoryMetric"]=metric;
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<bad.dump();}
+            refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+        }
         for(unsigned mode=0;mode<(warp?24u:20u);++mode) {
             auto bad=receipt;
             if(mode==0) bad["renderKey"]=std::string(64,'f');

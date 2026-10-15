@@ -287,11 +287,11 @@ VerifiedCompSpan verifyOwnedCompSpan(const std::filesystem::path &root,const Com
     check(warp_codec::exact(shape,expected) && marker.at("complete")==true && marker.at("complete").is_boolean(),"Span completion differs from owned request");
     check(warp_codec::unsignedInteger(marker.at("writtenFrames"),1000000000)==std::uint64_t(r.outputFrames()) && marker.at("durabilityMinimum")=="file-flushed" &&
         warp_codec::unsignedInteger(marker.at("payloadPeakBytes"),p.memoryBytes)>0,"Span completion/grant differs");
-#ifdef _WIN32
-    check(marker.at("memoryMetric")=="process-commit","Wrong native span memory metric");
-#else
-    check(marker.at("memoryMetric")=="address-space","Wrong native span memory metric");
-#endif
+    // A completed render can travel with the project from either supported OS.
+    // This describes the producer's limit; it is not the verifier's live policy.
+    // Keep both known metrics distinct and reject missing/unknown declarations.
+    check(marker.at("memoryMetric")=="process-commit" || marker.at("memoryMetric")=="address-space",
+          "Unknown span producer memory metric");
     const auto audioSha=marker.at("audioSha256").get<std::string>(),sampleSha=marker.at("sampleSha256").get<std::string>();check(sha(audioSha) && sha(sampleSha),"Invalid span completion hashes");
     check(marker.at("peakLinear").is_number() && std::isfinite(marker.at("peakLinear").get<double>()),"Invalid span completion peak");
     admitCompSpanSources(root,r,p,ledger,poll);Asset output=r.source();output.id=r.operation();output.nativeEvidence.clear();output.frames=r.outputFrames();output.sampleRate=r.outputSampleRate();output.relativePath="media/comp-spans/"+r.operation().str()+"/audio.wav";output.sha256=audioSha;

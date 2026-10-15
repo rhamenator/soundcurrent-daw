@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Portable render-history correction (2026-10-15)
+
+[Checkpoint 322](322-portable-render-history.md) found that the installed Linux
+preview rejects valid Windows-made stretch history during comp rendering.
+The shared artifact verifiers now accept either supported producer memory metric,
+while retaining grant/hash checks and rejecting unknown metrics. All three focused
+worker suites pass; the original Windows history also renders successfully with
+the fixed Linux worker while all 188 original files remain unchanged. Preceding
+CI completed successfully with both split native banks. The installed workflow
+failed safely with unchanged clips;
+its later shutdown also timed out. Refreshed installed editing/normal-Quit and
+independent Windows portability evidence remain required. Full goal incomplete.
+
 ## Windows installed preview and native CI partition (2026-10-15)
 
 [Checkpoint 321](321-windows-installed-comp-preview.md) qualifies the current
