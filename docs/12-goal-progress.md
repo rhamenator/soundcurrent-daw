@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated paired comp production (2026-10-14)
+
+[Checkpoint 294](294-repeated-paired-production.md) qualifies nine actual repeated
+paired adoptions and fifteen workers, including retained assembled takes,
+Undo/Redo/save/reopen/export, late historical-file rejection and unchanged outer
+playback. All ten selected local suites pass in 401.31 seconds. Repeated rendering
+through the application remains gated pending its actual desktop workflow.
+Original CI is fully retained and audited: Linux passes 190/191 with one test
+timeout, Windows desktop passes 26/26, and native worker tests pass 16/18. Deeper
+Windows path corrections pass local checks and cross-compiler syntax; native
+confirmation and a measured Linux performance correction remain next. The full
+frozen DAW goal remains active.
+
 ## Queued comp dependency checks (2026-10-14)
 
 [Checkpoint 293](293-queued-comp-dependencies.md) retains immutable source-history

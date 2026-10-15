@@ -53,6 +53,12 @@ now has cancellation, recovery and stale-project acceptance evidence. Main-windo
 integration, sound-quality qualification and undoable audio adoption for this path
 remain in development.
 
+[Repeated paired comp production](docs/294-repeated-paired-production.md) now has
+core workflow evidence for successive rendered edits, retained assembled takes,
+Undo/Redo, save/reopen and matching playback/export. Historical jobs are reviewed
+around publication and adoption. Desktop repeated-render integration and current
+native Windows qualification remain in development.
+
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.
 The [clip pitch/stretch dialog](docs/136-stretch-supervision.md) now provides
