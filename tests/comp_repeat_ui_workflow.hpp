@@ -92,7 +92,27 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                     else{auto processing=track.clips[0].processing;processing.gainDb=1;repeatEdit(window,{SetClipProcessing{track.id,track.clips[0].id,processing}});expected=*window.snapshot()->session;}
                     release=true;
                 }
-                wait([&]{const auto phase=window.compRenderStage();return phase==CompRenderStage::Complete || phase==CompRenderStage::Fault || phase==CompRenderStage::Canceled;});
+                // Retain stage boundaries even when the unchanged observation deadline
+                // fails. Snapshots are read on the GUI thread; no audio instrumentation.
+                QElapsedTimer observed;observed.start();Json observations=Json::array();
+                Json previous;
+                const auto observe=[&]{
+                    const auto assembly=window.compAssemblySnapshot();const auto pair=window.compPairSnapshot();
+                    Json state{{"render",int(window.compRenderStage())},{"assembly",int(assembly->phase)},
+                        {"assemblyBusy",assembly->busy},{"pair",int(pair->phase)},{"pairBusy",pair->busy}};
+                    state["children"]=Json::array();for(const auto &child:pair->children)
+                        state["children"].push_back({{"pid",child.pid},{"ready",child.ready},{"reaped",child.reaped}});
+                    if(state!=previous && observations.size()<128){previous=state;state["milliseconds"]=observed.elapsed();observations.push_back(std::move(state));}
+                };
+                QTimer observationTimer;QObject::connect(&observationTimer,&QTimer::timeout,&window,observe);observationTimer.start(5);observe();
+                const auto persistObservation=[&](bool deadlineFailed){
+                    observationTimer.stop();observe();repeatWrite(evidenceFile("-render-observation.json"),
+                        Json{{"generation",generation},{"case",mode},{"elapsedMilliseconds",observed.elapsed()},
+                            {"deadlineFailed",deadlineFailed},{"observationLimitMilliseconds",30000},{"stages",observations}}.dump(2));
+                };
+                try{wait([&]{const auto phase=window.compRenderStage();return phase==CompRenderStage::Complete || phase==CompRenderStage::Fault || phase==CompRenderStage::Canceled;});}
+                catch(...){persistObservation(true);throw;}
+                persistObservation(false);
                 wait([&]{return !window.compAssemblySnapshot()->busy && !window.compPairSnapshot()->busy;});
                 Json step{{"generation",generation},{"mixedRetained",mixed},{"stage",int(window.compRenderStage())}};
                 if(mode>=1 && mode<=3){
