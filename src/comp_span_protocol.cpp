@@ -111,7 +111,28 @@ Json clockedProtectedBinding(const CompClockedProtectedSpanPlan &p,ResourceLedge
         {"inputExtent",warp_codec::position(region.inputExtent)},{"outputExtent",warp_codec::position(region.outputExtent)},
         {"outputFrames",p.sampling().outputFrames()},{"semanticAnchors",g.spans().size()},{"chunkFrames",512}};
 }
+Json uniformContextBinding(const CompUniformContextPlan &p,bool history){
+    return {{"sourceId",p.source().id.str()},{"sourceSha256",p.source().sha256},{"sourceFrames",p.source().frames},
+        {"layoutKind",unsigned(p.source().layout.kind)},{"channels",p.source().layout.channels},
+        {"inputRate",p.source().sampleRate},{"outputRate",p.outputSampleRate()},
+        {"rawOrigin",warp_codec::position(p.input().at(0))},{"rawExtent",warp_codec::position(p.rawExtent())},
+        {"inputFrames",p.inputFrames()},{"inputStep",Json::array({p.input().numerator(),p.input().denominator()})},
+        {"intrinsicExtent",warp_codec::position(p.intrinsicExtent())},{"renderFrames",p.renderFrames()},
+        {"candidateOrigin",warp_codec::position(p.samples().at(0))},{"candidateStep",Json::array({p.samples().numerator(),p.samples().denominator()})},
+        {"outputFrames",p.outputFrames()},{"bakedPitchScale",warp_codec::position(p.bakedPitchScale())},
+        {"pitchMilliCents",p.settings().pitchMilliCents},{"formantPreserved",p.settings().formantPreserved},
+        {"chunkFrames",512},{"resampling",positionedResamplingAlgorithmId},{"historyRequired",history}};
+}
 Json intent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){policy(p);
+    if(r.isUniformContext()){
+        const auto &a=r.source();check(std::uint64_t(r.outputFrames())<=(p.maximumOutputBytes-std::min<std::uint64_t>(1048576,p.maximumOutputBytes))/(a.layout.channels*4ULL),"Uniform context span exceeds output grant",ErrorCode::ResourceLimit);
+        return {{"protocol",r.protocol()},{"processor",r.processor()},{"sourceAlgorithm",positionedResamplingAlgorithmId},
+            {"operation",r.operation().str()},{"recipeDigest",r.recipe().digest()},{"requestDigest",r.digest()},{"fragment",r.fragment()},
+            {"executorSha256",r.executorSha256()},{"sourceSha256",a.sha256},{"outputFrames",r.outputFrames()},
+            {"rate",r.outputSampleRate()},{"channels",a.layout.channels},{"uniformContext",uniformContextBinding(r.uniformContextSpan(),r.requiresHistory())},
+            {"memoryCeilingBytes",p.memoryBytes},{"deadlineMilliseconds",p.deadlineMilliseconds},
+            {"maximumSourceBytes",p.maximumSourceBytes},{"maximumOutputBytes",p.maximumOutputBytes}};
+    }
     if(r.isProtected()){
         const auto &a=r.source();check(std::uint64_t(r.outputFrames())<=(p.maximumOutputBytes-std::min<std::uint64_t>(1048576,p.maximumOutputBytes))/(a.layout.channels*4ULL),"Protected span exceeds output grant",ErrorCode::ResourceLimit);
         Json result={{"protocol",r.protocol()},{"processor",r.processor()},{"sourceAlgorithm","soundcurrent.raw-absolute-frames-v1"},
@@ -146,10 +167,14 @@ const CompProtectedSpanPlan &CompSpanRequest::protectedSpan() const {
 const CompClockedProtectedSpanPlan &CompSpanRequest::clockedProtectedSpan() const {
     const auto *p=std::get_if<CompClockedProtectedSpanPlan>(&span_);check(p!=nullptr,"Span is not a clocked protected plan");return *p;
 }
+const CompUniformContextPlan &CompSpanRequest::uniformContextSpan() const {
+    const auto *p=std::get_if<CompUniformContextPlan>(&span_);check(p!=nullptr,"Span is not an original uniform context plan");return *p;
+}
 const Asset &CompSpanRequest::source() const {return std::visit([](const auto &p)->const Asset &{return p.source();},span_);}
-Frame CompSpanRequest::outputFrames() const {return isClockedProtected()?clockedProtectedSpan().sampling().outputFrames():isProtected()?protectedSpan().geometry().map().region().outputFrames:span().outputFrames();}
-std::uint32_t CompSpanRequest::outputSampleRate() const {return isClockedProtected()?clockedProtectedSpan().outputSampleRate():isProtected()?source().sampleRate:span().outputSampleRate();}
+Frame CompSpanRequest::outputFrames() const {return isUniformContext()?uniformContextSpan().outputFrames():isClockedProtected()?clockedProtectedSpan().sampling().outputFrames():isProtected()?protectedSpan().geometry().map().region().outputFrames:span().outputFrames();}
+std::uint32_t CompSpanRequest::outputSampleRate() const {return isUniformContext()?uniformContextSpan().outputSampleRate():isClockedProtected()?clockedProtectedSpan().outputSampleRate():isProtected()?source().sampleRate:span().outputSampleRate();}
 CompRequestedSpanReport renderRequestedCompSpan(const CompSpanRequest &r,const CompSpanRead &read,const CompSpanWrite &write,ResourceLedger ledger,const std::function<void()> &poll){
+    if(r.isUniformContext()){const auto result=renderUniformContextCompSpan(r.uniformContextSpan(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};}
     if(r.isClockedProtected()){const auto result=renderClockedProtectedCompSpan(r.clockedProtectedSpan(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};}
     if(r.isProtected()){const auto result=renderProtectedCompSpan(r.protectedSpan(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};}
     const auto result=renderCompSpan(r.span(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};
@@ -158,24 +183,25 @@ CompSpanRequest decodeCompSpanRequest(std::string_view bytes,std::string_view ex
     check(sha(expectedDigest) && sha(executable),"Invalid trusted span identities");check(bytes.size()<=compSpanRequestMaximum,"Span request too large",ErrorCode::ResourceLimit);
     auto work=ledger.reserve(16*1024*1024);auto retained=ledger.reserve(bytes.size()*2+65536);check(hash(bytes)==expectedDigest,"Span request changed from trusted parent",ErrorCode::MediaMismatch);
     try{const auto j=parse(bytes,compSpanRequestMaximum);check(j.is_object() && j.at("protocol").is_string(),"Unknown comp span schema");
-        const auto &protocol=j.at("protocol").get_ref<const std::string &>();const bool clocked=protocol==compClockedProtectedSpanProtocol,protectedHistory=protocol==compProtectedHistorySpanProtocol,protectedMode=clocked || protocol==compProtectedSpanProtocol || protectedHistory;
+        const auto &protocol=j.at("protocol").get_ref<const std::string &>();const bool uniformContext=protocol==compUniformContextSpanProtocol,clocked=protocol==compClockedProtectedSpanProtocol,protectedHistory=protocol==compProtectedHistorySpanProtocol,protectedMode=clocked || protocol==compProtectedSpanProtocol || protectedHistory;
         bool history=protocol==compRegenerationSpanProtocol || protectedHistory;
-        check((protocol==compSpanProtocol || history || protectedMode) && j.size()==8+std::size_t(history || clocked)+std::size_t(protectedMode),"Unknown comp span schema");
-        check(warp_codec::exact(j.at("executor"),Json{{"id",clocked?compClockedProtectedSpanProcessorId:protectedMode?(history?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history?compRegenerationSpanProcessorId:compSpanProcessorId)},{"buildSha256",executable}}),"Span executable differs from trusted request");
+        check((uniformContext || protocol==compSpanProtocol || history || protectedMode) && j.size()==8+std::size_t(history || clocked || uniformContext)+std::size_t(protectedMode),"Unknown comp span schema");
+        check(warp_codec::exact(j.at("executor"),Json{{"id",uniformContext?compUniformContextProcessorId:clocked?compClockedProtectedSpanProcessorId:protectedMode?(history?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history?compRegenerationSpanProcessorId:compSpanProcessorId)},{"buildSha256",executable}}),"Span executable differs from trusted request");
         check(j.at("recipeExecutor").is_object() && j.at("recipeExecutor").size()==2,"Invalid recipe executor");
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id").get<std::string>(),j.at("recipeExecutor").at("buildSha256").get<std::string>()};
         const auto operation=Id(j.at("operation").get<std::string>()),recipeOperation=Id(j.at("recipeOperation").get<std::string>());check(operation!=recipeOperation,"Span reused parent operation");
         const auto fragment=unsigned(warp_codec::unsignedInteger(j.at("fragment"),1));
         auto recipe=decodeCompProcessingRecipe(j.at("recipe").get_ref<const std::string &>(),recipeOperation,context,parent,j.at("recipeDigest").get<std::string>(),ledger);
-        if(clocked)history=historyRequired(recipe);
+        if(clocked || uniformContext)history=historyRequired(recipe);
         check(history==historyRequired(recipe),"Span protocol does not match original history requirements");
         const auto &handles=recipe.plan().handles();const auto &envelope=fragment?handles.incoming():handles.outgoing();
-        CompSpanPayload span=[&]() -> CompSpanPayload {if(clocked)return prepareClockedProtectedCompSpan(envelope,ledger,[]{});if(protectedMode)return prepareProtectedCompSpan(envelope,ledger,[]{});return prepareCompSpan(envelope,ledger);}();
-        if(clocked)check(warp_codec::exact(j.at("clock"),clockedBinding(std::get<CompClockedProtectedSpanPlan>(span),history)),"Clocked protected timing differs from original history");
+        CompSpanPayload span=[&]() -> CompSpanPayload {if(uniformContext)return prepareUniformContextCompSpan(envelope,ledger,[]{});if(clocked)return prepareClockedProtectedCompSpan(envelope,ledger,[]{});if(protectedMode)return prepareProtectedCompSpan(envelope,ledger,[]{});return prepareCompSpan(envelope,ledger);}();
+        if(uniformContext)check(warp_codec::exact(j.at("uniformContext"),uniformContextBinding(std::get<CompUniformContextPlan>(span),history)),"Uniform context binding differs from original source/history");
+        else if(clocked)check(warp_codec::exact(j.at("clock"),clockedBinding(std::get<CompClockedProtectedSpanPlan>(span),history)),"Clocked protected timing differs from original history");
         else if(history)check(warp_codec::exact(j.at("clock"),protectedMode?protectedHistoryBinding(recipe,fragment):clockBinding(recipe,std::get<CompSpanPlan>(span),fragment)),"Span clock binding differs from original source history");
         if(clocked)check(warp_codec::exact(j.at("protected"),clockedProtectedBinding(std::get<CompClockedProtectedSpanPlan>(span),ledger)),"Clocked protected geometry differs from original history");
         else if(protectedMode)check(warp_codec::exact(j.at("protected"),protectedBinding(std::get<CompProtectedSpanPlan>(span),ledger)),"Protected binding differs from original semantic geometry");
-        else if(!history){const auto &uniform=std::get<CompSpanPlan>(span);check(uniform.outputSampleRate()==uniform.source().sampleRate && uniform.backendClockScale()==SourcePosition{1,0,1},"Legacy span has a nonlegacy sample clock");}
+        else if(!history && !uniformContext){const auto &uniform=std::get<CompSpanPlan>(span);check(uniform.outputSampleRate()==uniform.source().sampleRate && uniform.backendClockScale()==SourcePosition{1,0,1},"Legacy span has a nonlegacy sample clock");}
         for(const auto *envelope:{&handles.outgoing(),&handles.incoming()}){const auto &e=envelope->data();check(operation!=e.raw.id && operation!=e.base.id && operation!=e.retainedAsset.id && (!e.nominalAsset || operation!=e.nominalAsset->id),"Span reused an input identity");}
         return {std::move(retained),std::move(recipe),std::move(span),operation,fragment,std::string(expectedDigest),std::string(executable),std::string(bytes),history};
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid comp span request fields");}
@@ -209,6 +235,17 @@ CompSpanRequest encodeClockedProtectedCompSpanRequest(const CompProcessingRecipe
         {"recipeDigest",r.digest()},{"recipe",r.bytes()},{"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},
         {"executor",{{"id",compClockedProtectedSpanProcessorId},{"buildSha256",executable}}},{"fragment",fragment},
         {"protected",clockedProtectedBinding(span,ledger)},{"clock",clockedBinding(span,historyRequired(r))}};
+    const auto bytes=document.dump();const auto context=r.plan().handles().outgoing().data().context;work.resize(0);
+    return decodeCompSpanRequest(bytes,hash(bytes),context,executable,ledger);
+}
+CompSpanRequest encodeUniformContextCompSpanRequest(const CompProcessingRecipe &r,const CompRecipeExecutor &parent,unsigned fragment,const Id &op,std::string_view executable,ResourceLedger ledger){
+    auto work=ledger.reserve(16*1024*1024);auto encoded=ledger.reserve(compSpanRequestMaximum*2);
+    check(fragment<=1 && sha(executable),"Invalid uniform context selection/executor");
+    auto span=prepareUniformContextCompSpan(fragment?r.plan().handles().incoming():r.plan().handles().outgoing(),ledger,[]{});
+    Json document={{"protocol",compUniformContextSpanProtocol},{"operation",op.str()},{"recipeOperation",r.operation().str()},
+        {"recipeDigest",r.digest()},{"recipe",r.bytes()},{"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},
+        {"executor",{{"id",compUniformContextProcessorId},{"buildSha256",executable}}},{"fragment",fragment},
+        {"uniformContext",uniformContextBinding(span,historyRequired(r))}};
     const auto bytes=document.dump();const auto context=r.plan().handles().outgoing().data().context;work.resize(0);
     return decodeCompSpanRequest(bytes,hash(bytes),context,executable,ledger);
 }

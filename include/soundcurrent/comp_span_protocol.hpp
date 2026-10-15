@@ -4,6 +4,7 @@
 #include "comp_span_render.hpp"
 #include "comp_protected_span.hpp"
 #include "comp_clocked_protected_span.hpp"
+#include "comp_uniform_context.hpp"
 #include <variant>
 namespace soundcurrent::daw {
 inline constexpr std::string_view compSpanProtocol="sc-comp-span-v1";
@@ -11,7 +12,8 @@ inline constexpr std::string_view compProtectedSpanProtocol="sc-comp-span-protec
 inline constexpr std::string_view compProtectedHistorySpanProtocol="sc-comp-span-protected-v2";
 inline constexpr std::string_view compProtectedHistorySpanProcessorId="soundcurrent.comp-span-protected-rubberband4-r3-v2";
 inline constexpr std::string_view compClockedProtectedSpanProtocol="sc-comp-span-protected-clocked-v1";
-using CompSpanPayload=std::variant<CompSpanPlan,CompProtectedSpanPlan,CompClockedProtectedSpanPlan>;
+inline constexpr std::string_view compUniformContextSpanProtocol="sc-comp-span-uniform-context-v1";
+using CompSpanPayload=std::variant<CompSpanPlan,CompProtectedSpanPlan,CompClockedProtectedSpanPlan,CompUniformContextPlan>;
 inline constexpr std::string_view compRegenerationSpanProtocol="sc-comp-span-v2";
 inline constexpr std::string_view compRegenerationSpanProcessorId="soundcurrent.comp-span-positioned-rubberband4-r3-v2";
 inline constexpr std::size_t compSpanRequestMaximum=4*1024*1024+16384;
@@ -28,6 +30,8 @@ class CompSpanRequest {
     const CompSpanPlan &span() const;
     const CompProtectedSpanPlan &protectedSpan() const;
     const CompClockedProtectedSpanPlan &clockedProtectedSpan() const;
+    const CompUniformContextPlan &uniformContextSpan() const;
+    bool isUniformContext() const noexcept {return std::holds_alternative<CompUniformContextPlan>(span_);}
     bool isClockedProtected() const noexcept {return std::holds_alternative<CompClockedProtectedSpanPlan>(span_);}
     bool isProtected() const noexcept {return isClockedProtected() || std::holds_alternative<CompProtectedSpanPlan>(span_);}
     const Asset &source() const;
@@ -39,8 +43,8 @@ class CompSpanRequest {
     const std::string &executorSha256() const noexcept {return executor_;}
     std::string_view bytes() const noexcept {return bytes_;}
     bool requiresHistory() const noexcept {return history_;}
-    std::string_view protocol() const noexcept {return isClockedProtected()?compClockedProtectedSpanProtocol:isProtected()?(history_?compProtectedHistorySpanProtocol:compProtectedSpanProtocol):(history_?compRegenerationSpanProtocol:compSpanProtocol);}
-    std::string_view processor() const noexcept {return isClockedProtected()?compClockedProtectedSpanProcessorId:isProtected()?(history_?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history_?compRegenerationSpanProcessorId:compSpanProcessorId);}
+    std::string_view protocol() const noexcept {return isUniformContext()?compUniformContextSpanProtocol:isClockedProtected()?compClockedProtectedSpanProtocol:isProtected()?(history_?compProtectedHistorySpanProtocol:compProtectedSpanProtocol):(history_?compRegenerationSpanProtocol:compSpanProtocol);}
+    std::string_view processor() const noexcept {return isUniformContext()?compUniformContextProcessorId:isClockedProtected()?compClockedProtectedSpanProcessorId:isProtected()?(history_?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history_?compRegenerationSpanProcessorId:compSpanProcessorId);}
   private:
     friend CompSpanRequest decodeCompSpanRequest(std::string_view,std::string_view,const CompHandlePlanContext &,std::string_view,ResourceLedger);
     CompSpanRequest(ResourceLease lease,CompProcessingRecipe recipe,CompSpanPayload span,Id operation,unsigned fragment,std::string digest,std::string executor,std::string bytes,bool history)
@@ -60,6 +64,9 @@ CompSpanRequest encodeProtectedCompSpanRequest(const CompProcessingRecipe &,cons
     unsigned fragment,const Id &childOperation,std::string_view spanBinarySha256,ResourceLedger);
 // Explicit modern geometry/clock opt-in; existing encoders keep their DSP identity.
 CompSpanRequest encodeClockedProtectedCompSpanRequest(const CompProcessingRecipe &,const CompRecipeExecutor &,
+    unsigned fragment,const Id &childOperation,std::string_view spanBinarySha256,ResourceLedger);
+// Explicit original-context opt-in; legacy encoders retain their saved identities.
+CompSpanRequest encodeUniformContextCompSpanRequest(const CompProcessingRecipe &,const CompRecipeExecutor &,
     unsigned fragment,const Id &childOperation,std::string_view spanBinarySha256,ResourceLedger);
 struct CompRequestedSpanReport {Frame writtenFrames=0;double floatPeak=0;};
 CompRequestedSpanReport renderRequestedCompSpan(const CompSpanRequest &,const CompSpanRead &,

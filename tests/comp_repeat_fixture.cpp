@@ -49,7 +49,7 @@ int main(int argc,char **argv){try{
                     check(asset!=s.assets.end(),"Clocked fixture asset missing");
                     const auto original=resolveCompRegenerationSource(s,t.id,c->id,context,ledger);
                     const bool uniform=!original.data().originalNominalClip.stretch->warp;
-                    const Frame length=uniform?(first?16384:8000):(first?4000:3000);
+                    const Frame length=uniform?(first?(input.value("shortUniformFirst",false)?4000:16384):8000):(first?4000:3000);
                     const Frame sourceSpan=first?length*3/2:(length*2+2)/3;
                     c->sourceFrame=c==&out?asset->frames-sourceSpan:0;
                     if(first)c->sourceTiming={1,7};else c->sourceTiming={2,11};

@@ -662,7 +662,7 @@ if(SC_BUILD_MEDIA)
       set_tests_properties(comp-protected-span-render PROPERTIES TIMEOUT 180)
     endif()
     add_library(sc-comp-span-protocol src/comp_span_protocol.cpp)
-    target_link_libraries(sc-comp-span-protocol PUBLIC sc-comp-span-render sc-comp-protected-span sc-comp-clocked-protected-span sc-comp-processing-recipe PRIVATE sc-approved-media sc-wave-validation)
+    target_link_libraries(sc-comp-span-protocol PUBLIC sc-comp-uniform-context sc-comp-span-render sc-comp-protected-span sc-comp-clocked-protected-span sc-comp-processing-recipe PRIVATE sc-approved-media sc-wave-validation)
     target_include_directories(sc-comp-span-protocol PRIVATE src)
     target_include_directories(sc-comp-span-protocol SYSTEM PRIVATE third_party)
     add_library(sc-comp-pair-recovery src/comp_pair_recovery.cpp)
@@ -788,6 +788,18 @@ if(SC_BUILD_MEDIA)
       target_link_options(sc-comp-span-worker PRIVATE -municode)
     endif()
     if(BUILD_TESTING)
+      add_executable(sc-comp-uniform-context-worker-fixture tests/comp_uniform_context_worker_fixture.cpp)
+      target_link_libraries(sc-comp-uniform-context-worker-fixture PRIVATE sc-comp-span-protocol sc-comp-assembly-job sc-media ${SNDFILE_LIBRARY})
+      target_include_directories(sc-comp-uniform-context-worker-fixture PRIVATE src)
+      target_include_directories(sc-comp-uniform-context-worker-fixture SYSTEM PRIVATE third_party third_party/libsndfile)
+      add_dependencies(sc-comp-uniform-context-worker-fixture sc-comp-repeat-fixture sc-comp-protected-worker-fixture sc-comp-pair-recovery-fixture sc-comp-pair-assembly-tests sc-stretch-render-worker sc-comp-assembly-job-tests)
+      add_test(NAME comp-owned-uniform-context-worker COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_uniform_context_worker_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-protected-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests>
+        $<TARGET_FILE:sc-comp-uniform-context-worker-fixture> $<TARGET_FILE:sc-comp-repeat-fixture>
+        --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-uniform-context-worker-evidence)
+      set_tests_properties(comp-owned-uniform-context-worker PROPERTIES TIMEOUT 180)
       add_executable(sc-comp-clocked-protected-worker-fixture tests/comp_clocked_protected_worker_fixture.cpp)
       target_link_libraries(sc-comp-clocked-protected-worker-fixture PRIVATE sc-comp-span-protocol sc-comp-assembly-job sc-media ${SNDFILE_LIBRARY})
       target_include_directories(sc-comp-clocked-protected-worker-fixture PRIVATE src)
