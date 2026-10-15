@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Included by the transition UI fixture; uses its common Qt observation helpers.
 #include <soundcurrent/comp_playback_state.hpp>
+#include <soundcurrent/comp_regeneration_history.hpp>
+#include <soundcurrent/media_cache.hpp>
+#include <bit>
+#include <set>
 #include <soundcurrent/playback_reader.hpp>
 #include "windows_file_path.hpp"
 #include "media_io.hpp"
@@ -46,7 +50,7 @@ std::vector<float> repeatPlayback(const std::filesystem::path &root,const Sessio
         for(unsigned i=0;i<n;++i){result.push_back(left[i]);result.push_back(right[i]);}at+=n;}
     check(!pipe.missingFrames() && !reader.sanitizedSamples(),"Repeated UI playback lost samples");return result;
 }
-Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesystem::path &scope){
+Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesystem::path &scope,bool protectedMode){
     auto baseline=decodeProject(repeatRead(source/"adopted-project.json"));
     check(baseline.compPlaybackSources.size()==2,"Repeated UI requires real adopted paired source");
     const bool expanded=baseline.assets[0].sampleRate==48000;Json cases=Json::array();
@@ -58,6 +62,8 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
         std::filesystem::create_directories(folder);std::filesystem::copy(fileSystemApiPath(source),fileSystemApiPath(root),std::filesystem::copy_options::recursive);
         ProjectStore(root).save(baseline);Json row{{"case",mode},{"generations",Json::array()}};
         ResourceLedger memory(512*1024*1024,"Repeated UI assembly");
+        const CompHandlePlanContext historyContext{141,"repeated-ui/é-日本"};
+        std::set<std::string> operations;
         {
             std::atomic<bool> entered=false,release=false,holdApply=false;
             CompAssemblyControllerOptions options;options.memory=memory;
@@ -73,13 +79,16 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                 if(mixed){
                     auto retained=track.clips[0];retained.id=Id::generate();retained.takeOrigin.reset();
                     TakeLane lane;lane.name="Retained assembled UI take";lane.captureStartFrame=retained.startFrame;lane.captureEndFrame=retained.startFrame+retained.lengthFrames;lane.clips.push_back(retained);
-                    auto out=track.clips[0];out.takeOrigin=ClipTakeOrigin{track.id,lane.id,retained.id};out.sourceFrame+=64;out.lengthFrames-=128;
-                    const auto *history=findCompPlaybackSource(state,track.clips[1].assetId);check(history,"Missing mixed original source");
-                    auto in=history->source.original;in.sourceFrame=0;in.sourceTiming={};in.lengthFrames=1000;in.startFrame=out.startFrame+out.lengthFrames;
+                    auto out=track.clips[0];out.takeOrigin=ClipTakeOrigin{track.id,lane.id,retained.id};const Frame crop=protectedMode?8192:64;out.sourceFrame+=crop;out.lengthFrames-=2*crop;
+                    const auto history=resolveCompRegenerationSource(state,track.id,track.clips[1].id,historyContext,memory);
+                    auto in=history.data().originalNominalClip;in.sourceFrame=0;in.sourceTiming={};in.lengthFrames=protectedMode?history.data().originalNominal->frames:1000;in.startFrame=out.startFrame+out.lengthFrames;
                     repeatEdit(window,{InsertTakeLane{track.id,lane,{}},RemoveClip{track.id,track.clips[0].id},RemoveClip{track.id,track.clips[1].id},InsertClip{track.id,out,{}},InsertClip{track.id,in,{}}});
                 }else repeatEdit(window,{MoveClip{track.id,track.id,track.clips[1].id,track.clips[0].startFrame+track.clips[0].lengthFrames,{}}});
                 save(window);const auto original=*window.snapshot()->session;track=original.tracks[0];const auto cut=track.clips[1].startFrame;
-                const PrepareCompTransition transition{track.id,track.clips[0].id,track.clips[1].id,cut-32,cut+32,ClipFadeCurve::EqualPower};
+                Frame leading=32,trailing=32;
+                if(protectedMode){const auto history=resolveCompRegenerationSource(original,track.id,track.clips[0].id,historyContext,memory);
+                    leading=3008;trailing=history.data().originalNominalClip.stretch->warp->markers.size()==1?4544:1472;}
+                const PrepareCompTransition transition{track.id,track.clips[0].id,track.clips[1].id,cut-leading,cut+trailing,ClipFadeCurve::EqualPower};
                 const auto prefix=folder/("generation-"+std::to_string(generation));
                 const auto evidenceFile=[&](const char *suffix){auto file=prefix;file+=suffix;return file;};
                 const auto historical=root/"media/comp-assemblies"/original.compPlaybackSources.front().assembly.operation.str()/"complete.json";
@@ -131,10 +140,40 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                     Json children=Json::array();for(const auto &child:window.compPairSnapshot()->children)if(child.pid){check(child.ready && child.reaped && child.exitCode==0 && !child.abnormal,"Repeated child failed retirement");children.push_back({{"pid",child.pid},{"reaped",child.reaped},{"exitCode",*child.exitCode},{"stdout",child.log?child.log->output:""},{"stderr",child.log?child.log->errors:""}});}
                     check(children.size()==(mixed?1U:2U),"Wrong repeated child count");step["children"]=children;
                     const auto operation=*window.compAssemblySnapshot()->operation;
+                    const auto pair=window.compPairSnapshot();
+                    check(pair->selection && pair->selection->spanPolicy()==(protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Repeated original protection policy lost");
+                    check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Repeated durable operation differs");
+                    check(operations.insert(operation.str()).second && operations.insert(pair->operation->str()).second,"Repeated operation identity reused");
+                    Json protocols=Json::array();std::uint64_t protectedSamples=0;
+                    for(const auto &child:pair->selection->children())if(child){
+                        check(operations.insert(child->operation().str()).second,"Repeated child identity reused");
+                        protocols.push_back(std::string(child->protocol()));
+                        if(protectedMode){
+                            check(child->isProtected() && child->requiresHistory() && child->protocol()==compProtectedHistorySpanProtocol && child->processor()==compProtectedHistorySpanProcessorId,"Repeated protected original history lost");
+                            auto verified=verifyOwnedCompSpan(root,*child,pair->selection->policy(),memory);
+                            const std::array<Asset,2> assets{child->source(),verified.asset()};MediaCacheConfig config;
+                            config.maximumOpenFiles=2;config.pageFrames=512;config.cacheBudgetBytes=1024*1024;config.registryBudgetBytes=256*1024;config.resources=memory;
+                            MediaReadCache cache(root,assets,child->source().sampleRate,config);
+                            const auto &geometry=child->protectedSpan().geometry();
+                            for(const auto &span:geometry.spans()){
+                                const auto first=span.sourceBegin.frame+geometry.policy().halo,end=span.sourceEnd.frame-geometry.policy().halo,out=span.outputBegin.frame+geometry.policy().halo;
+                                for(Frame offset=0;offset<end-first;offset+=512){const auto frames=std::min<Frame>(512,end-first-offset);
+                                    std::vector<float> raw(std::size_t(frames)*2),rendered(raw.size());
+                                    cache.read(0,geometry.map().region().rawOrigin.frame+first+offset,raw);cache.read(1,out+offset,rendered);
+                                    for(std::size_t i=0;i<raw.size();++i)check(std::bit_cast<std::uint32_t>(raw[i])==std::bit_cast<std::uint32_t>(rendered[i]),"Repeated UI protected raw PCM changed");
+                                    protectedSamples+=raw.size();
+                                }
+                            }
+                        }
+                    }
+                    if(protectedMode)check(protectedSamples>0,"Repeated UI checked no protected raw PCM");
+                    step["spanProtocols"]=protocols;step["protectedSamples"]=protectedSamples;step["pairFormat"]=Json::parse(pair->selection->manifest()).at("format");step["freshOperationIdentities"]=true;
                     auto *review=widget<QPushButton>(window,"reviewCreatedComp");wait([&]{return review->isEnabled();});review->click();
                     auto *list=widget<QListWidget>(window,"compAssemblyList");check(list->currentItem() && list->currentItem()->data(Qt::UserRole).toString()==QString::fromStdString(operation.str()),"Wrong repeated review selection");
                     auto *apply=widget<QPushButton>(window,"applyCompAssembly");wait([&]{return apply->isEnabled();});
-                    auto *dialog=widget<QDialog>(window,"compAssemblyDialog");check(dialog->grab().save(qtPath(evidenceFile("-review.png"))),"Repeated review screenshot failed");
+                    auto *dialog=widget<QDialog>(window,"compAssemblyDialog");
+                    check(widget<QLabel>(*dialog,"compAssemblyStatus")->text()=="Audio verified. Apply will check it again before changing the project.","Repeated review retained a previous operation message");
+                    step["currentReviewStatus"]=true;check(dialog->grab().save(qtPath(evidenceFile("-review.png"))),"Repeated review screenshot failed");
                     if(mode==4){
                         repeatWrite(historical,corrupt.dump());apply->click();wait([&]{return !window.compAssemblySnapshot()->busy;});QTest::qWait(110);
                         check(!window.compAssemblySnapshot()->adoption && *window.snapshot()->session==registered,"Corrupt ancestry applied after Review");repeatWrite(historical,originalMarker);step["changedAncestryRefused"]=true;
@@ -150,7 +189,16 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                         check(window.submitEdit({CommandKind::Redo}),"Repeated Redo refused");wait([&]{return *window.snapshot()->session==adopted;});save(window);
                         dialog->close();const auto epoch=window.snapshot()->projectEpoch;window.openProject(root);wait([&]{return window.snapshot()->projectEpoch!=epoch && window.snapshot()->io==IoOperation::None;});check(*window.snapshot()->session==adopted,"Repeated reopen changed state");
                         const auto after=repeatPlayback(root,adopted,first,end);check(before.size()==after.size(),"Repeated playback extent changed");unsigned unchanged=0;
-                        for(Frame frame=first;frame<end;++frame)if(frame<transition.startFrame-128 || frame>=transition.endFrame+128)for(unsigned ch=0;ch<2;++ch){const auto at=std::size_t(frame-first)*2+ch;check(before[at]==after[at],"Unchanged repeated outer audio differs");++unchanged;}
+                        // Replacing an existing fade changes its former envelope too.
+                        // Raw protected PCM is checked separately above.
+                        Frame editedFirst=transition.startFrame,editedEnd=transition.endFrame;
+                        const auto &oldOut=registered.tracks[0].clips[0],&oldIn=registered.tracks[0].clips[1];
+                        if(oldOut.processing.fadeOut.endFrame>oldOut.processing.fadeOut.startFrame)
+                            editedFirst=std::min(editedFirst,oldOut.startFrame+std::clamp<Frame>(oldOut.processing.fadeOut.startFrame,0,oldOut.lengthFrames));
+                        if(oldIn.processing.fadeIn.endFrame>oldIn.processing.fadeIn.startFrame)
+                            editedEnd=std::max(editedEnd,oldIn.startFrame+std::clamp<Frame>(oldIn.processing.fadeIn.endFrame,0,oldIn.lengthFrames));
+                        step["audibleEditFirst"]=editedFirst;step["audibleEditEnd"]=editedEnd;step["requestedTransitionFirst"]=transition.startFrame;step["requestedTransitionEnd"]=transition.endFrame;
+                        for(Frame frame=first;frame<end;++frame)if(frame<editedFirst-128 || frame>=editedEnd+128)for(unsigned ch=0;ch<2;++ch){const auto at=std::size_t(frame-first)*2+ch;check(before[at]==after[at],"Unchanged repeated outer audio differs");++unchanged;}
                         const auto destination=evidenceFile("-reopened.wav");ExportSpec spec(track.id);spec.startFrame=first;spec.endFrame=end;spec.blockFrames=127;const auto exported=exportTrackWav(root,adopted,destination,spec);
                         media_io::File descriptor(destination,false);SF_INFO info{};std::unique_ptr<SNDFILE,decltype(&sf_close)> wave(sf_open_fd(descriptor.descriptor(),SFM_READ,&info,SF_FALSE),&sf_close);
                         check(bool(wave) && info.frames==end-first && info.channels==2 && info.samplerate==int(adopted.sampleRate),"Repeated exported geometry differs");
@@ -167,7 +215,7 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
         }
         check(memory.usage().reservedBytes==0,"Repeated UI assembly credits retained after destruction");row["assemblyCreditsReleased"]=true;cases.push_back(row);
     }
-    Json report{{"checks",checks},{"cases",cases},{"actualRepeatedMainWindow",true},{"physicalAudio",false},{"qualityAdmission",false},{"executorSha256",compAssemblyExecutableSha256()}};
+    Json report{{"checks",checks},{"cases",cases},{"actualRepeatedMainWindow",true},{"protectedHistory",protectedMode},{"physicalAudio",false},{"qualityAdmission",false},{"executorSha256",compAssemblyExecutableSha256()}};
     repeatWrite(scope/"report.json",report.dump(2));return report;
 }
 }

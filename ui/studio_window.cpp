@@ -816,6 +816,8 @@ bool StudioWindow::requestCompTransition(PrepareCompTransition transition,Frame 
         if(compAssembly_.prepare(owner,std::move(transition),maximum)!=Admission::Accepted)return false;
         compRenderOwner_=owner;compRenderSelection_.reset();compRenderOperation_.reset();compRegistering_=0;
         compRenderCancel_=false;compRenderMessage_.clear();compRenderStage_=CompRenderStage::Preparing;
+        // A newly accepted render has not been applied, regardless of the previous job.
+        compAssemblyMessage_.clear();
         compPair_.clearResult();showCompRenderProgress();return true;
     }catch(const std::exception &){compRenderMessage_=tr("Transition preparation could not start. Check Project resources and the installed render helper.");notice_->setText(compRenderMessage_);return false;}
 }

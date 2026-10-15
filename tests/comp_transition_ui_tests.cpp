@@ -36,7 +36,7 @@ void save(StudioWindow &w){check(w.submitEdit({CommandKind::Save}),"Save refused
 int main(int argc,char **argv){QApplication app(argc,argv);try{
     check(argc==1,"Expected fixture input");Json input;std::cin>>input;
     const auto source=utf8Path(input.at("root").get<std::string>()),scope=utf8Path(input.at("evidence").get<std::string>());
-    if(input.value("repeated",false)){std::cout<<repeatedUiWorkflow(source,scope).dump()<<'\n';return 0;}
+    if(input.value("repeated",false)){std::cout<<repeatedUiWorkflow(source,scope,input.value("protected",false)).dump()<<'\n';return 0;}
     const auto baseline=ProjectStore(source).load();const bool protectedMode=input.value("protected",false);
     const bool expanded=baseline.assets[0].sampleRate==48000 && (!protectedMode || input.value("pairKind",std::string())=="protected");
     std::filesystem::create_directories(scope);Json cases=Json::array();
