@@ -255,3 +255,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Current Linux preview candidate and original CI retention](330-linux-preview-candidate.md)
 - [Installed Linux preview with render progress](331-installed-progress-preview.md)
 - [Windows render-progress candidate and required CI evidence job](332-windows-progress-preview.md)
+
+- [Installed Windows preview with render progress](333-installed-windows-progress.md)

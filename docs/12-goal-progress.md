@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Windows render-progress preview (2026-10-15)
+
+[Checkpoint 333](333-installed-windows-progress.md) installs the exact `b5dc256`
+Windows candidate and verifies all 65 payloads while preserving 334 earlier-preview
+files. Actual Review/Apply/Undo/Redo/save/reopen/export succeeds; all exported
+samples match the independent reference bit for bit. An initial accessibility
+driver failure is retained; continuation uses the same process and render. The
+completed dialog reports 34.9 seconds, so responsiveness remains open. Both
+launches close normally, all VMs are off and temporary transport is removed.
+Hosted CI is still pending. Full goal incomplete.
+
 ## Windows progress candidate and CI evidence separation (2026-10-15)
 
 [Checkpoint 332](332-windows-progress-preview.md) prepares the matching `b5dc256`
