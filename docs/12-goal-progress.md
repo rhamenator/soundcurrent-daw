@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated comp source admission performance (2026-10-14)
+
+[Checkpoint 298](298-comp-source-admission-performance.md) traces the prior Debug
+failure to final verification and removes repeated exact asset checks within one
+source admission. Each subsequent admission still verifies all unique sources
+freshly. Four Debug and eleven Release suites pass with all previous core,
+desktop and legacy Apply export hashes unchanged. The slowest complete Debug
+desktop render stage is 20.666 seconds against the unchanged 30-second observation
+limit. Fresh-source mutation, cancellation, memory refusal and child retirement
+checks pass. Original failures and the bounded profile are retained. Native CI,
+installed delivery, independent quality and the full frozen goal remain open.
+
 ## Native comp paths and desktop build follow-up (2026-10-14)
 
 [Checkpoint 297](297-native-comp-build-followup.md) corrects deep Windows fixture

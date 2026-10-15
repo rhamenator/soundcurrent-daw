@@ -63,6 +63,10 @@ native Windows and installed-preview qualification remain in development.
 Windows fixture paths and compiles the desktop window once across UI targets.
 Twenty selected local suites have current-build coverage; fresh native confirmation
 remains required.
+[Per-admission source verification](docs/298-comp-source-admission-performance.md)
+now removes repeated checks of identical declarations within each admission, while
+keeping fresh verification across operations. Four Debug and eleven Release suites
+pass with unchanged export hashes; native CI remains a separate gate.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.
