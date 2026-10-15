@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Installed Linux source-waveform preview](351-installed-waveform-preview.md)
 - [Windows waveform qualification and staging repair](350-windows-waveform-staging.md)
 - [Individual multichannel waveform inspection](349-waveform-channel-inspection.md)
 - [Full-window waveform workflows and retry](348-studio-waveform-recovery.md)

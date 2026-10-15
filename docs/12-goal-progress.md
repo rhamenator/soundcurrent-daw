@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Linux waveform preview (2026-10-15)
+
+[Checkpoint 351](351-installed-waveform-preview.md) activates the tested Linux
+preview through Applications, with the prior version preserved. Thirty-one preview
+tests pass; the actual installed channel selection, missing/restored-media retry,
+editing, Undo/Redo, save/reopen, export and normal Quit workflows pass. Export is
+bit-exact to the independent reference. JSON-formatting and launch-tag observer
+issues, including overwritten startup artifacts, are documented explicitly.
+Original terminal CI is fully retained before PR advancement; fresh native
+Windows qualification and its installed preview remain next. Full parity is
+incomplete.
+
 ## Windows waveform qualification and staging (2026-10-15)
 
 [Checkpoint 350](350-windows-waveform-staging.md) retains the original native run:
