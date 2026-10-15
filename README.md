@@ -106,8 +106,10 @@ Release, Debug, sanitizer and independent rational-oracle checks pass.
 preserves outside anchors and baked pitch across cropped ancestry.
 [Owned clocked workers](docs/312-comp-clocked-protected-worker.md) now bind that
 geometry and timing to verified media/history requests. Release and Debug worker
-checks pass. New paired adoption, native execution and editor integration remain
-required.
+checks pass. [Clocked paired adoption](docs/313-comp-clocked-protected-pair.md)
+now passes core Release/Debug checks and a fractional desktop adoption workflow,
+with legacy output hashes preserved. Repeated post-SRC desktop histories, native
+execution and installed preview delivery remain required.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and

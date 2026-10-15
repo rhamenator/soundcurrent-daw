@@ -50,6 +50,28 @@
       "observedSeconds": 39.56,
       "schedulingMultiplier": 2,
       "remoteTimingObserved": false
+    },
+    {
+      "source": "local Debug original qualified result",
+      "sourceCommit": "c66f184ed39704f5d3aa7ba5ec207b8ab94b30dd",
+      "file": "tests/results/M2/2026-10-15-comp-clocked-protected-pair/acceptance.zip",
+      "resultPath": ".cache/comp-clocked-protected-pair/qualified-Debug-bjoz2ebx/result.json",
+      "resultSha256": "176139071172a0adaabac5f9f9ede1445bd4cafe6468682b3a95e111ce866752",
+      "test": "comp-clocked-protected-paired-production",
+      "observedSeconds": 101.76,
+      "schedulingMultiplier": 2,
+      "remoteTimingObserved": false
+    },
+    {
+      "source": "local Debug original qualified result",
+      "sourceCommit": "c66f184ed39704f5d3aa7ba5ec207b8ab94b30dd",
+      "file": "tests/results/M2/2026-10-15-comp-clocked-protected-pair/acceptance.zip",
+      "resultPath": ".cache/comp-clocked-protected-pair/qualified-Debug-bjoz2ebx/result.json",
+      "resultSha256": "176139071172a0adaabac5f9f9ede1445bd4cafe6468682b3a95e111ce866752",
+      "test": "comp-clocked-protected-mixed-production",
+      "observedSeconds": 83.61,
+      "schedulingMultiplier": 2,
+      "remoteTimingObserved": false
     }
   ],
   "seconds": {
@@ -75,6 +97,8 @@
     "comp-clocked-protected-48000": 7.16,
     "comp-clocked-protected-96000": 8.83,
     "comp-clocked-protected-history-worker": 79.12,
+    "comp-clocked-protected-mixed-production": 167.22,
+    "comp-clocked-protected-paired-production": 203.52,
     "comp-clocked-protected-worker": 201.68,
     "comp-clocked-span-worker": 85.67,
     "comp-handle-envelope-plans": 0.01,

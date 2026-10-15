@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Clocked protected paired adoption (2026-10-15)
+
+[Checkpoint 313](313-comp-clocked-protected-pair.md) versions pair selection and
+connects application preparation to exact source/retained clock metadata. Five
+Release and five Debug suites pass: six new adoptions, ten successful workers,
+two worker refusals and shared live/export checks per build. All sixteen new audio
+files match across builds. The focused desktop suite passes twelve cases, including
+one newly supported fractional adoption; five legacy export hashes are unchanged.
+MinGW syntax passes. The original desktop test's obsolete rejection expectation
+was corrected after retaining its failure. Repeated post-SRC desktop/native
+qualification, short uniform backend windows, installed previews, processing
+quality, localization and full DAW parity remain open.
+
+
 ## Owned clocked protected workers (2026-10-15)
 
 [Checkpoint 312](312-comp-clocked-protected-worker.md) adds an explicit versioned
