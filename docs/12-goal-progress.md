@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows installed preview and native CI partition (2026-10-15)
+
+[Checkpoint 321](321-windows-installed-comp-preview.md) qualifies the current
+Windows installer, 65 installed payload files, actual save/reopen/export/normal
+close, and uninstall/reinstall preservation in the independent acceptance clone.
+The exported WAV is byte-identical to Linux; originals and physical audio are
+untouched, and the clone is off. Original CI passed eleven jobs but its combined
+native job exceeded 30 minutes after both 43/93 test banks passed. All original
+logs and artifacts are retained. The two native banks now run separately behind
+the unchanged required check name, with deadlines and test commands preserved.
+Fresh execution and installed short-comp editing remain next. Full goal incomplete.
+
 ## Installed Linux preview refresh (2026-10-15)
 
 [Checkpoint 320](320-installed-linux-comp-preview.md) installs the unchanged

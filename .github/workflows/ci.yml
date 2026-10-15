@@ -208,8 +208,14 @@ jobs:
         run: cmake -S . -B build-windows -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake -DSC_BUILD_MEDIA=OFF -DCMAKE_BUILD_TYPE=Release
       - name: Compile
         run: cmake --build build-windows --parallel 2
-  windows-native-packet-tests:
-    name: Windows native packet ownership tests
+  windows-native-tests:
+    name: Windows native ${{ matrix.group }} workflows
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [comp, recording]
+    env:
+      SC_NATIVE_TEST_GROUP: ${{ matrix.group }}
     runs-on: windows-2025
     timeout-minutes: 30
     steps:
@@ -243,19 +249,23 @@ jobs:
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
           cmake --build build-native --parallel 2 --target sc-comp-uniform-context-worker-fixture sc-comp-uniform-context-tests sc-comp-clocked-protected-worker-fixture sc-comp-clocked-protected-span-tests sc-exact-warp-extents-tests sc-clocked-protected-warp-tests sc-exact-processing-grid-tests sc-protected-core-sampling-tests sc-comp-protected-worker-fixture sc-comp-protected-span-tests sc-comp-repeat-fixture sc-native-media-path-tests sc-comp-span-v2-fixture sc-comp-regeneration-history-tests sc-comp-regeneration-source-tests sc-comp-assembly-state-tests sc-comp-assembly-job-tests sc-comp-pair-assembly-tests sc-comp-pair-state-tests sc-comp-pair-recovery-fixture sc-comp-span-worker sc-comp-span-worker-fixture sc-comp-span-render-tests sc-comp-media-review-tests sc-comp-processing-recipe-tests sc-processing-grid-tests sc-comp-handle-pcm-tests sc-comp-handle-blend-tests sc-comp-processing-plan-tests
           if errorlevel 1 exit /b 1
+          if "%SC_NATIVE_TEST_GROUP%"=="recording" goto recording_tests
           ctest --test-dir build-native -R "^(comp-original-context-paired-production|comp-owned-uniform-context-worker|comp-uniform-original-context|comp-clocked-protected-paired-production|comp-clocked-protected-mixed-production|comp-clocked-protected-worker|comp-clocked-protected-history-worker|comp-clocked-protected-44100|comp-clocked-protected-48000|comp-clocked-protected-96000|comp-protected-clock-oracle|exact-warp-extents|exact-warp-extents-oracle|clocked-protected-warp|wide-processing-grid|wide-processing-grid-oracle|protected-core-sampling|protected-core-sampling-oracle|comp-protected-repeated-production|comp-protected-assembly-publication|comp-protected-pair-recovery|comp-owned-protected-worker|comp-protected-span-render|comp-repeated-pair-production|native-media-long-path|comp-clocked-span-worker|comp-regeneration-history|comp-paired-history-review|comp-regeneration-source|comp-assembly-project-state|comp-owned-assembly-publication|comp-verified-pair-assembly|comp-paired-project-state|comp-paired-selection-recovery|comp-owned-span-worker|comp-uniform-span-render|comp-actual-media-review|comp-processing-recipe-recovery|comp-transition-processing-permissions|comp-handle-explicit-blend|comp-handle-pcm-assembly|exact-processing-grid|processing-grid-fraction-oracle)$" --output-on-failure --no-tests=error
           set "SC_COMP_TEST_EXIT=%ERRORLEVEL%"
           copy /Y "build-native\Testing\Temporary\LastTest.log" "build-native\Testing\Temporary\LastCompTest.log"
           if errorlevel 1 exit /b 1
           if not "%SC_COMP_TEST_EXIT%"=="0" exit /b %SC_COMP_TEST_EXIT%
+          goto native_tests_done
+          :recording_tests
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
           set "SC_STRETCH_WORKER_QUALIFICATION=%CD%\build-native\stretch-worker-qualification.json"
           set "SC_PROTECTED_WARP_QUALIFICATION=%CD%\build-native\protected-warp-integration-qualification.json"
           set "SC_NATIVE_OWNER_FAILURE_EVIDENCE=%CD%\build-native\native-owner-failure-evidence"
           ctest --test-dir build-native -R "^(comp-handle-worker-workflows|comp-processed-window-state|comp-handle-envelope-plans|comp-transition-handles|paired-crossfade-edits|native-controller-wait-evidence|native-service-cadence|native-recording-storage-budget|recording-storage-capacity|prepared-spsc-capacity|pipewire-recording-storage-budget|pipewire-monitor-controller|pipewire-durable-route-outcomes|pipewire-owned-recording|pipewire-stop-publication|pipewire-shared-processing-handoffs|pipewire-recording-durable-prefix|pipewire-native-receipt-codec|pipewire-native-receipt-handoffs|pipewire-monitor-planar-render|pipewire-monitor-planar-capture|native-monitor-startup|bounded-monitor-startup|original-native-outcomes|wasapi-monitor-render-binding|wasapi-monitor-capture-binding|monitor-capture-stop|monitor-stop-handoff|combined-monitor-recording|original-monitor-clock-handoffs|bounded-monitor-processing|original-raw-recording|monitor-output-bank|capture-raw-monitor-fanout|monitor-drift-control|causal-monitor-buffer|monitor-kernel-feasibility|stamped-capture-bank|clock-correlation|continuous-loop-recording|loop-stream-playback-recording|retained-take-comp|manual-recording-control|manual-declared-reserve|stretch-selection-publication|experimental-protected-warp-geometry|experimental-protected-warp-rendering|experimental-warp-map-geometry|editable-stretch-state|stretch-timing-oracle|stretch-region-geometry|stretch-source-integrity|stretch-worker-workflows|worker-observation-failures|protected-warp-worker-workflows|protected-warp-package-inputs|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(render-end|packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
           if errorlevel 1 exit /b 1
+          :native_tests_done
       - name: Bounded original concurrent-owner diagnostic
-        if: always()
+        if: always() && matrix.group == 'recording'
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -281,15 +291,15 @@ jobs:
             if ($ownerProcess.ExitCode -ne 0) { throw "Original concurrent owner diagnostic failed; retain original take/worker state." }
           }
       - name: Test generated failure retention
-        if: always()
+        if: always() && matrix.group == 'recording'
         shell: pwsh
         run: ./tests/owner_retention_tests.ps1
       - name: Preserve generated owner failure projects
-        if: always()
+        if: always() && matrix.group == 'recording'
         shell: pwsh
         run: ./.github/scripts/retain-owner-failure-projects.ps1 -BuildDirectory ./build-native
       - name: Verify and preserve controller failure projects
-        if: always()
+        if: always() && matrix.group == 'recording'
         shell: pwsh
         run: |
           python tests/controller_retention_tests.py
@@ -301,7 +311,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           archive: true
-          name: windows-native-packet-unit-log
+          name: ${{ matrix.group == 'recording' && 'windows-native-packet-unit-log' || 'windows-native-comp-unit-log' }}
           path: |
             build-native/Testing/Temporary/*.log
             build-native/manual-owner-*-stdout.log
@@ -344,6 +354,17 @@ jobs:
             build-native/stretch-worker-qualification.json
             build-native/protected-warp-integration-qualification.json
           if-no-files-found: ignore
+  windows-native-packet-tests:
+    name: Windows native packet ownership tests
+    needs: windows-native-tests
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require both native test groups to pass
+        env:
+          NATIVE_RESULT: ${{ needs.windows-native-tests.result }}
+        run: test "$NATIVE_RESULT" = success
   windows-desktop-workflows:
     name: ${{ matrix.name }}
     strategy:

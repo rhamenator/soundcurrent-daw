@@ -8,7 +8,10 @@ amd64 and unsigned Windows x64 candidates at source `2580164`, sequence
 source/checksums. Native Linux package checks, private PipeWire tests, native
 Windows helper/startup checks and all 12 original CI jobs pass. Clean-install
 acceptance remains separate. The Linux candidate now supplies the local Applications
-launcher; the Windows installer still awaits updated installed-workflow acceptance.
+launcher. The Windows installer now passes
+[installation, save/reopen/export and uninstall/reinstall acceptance](321-windows-installed-comp-preview.md)
+in the existing independent test clone; installed short-comp editing and hardware
+qualification remain open.
 Neither candidate has been uploaded as a binary release.
 
 ## Current local Ubuntu preview (2026-10-15)

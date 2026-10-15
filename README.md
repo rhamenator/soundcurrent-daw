@@ -25,8 +25,11 @@ recording/playback and packaged save/reopen/export have scoped evidence.
 New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
 are now prepared locally with matching source. Native helper checks and actual
 packaged/deployed startup pass. The refreshed Linux Applications entry also passes
-save/reopen and independently verified export. Updated Windows installation and
-sustained hardware qualification remain required.
+save/reopen and independently verified export. The
+[Windows installer and installed export](docs/321-windows-installed-comp-preview.md)
+also pass in the independent acceptance clone, including preservation during
+uninstall/reinstall. Installed short-comp editing and sustained hardware
+qualification remain required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
