@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows waveform qualification and staging (2026-10-15)
+
+[Checkpoint 350](350-windows-waveform-staging.md) retains the original native run:
+all 26 desktop tests pass, including waveform drawing/retry and the corrected
+CRLF helper. Deployment collection then fails because its separate copier omits
+the waveform worker. The original artifact confirms that exact missing file.
+Staging now shares the collector's application list; byte-delivery, missing/extra
+file and overwrite regressions pass alongside existing packaging gates. Native
+staging, channel selection and refreshed installed previews remain unqualified.
+The full DAW goal is incomplete; installed previews are unchanged.
+
 ## Individual waveform channels (2026-10-15)
 
 [Checkpoint 349](349-waveform-channel-inspection.md) adds an Overview / Single

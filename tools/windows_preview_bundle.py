@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import struct
 import subprocess
 import sys
@@ -15,6 +16,23 @@ ROOT = Path(__file__).resolve().parents[1]
 APPLICATIONS = ('soundcurrent-daw.exe', 'sc-import-inspect-worker.exe',
                 'sc-approved-wave-probe.exe', 'sc-media-import-worker.exe',
                 'sc-stretch-render-worker.exe', 'sc-comp-span-worker.exe','sc-waveform-worker.exe')
+
+
+def stage_applications(build, stage):
+    """Copy the same application set the collector audits; does not qualify it."""
+    def linked(path):
+        return path.is_symlink() or getattr(path, 'is_junction', lambda: False)()
+    require(build.is_dir() and not linked(build), 'Invalid native build directory')
+    require(stage.is_dir() and not linked(stage), 'Invalid deployment stage')
+    # Check the complete set before copying, and never replace an existing file.
+    for name in APPLICATIONS:
+        source, destination = build / name, stage / name
+        require(source.is_file() and not linked(source), 'Missing or linked native application: ' + name)
+        require(not destination.exists() and not linked(destination), 'Deployment application already exists: ' + name)
+        pe_identity(source)
+    for name in APPLICATIONS:
+        with (build / name).open('rb') as source, (stage / name).open('xb') as destination:
+            shutil.copyfileobj(source, destination, length=1024 * 1024)
 
 
 def digest(path):
@@ -62,7 +80,9 @@ def audit_payload(stage, trusted):
             identity = pe_identity(p)
             found[name] = {'path': name, 'bytes': p.stat().st_size,
                            'sha256': digest(p), 'pe': identity}
-    require(set(found) == expected, 'Unexpected or missing deployment file')
+    require(set(found) == expected,
+            'Unexpected or missing deployment file: missing=' + repr(sorted(expected - set(found))) +
+            '; unexpected=' + repr(sorted(set(found) - expected)))
     require(sum(row['bytes'] for row in found.values()) <= 256 * 1024 * 1024,
             'Deployment exceeds retained bounds')
     mismatch = []
@@ -167,8 +187,13 @@ if __name__ == '__main__':
         p.add_argument('--' + name, type=Path)
     p.add_argument('--expected-source', required=True)
     p.add_argument('--snapshot-inputs', type=Path)
+    p.add_argument('--stage-applications', action='store_true')
     args = p.parse_args()
-    if args.snapshot_inputs:
+    require(not (args.stage_applications and args.snapshot_inputs), 'Conflicting collection modes')
+    if args.stage_applications:
+        require(args.build is not None and args.stage is not None, 'Build and stage required')
+        stage_applications(args.build, args.stage)
+    elif args.snapshot_inputs:
         require(not args.snapshot_inputs.exists(), 'Pre-build snapshot exists')
         args.snapshot_inputs.parent.mkdir(parents=True, exist_ok=True)
         args.snapshot_inputs.write_text(json.dumps(source_snapshot(args.expected_source), indent=2) + '\n', encoding='utf-8')

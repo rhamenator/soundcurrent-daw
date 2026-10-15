@@ -7,14 +7,63 @@ from pathlib import Path
 import sys
 import tempfile
 import zipfile
+import struct
+import subprocess
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker, qualify_copy_worker, qualify_stretch_worker, qualify_compiler, scripts
 from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch
+from windows_preview_bundle import stage_applications, audit_payload
 import json
 
 
+def collection_staging():
+    # Minimal synthetic PE envelopes exercise byte delivery/auditing, never native execution.
+    applications = ('soundcurrent-daw.exe', 'sc-import-inspect-worker.exe',
+                    'sc-approved-wave-probe.exe', 'sc-media-import-worker.exe',
+                    'sc-stretch-render-worker.exe', 'sc-comp-span-worker.exe',
+                    'sc-waveform-worker.exe')
+    with tempfile.TemporaryDirectory(prefix='sc-native-stage-') as directory:
+        root = Path(directory); build = root/'build'; stage = root/'stage'
+        build.mkdir(); stage.mkdir()
+        originals = {}
+        for index, name in enumerate(applications):
+            data = bytearray(128); data[:2] = b'MZ'; struct.pack_into('<I', data, 60, 64)
+            data[64:68] = b'PE\0\0'; struct.pack_into('<H', data, 68, 0x8664)
+            struct.pack_into('<H', data, 88, 0x20b); data[-1] = index
+            originals[name] = bytes(data); (build/name).write_bytes(data)
+        waveform = build/'sc-waveform-worker.exe'; waveform.unlink()
+        try: stage_applications(build, stage)
+        except ValueError as e: assert 'sc-waveform-worker.exe' in str(e)
+        else: raise AssertionError('Missing waveform worker staged')
+        assert not list(stage.iterdir()), 'Missing application caused a partial stage'
+        waveform.write_bytes(originals[waveform.name])
+        # Exercise the exact command used by the hosted PowerShell collector.
+        subprocess.run([sys.executable, str(Path(__file__).resolve().parents[1]/'tools/windows_preview_bundle.py'),
+                        '--stage-applications', '--build', str(build), '--stage', str(stage),
+                        '--expected-source', 'a'*40], check=True, timeout=15)
+        assert {p.name:p.read_bytes() for p in stage.iterdir()} == originals
+        files, mismatch = audit_payload(stage, {'files': {}})
+        assert set(files) == set(applications) and not mismatch
+        try: stage_applications(build, stage)
+        except ValueError: pass
+        else: raise AssertionError('Staging overwrote existing applications')
+        assert {p.name:p.read_bytes() for p in build.iterdir()} == originals
+        assert {p.name:p.read_bytes() for p in stage.iterdir()} == originals
+        (stage/waveform.name).unlink()
+        try: audit_payload(stage, {'files': {}})
+        except ValueError as e: assert "missing=['sc-waveform-worker.exe']" in str(e)
+        else: raise AssertionError('Collector admitted a missing waveform worker')
+        (stage/waveform.name).write_bytes(originals[waveform.name])
+        (stage/'unexpected.exe').write_bytes(originals[waveform.name])
+        try: audit_payload(stage, {'files': {}})
+        except ValueError as e: assert "unexpected=['unexpected.exe']" in str(e)
+        else: raise AssertionError('Collector admitted an unexpected executable')
+    print('Collection staging: all seven application bytes retained; missing, extra and overwrite cases refused')
+
+
 def run():
+    collection_staging()
     names = ('soundcurrent-daw.exe', 'sndfile.dll', 'Qt6Core.dll',
              'Qt6Gui.dll', 'Qt6Widgets.dll', 'platforms/qwindows.dll')
     data = {n: ('test-only:' + n).encode() for n in names}

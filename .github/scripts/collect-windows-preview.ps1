@@ -13,10 +13,8 @@ try {
     $verify = Join-Path $out 'verification'
     $sources = Join-Path $out 'dependency-source'
     foreach ($p in @($stage,$verify,$sources)) { New-Item -ItemType Directory -Path $p | Out-Null }
-    foreach ($name in @('soundcurrent-daw.exe','sc-import-inspect-worker.exe',
-        'sc-approved-wave-probe.exe','sc-media-import-worker.exe','sc-stretch-render-worker.exe','sc-comp-span-worker.exe')) {
-        Copy-Item -LiteralPath (Join-Path $build $name) -Destination $stage
-    }
+    & python tools/windows_preview_bundle.py --stage-applications --build $build --stage $stage --expected-source $ExpectedSourceCommit
+    if ($LASTEXITCODE -ne 0) { throw 'Native application staging failed' }
     Copy-Item -LiteralPath (Join-Path $root 'native-dependencies/sndfile-build/sndfile.dll') -Destination $stage
     $env:PATH = (Join-Path $sdk 'bin') + ';' + $env:PATH
     & (Join-Path $sdk 'bin/windeployqt.exe') --release --no-compiler-runtime --no-translations --no-opengl-sw --no-system-d3d-compiler --no-system-dxc-compiler --skip-plugin-types generic,networkinformation,tls,sqldrivers,printsupport --dir $stage (Join-Path $stage 'soundcurrent-daw.exe') *>&1 | Tee-Object -FilePath (Join-Path $out 'windeployqt.log')
