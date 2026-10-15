@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_pair_recovery.hpp>
 #include <soundcurrent/approved_media.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 #include "media_io.hpp"
 #include "warp_codec.hpp"
 #include <algorithm>
@@ -27,9 +28,9 @@ Json parse(std::string_view bytes){check(bytes.size()<=16384,"Comp pair marker t
 }
 Json policy(const CompSpanWorkerPolicy &p){return {{"memoryBytes",p.memoryBytes},{"maximumSourceBytes",p.maximumSourceBytes},{"maximumOutputBytes",p.maximumOutputBytes},{"deadlineMilliseconds",p.deadlineMilliseconds}};}
 CompSpanWorkerPolicy policy(const Json &j){check(j.is_object() && j.size()==4,"Invalid saved comp pair policy");return {warp_codec::unsignedInteger(j.at("memoryBytes"),4096ULL*1024*1024),warp_codec::unsignedInteger(j.at("maximumSourceBytes"),8ULL*1024*1024*1024),warp_codec::unsignedInteger(j.at("maximumOutputBytes"),8ULL*1024*1024*1024),warp_codec::unsignedInteger(j.at("deadlineMilliseconds"),3600000)};}
-Json document(const CompProcessingRecipe &r,const CompRecipeExecutor &parent,std::string_view worker,const std::array<std::optional<CompSpanRequest>,2> &children,const CompSpanWorkerPolicy &p){
+Json document(const CompProcessingRecipe &r,const CompRecipeExecutor &parent,std::string_view worker,const std::array<std::optional<CompSpanRequest>,2> &children,const CompSpanWorkerPolicy &p,CompPairSpanPolicy spanPolicy){
     Json list=Json::array();for(const auto &c:children)list.push_back(c?Json{{"operation",c->operation().str()},{"fragment",c->fragment()},{"requestDigest",c->digest()}}:Json(nullptr));
-    return {{"format","sc-comp-pair-selection-v1"},{"operation",r.operation().str()},{"recipeDigest",r.digest()},{"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},{"workerSha256",worker},{"policy",policy(p)},{"children",list}};
+    return {{"format",spanPolicy==CompPairSpanPolicy::ProtectedOriginal?"sc-comp-pair-selection-protected-v1":"sc-comp-pair-selection-v1"},{"operation",r.operation().str()},{"recipeDigest",r.digest()},{"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},{"workerSha256",worker},{"policy",policy(p)},{"children",list}};
 }
 void immutable(const std::filesystem::path &root,std::string_view relative,std::string_view bytes,ResourceLedger ledger,std::stop_token stop){poll(stop);const auto path=root/utf8Path(relative);media_io::plainDirectory(path.parent_path());
     if(std::filesystem::exists(std::filesystem::symlink_status(path))){ApprovedMediaRoot approved(root,ledger,{1});check(read(approved,relative,bytes.size()+1,ledger,stop).bytes==bytes,"Existing comp pair bytes differ",ErrorCode::MediaMismatch);return;}
@@ -39,13 +40,23 @@ void immutable(const std::filesystem::path &root,std::string_view relative,std::
 }
 bool present(const std::filesystem::path &p){return std::filesystem::exists(std::filesystem::symlink_status(p));}
 }
-CompPairSelection prepareCompPairSelection(CompProcessingRecipe recipe,CompRecipeExecutor parent,std::string worker,const std::array<Id,2> &operations,CompSpanWorkerPolicy p,ResourceLedger ledger){
+CompPairSelection prepareCompPairSelection(CompProcessingRecipe recipe,CompRecipeExecutor parent,std::string worker,const std::array<Id,2> &operations,CompSpanWorkerPolicy p,ResourceLedger ledger,CompPairSpanPolicy spanPolicy){
+    check(spanPolicy==CompPairSpanPolicy::UniformOnly || spanPolicy==CompPairSpanPolicy::ProtectedOriginal,"Unknown comp pair span policy");
     check(p.memoryBytes>=128ULL*1024*1024 && p.memoryBytes<=4096ULL*1024*1024 && p.memoryBytes%(1024*1024)==0 && p.maximumSourceBytes>0 && p.maximumSourceBytes<=8ULL*1024*1024*1024 && p.maximumOutputBytes>=4096 && p.maximumOutputBytes<=8ULL*1024*1024*1024 && p.deadlineMilliseconds>=100 && p.deadlineMilliseconds<=3600000,"Invalid paired worker policy");
     check(sha(worker) && operations[0]!=operations[1] && operations[0]!=recipe.operation() && operations[1]!=recipe.operation(),"Invalid paired worker/operations");auto retained=ledger.reserve(65536);std::array<std::optional<CompSpanRequest>,2> children;
     for(unsigned side=0;side<2;++side){const auto domain=side?recipe.plan().incoming().domain:recipe.plan().outgoing().domain;
-        if(domain!=CompProcessingDomain::ExistingMedia){children[side].emplace(encodeCompSpanRequest(recipe,parent,side,operations[side],worker,ledger));(void)compSpanIntent(*children[side],p,ledger);}}
-    auto bytes=document(recipe,parent,worker,children,p).dump();check(bytes.size()<=16384,"Comp pair selection exceeds bank");const auto digest=hash(bytes);
-    return {std::move(retained),std::move(recipe),std::move(children),p,std::move(parent),std::move(worker),digest,std::move(bytes)};
+        if(domain!=CompProcessingDomain::ExistingMedia){
+            const auto &e=(side?recipe.plan().handles().incoming():recipe.plan().handles().outgoing()).data();
+            // Select from original semantic protection, not a slope heuristic or
+            // a failed uniform render. The protected adapter owns its refusals.
+            const auto &original=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
+            const bool protectedSource=original.stretch && original.stretch->warp;
+            if(spanPolicy==CompPairSpanPolicy::ProtectedOriginal && protectedSource)
+                children[side].emplace(encodeProtectedCompSpanRequest(recipe,parent,side,operations[side],worker,ledger));
+            else children[side].emplace(encodeCompSpanRequest(recipe,parent,side,operations[side],worker,ledger));
+            (void)compSpanIntent(*children[side],p,ledger);}}
+    auto bytes=document(recipe,parent,worker,children,p,spanPolicy).dump();check(bytes.size()<=16384,"Comp pair selection exceeds bank");const auto digest=hash(bytes);
+    return {std::move(retained),std::move(recipe),std::move(children),p,std::move(parent),std::move(worker),digest,std::move(bytes),spanPolicy};
 }
 std::string persistCompPairSelection(const std::filesystem::path &root,const Session &current,const CompHandlePlanContext &context,const CompPairSelection &s,ResourceLedger ledger,std::stop_token stop){
     rootPath(root);poll(stop);verifyCompProcessingCurrent(current,context,s.recipe().plan());folder(root/"media");folder(root/"media"/"comp-pairs");folder(root/"media"/"comp-requests");folder(root/"media"/"comp-recipes");folder(root/"media"/"comp-spans");
@@ -56,12 +67,15 @@ std::string persistCompPairSelection(const std::filesystem::path &root,const Ses
 }
 CompPairSelection loadCompPairSelectionSnapshot(const std::filesystem::path &root,const CompHandlePlanContext &context,const Id &op,std::string_view digest,ResourceLedger ledger,std::stop_token stop){
     poll(stop);check(sha(digest),"Missing trusted comp pair selection digest");auto work=ledger.reserve(512*1024);ApprovedMediaRoot approved(root,ledger,{1});const auto bytes=read(approved,pairPath(op),16384,ledger,stop);check(hash(bytes)==digest,"Saved comp pair changed from trusted owner",ErrorCode::MediaMismatch);
-    try{const auto j=parse(bytes);check(j.is_object() && j.size()==7 && j.at("format")=="sc-comp-pair-selection-v1" && j.at("operation")==op.str(),"Invalid comp pair identity/schema");
+    try{const auto j=parse(bytes);check(j.is_object() && j.size()==7 && j.at("format").is_string() && j.at("operation")==op.str(),"Invalid comp pair identity/schema");
+        const auto format=j.at("format").get<std::string>();
+        check(format=="sc-comp-pair-selection-v1" || format=="sc-comp-pair-selection-protected-v1","Unknown comp pair selection format",ErrorCode::UnsupportedSchema);
+        const auto spanPolicy=format=="sc-comp-pair-selection-protected-v1"?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly;
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id").get<std::string>(),j.at("recipeExecutor").at("buildSha256").get<std::string>()};const auto worker=j.at("workerSha256").get<std::string>();const auto p=policy(j.at("policy"));
         auto recipe=loadCompProcessingRecipeSnapshot(root,context,op,parent,j.at("recipeDigest").get<std::string>(),ledger,{},stop);
         const auto &list=j.at("children");check(list.is_array() && list.size()==2,"Invalid pair child count");std::array<Id,2> ops{Id::generate(),Id::generate()};
         for(unsigned side=0;side<2;++side)if(!list[side].is_null()){check(list[side].is_object() && list[side].size()==3 && warp_codec::unsignedInteger(list[side].at("fragment"),1)==side,"Wrong saved child fragment");ops[side]=Id(list[side].at("operation").get<std::string>());}
-        auto result=prepareCompPairSelection(std::move(recipe),parent,worker,ops,p,ledger);check(result.manifest()==bytes.bytes && result.digest()==digest,"Saved pair differs from rederived requests");
+        auto result=prepareCompPairSelection(std::move(recipe),parent,worker,ops,p,ledger,spanPolicy);check(result.manifest()==bytes.bytes && result.digest()==digest,"Saved pair differs from rederived requests");
         for(unsigned side=0;side<2;++side)if(result.children()[side]){const auto &r=*result.children()[side];const auto saved=read(approved,requestPath(r.operation()),compSpanRequestMaximum,ledger,stop);check(saved.bytes==r.bytes() && hash(saved)==r.digest(),"Original paired request changed",ErrorCode::MediaMismatch);}
         poll(stop);return result;
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid saved comp pair fields");}

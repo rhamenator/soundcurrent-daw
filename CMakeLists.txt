@@ -597,9 +597,14 @@ if(SC_BUILD_MEDIA)
       add_executable(sc-comp-pair-recovery-fixture tests/comp_pair_recovery_fixture.cpp)
       target_link_libraries(sc-comp-pair-recovery-fixture PRIVATE sc-comp-pair-recovery)
       target_include_directories(sc-comp-pair-recovery-fixture SYSTEM PRIVATE third_party)
+      target_include_directories(sc-comp-pair-recovery-fixture PRIVATE src)
       add_test(NAME comp-paired-selection-recovery COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_pair_recovery_tests.py
         $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-pair-recovery-evidence)
+      add_test(NAME comp-protected-pair-recovery COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_pair_recovery_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-protected-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        --protected --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-protected-pair-evidence)
+      set_tests_properties(comp-protected-pair-recovery PROPERTIES TIMEOUT 180)
       set_tests_properties(comp-paired-selection-recovery PROPERTIES TIMEOUT 120)
     endif()
     add_library(sc-comp-pair-assembly src/comp_pair_assembly.cpp)

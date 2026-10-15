@@ -3,6 +3,10 @@
 #include "comp_span_protocol.hpp"
 #include <array>
 namespace soundcurrent::daw {
+// Explicit admission policy. Existing callers retain uniform-only behavior.
+// ProtectedOriginal preserves semantic anchors in original, same-clock clips;
+// unsupported protected history/timing remains an error, never a uniform fallback.
+enum class CompPairSpanPolicy { UniformOnly, ProtectedOriginal };
 class CompPairSelection {
   public:
     CompPairSelection(CompPairSelection &&) noexcept=default;
@@ -14,20 +18,23 @@ class CompPairSelection {
     const CompRecipeExecutor &recipeExecutor() const noexcept {return executor_;}
     const std::string &workerSha256() const noexcept {return worker_;}
     const std::string &digest() const noexcept {return digest_;}
+    CompPairSpanPolicy spanPolicy() const noexcept {return spanPolicy_;}
     std::string_view manifest() const noexcept {return manifest_;}
   private:
-    friend CompPairSelection prepareCompPairSelection(CompProcessingRecipe,CompRecipeExecutor,std::string,const std::array<Id,2> &,CompSpanWorkerPolicy,ResourceLedger);
-    CompPairSelection(ResourceLease lease,CompProcessingRecipe recipe,std::array<std::optional<CompSpanRequest>,2> children,CompSpanWorkerPolicy policy,CompRecipeExecutor executor,std::string worker,std::string digest,std::string manifest)
-        :lease_(std::move(lease)),recipe_(std::move(recipe)),children_(std::move(children)),policy_(policy),executor_(std::move(executor)),worker_(std::move(worker)),digest_(std::move(digest)),manifest_(std::move(manifest)){}
+    friend CompPairSelection prepareCompPairSelection(CompProcessingRecipe,CompRecipeExecutor,std::string,const std::array<Id,2> &,CompSpanWorkerPolicy,ResourceLedger,CompPairSpanPolicy);
+    CompPairSelection(ResourceLease lease,CompProcessingRecipe recipe,std::array<std::optional<CompSpanRequest>,2> children,CompSpanWorkerPolicy policy,CompRecipeExecutor executor,std::string worker,std::string digest,std::string manifest,CompPairSpanPolicy spanPolicy)
+        :lease_(std::move(lease)),recipe_(std::move(recipe)),children_(std::move(children)),policy_(policy),executor_(std::move(executor)),worker_(std::move(worker)),digest_(std::move(digest)),manifest_(std::move(manifest)),spanPolicy_(spanPolicy){}
     ResourceLease lease_;
     CompProcessingRecipe recipe_;
     std::array<std::optional<CompSpanRequest>,2> children_;
     CompSpanWorkerPolicy policy_;
     CompRecipeExecutor executor_;
     std::string worker_,digest_,manifest_;
+    CompPairSpanPolicy spanPolicy_;
 };
 CompPairSelection prepareCompPairSelection(CompProcessingRecipe,CompRecipeExecutor,std::string workerSha256,
-    const std::array<Id,2> &childOperations,CompSpanWorkerPolicy,ResourceLedger);
+    const std::array<Id,2> &childOperations,CompSpanWorkerPolicy,ResourceLedger,
+    CompPairSpanPolicy=CompPairSpanPolicy::UniformOnly);
 // Serialized control/disk work only. No worker launch, cleanup, mutation or adoption.
 // Save returned digest in an independent trusted owner reference, not its sidecar.
 std::string persistCompPairSelection(const std::filesystem::path &,const Session &,

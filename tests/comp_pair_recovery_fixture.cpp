@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_pair_recovery.hpp>
 #include <nlohmann/json.hpp>
+#include "windows_file_path.hpp"
 #include <fstream>
 #include <iostream>
 using namespace soundcurrent::daw;
 namespace {
 using Json=nlohmann::json;unsigned checks=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
-std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Pair fixture file missing");return {(std::istreambuf_iterator<char>(f)),{}};}
-void write(const std::filesystem::path &p,std::string_view bytes){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(bytes.data(),std::streamsize(bytes.size()));check(bool(f),"Pair fixture write failed");}
+std::string read(const std::filesystem::path &p){std::ifstream f(fileSystemApiPath(p),std::ios::binary);check(bool(f),"Pair fixture file missing");return {(std::istreambuf_iterator<char>(f)),{}};}
+void write(const std::filesystem::path &p,std::string_view bytes){std::ofstream f(fileSystemApiPath(p),std::ios::binary|std::ios::trunc);f.write(bytes.data(),std::streamsize(bytes.size()));check(bool(f),"Pair fixture write failed");}
 CompSpanWorkerPolicy policy(){return {256*1024*1024,64*1024*1024,64*1024*1024,10000};}
 const CompHandlePlanContext context{9,"fresh-pair-owner"};
 Json state(const CompPairRecovery &r){Json a=Json::array();for(const auto &c:r.children)a.push_back({{"state",unsigned(c.state)},{"cancelRequested",c.cancellationRequested},{"candidate",c.candidate.has_value()}});return {{"children",a},{"ready",r.candidatesReady()},{"staleSelection",r.staleSelection}};}
@@ -20,9 +21,17 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id"),j.at("recipeExecutor").at("buildSha256")};
         auto recipe=decodeCompProcessingRecipe(j.at("recipe").get<std::string>(),Id(j.at("recipeOperation")),context,parent,j.at("recipeDigest").get<std::string>(),ledger);
         const auto binary=j.at("executor").at("buildSha256").get<std::string>();std::array<Id,2> operations{Id(requests[0].at("operation")),Id(requests[1].at("operation"))};
-        auto selectedPolicy=policy();selectedPolicy.deadlineMilliseconds=input.value("deadline",10000u);auto selection=prepareCompPairSelection(std::move(recipe),parent,binary,operations,selectedPolicy,ledger);const auto digest=persistCompPairSelection(root,current,context,selection,ledger);
+        auto selectedPolicy=policy();selectedPolicy.deadlineMilliseconds=input.value("deadline",10000u);const auto spanPolicy=input.value("protected",false)?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly;
+        if(spanPolicy==CompPairSpanPolicy::ProtectedOriginal){
+            auto legacy=decodeCompProcessingRecipe(j.at("recipe").get<std::string>(),Id(j.at("recipeOperation")),context,parent,j.at("recipeDigest").get<std::string>(),ledger);
+            refuses([&]{(void)prepareCompPairSelection(std::move(legacy),parent,binary,operations,selectedPolicy,ledger);});
+        }
+        auto selection=prepareCompPairSelection(std::move(recipe),parent,binary,operations,selectedPolicy,ledger,spanPolicy);
+        check(selection.spanPolicy()==spanPolicy,"Selection lost explicit span policy");
+        if(spanPolicy==CompPairSpanPolicy::ProtectedOriginal)for(const auto &child:selection.children())check(child && child->isProtected(),"Protected pair selected uniform child");
+        const auto digest=persistCompPairSelection(root,current,context,selection,ledger);
         check(persistCompPairSelection(root,current,context,selection,ledger)==digest,"Repeated selection publication changed bytes");
-        auto fresh=loadCompPairSelection(root,current,context,selection.recipe().operation(),digest,ledger);check(fresh.digest()==digest && fresh.manifest()==selection.manifest(),"Selection reopened differently");
+        auto fresh=loadCompPairSelection(root,current,context,selection.recipe().operation(),digest,ledger);check(fresh.digest()==digest && fresh.manifest()==selection.manifest() && fresh.spanPolicy()==spanPolicy,"Selection reopened differently");
         const auto reference=referenceCompPairSelection(current,context,selection);check(reference.selectionSha256==digest,"Reference not bound to published selection");
         applySessionEdits(current,{AddCompPairSelection{reference}});ProjectStore(root).save(current);
         const auto reopened=ProjectStore(root).load();auto fromProject=loadReferencedCompPairSelection(root,reopened,context,reference.operation,ledger);
@@ -70,6 +79,10 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
     auto stale=context;++stale.projectEpoch;auto staleResult=inspectCompPair(root,current,stale,pair,ledger);check(staleResult.staleSelection && !staleResult.candidatesReady(),"Stale pair authorized readiness");
     const auto pairPath=root/"media"/"comp-pairs"/(op.str()+".json");const auto before=read(pairPath);auto altered=Json::parse(before);altered["workerSha256"]=std::string(64,'0');write(pairPath,altered.dump());
     refuses([&]{loadCompPairSelection(root,current,context,op,digest,ledger);});write(pairPath,before);
+    altered=Json::parse(before);altered["format"]=pair.spanPolicy()==CompPairSpanPolicy::ProtectedOriginal?"sc-comp-pair-selection-v1":"sc-comp-pair-selection-protected-v1";
+    write(pairPath,altered.dump());refuses([&]{loadCompPairSelection(root,current,context,op,digest,ledger);});
+    if(pair.spanPolicy()==CompPairSpanPolicy::ProtectedOriginal){const auto forgedDigest=hashMediaFile(pairPath);refuses([&]{loadCompPairSelection(root,current,context,op,forgedDigest,ledger);});}
+    write(pairPath,before);
     const auto request=root/"media"/"comp-requests"/(pair.children()[0]->operation().str()+".json");const auto bytes=read(request);write(request,bytes+" ");refuses([&]{loadCompPairSelection(root,current,context,op,digest,ledger);});write(request,bytes);
     const auto path=root/"media"/"comp-spans"/pair.children()[0]->operation().str()/"audio.wav";const auto audio=read(path);auto bad=audio;bad.back()^=1;write(path,bad);
     {auto r=inspectCompPair(root,current,context,pair,ledger);check(r.children[0].state==CompPairChildState::Invalid && r.children[1].state==CompPairChildState::Complete && !r.candidatesReady(),"Bad first result exposed paired readiness");}write(path,audio);
