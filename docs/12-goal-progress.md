@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Windows portable comp workflow (2026-10-15)
+
+[Checkpoint 325](325-installed-windows-portable-comp.md) installs `61bcaa3` and
+passes actual Render, Review/Apply, exact Undo/Redo, save/reopen/export and normal
+Quit with Linux-created history. All 18,032 exported stereo frames match an
+independent calculation exactly; original media and previous previews are preserved.
+The original render exceeded the 30-second observer window but completed without
+a retry. Responsiveness and the earlier protected-warp failure remain unresolved.
+All 14 original CI jobs at `3adb515` passed. All VMs are off. Full goal incomplete.
+
 ## Windows portability candidate and catalog correction (2026-10-15)
 
 [Checkpoint 324](324-windows-portable-candidate.md) prepares the matching `61bcaa3`

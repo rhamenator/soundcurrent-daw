@@ -28,13 +28,13 @@ packaged/deployed startup pass. The refreshed Linux Applications entry also pass
 save/reopen and independently verified export. The
 [Windows installer and installed export](docs/321-windows-installed-comp-preview.md)
 also pass in the independent acceptance clone, including preservation during
-uninstall/reinstall. Windows installed short-comp editing and sustained hardware
-qualification remain required.
+uninstall/reinstall. Sustained hardware qualification remains required.
 The refreshed Linux preview now passes the [installed comp-editing workflow](docs/323-installed-portable-comp.md)
 with Windows-created history: Render, Review/Apply, Undo/Redo, save/reopen,
-independently checked WAV export and normal Quit. The matching [Windows portability installer](docs/324-windows-portable-candidate.md)
-is prepared locally; installed editing and reverse-history qualification remain
-required, along with investigation of an initial protected-warp test failure.
+independently checked WAV export and normal Quit. The matching [installed Windows preview](docs/325-installed-windows-portable-comp.md)
+also passes Render, Review/Apply, Undo/Redo, save/reopen/export and normal Quit with
+Linux-created history. Its exported samples match an independent calculation exactly.
+Render responsiveness and an initial protected-warp test failure remain under investigation.
 Sustained hardware qualification remains required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)

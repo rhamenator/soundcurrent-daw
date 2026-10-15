@@ -17,12 +17,12 @@ version. Physical hardware and full DAW parity remain unfinished.
 ## Windows candidate
 
 The matching `61bcaa3` Windows x64 installer, sequence `20261015144332`, is
-[prepared locally with verified corresponding source](324-windows-portable-candidate.md).
-It has native helper/startup observations, including an unresolved initial
-protected-warp test failure. It still needs installed editing and reverse-history
-qualification. The independent acceptance clone remains on `2580164`, whose
-[installation, save/reopen/export and uninstall/reinstall checks](321-windows-installed-comp-preview.md)
-passed. Neither platform has a published binary release.
+[installed in the independent acceptance clone](325-installed-windows-portable-comp.md),
+with verified corresponding source. Render, Review/Apply, Undo/Redo,
+save/reopen/export and normal Quit pass using Linux-created history. Exported
+samples match an independent calculation exactly. The earlier `2580164` and
+`4fb8` previews remain preserved. Render responsiveness and the initial
+protected-warp failure remain unresolved. Neither platform has a published binary release.
 
 ## Earlier candidates and original qualification scopes
 

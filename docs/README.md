@@ -246,3 +246,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Original-context owned worker and native CI results](317-uniform-context-worker.md)
 - [Original-context paired and desktop edits](318-original-context-pairs.md)
 - [ADR 202: original-context comp pairs](decisions/202-original-context-comp-pairs.md)
+
+- [Installed Windows editing with Linux render history](325-installed-windows-portable-comp.md)
