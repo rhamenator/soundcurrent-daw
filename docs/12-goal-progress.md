@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Complete original geometry for cropped comp rendering (2026-10-15)
+
+[Checkpoint 311](311-comp-clocked-protected-span.md) owns original protected
+geometry across cropped render ancestry and proves retained clocks at every knot.
+Actual candidate audio preserves original outside anchors and baked varispeed.
+Four suites pass in Release, Debug and optimized sanitizer builds; 21,384 crop
+samples and all PCM corpora agree. The 45-case rational oracle agrees across builds;
+both new C++ files pass MinGW syntax. Preceding CI passes all ten jobs, including
+208 Linux suites and native exact-boundary tests. Logs and artifacts are retained.
+The new adapter still needs versioned worker/media authority and application
+integration. Native execution of this adapter, installed delivery, full processing
+quality, localization and overall DAW parity remain incomplete.
+
+
 ## Exact outer warp boundaries (2026-10-15)
 
 [Checkpoint 310](310-exact-warp-extents.md) adds an explicit exact semantic domain

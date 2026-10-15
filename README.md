@@ -101,8 +101,11 @@ remain in development; these components do not yet enable fractional protected
 edits in the app. Independent quality admission and installed delivery remain open.
 [Exact semantic outer boundaries](docs/310-exact-warp-extents.md) now preserve
 fractional extents through the clocked renderer, with separate legacy admission.
-Release, Debug, sanitizer and independent rational-oracle checks pass. Comp/history
-and worker integration remain required before this reaches the editor.
+Release, Debug, sanitizer and independent rational-oracle checks pass.
+[Original-geometry comp rendering](docs/311-comp-clocked-protected-span.md) now
+preserves outside anchors and baked pitch across cropped ancestry. Candidate audio
+and exact-clock checks pass; versioned worker verification and editor integration
+remain required.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and
