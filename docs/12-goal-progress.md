@@ -9,9 +9,11 @@ three retained mixed cases, 15 successful workers and two required failures;
 all 24 new audio hashes match across configurations and legacy hashes are stable.
 The original failed playback-scope assertion and its correction remain retained.
 New native Windows and repeated protected desktop qualification remain open.
-Preceding CI38681796679 is still running; its native core job failed the existing
-one-frame recording test, while its desktop job passed. Full terminal retention
-and failure diagnosis precede the next PR advance. Installed previews are unchanged.
+Preceding CI38681796679 failed: its native job failed the existing one-frame
+recording test, and a Linux job reached its 30-minute limit in later archive checks
+after all 199 CTest cases passed. All six original artifacts/full logs and 146 PNGs
+are retained and audited. Scoped native assembly/desktop and actual-ledger checks
+pass; the failed run still requires startup diagnosis and scheduling correction. Installed previews are unchanged.
 The full DAW goal remains incomplete.
 
 

@@ -101,17 +101,38 @@ Its verified archive contains 7,297 original files in 2,185 unique payloads,
 52,766,434 bytes, SHA-256
 `80aebcf0cd0a7bc74e882274ebed12e70105cd3501a9cb18b5f35aa03a28276c`.
 
-## Preceding original CI remains under review
+## Preceding original CI audit
 
 [Run 38681796679](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38681796679)
 at `9a3cd5b8dba1b7287ae42138344b6e372e317c6f` predates these changes.
 Its Windows desktop job passed, but the native core job failed
 `pipewire-owned-recording`: check 2, the short one-frame finite completion.
-The original full native job log is retained. At this checkpoint the complete
-run is still active, so neither whole-run success nor completed artifact audit is
-claimed. Preserve the terminal run, complete logs and every original artifact,
-then diagnose the retained failed project before the next PR head advance.
-No unchanged rerun, cancellation or relaxed deadline is authorized by this result.
+All six jobs have now finished and the run is **failed**. Both Linux CTest
+partitions passed (100/99, 199 unique tests assigned exactly once). Shard 1 reached
+the unchanged 30-minute job limit during the later retained short-span observations
+step; eleven subsequent archive-verification steps were skipped. The remaining
+Linux checks therefore did not qualify, despite all CTest cases passing. Native
+Windows passed all 24 comp tests and 92 of 93 other core tests, plus all 28 desktop
+tests. The cross-build passed. No unchanged rerun, manual cancellation or relaxed
+deadline was used. Scheduling and the native startup failure require correction.
+
+All six original artifact ZIPs, terminal APIs, full job logs and 146 PNGs are
+retained. Original sizes, digests, ZIP CRCs and disjoint test inventories were
+verified. The [original CI review index](../tests/results/M2/2026-10-15-protected-comp-history/original-ci-index.json)
+keeps the native protected/assembly/desktop corpora, reports, full logs and
+screenshots in a verified portable archive; full original ZIPs remain local.
+
+Scoped native confirmation is now available for the preceding assembly and
+desktop work: five protected assembly pairs, 110 processes, 15 abrupt publication
+exits; twelve protected desktop cases with five adoptions and nine retired span
+children. The corrected actual-project ledger assertions pass. Legacy repeated
+UI also passes nine adoptions, three retained mixed pairs and 15 reaped children,
+with fourteen observations below 30 seconds (maximum 6,350 ms). The prior vacuous
+options-ledger result remains preserved; this new source tests the real ledger.
+Two protected native Qt images were inspected for readable applied/review controls.
+Fifteen deployment payloads and 1,734 corresponding-source files match the native
+checkout, and both media builds match the pinned dependency. These scoped outcomes
+do not qualify the failed full CI run, installed audio, or this newer history code.
 
 The [retained failure subset](../tests/results/M2/2026-10-15-protected-comp-history/preceding-native-failure.json)
 contains the complete original native job log and 13 original failed-project files,

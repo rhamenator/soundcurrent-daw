@@ -118,3 +118,11 @@ fractional/changed-clock support, with independent processing-quality evidence.
 Current installed previews remain unchanged. No audio routes, installed apps, VMs
 or equalizer repositories were changed. Full M2–M11/F/Q/C/N/X004/X005 and
 all-Europe coverage remain incomplete.
+
+## Subsequent scoped native confirmation
+
+[Checkpoint 305](305-protected-comp-history.md) retains original run 38681796679
+at this checkpoint's source. Protected assembly/desktop cases and the corrected
+actual-project ledger assertions pass natively. The whole run failed an existing
+one-frame recording test and a Linux job deadline during later archive checks;
+these scoped passes do not erase either failure or qualify installed playback.
