@@ -194,7 +194,7 @@ void TimelineView::commit(std::shared_ptr<Prepared> p) {
     epoch_ = p->epoch;
     root_ = std::move(p->root); rootCredit_ = std::move(p->rootCredit);
     waveforms_.context(session_, root_, epoch_);
-    waveformStatus_.clear();
+    waveformStatus_.clear(); setAccessibleDescription({});
     waveformsDirty_ = true;
     if (!p->reuse) {
         tracks_ = std::move(p->tracks);
@@ -379,7 +379,11 @@ void TimelineView::pollWaveforms() {
     waveforms_.update(assets);
     const auto message=waveforms_.status();
     if (waveformsDirty_ || before!=waveforms_.readyCount() || message!=waveformStatus_) viewport()->update();
-    waveformStatus_=message; waveformsDirty_=false;
+    waveformStatus_=message; setAccessibleDescription(message); waveformsDirty_=false;
+}
+void TimelineView::retryWaveforms() {
+    waveforms_.retry(); waveformsDirty_=true; waveformStatus_.clear();
+    setAccessibleDescription({}); viewport()->update();
 }
 void TimelineView::shutdownWaveforms() { waveformTimer_->stop(); waveforms_.shutdown(); }
 bool TimelineView::waveformsClosed() const { return waveforms_.closed(); }

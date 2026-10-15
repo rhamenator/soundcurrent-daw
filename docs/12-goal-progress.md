@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Full-window waveform recovery (2026-10-15)
+
+[Checkpoint 348](348-studio-waveform-recovery.md) adds explicit source-waveform
+retry and accessible status. Full-window mono/stereo/three-channel fixtures cover
+Open, edit, Undo/Redo, save/reopen, missing/restored media, retry and async close
+without activating audio. Eight Release suites pass; the rendered retry fixture
+also passes ASan/UBSan. Original CI evidence is retained. Native cache tests pass;
+the Windows exact-CRLF test-helper defect is corrected pending native confirmation.
+The instrumented crossfade run spends 28.85 seconds in font setup/coverage; its
+startup budget now reflects that observation. This does not prove the older
+timeout's cause. Native drawing/retry and installed preview gates remain next;
+full parity is incomplete and installed previews are unchanged.
+
 ## Visible source waveform timeline (2026-10-15)
 
 [Checkpoint 347](347-timeline-source-waveforms.md) connects the source cache to

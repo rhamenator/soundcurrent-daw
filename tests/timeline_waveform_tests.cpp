@@ -43,6 +43,8 @@ int main(int argc,char **argv) {
             for(int y=0;y<screenshot.height();++y)for(int x=0;x<screenshot.width();++x){const auto color=screenshot.pixelColor(x,y);peaks+=color==QColor(225,245,255);overs+=color==QColor(255,80,75);}
             check(peaks>100,"Actual timeline has no visible source peaks");check(overs>0,"Floating headroom not indicated");
             if(argc==2)check(screenshot.save(QString::fromLocal8Bit(argv[1])),"Screenshot write failed");
+            view.retryWaveforms();check(view.waveformReadyCount()==0,"Retry retained displayed source authority");
+            wait([&]{return view.waveformReadyCount()==1;});
             view.setZoom(80);view.horizontalScrollBar()->setValue(400);QTest::qWait(100);
             check(view.waveformReadyCount()==1,"Zoom lost prepared source");
             view.setSnapshot(std::make_shared<const Session>(session),2,root);

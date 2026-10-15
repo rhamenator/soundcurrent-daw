@@ -53,12 +53,12 @@
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "fe8c88d0a0d8373333b8530a9efe6891300fd30baa19c2933e1bcd868a9af2b0",
     "ui/studio_window.hpp": "3907db316be960a0a5c7eaa9b44e9b61138feb087d67a26bb4c71690e4b975d9",
-    "ui/timeline_editor.cpp": "766f842e6bb518bf14659375c0cd2dfffafcb5f59aa5707facd36e6ac33a4133",
+    "ui/timeline_editor.cpp": "88d71a4ab14873264770b454ccb249f11f3c23f9b5177284fc18563a52858b60",
     "ui/timeline_editor.hpp": "fde0dd94e440cbe14aa41e16abc9d1bf48be6d1aaa31c743a186991e6491689d",
-    "ui/timeline_view.cpp": "77326866fe4630d54801b96ebff2c52a34a5bcf8eaac4eec2edd3d98eab1bb98",
-    "ui/timeline_view.hpp": "34e93c6d660347bea6956570702ae1b5d70cf7889b3503d269189cb0d467ca6f",
-    "ui/timeline_waveforms.cpp": "5552f952f4ad929bb84ad3833de0a6b653a63167997f90c708d01d91e3897eb5",
-    "ui/timeline_waveforms.hpp": "9e0cf27af8fbd06b6da38ea4b5119a9fabbfc6c40660c071c3ddab4464bfc2ab",
+    "ui/timeline_view.cpp": "475e6dbcb797b535b798b677245f343a84c77c96dc935b75941c877d3a030852",
+    "ui/timeline_view.hpp": "8a4e606b39b0c4e159080a482b1bcd8bde6bb743b30e5702885b5dba74785d60",
+    "ui/timeline_waveforms.cpp": "137e1dfcb68d28b0430ec6b9ff4ed8431810e0b08476bfffccb373667a5b120f",
+    "ui/timeline_waveforms.hpp": "9c5e14e52474314e6c2d52e28c24cf1c1737ed36749fa4968422aff124ceb656",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
     "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
@@ -6024,6 +6024,18 @@
     ],
     [
       "TimelineEditor",
+      "Retry waveforms",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Recheck source files and retry waveform preparation without changing audio or project edits.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "Selected track name",
       "",
       false
@@ -6654,7 +6666,7 @@
     ],
     [
       "soundcurrent::daw::ui::TimelineWaveforms",
-      "Some source waveforms are unavailable; reopen to retry",
+      "Some source waveforms are unavailable; use Retry waveforms",
       "",
       false
     ],

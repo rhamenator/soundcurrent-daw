@@ -45,9 +45,11 @@ int main(int argc,char **argv) {
         // real resolved application font before opening or capturing the dialog.
         stage("font-resolve");
         const auto font=QRawFont::fromFont(app.font());
+        stage("font-created");
         check(font.isValid(),"Crossfade test has no resolved application font");
         for(char c='!';c<='~';++c)
             check(font.supportsCharacter(uint(c)),"Crossfade test font cannot render English controls");
+        stage("font-coverage-verified");
         std::cout<<"crossfade_font_family="<<font.familyName().toStdString()<<'\n';
         stage("fixture-create");
         auto session=makeOneTrackSession("Crossfade UI", "Track");

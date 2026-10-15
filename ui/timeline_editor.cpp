@@ -98,6 +98,13 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     splitter->setStretchFactor(1, 1);
     splitter->setSizes({170, 700});
     body->addWidget(splitter);
+    auto *waveformRow = new QHBoxLayout;
+    auto *retryWaveforms = new QPushButton(tr("Retry waveforms"));
+    retryWaveforms->setObjectName("retryTimelineWaveforms");
+    retryWaveforms->setToolTip(tr("Recheck source files and retry waveform preparation without changing audio or project edits."));
+    waveformRow->addWidget(retryWaveforms); waveformRow->addStretch();
+    body->addLayout(waveformRow);
+    connect(retryWaveforms, &QPushButton::clicked, view_, &TimelineView::retryWaveforms);
     auto *trackRow = new QHBoxLayout;
     name_ = new QLineEdit;
     name_->setObjectName("selectedTrackName");

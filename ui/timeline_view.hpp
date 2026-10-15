@@ -27,6 +27,7 @@ class TimelineView : public QAbstractScrollArea {
     }
     void setSnapshot(std::shared_ptr<const Session>, std::uint64_t epoch, std::filesystem::path root = {});
     void setZoom(int);
+    void retryWaveforms();
     void shutdownWaveforms();
     bool waveformsClosed() const;
     std::size_t waveformReadyCount() const { return waveforms_.readyCount(); }

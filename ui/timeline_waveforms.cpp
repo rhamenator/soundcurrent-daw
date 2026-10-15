@@ -57,7 +57,7 @@ QString TimelineWaveforms::status() const {
     if (root_.empty()) return {};
     if (refused_) return tr("Waveforms unavailable: visible source/resource limit");
     if (std::any_of(items_.begin(), items_.end(), [](const auto &i) { return i.result.phase == CachedWaveformPhase::Fault; }))
-        return tr("Some source waveforms are unavailable; reopen to retry");
+        return tr("Some source waveforms are unavailable; use Retry waveforms");
     if (std::any_of(items_.begin(), items_.end(), [](const auto &i) { return !i.result.waveform; }))
         return tr("Preparing source waveforms…");
     return items_.empty() ? QString() : tr("Source PCM · shaded edges need finer detail · >2 channels combined");
@@ -125,6 +125,12 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
         }
         p.restore(); saved = false;
     } catch (const ProjectError &) { if (saved) p.restore(); }
+}
+void TimelineWaveforms::retry() {
+    if (closing_) return;
+    items_.clear(); refused_=false;
+    try { if (cache_) cache_->invalidateSources(); }
+    catch (const std::exception &) { refused_=true; }
 }
 void TimelineWaveforms::shutdown() { closing_ = true; items_.clear(); if (cache_) cache_->requestShutdown(); }
 bool TimelineWaveforms::closed() const { return !cache_ || cache_->closed(); }

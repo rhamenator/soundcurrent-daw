@@ -12,6 +12,7 @@ class TimelineWaveforms {
     void update(const std::vector<Id> &visibleAssets);
     void draw(QPainter &, const Clip &, const QRectF &, const QRectF &viewport) const;
     QString status() const;
+    void retry();
     void shutdown();
     bool closed() const;
     std::size_t readyCount() const;

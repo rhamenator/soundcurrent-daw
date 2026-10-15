@@ -11,7 +11,10 @@
 #endif
 int main(int argc, char **argv) {
 #ifdef _WIN32
-    if (_setmode(_fileno(stdout), _O_BINARY) == -1) return 1;
+    // Test modes specify exact diagnostic bytes, including an explicit CRLF.
+    // Prevent the Windows CRT from translating that LF into a second CRLF.
+    if (_setmode(_fileno(stdout), _O_BINARY) == -1 ||
+        _setmode(_fileno(stderr), _O_BINARY) == -1) return 1;
 #endif
     std::string_view mode;
     for (int i = 1; i + 1 < argc; ++i) if (std::string_view(argv[i]) == "--maximum-bytes") mode = argv[i + 1];

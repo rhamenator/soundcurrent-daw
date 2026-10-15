@@ -106,7 +106,13 @@ int main(int argc, char **argv) {
               if (mode == 1) check(s->timedOut, "Hanging child missed deadline");
               if (mode == 2 || mode == 3) check(s->error == ErrorCode::ResourceLimit, "Flood output exceeded admitted storage");
               if (mode == 4) check(s->error == ErrorCode::InvalidState, "Truncated successful reply accepted");
-              if (mode == 5) check(s->error == ErrorCode::MissingMedia, "Exact CRLF diagnostic lost");
+              if (mode == 5) {
+                  if (s->error != ErrorCode::MissingMedia)
+                      std::cerr << "CRLF fixture error=" << (s->error ? int(*s->error) : -1)
+                                << " phase=" << int(s->phase) << " exit=" << s->childExit.value_or(-1)
+                                << " timedOut=" << s->timedOut << '\n';
+                  check(s->error == ErrorCode::MissingMedia, "Exact CRLF diagnostic lost");
+              }
               if (mode >= 6) check(s->error == ErrorCode::Io, "Foreign diagnostic exposed as trusted code");
               check(memory.usage().reservedBytes == s->selection->lease.bytes(), "Failed child credit retained"); }
             retired(memory);

@@ -4060,6 +4060,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Audio tracks</translation>
     </message>
     <message>
+      <source>Retry waveforms</source>
+      <translation>Retry waveforms</translation>
+    </message>
+    <message>
+      <source>Recheck source files and retry waveform preparation without changing audio or project edits.</source>
+      <translation>Recheck source files and retry waveform preparation without changing audio or project edits.</translation>
+    </message>
+    <message>
       <source>Selected track name</source>
       <translation>Selected track name</translation>
     </message>
@@ -4486,8 +4494,8 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Waveforms unavailable: visible source/resource limit</translation>
     </message>
     <message>
-      <source>Some source waveforms are unavailable; reopen to retry</source>
-      <translation>Some source waveforms are unavailable; reopen to retry</translation>
+      <source>Some source waveforms are unavailable; use Retry waveforms</source>
+      <translation>Some source waveforms are unavailable; use Retry waveforms</translation>
     </message>
     <message>
       <source>Preparing source waveforms…</source>

@@ -4043,6 +4043,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Retry waveforms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recheck source files and retry waveform preparation without changing audio or project edits.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Selected track name</source>
       <translation type="unfinished" />
     </message>
@@ -4469,7 +4477,7 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Some source waveforms are unavailable; reopen to retry</source>
+      <source>Some source waveforms are unavailable; use Retry waveforms</source>
       <translation type="unfinished" />
     </message>
     <message>
