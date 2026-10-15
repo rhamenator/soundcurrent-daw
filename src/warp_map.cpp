@@ -51,7 +51,16 @@ SourcePosition evaluate(std::span<const ClipWarpPoint> points, SourcePosition po
 }
 }
 ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> markers,
-                 ResourceLedger ledger, ClipWarpLimits limits) : region_(region) {
+                 ResourceLedger ledger, ClipWarpLimits limits)
+    : ClipWarpMap(ExactClipWarpRegion{region.rawOrigin,region.physicalRate,region.availableSourceFrames,
+          {region.inputFrames,0,1},{region.outputFrames,0,1},region.visibleSourceBegin,region.visibleSourceEnd},
+          region,markers,ledger,limits) {}
+ClipWarpMap::ClipWarpMap(ExactClipWarpRegion region, std::span<const WarpAnchor> markers,
+                 ResourceLedger ledger, ClipWarpLimits limits)
+    : ClipWarpMap(region,std::nullopt,markers,ledger,limits) {}
+ClipWarpMap::ClipWarpMap(ExactClipWarpRegion region, std::optional<ClipWarpRegion> legacy,
+                 std::span<const WarpAnchor> markers, ResourceLedger ledger, ClipWarpLimits limits)
+    : region_(region),legacyRegion_(legacy) {
     require(markers.size() <= limits.maximumMarkers, "Warp marker count exceeds admission");
     constexpr auto unit = sizeof(ClipWarpPoint) + 36 + sizeof(const ClipWarpPoint *);
     require(markers.size() <= (SIZE_MAX - 1024) / unit - 2, "Warp payload arithmetic overflow");
@@ -60,30 +69,41 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
         throw ResourceLimitError("Experimental warp map", charge, limits.maximumPayloadBytes);
     lease_ = ledger.reserve(charge);
     region_.rawOrigin = canonical(region_.rawOrigin);
+    region_.inputExtent = canonical(region_.inputExtent);
+    region_.outputExtent = canonical(region_.outputExtent);
     region_.visibleSourceBegin = canonical(region_.visibleSourceBegin);
     region_.visibleSourceEnd = canonical(region_.visibleSourceEnd);
     require(region_.physicalRate >= 8000 && region_.physicalRate <= 384000 &&
-            region_.availableSourceFrames > 0 && region_.inputFrames > 0 && region_.outputFrames > 0,
+            region_.availableSourceFrames > 0 && sourcePositionLess({},region_.inputExtent) && sourcePositionLess({},region_.outputExtent),
             "Invalid warp region/rate/duration");
-    // Count is a prepared source grid. A fractional final sample may precede
-    // the asset endpoint although the exclusive grid extent passes it.
-    require(sourcePositionLess(addSourcePosition(region_.rawOrigin, {region_.inputFrames-1,0,1}),
-                               {region_.availableSourceFrames,0,1}), "Warp processing grid exceeds source asset");
+    if (legacyRegion_) {
+        // Preserve original sample-grid admission, including a fractional last
+        // sample whose exclusive grid endpoint extends past the asset.
+        require(sourcePositionLess(addSourcePosition(region_.rawOrigin, {legacyRegion_->inputFrames-1,0,1}),
+                                   {region_.availableSourceFrames,0,1}), "Warp processing grid exceeds source asset");
+        legacyRegion_->rawOrigin=region_.rawOrigin;
+        legacyRegion_->visibleSourceBegin=region_.visibleSourceBegin;
+        legacyRegion_->visibleSourceEnd=region_.visibleSourceEnd;
+    } else {
+        require(!sourcePositionLess({region_.availableSourceFrames,0,1},
+                                    addSourcePosition(region_.rawOrigin,region_.inputExtent)),
+                "Exact warp extent exceeds source asset");
+    }
     require(sourcePositionLess(region_.visibleSourceBegin, region_.visibleSourceEnd) &&
-            !sourcePositionLess({region_.inputFrames,0,1}, region_.visibleSourceEnd),
+            !sourcePositionLess(region_.inputExtent, region_.visibleSourceEnd),
             "Warp visible source interval exceeds processing region");
     points_.reserve(markers.size() + 2);
     points_.push_back({{}, {0,0,1}, {0,0,1}});
     for (const auto &marker : markers) {
         const auto source = canonical(marker.source), output = canonical(marker.output);
-        require(sourcePositionLess({0,0,1}, source) && sourcePositionLess(source, {region_.inputFrames,0,1}) &&
-                sourcePositionLess({0,0,1}, output) && sourcePositionLess(output, {region_.outputFrames,0,1}),
+        require(sourcePositionLess({0,0,1}, source) && sourcePositionLess(source, region_.inputExtent) &&
+                sourcePositionLess({0,0,1}, output) && sourcePositionLess(output, region_.outputExtent),
                 "Warp markers must be strictly inside both domains");
         require(sourcePositionLess(addSourcePosition(region_.rawOrigin, source), {region_.availableSourceFrames,0,1}),
                 "Warp marker has no physical source position");
         points_.push_back({marker.id, source, output});
     }
-    points_.push_back({{}, {region_.inputFrames,0,1}, {region_.outputFrames,0,1}});
+    points_.push_back({{}, region_.inputExtent, region_.outputExtent});
     std::sort(points_.begin(), points_.end(), [](const auto &a, const auto &b) {
         return sourcePositionLess(a.source, b.source);
     });
@@ -102,16 +122,21 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
                         subtract(points_[i].source, points_[i-1].source));
     }
 }
+const ClipWarpRegion &ClipWarpMap::region() const {
+    require(legacyRegion_.has_value(),"Exact warp extents require an exact-domain adapter");
+    return *legacyRegion_;
+}
 SourcePosition ClipWarpMap::sourceToOutput(SourcePosition p) const { return evaluate(points_, p, false); }
 SourcePosition ClipWarpMap::outputToSource(SourcePosition p) const { return evaluate(points_, p, true); }
 SourcePosition ClipWarpMap::rawAt(SourcePosition p) const {
     p = canonical(p);
-    require(!sourcePositionLess({region_.inputFrames,0,1}, p), "Raw warp lookup exceeds processing region");
+    require(!sourcePositionLess(region_.inputExtent, p), "Raw warp lookup exceeds processing region");
     return addSourcePosition(region_.rawOrigin, p);
 }
 SourcePosition ClipWarpMap::visibleOutputBegin() const { return sourceToOutput(region_.visibleSourceBegin); }
 SourcePosition ClipWarpMap::visibleOutputEnd() const { return sourceToOutput(region_.visibleSourceEnd); }
 std::map<std::size_t,std::size_t> ClipWarpMap::vendorInteriorFrames() const {
+    (void)region(); // Never implicitly adapt exact outer boundaries to a vendor sample grid.
     std::map<std::size_t,std::size_t> result;
     for (const auto &point : points_) if (point.id) {
         require(!point.source.fraction && !point.output.fraction,

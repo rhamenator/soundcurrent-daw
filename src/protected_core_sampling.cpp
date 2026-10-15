@@ -19,10 +19,10 @@ Frame firstAtOrAfter(const SourceFrameMap &clock,Frame count,SourcePosition boun
 PreparedProtectedCoreSampling::PreparedProtectedCoreSampling(const ProtectedWarpPlan &plan,
     SourceFrameMap clock,Frame count,std::uint32_t channels,ResourceLedger ledger,
     const std::function<void()> &poll,ClipWarpLimits limits)
-    :kernel_(clock,channels),sourceFrames_(plan.map().region().availableSourceFrames),channels_(channels){
+    :kernel_(clock,channels),sourceFrames_(plan.map().exactRegion().availableSourceFrames),channels_(channels){
     require(bool(poll),"Missing protected sampling cancellation poll");poll();
     require(count>0 && count<=1000000000,"Protected sampling output extent exceeds admission");
-    require(sourcePositionLess(clock.at(count-1),{plan.map().region().outputFrames,0,1}),
+    require(sourcePositionLess(clock.at(count-1),plan.map().exactRegion().outputExtent),
             "Protected sampling clock exceeds original geometry");
     require(plan.spans().size()<=limits.maximumMarkers,"Protected sampling span count exceeds admission");
     PayloadCharge charge("Protected core sampling plan",limits.maximumPayloadBytes);

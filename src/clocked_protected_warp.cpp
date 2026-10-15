@@ -18,10 +18,10 @@ SourceFrameMap sampleMap(SourcePosition origin,const SourceFrameMap &clock,Frame
 PreparedClockedProtectedWarp::PreparedClockedProtectedWarp(const ProtectedWarpPlan &plan,
     SourceFrameMap clock,Frame count,std::uint32_t channels,ResourceLedger ledger,
     const std::function<void()> &poll,ClipWarpLimits limits)
-    :clock_(clock),outputFrames_(count),sourceFrames_(plan.map().region().availableSourceFrames),channels_(channels),rate_(plan.map().region().physicalRate){
+    :clock_(clock),outputFrames_(count),sourceFrames_(plan.map().exactRegion().availableSourceFrames),channels_(channels),rate_(plan.map().exactRegion().physicalRate){
     require(bool(poll),"Missing clocked preparation poll");poll();
     require(count>0 && count<=1000000000 && channels>0 && channels<=256 && rate_<=192000,"Invalid clocked protected format");
-    const auto &region=plan.map().region();const SourcePosition end{region.outputFrames,0,1};
+    const auto &region=plan.map().exactRegion();const SourcePosition end=region.outputExtent;
     require(sourcePositionLess(clock.at(count-1),end),"Clocked protected output exceeds original geometry");
     require(plan.policy().halo>0 && plan.policy().halo<=1024 && plan.gaps().size()<=limits.maximumMarkers && limits.maximumMarkers<=65536,"Invalid clocked protected bounds");
     PayloadCharge charge("Clocked protected partition",limits.maximumPayloadBytes);charge.add(sizeof(*this)+4096);charge.add(plan.gaps().size()*2+1,sizeof(ClockedProtectedPiece));
@@ -44,7 +44,7 @@ PreparedClockedProtectedWarp::PreparedClockedProtectedWarp(const ProtectedWarpPl
         poll();const auto sourceSpan=subtractSourcePosition(gap.sourceEnd,gap.sourceBegin),outputSpan=subtractSourcePosition(gap.outputEnd,gap.outputBegin);
         if(sourceSpan==outputSpan)continue;
         require(!sourcePositionLess(sourceSpan,{2048,0,1}) && !sourcePositionLess(outputSpan,{2048,0,1}),"Nonunity clocked gap lacks minimum acoustic span");
-        const bool before=gap.sourceBegin!=SourcePosition{},after=gap.sourceEnd!=SourcePosition{region.inputFrames,0,1};
+        const bool before=gap.sourceBegin!=SourcePosition{},after=gap.sourceEnd!=region.inputExtent;
         const auto begin=before?subtractSourcePosition(gap.outputBegin,halo):gap.outputBegin;
         const auto finish=after?addSourcePosition(gap.outputEnd,halo):gap.outputEnd;
         direct(begin);const auto first=firstAt(clock,count,begin,poll),last=firstAt(clock,count,finish,poll);
