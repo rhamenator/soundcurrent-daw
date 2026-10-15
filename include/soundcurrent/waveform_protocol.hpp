@@ -8,6 +8,7 @@ struct WaveformTicket {
     std::uint64_t projectEpoch = 0, generation = 0;
     WaveformIdentity source;
     std::uint64_t baseFramesPerBin = 256;
+    bool operator==(const WaveformTicket &) const = default;
 };
 inline constexpr std::size_t waveformReplyHeaderBytes = 156;
 // Owns exactly one admitted byte allocation. Caller must also charge its receive

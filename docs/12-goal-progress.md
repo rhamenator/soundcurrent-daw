@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Waveform control-thread supervision (2026-10-15)
+
+[Checkpoint 344](344-waveform-controller.md) adds single-operation child supervision,
+admission-based deadlines, exact reply banks, process retirement and full-selection
+stale-result rejection. Release and ASan/UBSan pass 106 actual-controller checks
+and four existing source/protocol/worker suites. Borrowed results require a current
+selection match at use. The timeline/cache is not integrated yet and Windows
+controller qualification is pending. Separately, the preceding native Windows
+comp job passes the strengthened checkpoint 343 workflow; its original log is
+retained. Next implement viewport cache/scheduling and channel-aware drawing.
+Installed previews are unchanged; the full goal remains incomplete.
+
 ## Comp review invalidation at Open/Create admission (2026-10-15)
 
 [Checkpoint 343](343-comp-review-invalidation.md) reproduces a stale enabled Apply
