@@ -83,11 +83,17 @@ installed delivery remains pending.
 [Repeated protected-history rendering](docs/305-protected-comp-history.md) now
 regenerates from original raw anchors with versioned history bindings. One Debug
 and five Release suites pass; all 24 new audio hashes match across builds.
-Repeated protected desktop interaction and native Windows runtime remain pending.
+The [repeated protected desktop workflow](docs/307-protected-repeated-desktop.md)
+now passes nine adoptions and failure/close checks in Debug/Release, with exact
+Linux engine/export comparisons. Native engine history tests pass; measured
+44.1 kHz numerical differences remain documented. New native desktop qualification
+and installed delivery remain pending.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) now handles
 readiness published after a caller's clock sample. Seven Debug and seven Release
 suites pass. CI scheduling now uses measured weights across three Linux jobs;
-new native Windows and scheduling confirmation remain pending.
+the preceding original CI now passes all 200 Linux, 118 native core and 28 native
+desktop suites. The new desktop bank has separate native CI under the same required
+status, with all existing deadlines retained.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.

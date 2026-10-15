@@ -1,5 +1,23 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated protected desktop editing (2026-10-15)
+
+[Checkpoint 307](307-protected-repeated-desktop.md) exercises three successive
+edits at 44.1/48/96 kHz through actual timeline Save/render, Review/Apply,
+Undo/Redo/save/reopen and live/export. Four Release and two Debug suites pass;
+all nine exports match the Linux engine path, and nine legacy exports are unchanged.
+Actual project credits, children, cancellation, stale work and ancestry/close
+refusals are checked. A stale prior Apply status was found and fixed; localization
+extraction/checks pass. The preceding original CI passes all seven jobs, including
+200 Linux, 118 native core and 28 desktop tests, with full originals retained.
+Six native history exports match Linux exactly; three 44.1 kHz exports have small
+measured sample differences already present in the nominal render. Their exact
+arithmetic cause and quality admission remain open. New native repeated-desktop CI
+is separated from the original desktop bank under the same required status;
+measured Linux scheduling retains every check and deadline. Installed previews,
+full parity and processing-quality qualification remain incomplete.
+
+
 ## Concurrent startup readiness (2026-10-15)
 
 [Checkpoint 306](306-startup-snapshot-admission.md) reproduces a caller-clock
