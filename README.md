@@ -22,7 +22,10 @@ is available locally as **SoundCurrent DAW Preview** in Applications, with a
 **previous** entry for rollback. Its Release DEB and matching GPL source are
 prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
 recording/playback and packaged save/reopen/export have scoped evidence.
-Updated Windows installer and sustained hardware qualification remain required.
+New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
+are now prepared locally with matching source. Native helper checks and actual
+packaged/deployed startup pass; updated installation and sustained hardware
+qualification remain required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
@@ -116,7 +119,9 @@ delivery remains required. A new
 and [isolated worker](docs/317-uniform-context-worker.md) pass short-edit checks
 on Linux and native Windows CI. [Paired selection and desktop integration](docs/318-original-context-pairs.md)
 now pass repeated short-edit render/review/Apply workflows in Release and Debug.
-Native qualification of this source and updated installed previews remain pending.
+This source now passes native Windows CI and focused native Linux package gates.
+[Matching local Linux/Windows packages](docs/319-linux-windows-comp-previews.md)
+are prepared; updated installed-workflow qualification remains pending.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and

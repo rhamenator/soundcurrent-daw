@@ -1,13 +1,23 @@
-# Linux preview candidates
+# Preview candidates
+
+## Latest prepared Linux and Windows candidates (2026-10-15)
+
+[Checkpoint 319](319-linux-windows-comp-previews.md) supplies local Ubuntu 26.04
+amd64 and unsigned Windows x64 candidates at source `2580164`, sequence
+`20261015124133`. The 7.1 MB DEB and 30.5 MB Windows installer have matching
+source/checksums. Native Linux package checks, private PipeWire tests, native
+Windows helper/startup checks and all 12 original CI jobs pass. Clean-install
+and updated installed-workflow acceptance remain separate; neither candidate
+has replaced the current installed preview or been uploaded as a binary release.
 
 ## Current local Ubuntu preview (2026-10-13)
 
 **SoundCurrent DAW Preview** is installed in this workstation's Applications menu.
-Version `0.1.0~preview.20261013064632.5a2046905c77` is a Release build with the
-[recording recovery controls and current-source workflow evidence](250-recovery-preview-delivery.md).
+Version `0.1.0~preview.20261013210831.1a3b2022cffa` is a Release build with the
+[retained-take and comp-audition workflow evidence](259-comp-audition-preview.md).
 It has a dedicated per-user version directory; no system-wide package was installed.
-Its 4,262,266-byte DEB and exact GPL source archive are local under
-`.cache/p250-package-20261013064632/`. Windows installer refresh remains separate.
+Its DEB and exact GPL source archive are local under
+`.cache/p259-package-20261013210831/`. The newer candidates above remain uninstalled.
 This is a usable preview, with full DAW parity and hardware qualification unfinished.
 
 ## Earlier candidates and original qualification scopes

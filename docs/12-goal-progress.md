@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Linux and Windows comp preview candidates (2026-10-15)
+
+[Checkpoint 319](319-linux-windows-comp-previews.md) prepares both packages from
+exact source `2580164`. All 25 focused native Linux tests and private PipeWire
+recording/playback checks pass; the packaged main saves, quits and reopens an
+owned Unicode project. Original CI passes all 12 jobs, with all logs/ZIPs/PNGs
+retained and detailed native PCM/source audits complete. The exact Windows
+deployment passes native helper checks and normal main-window startup/close in
+the independent development clone. Both complete corresponding-source archives
+are verified. No binary release was uploaded or installed preview replaced.
+Next is SDK-free Windows installer and installed editing-workflow acceptance,
+followed by the Linux launcher update. Full DAW and quality parity remain open.
+
 ## Original-context paired and desktop edits (2026-10-15)
 
 [Checkpoint 318](318-original-context-pairs.md) connects the original-context
