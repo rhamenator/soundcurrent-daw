@@ -18,6 +18,7 @@
 #include <QThread>
 #include <QTimer>
 #include <nlohmann/json.hpp>
+#include <algorithm>
 #include <atomic>
 #include <fstream>
 #include <iostream>
@@ -36,16 +37,17 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
     check(argc==1,"Expected fixture input");Json input;std::cin>>input;
     const auto source=utf8Path(input.at("root").get<std::string>()),scope=utf8Path(input.at("evidence").get<std::string>());
     if(input.value("repeated",false)){std::cout<<repeatedUiWorkflow(source,scope).dump()<<'\n';return 0;}
-    const auto baseline=ProjectStore(source).load();const bool expanded=baseline.assets[0].sampleRate==48000;
+    const auto baseline=ProjectStore(source).load();const bool protectedMode=input.value("protected",false);
+    const bool expanded=baseline.assets[0].sampleRate==48000 && (!protectedMode || input.value("pairKind",std::string())=="protected");
     std::filesystem::create_directories(scope);Json cases=Json::array();
     QTimer dismiss;QObject::connect(&dismiss,&QTimer::timeout,[]{for(auto *w:QApplication::topLevelWidgets())
         if(auto *box=qobject_cast<QMessageBox *>(w);box && box->isVisible())if(auto *b=box->button(QMessageBox::Discard))b->click();});dismiss.start(2);
-    for(unsigned mode=0;mode<(expanded?6U:1U);++mode){
+    for(unsigned mode=0;mode<(expanded?(protectedMode?8U:6U):1U);++mode){
         const auto root=scope/("case-"+std::to_string(mode))/utf8Path("project-é-日本");
         std::filesystem::create_directories(root.parent_path());std::filesystem::copy(source,root,std::filesystem::copy_options::recursive);
         std::atomic<bool> entered=false,release=false;
         CompAssemblyControllerOptions options;
-        if(mode>=1 && mode<=3)options.afterPreparation=[&]{entered=true;while(!release)QThread::msleep(1);};
+        if((mode>=1 && mode<=3) || mode==7)options.afterPreparation=[&]{entered=true;while(!release)QThread::msleep(1);};
         if(mode==4)options.spanProgram=qtPath(root/"missing-helper");
         ControllerOptions ownerOptions;
         if(mode==5)ownerOptions.beforeSavePublish=[]{throw ProjectError(ErrorCode::Io,"Injected save failure");};
@@ -54,7 +56,11 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.displayedRevision()==window.snapshot()->modelRevision;});
         const auto opened=window.snapshot();const auto original=*opened->session;
         const auto &track=original.tracks[0];const auto cut=track.clips[1].startFrame;
-        PrepareCompTransition transition{track.id,track.clips[0].id,track.clips[1].id,cut-26,cut+26,ClipFadeCurve::EqualPower};
+        const Frame before=protectedMode?3008:26;
+        const Frame after=protectedMode?(track.clips[0].stretch->warp->markers.size()==1?4544:1472):26;
+        const auto needed=std::count_if(track.clips.begin(),track.clips.end(),[](const auto &c){return bool(c.stretch);});
+        PrepareCompTransition transition{track.id,track.clips[0].id,track.clips[1].id,cut-before,cut+after,ClipFadeCurve::EqualPower};
+        if(mode==6)++transition.endFrame;
         Json row{{"case",mode}};
         if(mode==0){
             // Drive the real modal timeline dialog; no synthetic prepared token.
@@ -68,8 +74,8 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
                 auto *peer=widget<QComboBox>(*dialog,"crossfadeIncoming");peer->setCurrentIndex(peer->findData(QString::fromStdString(track.clips[1].id.str())));
                 auto *handles=widget<QCheckBox>(*dialog,"crossfadeUseTakeHandles");handles->setChecked(true);
                 auto *render=widget<QCheckBox>(*dialog,"crossfadeRenderHandles");check(render->isEnabled(),"Processed handles option disabled");render->setChecked(true);
-                widget<QLineEdit>(*dialog,"crossfadeStart")->setText(QString::number(cut-26));
-                widget<QLineEdit>(*dialog,"crossfadeEnd")->setText(QString::number(cut+26));
+                widget<QLineEdit>(*dialog,"crossfadeStart")->setText(QString::number(transition.startFrame));
+                widget<QLineEdit>(*dialog,"crossfadeEnd")->setText(QString::number(transition.endFrame));
                 auto *curve=widget<QComboBox>(*dialog,"crossfadeCurve");curve->setCurrentIndex(curve->findData(int(ClipFadeCurve::EqualPower)));
                 auto *buttons=dialog->findChild<QDialogButtonBox *>();check(buttons && buttons->button(QDialogButtonBox::Ok)->text()=="Save and render","Explicit save consent missing");
                 QApplication::processEvents();
@@ -88,14 +94,21 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         }else check(window.requestCompTransition(transition,8),"Preparation request refused");
         check(!window.requestCompTransition(transition,8),"Duplicate render admitted");
         auto expected=original;
-        if(mode>=1 && mode<=3){
+        if((mode>=1 && mode<=3) || mode==7){
             wait([&]{return entered.load();});int ticks=0;QTimer timer;timer.setInterval(5);QObject::connect(&timer,&QTimer::timeout,&window,[&]{++ticks;});timer.start();QTest::qWait(35);check(ticks>0,"Preparation blocks GUI");row["guiTicks"]=ticks;
             if(mode==1)widget<QPushButton>(window,"cancelCompRender")->click();
             if(mode==2){window.openProject(root);wait([&]{return window.snapshot()->projectEpoch!=opened->projectEpoch && window.snapshot()->io==IoOperation::None;});}
             if(mode==3){auto processing=track.clips[0].processing;processing.gainDb=1;
                 ProjectCommand command{CommandKind::Structural};command.edits={SetClipProcessing{track.id,track.clips[0].id,processing}};
                 applySessionEdits(expected,command.edits);check(window.submitEdit(std::move(command)),"Source edit refused");wait([&]{return *window.snapshot()->session==expected;});}
+            if(mode==7)window.close();
             release=true;
+        }
+        if(mode==7){
+            wait([&]{return window.compPairSnapshot()->closed && window.compAssemblySnapshot()->closed && window.snapshot()->closed;});
+            check(ProjectStore(root).load()==original,"Close during preparation published model changes");
+            check(!window.compPairSnapshot()->children[0].pid && !window.compPairSnapshot()->children[1].pid,"Close during preparation launched child");
+            row["closeDuringPreparation"]=true;row["noChildLaunch"]=true;cases.push_back(std::move(row));continue;
         }
         wait([&]{const auto phase=window.compRenderStage();return phase==CompRenderStage::Complete || phase==CompRenderStage::Fault || phase==CompRenderStage::Canceled;});
         wait([&]{return !window.compAssemblySnapshot()->busy && !window.compPairSnapshot()->busy;});
@@ -107,16 +120,26 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             check(registered.compAssemblies.size()==original.compAssemblies.size()+1 && registered.compPairSelections.size()==original.compPairSelections.size()+1,"New references not atomically registered");
             check(ProjectStore(root).load()==registered && !window.snapshot()->dirty,"References not saved before render");
             const auto pair=window.compPairSnapshot();Json processes=Json::array();
-            for(const auto &p:pair->children){check(p.pid && p.ready && p.reaped && p.exitCode==0 && !p.abnormal,"New span child not retired successfully");
+            for(const auto &p:pair->children){if(!p.pid){check(needed==1,"Needed span child missing");continue;}check(p.pid && p.ready && p.reaped && p.exitCode==0 && !p.abnormal,"New span child not retired successfully");
                 processes.push_back({{"pid",p.pid},{"exitCode",*p.exitCode},{"reaped",p.reaped},{"stdout",p.log?p.log->output:""},{"stderr",p.log?p.log->errors:""}});}
+            check(processes.size()==std::size_t(needed),"Wrong number of new span children");
+            check(pair->selection && pair->selection->spanPolicy()==(protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Original semantic policy not preserved");
+            Json protocols=Json::array();
+            for(unsigned side=0;side<2;++side){const auto &child=pair->selection->children()[side];
+                if(!child){check(!track.clips[side].stretch,"Processed side lost child");protocols.push_back(nullptr);continue;}
+                check(child->isProtected()==bool(track.clips[side].stretch->warp),"Original semantic protection changed");protocols.push_back(std::string(child->protocol()));}
+            row["spanProtocols"]=protocols;row["pairFormat"]=Json::parse(pair->selection->manifest()).at("format");
             const auto operation=*window.compAssemblySnapshot()->operation;
             check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Old fixture job reused");
             auto *reviewNew=widget<QPushButton>(window,"reviewCreatedComp");wait([&]{return reviewNew->isEnabled();});
             check(widget<QDialog>(window,"compRenderProgress")->grab().save(qtPath(root.parent_path()/"rendered.png")),"Result screenshot failed");reviewNew->click();
             auto *list=widget<QListWidget>(window,"compAssemblyList");check(list->currentItem() && list->currentItem()->data(Qt::UserRole).toString()==QString::fromStdString(operation.str()),"New request not selected for review");
-            auto *apply=widget<QPushButton>(window,"applyCompAssembly");wait([&]{return apply->isEnabled();});apply->click();
-            wait([&]{return window.snapshot()->session->compPlaybackSources.size()==original.compPlaybackSources.size()+2 && window.compAssemblySnapshot()->phase==CompAssemblyPhase::Idle;});
+            auto *apply=widget<QPushButton>(window,"applyCompAssembly");wait([&]{return apply->isEnabled();});
+            check(widget<QDialog>(window,"compAssemblyDialog")->grab().save(qtPath(root.parent_path()/"review.png")),"Review screenshot failed");apply->click();
+            wait([&]{return window.snapshot()->session->compPlaybackSources.size()==original.compPlaybackSources.size()+std::size_t(needed) && window.compAssemblySnapshot()->phase==CompAssemblyPhase::Idle;});
             const auto adopted=*window.snapshot()->session;
+            wait([&]{return window.displayedRevision()==window.snapshot()->modelRevision;});
+            check(window.grab().save(qtPath(root.parent_path()/"applied.png")),"Applied screenshot failed");
             check(window.submitEdit({CommandKind::Undo}),"Undo refused");wait([&]{return *window.snapshot()->session==registered;});
             check(window.submitEdit({CommandKind::Redo}),"Redo refused");wait([&]{return *window.snapshot()->session==adopted;});save(window);
             widget<QDialog>(window,"compAssemblyDialog")->close();window.openProject(root);wait([&]{return window.snapshot()->projectEpoch!=opened->projectEpoch && window.snapshot()->io==IoOperation::None;});check(*window.snapshot()->session==adopted,"Saved transition changed on reopen");
@@ -130,6 +153,11 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
                 check(current.tracks==original.tracks && current.compAssemblies.size()==original.compAssemblies.size()+1 && current.compPairSelections.size()==original.compPairSelections.size()+1,"Save failure changed audio or partial reference registration");
                 check(ProjectStore(root).load()==original,"Failed save published project");row["saveFailureRetainsAtomicRefsWithoutAudio"]=true;
             }else check(*window.snapshot()->session==expected,"Failed/canceled/stale preparation changed canonical state");
+            if(mode==6){
+                for(const auto *folder:{"comp-pairs","comp-recipes","comp-assembly-requests","comp-assemblies"})
+                    check(!std::filesystem::exists(root/"media"/folder),"Unsupported geometry published sidecars");
+                row["fractionalGeometryRefusedBeforeSidecars"]=true;
+            }
             row["noChildLaunch"]=true;
         }
         window.close();wait([&]{return !window.isVisible();});check(window.compPairSnapshot()->closed && window.compAssemblySnapshot()->closed && window.snapshot()->closed,"Close did not retire all workers");row["asynchronousClose"]=true;cases.push_back(std::move(row));

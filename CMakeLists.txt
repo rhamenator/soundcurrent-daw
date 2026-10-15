@@ -1002,6 +1002,12 @@ if(SC_BUILD_DESKTOP)
         $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-transition-ui-tests>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-transition-ui-evidence)
       set_tests_properties(desktop-comp-transition-create PROPERTIES TIMEOUT 240 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+      add_dependencies(sc-comp-transition-ui-tests sc-comp-protected-worker-fixture)
+      add_test(NAME desktop-comp-protected-transition COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_protected_ui_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-protected-worker-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-transition-ui-tests>
+        --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-protected-ui-evidence)
+      set_tests_properties(desktop-comp-protected-transition PROPERTIES TIMEOUT 600 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
       add_test(NAME desktop-comp-repeated-transition COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_repeat_ui_tests.py
         $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
         $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests> $<TARGET_FILE:sc-comp-transition-ui-tests>

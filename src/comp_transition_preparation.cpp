@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_transition_preparation.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 namespace soundcurrent::daw {
 PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &root,
     const Session &s,const CompHandlePlanContext &context,const PrepareCompTransition &transition,
@@ -14,8 +15,16 @@ PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &r
     const auto image=compAssemblyExecutableSha256();poll();
     const CompRecipeExecutor executor{"soundcurrent.comp-join-quintic-v1",image};
     auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),executor,ledger,{},stop);
+    auto pairPolicy=CompPairSpanPolicy::UniformOnly;
+    for(const auto *fragment:{&recipe.plan().handles().outgoing(),&recipe.plan().handles().incoming()}){
+        const auto &data=fragment->data();
+        const auto &original=data.regeneration?data.regeneration->data().originalNominalClip:data.expected;
+        // Use the original semantic protection. Unsupported timing/history must
+        // fail in the protected adapter before any sidecars are published.
+        if(original.stretch && original.stretch->warp)pairPolicy=CompPairSpanPolicy::ProtectedOriginal;
+    }
     auto selection=std::make_shared<const CompPairSelection>(prepareCompPairSelection(std::move(recipe),executor,
-        std::move(worker),{Id::generate(),Id::generate()},spanPolicy,ledger));
+        std::move(worker),{Id::generate(),Id::generate()},spanPolicy,ledger,pairPolicy));
     const auto pairRef=referenceCompPairSelection(s,context,*selection);
     auto proposed=s;applySessionEdits(proposed,{AddCompPairSelection{pairRef}});poll();
     std::array<std::optional<Id>,2> outputs;
