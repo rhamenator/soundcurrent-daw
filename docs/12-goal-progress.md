@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native Windows scan measurement and original CI failure (2026-10-15)
+
+[Checkpoint 327](327-windows-comp-scan-observation.md) verifies the scan change
+with native MSVC binaries: six successful comparisons of the same 16,256 samples,
+225 unchanged project files, and a locally observed 29% lower median diagnostic
+time. Background maintenance and a retained initial build timeout limit the
+performance claim. All VMs are off. Original CI at `2fdeaf9` failed in the Windows
+parent-interruption test; full evidence is retained and investigation is next.
+Installed packages remain unchanged. Full goal incomplete.
+
 ## Comp source scan batching (2026-10-15)
 
 [Checkpoint 326](326-comp-source-scan-batching.md) measures retained-history

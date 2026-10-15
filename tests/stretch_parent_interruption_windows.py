@@ -11,8 +11,10 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
+import uuid
 from parent_observation_timing import ObservationTimeline
 
 K = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -397,9 +399,10 @@ def main():
     if observation_root:
         observation_root.mkdir(parents=True, exist_ok=False)
     checked(SetPriority(CurrentProcess(), 0x4000))
-    root = args.retain or Path(tempfile.mkdtemp(prefix="sc-parent-interruption-"))
-    if args.retain:
-        root.mkdir(parents=True, exist_ok=False)
+    # Match the bounded CI collector's owned parent/UUID policy. Explicit user
+    # destinations remain outside automatic collection.
+    root = args.retain or Path(tempfile.gettempdir()) / "sc-parent-interruption-" / str(uuid.uuid4())
+    root.mkdir(parents=True, exist_ok=False)
     try:
         report = {"utc": datetime.now(timezone.utc).isoformat(), "platform": "Windows",
                   "qualification": "production-controller-subprocess",
@@ -425,6 +428,12 @@ def main():
                     if original.is_file():
                         shutil.copyfile(original, observation_root / (stage + "-" + name))
         print(f"Failed fixtures retained at {root}")
+        if not args.retain:
+            # CTest logs can mix Windows code pages; the collector decodes only
+            # this ASCII-prefixed marker as strict UTF-8.
+            sys.stdout.flush()
+            sys.stdout.buffer.write((f"Retained parent interruption fixture {root}\n").encode("utf-8"))
+            sys.stdout.buffer.flush()
         raise
     else:
         if observation_root:

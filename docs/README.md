@@ -249,3 +249,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Installed Windows editing with Linux render history](325-installed-windows-portable-comp.md)
 - [Bounded comp source scans](326-comp-source-scan-batching.md)
+- [Native Windows comp scan observation](327-windows-comp-scan-observation.md)

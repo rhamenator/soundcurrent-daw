@@ -487,6 +487,8 @@ jobs:
             build-desktop-native/controller-failure-projects/**
             build-desktop-native/parent-observation-timing/*.json
             native-ui-dependencies/verified-runtime.json
+          # Bounded owned failure snapshots include original dotfiles/locks.
+          include-hidden-files: true
           if-no-files-found: ignore
   windows-desktop-import-tests:
     name: Windows desktop import and localization tests
