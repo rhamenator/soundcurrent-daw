@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Linux portable comp workflow (2026-10-15)
+
+[Checkpoint 323](323-installed-portable-comp.md) installs `61bcaa3` while preserving
+the preceding preview. Actual Applications launches pass speed edits, Render,
+Review/Apply, exact Undo/Redo, save/reopen/export and normal Quit. The entire
+18,032-frame stereo export matches an independent reference exactly; original
+media/history remain unchanged. All 25 selected package tests pass. A destination
+accessibility-label correction is tested in source and remains newer than the
+installed package. Windows portability refresh is next. Full goal incomplete.
+
 ## Portable render-history correction (2026-10-15)
 
 [Checkpoint 322](322-portable-render-history.md) found that the installed Linux

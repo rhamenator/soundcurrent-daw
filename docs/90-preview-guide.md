@@ -1,34 +1,26 @@
 # Preview candidates
 
-## Latest prepared Linux and Windows candidates (2026-10-15)
-
-[Checkpoint 319](319-linux-windows-comp-previews.md) supplies local Ubuntu 26.04
-amd64 and unsigned Windows x64 candidates at source `2580164`, sequence
-`20261015124133`. The 7.1 MB DEB and 30.5 MB Windows installer have matching
-source/checksums. Native Linux package checks, private PipeWire tests, native
-Windows helper/startup checks and all 12 original CI jobs pass. Clean-install
-acceptance remains separate. The Linux candidate now supplies the local Applications
-launcher. The Windows installer now passes
-[installation, save/reopen/export and uninstall/reinstall acceptance](321-windows-installed-comp-preview.md)
-in the existing independent test clone; installed short-comp editing and hardware
-qualification remain open.
-A subsequent installed test found a
-[render-history portability defect](322-portable-render-history.md): Linux can
-reject Windows-created stretch history during further comp rendering. A source
-fix has focused tests, but these unchanged packages still contain the defect.
-Neither candidate has been uploaded as a binary release.
-
 ## Current local Ubuntu preview (2026-10-15)
 
-**SoundCurrent DAW Preview** is installed in this workstation's Applications menu.
-Version `0.1.0~preview.20261015124133.258016450f93` is a Release build with
-[installed launch, save/reopen and independently checked WAV export evidence](320-installed-linux-comp-preview.md).
-It has a dedicated per-user version directory; no system-wide package was installed.
-Its DEB and exact GPL source archive are local under
-`.cache/p319-package-20261015124133/`. The **SoundCurrent DAW Preview (before
-2026-10-15)** entry preserves the preceding version; the older **previous** entry
-is also unchanged. Close a preview before opening the same project in another version.
-This is a usable preview, with full DAW parity and hardware qualification unfinished.
+**SoundCurrent DAW Preview** in Applications now opens
+`0.1.0~preview.20261015144332.61bcaa3439ac`. The installed workflow passes speed
+edits, Render, Review/Apply, Undo/Redo, save/reopen, independently checked WAV export
+and normal Quit with Windows-created render history. See
+[the current acceptance evidence](323-installed-portable-comp.md).
+
+This is a per-user Ubuntu 26.04 amd64 installation. Its DEB and corresponding GPL
+source are local under `.cache/p323-package-20261015144332/`. The **before portability
+fix** entry preserves the preceding `2580164` version; earlier rollback entries
+are also unchanged. Close a preview before opening the same project in another
+version. Physical hardware and full DAW parity remain unfinished.
+
+## Windows candidate
+
+The Windows x64 installer remains at `2580164`, sequence `20261015124133`.
+Its [installation, save/reopen/export and uninstall/reinstall checks](321-windows-installed-comp-preview.md)
+pass in the existing independent clone. It still needs the render-history
+portability correction and installed short-comp editing qualification.
+Neither platform has a published binary release.
 
 ## Earlier candidates and original qualification scopes
 

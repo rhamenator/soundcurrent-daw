@@ -1,0 +1,14 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 2767609,
+  "sha256": "d39326c39f46e6e184885b2d048581165d2e44a0450a8e29b80ef799cc2e5f3b",
+  "files": 141,
+  "projectFiles": 204,
+  "sharedFiles": 181,
+  "projectReconstructionVerified": true,
+  "sourceHead": "61bcaa3439ac0ec9a9856d893e5c0b10fee23e72",
+  "baseArchive": "tests/results/M2/2026-10-15-portable-render-history/acceptance.zip",
+  "baseSha256": "7a9749ea1d9ea03e996e79116316c2bf2432217cefa69462e3e9129203cc8a40",
+  "privateSessionDataExcluded": true,
+  "binariesIncluded": false
+}

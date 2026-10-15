@@ -17,7 +17,7 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
-The [current installed Ubuntu preview](docs/320-installed-linux-comp-preview.md)
+The [current installed Ubuntu preview](docs/323-installed-portable-comp.md)
 is available locally as **SoundCurrent DAW Preview** in Applications, with a
 **previous** entry for rollback. Its Release DEB and matching GPL source are
 prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
@@ -28,11 +28,12 @@ packaged/deployed startup pass. The refreshed Linux Applications entry also pass
 save/reopen and independently verified export. The
 [Windows installer and installed export](docs/321-windows-installed-comp-preview.md)
 also pass in the independent acceptance clone, including preservation during
-uninstall/reinstall. Installed short-comp editing and sustained hardware
+uninstall/reinstall. Windows installed short-comp editing and sustained hardware
 qualification remain required.
-An installed test also found a [render-history portability defect](docs/322-portable-render-history.md)
-when editing a Windows-created comp on Linux. The source fix passes focused worker tests;
-current installed packages still contain the defect.
+The refreshed Linux preview now passes the [installed comp-editing workflow](docs/323-installed-portable-comp.md)
+with Windows-created history: Render, Review/Apply, Undo/Redo, save/reopen,
+independently checked WAV export and normal Quit. Windows still needs the matching
+portability refresh; sustained hardware qualification remains required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
