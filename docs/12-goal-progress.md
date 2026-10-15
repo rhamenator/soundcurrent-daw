@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Windows waveform workflows (2026-10-15)
+
+[Checkpoint 354](354-installed-windows-waveforms.md) installs the matching frozen
+waveform preview and verifies its 66 payload files, shortcuts and uninstall entry.
+Actual channel selection, missing/restored-media retry, Review/Apply, Undo/Redo,
+save/reopen, export and normal exit pass; export is bit-exact to an independent
+reference. Original observer failures remain retained, and the independent render
+timing gate is explicitly unproven. Overall preview qualification remains false.
+Earlier previews are preserved, all VMs are off, and temporary capture resources
+are removed. Current hosted Windows desktop and Linux resource-test jobs pass;
+the overall CI run and full DAW parity remain incomplete.
+
 ## Matching Windows waveform candidate (2026-10-15)
 
 [Checkpoint 353](353-windows-waveform-preview.md) qualifies the frozen Linux-preview
