@@ -7,6 +7,8 @@
 namespace soundcurrent::daw {
 inline constexpr std::string_view compSpanProtocol="sc-comp-span-v1";
 inline constexpr std::string_view compProtectedSpanProtocol="sc-comp-span-protected-v1";
+inline constexpr std::string_view compProtectedHistorySpanProtocol="sc-comp-span-protected-v2";
+inline constexpr std::string_view compProtectedHistorySpanProcessorId="soundcurrent.comp-span-protected-rubberband4-r3-v2";
 using CompSpanPayload=std::variant<CompSpanPlan,CompProtectedSpanPlan>;
 inline constexpr std::string_view compRegenerationSpanProtocol="sc-comp-span-v2";
 inline constexpr std::string_view compRegenerationSpanProcessorId="soundcurrent.comp-span-positioned-rubberband4-r3-v2";
@@ -33,8 +35,8 @@ class CompSpanRequest {
     const std::string &executorSha256() const noexcept {return executor_;}
     std::string_view bytes() const noexcept {return bytes_;}
     bool requiresHistory() const noexcept {return history_;}
-    std::string_view protocol() const noexcept {return isProtected()?compProtectedSpanProtocol:(history_?compRegenerationSpanProtocol:compSpanProtocol);}
-    std::string_view processor() const noexcept {return isProtected()?compProtectedSpanProcessorId:(history_?compRegenerationSpanProcessorId:compSpanProcessorId);}
+    std::string_view protocol() const noexcept {return isProtected()?(history_?compProtectedHistorySpanProtocol:compProtectedSpanProtocol):(history_?compRegenerationSpanProtocol:compSpanProtocol);}
+    std::string_view processor() const noexcept {return isProtected()?(history_?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history_?compRegenerationSpanProcessorId:compSpanProcessorId);}
   private:
     friend CompSpanRequest decodeCompSpanRequest(std::string_view,std::string_view,const CompHandlePlanContext &,std::string_view,ResourceLedger);
     CompSpanRequest(ResourceLease lease,CompProcessingRecipe recipe,CompSpanPayload span,Id operation,unsigned fragment,std::string digest,std::string executor,std::string bytes,bool history)
@@ -77,7 +79,7 @@ class VerifiedCompSpan {
 };
 // After process reaping. Candidate integrity/completion only: no blend/curve,
 // scope/adoption, historical-job freshness, post-SRC representation or quality.
-// Version-two consumers additionally call control-layer verifyCompSpanHistory;
+// Uniform/protected history consumers additionally call verifyCompSpanHistory;
 // retained completion and file integrity are not permanent history authority.
 VerifiedCompSpan verifyOwnedCompSpan(const std::filesystem::path &,const CompSpanRequest &,
     const CompSpanWorkerPolicy &,ResourceLedger,std::stop_token={});

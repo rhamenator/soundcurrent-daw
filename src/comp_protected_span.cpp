@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_protected_span.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -19,11 +20,17 @@ const ProtectedWarpPlan &CompProtectedSpanPlan::geometry() const {
 CompProtectedSpanPlan prepareProtectedCompSpan(const CompHandleEnvelope &envelope,
     ResourceLedger ledger,const std::function<void()> &poll) {
     require(bool(poll),"Missing protected comp preparation poll");poll();const auto &e=envelope.data();
-    require(!e.regeneration && !e.expected.compHandles,
-        "Protected comp history requires a regeneration adapter",ErrorCode::UnsupportedSchema);
-    require(e.expected.stretch && e.expected.stretch->warp,"Protected comp requires original protected anchors");
+    require(!e.expected.compHandles,"Legacy protected handle windows require an adapter",ErrorCode::UnsupportedSchema);
+    const auto &original=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
+    require(original.stretch && original.stretch->warp,"Protected comp requires original protected anchors");
+    if(e.regeneration){const auto &history=e.regeneration->data();
+        require(history.bakedPitchScale==SourcePosition{1,0,1} && history.backendClockScale==SourcePosition{1,0,1},
+            "Protected history requires unchanged pitch and sample clocks",ErrorCode::UnsupportedSchema);
+        require(history.raw==e.raw && history.current==e.base && history.originalNominal.has_value(),
+            "Protected history lost original raw/nominal identity");
+    }
     require(e.raw.sampleRate==e.base.sampleRate,"Protected comp requires an unchanged sample clock",ErrorCode::UnsupportedSchema);
-    const auto &anchor=*e.expected.stretch;
+    const auto &anchor=*original.stretch;
     require(!anchor.context && !anchor.settings.pitchMilliCents && anchor.settings.formantPreserved,
         "Unsupported protected comp processing settings",ErrorCode::UnsupportedSchema);
     require(e.map.size()>=2 && e.map.size()<=16388 && e.map.front().output==SourcePosition{} &&
@@ -40,9 +47,23 @@ CompProtectedSpanPlan prepareProtectedCompSpan(const CompHandleEnvelope &envelop
     PayloadCharge scratch("Rebased protected comp anchors",SIZE_MAX);
     scratch.add(anchor.warp->markers.size(),sizeof(WarpAnchor)+256);auto anchorCredit=ledger.reserve(scratch.bytes());
     std::vector<WarpAnchor> markers;markers.reserve(anchor.warp->markers.size());
-    for(const auto &m:anchor.warp->markers){poll();markers.push_back({m.id,
-        subtractSourcePosition(addSourcePosition(anchor.sourceOrigin,m.source),first),
-        addSourcePosition(m.output,{e.prefixFrames,0,1})});}
+    for(const auto &m:anchor.warp->markers){poll();
+        const auto raw=addSourcePosition(anchor.sourceOrigin,m.source);
+        auto output=addSourcePosition(m.output,{e.prefixFrames,0,1});
+        if(e.regeneration){
+            // The current artifact may include several expanded generations.
+            // Locate the ORIGINAL semantic anchor on its exact raw map, never
+            // reinterpret a current artifact frame as a nominal output frame.
+            require(!sourcePositionLess(raw,e.map.front().raw) && sourcePositionLess(raw,e.map.back().raw),
+                "Protected history anchor lies outside the current span",ErrorCode::UnsupportedSchema);
+            const auto right=std::upper_bound(e.map.begin(),e.map.end(),raw,[](auto x,const auto &k){return sourcePositionLess(x,k.raw);});
+            require(right!=e.map.begin() && right!=e.map.end(),"Protected history anchor has no exact interval");
+            const auto &a=*(right-1),&b=*right;
+            const auto ratio=sourceIntervalRatio(subtractSourcePosition(b.output,a.output),subtractSourcePosition(b.raw,a.raw));
+            output=addSourcePosition(a.output,scaleSourcePosition(subtractSourcePosition(raw,a.raw),ratio.numerator,ratio.denominator));
+        }
+        markers.push_back({m.id,subtractSourcePosition(raw,first),output});
+    }
     auto geometry=std::make_unique<ProtectedWarpPlan>(ClipWarpRegion{first,e.raw.sampleRate,e.raw.frames,
         count,e.outputFrames,{}, {count,0,1}},markers,anchor.warp->protection,ledger);
     poll();validateProtectedWarpRender(*geometry,e.raw.sampleRate,e.raw.layout.channels);

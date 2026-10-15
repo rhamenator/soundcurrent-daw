@@ -27,8 +27,9 @@ class CompProtectedSpanPlan {
     std::vector<CompHandlePoint> rawMap_;
     std::unique_ptr<ProtectedWarpPlan> geometry_;
 };
-// First adapter admits original protected clips at integer acoustic positions and
-// unchanged sample clocks. Unsupported history/fractional/clock paths refuse.
+// Admits original and regenerated protected clips at integer acoustic positions
+// with unchanged pitch/sample clocks and complete original protected windows.
+// Fractional/changed-clock/cropped protection still requires broader adaptation.
 // Does not activate the uniform comp worker or change its identity/protocol.
 CompProtectedSpanPlan prepareProtectedCompSpan(const CompHandleEnvelope &,
     ResourceLedger, const std::function<void()> &poll);

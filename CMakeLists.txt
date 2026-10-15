@@ -684,6 +684,12 @@ if(SC_BUILD_MEDIA)
         $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests> $<TARGET_FILE:sc-comp-repeat-fixture>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-repeat-evidence)
       set_tests_properties(comp-repeated-pair-production PROPERTIES TIMEOUT 600)
+      add_dependencies(sc-comp-repeat-fixture sc-comp-protected-worker-fixture)
+      add_test(NAME comp-protected-repeated-production COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_protected_repeat_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-protected-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests> $<TARGET_FILE:sc-comp-repeat-fixture>
+        --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-protected-repeat-evidence)
+      set_tests_properties(comp-protected-repeated-production PROPERTIES TIMEOUT 900)
     endif()
     add_executable(sc-comp-span-worker tools/comp_span_worker.cpp)
     target_link_libraries(sc-comp-span-worker PRIVATE sc-comp-span-protocol sc-comp-assembly-job sc-media ${SNDFILE_LIBRARY})
