@@ -69,8 +69,11 @@ keeping fresh verification across operations. Four Debug and eleven Release suit
 pass with unchanged export hashes; the subsequent native CI also passes.
 An [owned protected-comp core](docs/300-owned-protected-comp-spans.md) now preserves
 semantic anchors and raw-source timing across expanded integer-clock handles.
-Debug/Release checks cover two anchors and failure/lifetime handling; worker and
-desktop integration remain pending.
+Debug/Release checks cover two anchors and failure/lifetime handling. The
+[protected worker protocol](docs/301-protected-comp-worker.md) now binds semantic
+geometry and validates isolated output, with 69 worker cases per configuration.
+Existing rendering hashes remain unchanged; paired recovery and desktop integration
+remain pending.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.

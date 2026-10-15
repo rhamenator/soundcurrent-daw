@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Protected comp worker protocol (2026-10-15 UTC)
+
+[Checkpoint 301](301-protected-comp-worker.md) integrates the protected owned core
+with an explicitly identified isolated-worker request and verified completion.
+Two Debug and five Release suites pass. Each new bank records six successful
+renders and 63 required refusals, 622,848 complete PCM comparisons and 12,800
+original protected samples. Existing v1/v2/core/desktop hashes are unchanged.
+MinGW syntax passes; new native Windows runtime remains pending. Paired recovery,
+Review/Apply, history, fractional clocks, independent quality and full scope remain
+open. The installed preview is unchanged.
+
+
 ## Owned protected comp spans (2026-10-14)
 
 [Checkpoint 300](300-owned-protected-comp-spans.md) adds a move-only core plan
