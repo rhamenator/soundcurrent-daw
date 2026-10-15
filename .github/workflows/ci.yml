@@ -170,6 +170,7 @@ jobs:
             build/comp-protected-ui-evidence/**
             build/comp-repeat-ui-evidence/**
             build/comp-protected-repeat-ui-evidence/**
+            build/comp-clocked-repeat-ui-evidence/**
             build/protected-core-sampling-evidence/**
             build/exact-processing-grid-evidence/**
             build/exact-warp-extents-evidence/**
@@ -357,7 +358,7 @@ jobs:
             name: Windows repeated protected desktop workflows
             artifact: windows-protected-repeat-desktop-log
             targets: sc-comp-transition-ui-tests
-            tests: "^desktop-comp-protected-repeated-transition$"
+            tests: "^(desktop-comp-protected-repeated-transition|desktop-comp-clocked-protected-repeated-transition|desktop-comp-clocked-uniform-repeated-transition)$"
     runs-on: windows-2025
     timeout-minutes: 20
     env:
@@ -452,6 +453,7 @@ jobs:
             build-desktop-native/comp-protected-ui-evidence/**
             build-desktop-native/comp-repeat-ui-evidence/**
             build-desktop-native/comp-protected-repeat-ui-evidence/**
+            build-desktop-native/comp-clocked-repeat-ui-evidence/**
             build-desktop-native/comp-pair-controller-evidence/**
             build-desktop-native/Testing/Temporary/*.log
             build-desktop-native/Testing/crossfade-ui/*.png

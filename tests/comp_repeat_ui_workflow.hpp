@@ -50,10 +50,11 @@ std::vector<float> repeatPlayback(const std::filesystem::path &root,const Sessio
         for(unsigned i=0;i<n;++i){result.push_back(left[i]);result.push_back(right[i]);}at+=n;}
     check(!pipe.missingFrames() && !reader.sanitizedSamples(),"Repeated UI playback lost samples");return result;
 }
-Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesystem::path &scope,bool protectedMode){
+Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesystem::path &scope,bool protectedMode,bool clocked=false,bool extendedFailures=true){
     auto baseline=decodeProject(repeatRead(source/"adopted-project.json"));
     check(baseline.compPlaybackSources.size()==2,"Repeated UI requires real adopted paired source");
-    const bool expanded=baseline.assets[0].sampleRate==48000;Json cases=Json::array();
+    check(!clocked || protectedMode,"Clocked desktop requires protected history");
+    const bool expanded=baseline.assets[0].sampleRate==48000 && extendedFailures;Json cases=Json::array();
     std::filesystem::create_directories(scope);
     QTimer dismiss;QObject::connect(&dismiss,&QTimer::timeout,[]{for(auto *w:QApplication::topLevelWidgets())
         if(auto *box=qobject_cast<QMessageBox *>(w);box && box->isVisible())if(auto *b=box->button(QMessageBox::Discard))b->click();});dismiss.start(2);
@@ -76,17 +77,49 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
             check(memory.usage().reservedBytes>0,"Actual project memory was not observed");
             for(unsigned generation=0;generation<(mode==0?3U:1U);++generation){
                 const bool mixed=generation==2;auto state=*window.snapshot()->session;auto track=state.tracks[0];
+                if(clocked && !mixed){
+                    const bool first=generation==0;
+                    auto out=track.clips[0],in=track.clips[1];
+                    for(auto *clip:{&out,&in}){
+                        const auto asset=std::find_if(state.assets.begin(),state.assets.end(),[&](const auto &a){return a.id==clip->assetId;});
+                        check(asset!=state.assets.end(),"Clocked desktop asset missing");
+                        const auto original=resolveCompRegenerationSource(state,track.id,clip->id,historyContext,memory);
+                        const bool uniform=!original.data().originalNominalClip.stretch->warp;
+                        const Frame length=uniform?(first?16384:8000):(first?4000:3000);
+                        const Frame sourceSpan=first?length*3/2:(length*2+2)/3;
+                        clip->sourceFrame=clip==&out?asset->frames-sourceSpan:0;
+                        clip->sourceTiming=first?ClipSourceTiming{1,7}:ClipSourceTiming{2,11};
+                        clip->lengthFrames=first?sourceSpan:length;clip->playbackRate=first?ClipPlaybackRate{1,1}:ClipPlaybackRate{2,3};
+                        if(first)clip->processing.gainDb=36;
+                    }
+                    repeatEdit(window,{RemoveClip{track.id,out.id},RemoveClip{track.id,in.id},InsertClip{track.id,out,{}},InsertClip{track.id,in,{}}});
+                    // First edit changes speed through the real control. An unchanged
+                    // rounded 0.667 display must preserve the exact imported 2/3 ratio.
+                    for(const auto &id:{out.id,in.id}){
+                        check(window.selectTrack(track.id),"Clocked speed track selection refused");
+                        auto *timeline=widget<QWidget>(window,"timelineEditor");auto *clips=widget<QComboBox>(*timeline,"timelineClips");
+                        clips->setCurrentIndex(clips->findData(QString::fromStdString(id.str())));
+                        auto expected=*window.snapshot()->session;
+                        const ClipPlaybackRate rate=first?ClipPlaybackRate{3,2}:ClipPlaybackRate{2,3};
+                        applySessionEdits(expected,{SetClipPlaybackRate{track.id,id,rate}});
+                        auto *control=widget<QDoubleSpinBox>(*timeline,"clipPlaybackRate");
+                        check(control->isEnabled(),"Clocked speed control disabled");if(first)control->setValue(1.5);
+                        widget<QPushButton>(*timeline,"applyClipPlaybackRate")->click();
+                        wait([&]{return *window.snapshot()->session==expected && window.displayedRevision()==window.snapshot()->modelRevision;});
+                    }
+                    state=*window.snapshot()->session;track=state.tracks[0];
+                }
                 if(mixed){
                     auto retained=track.clips[0];retained.id=Id::generate();retained.takeOrigin.reset();
                     TakeLane lane;lane.name="Retained assembled UI take";lane.captureStartFrame=retained.startFrame;lane.captureEndFrame=retained.startFrame+retained.lengthFrames;lane.clips.push_back(retained);
-                    auto out=track.clips[0];out.takeOrigin=ClipTakeOrigin{track.id,lane.id,retained.id};const Frame crop=protectedMode?8192:64;out.sourceFrame+=crop;out.lengthFrames-=2*crop;
+                    auto out=track.clips[0];out.takeOrigin=ClipTakeOrigin{track.id,lane.id,retained.id};const Frame crop=protectedMode && !clocked?8192:64;out.sourceFrame+=crop;out.lengthFrames-=2*crop;
                     const auto history=resolveCompRegenerationSource(state,track.id,track.clips[1].id,historyContext,memory);
                     auto in=history.data().originalNominalClip;in.sourceFrame=0;in.sourceTiming={};in.lengthFrames=protectedMode?history.data().originalNominal->frames:1000;in.startFrame=out.startFrame+out.lengthFrames;
                     repeatEdit(window,{InsertTakeLane{track.id,lane,{}},RemoveClip{track.id,track.clips[0].id},RemoveClip{track.id,track.clips[1].id},InsertClip{track.id,out,{}},InsertClip{track.id,in,{}}});
                 }else repeatEdit(window,{MoveClip{track.id,track.id,track.clips[1].id,track.clips[0].startFrame+track.clips[0].lengthFrames,{}}});
                 save(window);const auto original=*window.snapshot()->session;track=original.tracks[0];const auto cut=track.clips[1].startFrame;
                 Frame leading=32,trailing=32;
-                if(protectedMode){const auto history=resolveCompRegenerationSource(original,track.id,track.clips[0].id,historyContext,memory);
+                if(protectedMode && !clocked){const auto history=resolveCompRegenerationSource(original,track.id,track.clips[0].id,historyContext,memory);
                     leading=3008;trailing=history.data().originalNominalClip.stretch->warp->markers.size()==1?4544:1472;}
                 const PrepareCompTransition transition{track.id,track.clips[0].id,track.clips[1].id,cut-leading,cut+trailing,ClipFadeCurve::EqualPower};
                 const auto prefix=folder/("generation-"+std::to_string(generation));
@@ -141,14 +174,36 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                     check(children.size()==(mixed?1U:2U),"Wrong repeated child count");step["children"]=children;
                     const auto operation=*window.compAssemblySnapshot()->operation;
                     const auto pair=window.compPairSnapshot();
-                    check(pair->selection && pair->selection->spanPolicy()==(protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Repeated original protection policy lost");
+                    check(pair->selection && pair->selection->spanPolicy()==(clocked?CompPairSpanPolicy::ClockedProtected:protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Repeated original protection policy lost");
                     check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Repeated durable operation differs");
                     check(operations.insert(operation.str()).second && operations.insert(pair->operation->str()).second,"Repeated operation identity reused");
-                    Json protocols=Json::array();std::uint64_t protectedSamples=0;
+                    if(clocked && !mixed)check(pair->selection->recipe().plan().outgoing().domain==CompProcessingDomain::ProjectAfterSrc && pair->selection->recipe().plan().incoming().domain==CompProcessingDomain::ProjectAfterSrc,"Clocked desktop did not exercise post-SRC assembly");
+                    Json protocols=Json::array();std::uint64_t protectedSamples=0,clockedSamples=0;
                     for(const auto &child:pair->selection->children())if(child){
                         check(operations.insert(child->operation().str()).second,"Repeated child identity reused");
                         protocols.push_back(std::string(child->protocol()));
-                        if(protectedMode){
+                        if(clocked){
+                            const auto &plan=pair->selection->recipe().plan();
+                            const auto &e=(child->fragment()?plan.handles().incoming():plan.handles().outgoing()).data();
+                            const auto &original=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
+                            const bool protectedSource=original.stretch && original.stretch->warp;
+                            check(child->requiresHistory() && child->isClockedProtected()==protectedSource && child->protocol()==(protectedSource?compClockedProtectedSpanProtocol:compRegenerationSpanProtocol),"Clocked desktop original protocol differs");
+                            const auto baked=generation==1?SourcePosition{1,1,2}:SourcePosition{1,0,1};
+                            check((e.regeneration?e.regeneration->data().bakedPitchScale:SourcePosition{1,0,1})==baked,"Clocked desktop lost expected baked pitch");
+                            if(protectedSource && generation==1){const auto &g=child->clockedProtectedSpan().geometry();unsigned outside=0;
+                                for(const auto &span:g.spans()){const auto raw=addSourcePosition(g.map().exactRegion().rawOrigin,span.sourceAnchor);
+                                    if(sourcePositionLess(raw,e.map.front().raw) || !sourcePositionLess(raw,e.map.back().raw))++outside;}
+                                check(outside==2,"Clocked desktop did not retain outside original anchors");}
+                            auto verified=verifyOwnedCompSpan(root,*child,pair->selection->policy(),memory);
+                            const std::array<Asset,2> assets{child->source(),verified.asset()};MediaCacheConfig config;
+                            config.maximumOpenFiles=2;config.pageFrames=512;config.cacheBudgetBytes=1024*1024;config.registryBudgetBytes=256*1024;config.resources=memory;
+                            MediaReadCache cache(root,assets,registered.sampleRate,config);Frame at=0;std::array<float,1024> actual{};
+                            renderRequestedCompSpan(*child,[&](Frame f,std::span<float> v){cache.read(0,f,v);},[&](std::span<const float> expected){
+                                auto got=std::span(actual).first(expected.size());cache.read(1,at,got);
+                                for(std::size_t i=0;i<expected.size();++i)check(std::bit_cast<std::uint32_t>(expected[i])==std::bit_cast<std::uint32_t>(got[i]),"Clocked desktop worker differs from original geometry");
+                                at+=Frame(expected.size()/2);clockedSamples+=expected.size();
+                            },memory,[]{});check(at==verified.asset().frames,"Clocked desktop worker extent differs");
+                        }else if(protectedMode){
                             check(child->isProtected() && child->requiresHistory() && child->protocol()==compProtectedHistorySpanProtocol && child->processor()==compProtectedHistorySpanProcessorId,"Repeated protected original history lost");
                             auto verified=verifyOwnedCompSpan(root,*child,pair->selection->policy(),memory);
                             const std::array<Asset,2> assets{child->source(),verified.asset()};MediaCacheConfig config;
@@ -166,8 +221,9 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                             }
                         }
                     }
-                    if(protectedMode)check(protectedSamples>0,"Repeated UI checked no protected raw PCM");
-                    step["spanProtocols"]=protocols;step["protectedSamples"]=protectedSamples;step["pairFormat"]=Json::parse(pair->selection->manifest()).at("format");step["freshOperationIdentities"]=true;
+                    if(clocked)check(clockedSamples>0,"Clocked desktop checked no candidate PCM");
+                    if(protectedMode && !clocked)check(protectedSamples>0,"Repeated UI checked no protected raw PCM");
+                    step["clockedSamples"]=clockedSamples;step["speedControlQualified"]=clocked && !mixed;step["spanProtocols"]=protocols;step["protectedSamples"]=protectedSamples;step["pairFormat"]=Json::parse(pair->selection->manifest()).at("format");step["freshOperationIdentities"]=true;
                     auto *review=widget<QPushButton>(window,"reviewCreatedComp");wait([&]{return review->isEnabled();});review->click();
                     auto *list=widget<QListWidget>(window,"compAssemblyList");check(list->currentItem() && list->currentItem()->data(Qt::UserRole).toString()==QString::fromStdString(operation.str()),"Wrong repeated review selection");
                     auto *apply=widget<QPushButton>(window,"applyCompAssembly");wait([&]{return apply->isEnabled();});
@@ -215,7 +271,7 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
         }
         check(memory.usage().reservedBytes==0,"Repeated UI assembly credits retained after destruction");row["assemblyCreditsReleased"]=true;cases.push_back(row);
     }
-    Json report{{"checks",checks},{"cases",cases},{"actualRepeatedMainWindow",true},{"protectedHistory",protectedMode},{"physicalAudio",false},{"qualityAdmission",false},{"executorSha256",compAssemblyExecutableSha256()}};
+    Json report{{"checks",checks},{"cases",cases},{"actualRepeatedMainWindow",true},{"protectedHistory",protectedMode},{"clockedProtected",clocked},{"physicalAudio",false},{"qualityAdmission",false},{"executorSha256",compAssemblyExecutableSha256()}};
     repeatWrite(scope/"report.json",report.dump(2));return report;
 }
 }
