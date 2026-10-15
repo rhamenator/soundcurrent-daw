@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native Windows batched verification (2026-10-15)
+
+[Checkpoint 336](336-windows-batched-comp-verification.md) qualifies the batched
+implementation on the independent Windows development clone. All four integrity
+suites pass in 172.60 seconds. Six alternating runs verify all 16,256 samples;
+the fixed-history diagnostic median falls from 4.116 to 2.684 seconds, about 35%.
+All 802 source inputs match and 225 original project files remain unchanged.
+The initial input-admission failure is retained; its exact-byte delivery repair
+does not weaken tests. All VMs are off. Installed previews remain unchanged and
+whole-render responsiveness still needs qualification. Original CI at `dfa5887`
+passes all 15 jobs; all full logs and 12 original artifact archives are retained
+and verified before PR advancement. Fresh checks on this change are pending.
+Full goal incomplete.
+
 ## Measured reduction in comp verification work (2026-10-15)
 
 [Checkpoint 335](335-batched-comp-verification.md) batches complete output
