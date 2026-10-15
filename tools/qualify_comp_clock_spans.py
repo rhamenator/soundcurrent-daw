@@ -31,7 +31,7 @@ assert all(abs(c['measuredHz']/c['wantedHz']-1)<.01 and abs(c['globalPeakHz']/c[
 assert len(history['reports'])==len(plans['reports'])==3
 assert all(len(r['reviews'])==2 and r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['qualityAdmission'] for r in history['reports'])
 assert all(c['assemblies']==1 and c['comparedSamples']>0 for r in history['reports'] for c in r['reviews'])
-assert all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and r['mixedAdmissionRefused'] and not r['fileVerification'] and r['newRendering'] and len(r['clockRenders'])==5 and not r['ownedRegeneration'] for r in plans['reports'])
+assert all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and r['mixedPairPlanned'] and not r['fileVerification'] and r['newRendering'] and len(r['clockRenders'])==5 and not r['ownedRegeneration'] for r in plans['reports'])
 assert all(p['exitCode']==0 for p in history['reviewProcesses']+plans['resolverProcesses'])
 workers=[]
 for r in reports:

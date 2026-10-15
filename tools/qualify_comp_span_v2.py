@@ -24,7 +24,7 @@ seconds=time.monotonic()-start;(scope/'LastTest.log').write_bytes((build/'Testin
 new=[set(r.iterdir())-old for r,old in zip(runs,before)];assert all(len(s)==1 for s in new);actual=[s.pop() for s in new]
 reports=[json.loads((r/'report.json').read_text()) for r in actual[:2]];history,plans=reports
 v2=json.loads((actual[3]/'report.json').read_text())
-assert v2['successfulV2Workers']==9 and v2['refusedV2Workers']==4 and not v2['pairedAssemblyEnabled']
+assert v2['successfulV2Workers']==9 and v2['refusedV2Workers']==4 and not v2['applicationEntryEnabled'] and not v2['pairedAssemblyExercised']
 assert v2['projectBytesUnchanged'] and not v2['qualityAdmission'] and not v2['physicalAudio']
 assert {r['case'] for r in v2['failures']}=={'missing-history','mixed-history','late-history','cancel'}
 assert all(r['completionAbsent'] and r['historicalMarkerRestored'] for r in v2['failures'])
@@ -41,7 +41,7 @@ assert all(abs(c['measuredHz']/c['wantedHz']-1)<.01 and abs(c['globalPeakHz']/c[
 assert len(history['reports'])==len(plans['reports'])==3
 assert all(len(r['reviews'])==2 and r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['qualityAdmission'] for r in history['reports'])
 assert all(c['assemblies']==1 and c['comparedSamples']>0 for r in history['reports'] for c in r['reviews'])
-assert all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and r['mixedAdmissionRefused'] and not r['fileVerification'] and r['newRendering'] and len(r['clockRenders'])==5 and not r['ownedRegeneration'] for r in plans['reports'])
+assert all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and r['mixedPairPlanned'] and not r['fileVerification'] and r['newRendering'] and len(r['clockRenders'])==5 and not r['ownedRegeneration'] for r in plans['reports'])
 assert all(p['exitCode']==0 for p in history['reviewProcesses']+plans['resolverProcesses'])
 workers=[]
 for r in reports:
@@ -53,7 +53,7 @@ legacyHashes=[r['adoption']['exportFileSha256'] for r in previous['reports'][0][
 assert all([r['adoption']['exportFileSha256'] for r in report['inputs']['reports']]==legacyHashes for report in reports)
 assert len(workers)==24 and all(p['exitCode']==0 and not p['retirementPending'] and not p['observationTimedOut'] for p in workers)
 assert sources=={n:sha(repo/n) for n in files} and binaries=={str(n):sha(n) for n in inputs} and head==git('rev-parse','HEAD')
-receipt=dict(checkpoint=292,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,v2=v2,successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2["completePcmSamples"],pairedAssemblyEnabled=False,uniform=uniform,uniformProcess=uniformProcess,clockRows=clockRows,actualAdoptedSourceReviews=6,comparedSamples=sum(c['comparedSamples'] for r in history['reports'] for c in r['reviews']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),plannedRecipes=12,retainedLegacyRecipes=6,allObservedProcessesReaped=True,newRendering=True,inProcessClockRenders=15,legacyUniformRenders=36,legacyExportHashesUnchangedFrom290=True,maxClockPitchError=max(abs(c["measuredHz"]/c["wantedHz"]-1) for r in clockRows for c in r["channels"]),ownedRegeneration=True,nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
+receipt=dict(checkpoint=292,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,v2=v2,successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2["completePcmSamples"],applicationEntryEnabled=False,pairedAssemblyExercised=False,uniform=uniform,uniformProcess=uniformProcess,clockRows=clockRows,actualAdoptedSourceReviews=6,comparedSamples=sum(c['comparedSamples'] for r in history['reports'] for c in r['reviews']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),plannedRecipes=12,retainedLegacyRecipes=6,allObservedProcessesReaped=True,newRendering=True,inProcessClockRenders=15,legacyUniformRenders=36,legacyExportHashesUnchangedFrom290=True,maxClockPitchError=max(abs(c["measuredHz"]/c["wantedHz"]-1) for r in clockRows for c in r["channels"]),ownedRegeneration=True,nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
 (scope/'qualification.json').write_text(json.dumps(receipt,indent=2)+'\n');public.mkdir(parents=True,exist_ok=True);archive=public/'acceptance.zip';assert not archive.exists()
 with zipfile.ZipFile(archive,'x',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
     for root,prefix in [(scope,''),(actual[0],'history/'),(actual[1],'planning/'),(actual[2],'legacy-uniform/'),(actual[3],'v2-workers/')]:

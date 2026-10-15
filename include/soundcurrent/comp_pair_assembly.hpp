@@ -21,10 +21,12 @@ struct CompPairAssemblyReport {
     CompHandlePcmReport pcm;
 };
 // Serialized disk/control work, never audio or GUI. Independently verifies BOTH
-// owned spans and the current trusted project reference before and after streaming
+// owned span files and the current trusted project reference before and after streaming
 // one fragment. Physical artifacts blend on their source grid. ProjectAfterSrc
 // independently resamples old and candidate streams before the permitted blend.
 // Explicit slabs and pinned decoding use the supplied owner ledger.
+// This low-level streamer does not traverse assembly ancestry. Public assembly
+// publication/verification reviews that history around the entire operation.
 // Output PCM bytes are admitted before the first callback. The deadline is
 // cooperative around I/O/verification calls, not a hard process watchdog.
 // Processed nominal media must match its canonical asset/anchor and original

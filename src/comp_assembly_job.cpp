@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_assembly_job.hpp>
 #include <soundcurrent/comp_media_review.hpp>
+#include <soundcurrent/comp_regeneration_history.hpp>
+#include "comp_assembly_file_verifier.hpp"
 #include <soundcurrent/approved_media.hpp>
 #include <soundcurrent/media_cache.hpp>
 #include <soundcurrent/wave_validation.hpp>
@@ -35,6 +37,16 @@ std::string jobPath(const CompAssemblyRequest &r){return "media/comp-assemblies/
 Asset output(const CompPairSelection &p,const CompAssemblyRequest &r,unsigned side){const auto &e=envelope(p,side);const auto &v=processing(p,side);Asset a=e.base;a.id=*r.outputs()[side];a.nativeEvidence.clear();a.relativePath="media/comp-results/"+p.recipe().operation().str()+"/"+a.id.str()+".wav";a.frames=v.pcm.prefixFrames+v.pcm.currentFrames+v.pcm.suffixFrames;a.sampleRate=v.domain==CompProcessingDomain::PhysicalArtifact?e.base.sampleRate:e.projectRate;a.sha256.clear();return a;}
 void fresh(const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r){verifyCompProcessingCurrent(s,ctx,p.recipe().plan());check(r.selectionDigest()==p.digest() && std::find(s.compPairSelections.begin(),s.compPairSelections.end(),referenceCompPairSelection(s,ctx,p))!=s.compPairSelections.end(),"Assembly selection lost current trusted reference");}
 std::function<void()> polling(const std::filesystem::path &root,const CompAssemblyRequest &r,std::stop_token stop,bool cancelFile){const auto deadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(r.policy().assembly.deadlineMilliseconds);const auto path=root/utf8Path(jobPath(r))/"cancel.request";return [deadline,path,stop,cancelFile]{check(!stop.stop_requested() && (!cancelFile || !present(path)),"Assembly canceled",ErrorCode::Canceled);check(std::chrono::steady_clock::now()<deadline,"Assembly deadline exceeded",ErrorCode::ResourceLimit);};}
+void verifyHistory(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,
+    const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,
+    const std::function<void()> &poll,std::stop_token stop){
+    for(const auto *h:{&p.recipe().plan().handles().outgoing(),&p.recipe().plan().handles().incoming()}){
+        poll();if(!h->data().regeneration)continue;
+        CompHistoryReviewLimits limits;limits.maximumInputFileBytes=r.policy().maximumFileBytes;
+        const auto review=reviewCompRegenerationHistory(root,s,ctx,h->data().regeneration,ledger,limits,stop);
+        verifyCompRegenerationHistoryCurrent(s,ctx,review);poll();
+    }
+}
 std::string read(ApprovedMediaRoot &root,std::string_view path,std::stop_token stop,const std::function<void()> &poll){poll();auto file=root.open(path,16384,stop);std::string bytes(std::size_t(file.size()),'\0');file.readAt(0,bytes,stop);file.verifyUnchanged();poll();return bytes;}
 void immutable(const std::filesystem::path &path,std::string_view bytes){check(bytes.size()<=16384,"Assembly publication marker exceeds bank");const auto partial=path.parent_path()/(Id::generate().str()+".partial");media_io::File f(partial,true);f.write(bytes);f.flush();f.close();media_io::publishMedia(partial,path);}
 struct Wave {
@@ -127,6 +139,7 @@ CompAssemblyRequest loadReferencedCompAssemblyRequest(const std::filesystem::pat
 std::string compAssemblyExecutableSha256(){return media_io::executingImageSha256();}
 void publishCompAssembly(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,CompAssemblyProgress progress,std::stop_token stop){
     rootPath(root);fresh(s,ctx,p,r);check(compAssemblyExecutableSha256()==r.executorSha256(),"Running assembler differs from original request",ErrorCode::MediaMismatch);auto poll=polling(root,r,stop,true);poll();auto work=ledger.reserve(2*1024*1024);
+    verifyHistory(root,s,ctx,p,r,ledger,poll,stop);
     directory(root/"media");directory(root/"media/comp-assemblies");const auto folder=root/utf8Path(jobPath(r));check(std::filesystem::create_directory(folder),"Assembly job already exists",ErrorCode::Io);media_io::flushDirectory(folder.parent_path());media_io::JobLease owner(folder,true);
     immutable(folder/"intent.json",r.bytes());directory(root/"media/comp-results");const auto resultFolder=root/"media/comp-results"/p.recipe().operation().str();directory(resultFolder);const bool newLock=!present(resultFolder/"writer.lock");media_io::JobLease outputOwner(resultFolder,newLock,!newLock);check(outputOwner.status()==media_io::LeaseStatus::Held,"Assembly result publication busy",ErrorCode::Io);
     std::array<std::optional<Asset>,2> assets;Json rows=Json::array();
@@ -134,15 +147,22 @@ void publishCompAssembly(const std::filesystem::path &root,const Session &s,cons
         const auto report=streamCompPairFragment(root,s,ctx,p,side,[&](std::span<const float> values){poll();const auto n=sf_count_t(values.size()/a.layout.channels);check(sf_writef_float(wave.file,values.data(),n)==n && sf_error(wave.file)==SF_ERR_NO_ERROR,"Assembly WAV write failed",ErrorCode::Io);samples.update(values);},ledger,r.policy().assembly,stop);
         wave.close();poll();if(progress)progress(CompAssemblyStage::FileClosed,side);poll();a.sha256=hashMediaFile(partial,poll);media_io::publishMedia(partial,final);if(progress)progress(CompAssemblyStage::FilePublished,side);poll();rows.push_back(row(a,report.domain,samples.digest(),report.pcm.floatPeak));assets[side]=a;
     }
-    (void)verifyFiles(root,s,ctx,p,r,assets,rows,ledger,stop,poll);fresh(s,ctx,p,r);check(compAssemblyExecutableSha256()==r.executorSha256(),"Assembler image changed during publication");poll();if(progress)progress(CompAssemblyStage::BeforeCompletion,2);poll();fresh(s,ctx,p,r);
+    (void)verifyFiles(root,s,ctx,p,r,assets,rows,ledger,stop,poll);fresh(s,ctx,p,r);check(compAssemblyExecutableSha256()==r.executorSha256(),"Assembler image changed during publication");poll();if(progress)progress(CompAssemblyStage::BeforeCompletion,2);poll();fresh(s,ctx,p,r);verifyHistory(root,s,ctx,p,r,ledger,poll,stop);
     const auto complete=Json{{"protocol",compAssemblyProtocol},{"requestDigest",r.digest()},{"complete",true},{"outputs",rows},{"durabilityMinimum","file-flushed"}}.dump();immutable(folder/"complete.json",complete);
 }
-VerifiedCompAssembly verifyCompAssembly(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,std::stop_token stop){
+VerifiedCompAssembly detail::CompAssemblyFileVerifier::verify(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,std::stop_token stop){
     fresh(s,ctx,p,r);auto poll=polling(root,r,stop,false);poll();auto work=ledger.reserve(2*1024*1024);auto retained=ledger.reserve(65536);media_io::JobLease owner(root/utf8Path(jobPath(r)),false);check(owner.status()==media_io::LeaseStatus::Held,"Assembly writer active or missing");ApprovedMediaRoot approved(root,ledger,{1});const auto intent=read(approved,jobPath(r)+"/intent.json",stop,poll);check(intent==r.bytes(),"Assembly intent changed");const auto bytes=read(approved,jobPath(r)+"/complete.json",stop,poll);
     try{const auto j=parse(bytes);check(j.is_object() && j.size()==5 && j.at("protocol").is_string() && j.at("protocol").get_ref<const std::string &>()==compAssemblyProtocol && j.at("requestDigest")==r.digest() && j.at("complete").is_boolean() && j.at("complete")==true && j.at("durabilityMinimum")=="file-flushed","Invalid assembly completion");const auto &rows=j.at("outputs");check(rows.is_array() && rows.size()==2,"Invalid completion outputs");std::array<std::optional<Asset>,2> assets;
         for(unsigned side=0;side<2;++side){if(!r.outputs()[side]){check(rows[side].is_null(),"Unexpected assembly output");continue;}auto a=output(p,r,side);a.sha256=rows[side].at("sha256").get<std::string>();check(sha(a.sha256),"Invalid assembly output hash");assets[side]=a;}
         const auto compared=verifyFiles(root,s,ctx,p,r,assets,rows,ledger,stop,poll);check(read(approved,jobPath(r)+"/intent.json",stop,poll)==intent && read(approved,jobPath(r)+"/complete.json",stop,poll)==bytes,"Assembly markers changed during verification");fresh(s,ctx,p,r);poll();return {std::move(retained),std::move(assets),r.digest(),compared};
     }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid assembly completion fields");}
+}
+VerifiedCompAssembly verifyCompAssembly(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,
+    const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,std::stop_token stop){
+    fresh(s,ctx,p,r);auto poll=polling(root,r,stop,false);poll();
+    verifyHistory(root,s,ctx,p,r,ledger,poll,stop);
+    auto result=detail::CompAssemblyFileVerifier::verify(root,s,ctx,p,r,ledger,stop);
+    verifyHistory(root,s,ctx,p,r,ledger,poll,stop);fresh(s,ctx,p,r);poll();return result;
 }
 CompAssemblyRecovery inspectCompAssembly(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,std::stop_token stop){
     CompAssemblyRecovery result;try{check(!stop.stop_requested(),"Assembly recovery canceled",ErrorCode::Canceled);fresh(s,ctx,p,r);const auto folder=root/utf8Path(jobPath(r));if(!present(folder))return result;result.cancellationRequested=present(folder/"cancel.request");

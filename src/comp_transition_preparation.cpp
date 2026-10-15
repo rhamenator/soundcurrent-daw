@@ -9,6 +9,8 @@ PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &r
     poll();PayloadCharge charge("Comp transition preparation",SIZE_MAX);
     charge.add(sessionPayloadBytes(s),3);charge.add(128*1024);auto lease=ledger.reserve(charge.bytes());
     auto plan=prepareCompProcessing(s,transition,context,maximum,ledger);poll();
+    if(plan.handles().outgoing().data().regeneration || plan.handles().incoming().data().regeneration)
+        throw ProjectError(ErrorCode::UnsupportedSchema,"Repeated comp pairs require verified queued adoption");
     if(plan.outgoing().domain==CompProcessingDomain::ExistingMedia && plan.incoming().domain==CompProcessingDomain::ExistingMedia)
         throw ProjectError(ErrorCode::InvalidParameter,"This transition can use existing source handles without rendering");
     const auto image=compAssemblyExecutableSha256();poll();

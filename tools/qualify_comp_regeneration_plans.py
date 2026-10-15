@@ -20,7 +20,7 @@ with (scope/'tests.stdout').open('w') as out,(scope/'tests.stderr').open('w') as
     proc=subprocess.Popen(command,cwd=repo,stdout=out,stderr=err);code=proc.wait()
 seconds=time.monotonic()-start;(scope/'LastTest.log').write_bytes((build/'Testing/Temporary/LastTest.log').read_bytes());assert code==0,(scope,code)
 new=set(runs.iterdir())-before;assert len(new)==1;run=new.pop();report=json.loads((run/'report.json').read_text());resolved=report['reports'];assert len(resolved)==3
-assert all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and r['mixedAdmissionRefused'] for r in resolved)
+assert all(r['plannedRecipes']==4 and r['legacyRecipes']==2 and r['mixedPairPlanned'] for r in resolved)
 assert all(r['joinedMemoryReleased'] and r['stateUnchanged'] and not r['fileVerification'] and not r['newRendering'] and not r['qualityAdmission'] for r in resolved)
 assert sum(len(r['actualAdoptedSourceCases']) for r in resolved)==6 and sum(r['metadataOnlyAdditionalGenerations'] for r in resolved)==9
 assert sorted({c['sourceRate'] for r in resolved for c in r['actualAdoptedSourceCases']})==[44100,48000,96000]

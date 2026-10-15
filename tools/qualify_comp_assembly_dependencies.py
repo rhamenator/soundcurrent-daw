@@ -32,7 +32,7 @@ reviews=[c for r in history['reports'] for c in r['reviews']]
 assert len(reviews)==6 and all(c['queuedDependencyGuard'] and c['queuedStaleRefusals']==8 for c in reviews)
 assert all(r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['qualityAdmission'] for r in history['reports'])
 assert all(p['exitCode']==0 for p in history['reviewProcesses'])
-assert v2['successfulV2Workers']==9 and v2['refusedV2Workers']==4 and not v2['pairedAssemblyEnabled'] and v2['projectBytesUnchanged']
+assert v2['successfulV2Workers']==9 and v2['refusedV2Workers']==4 and not v2['applicationEntryEnabled'] and not v2['pairedAssemblyExercised'] and v2['projectBytesUnchanged']
 assert all(r['verification']['historyReviewed'] and r['verification']['joinedMemoryReleased'] and not r['verification']['assemblyAdoption'] for r in v2['reports'])
 workers=[r for r in v2['processes'] if r['kind']=='v2-worker'];assert len(workers)==13
 assert sum(r['exitCode']==0 for r in workers)==9 and all(not r['retirementPending'] and not r['observationTimedOut'] for r in workers)
@@ -53,7 +53,7 @@ for workflow in [history['inputs']['inputWorkflow'],v2['inputWorkflow']['inputWo
     processes=[p for p in workflow['processes'] if p['kind'] in ['worker','nominal-worker']]
     assert len(processes)==12 and all(p['exitCode']==0 and not p['retirementPending'] and not p['observationTimedOut'] for p in processes)
 assert sources=={n:sha(repo/n) for n in files} and binaries=={str(n):sha(n) for n in inputs} and head==git('rev-parse','HEAD')
-receipt=dict(checkpoint=293,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,queuedHistoricalGuards=6,queuedStaleRefusals=48,layeredGuards=12,ancestorDependencyRefusals=sum(r['ancestorDependencyRefusals'] for r in plans['reports']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),historicalPcmComparisons=sum(c['comparedSamples'] for c in reviews),successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2['completePcmSamples'],mainWindowCases=6,legacyExportHashesUnchanged=True,allObservedProcessesReaped=True,pairedRegenerationEnabled=False,nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
+receipt=dict(checkpoint=293,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,queuedHistoricalGuards=6,queuedStaleRefusals=48,layeredGuards=12,ancestorDependencyRefusals=sum(r['ancestorDependencyRefusals'] for r in plans['reports']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),historicalPcmComparisons=sum(c['comparedSamples'] for c in reviews),successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2['completePcmSamples'],mainWindowCases=6,legacyExportHashesUnchanged=True,allObservedProcessesReaped=True,applicationEntryEnabled=False,pairedAssemblyExercised=False,nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
 (scope/'qualification.json').write_text(json.dumps(receipt,indent=2)+'\n');public.mkdir(parents=True,exist_ok=True);archive=public/'acceptance.zip';assert not archive.exists()
 manifest={};blobs=set()
 with zipfile.ZipFile(archive,'x',zipfile.ZIP_DEFLATED,compresslevel=6) as z:

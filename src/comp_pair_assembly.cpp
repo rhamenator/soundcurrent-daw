@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_pair_assembly.hpp>
+#include <soundcurrent/comp_regeneration_source.hpp>
 #include <soundcurrent/media_cache.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
 #include "media_io.hpp"
@@ -40,15 +41,17 @@ CompPairAssemblyReport streamCompPairFragment(const std::filesystem::path &root,
         std::array<std::optional<Asset>,2> nominals;
         for(unsigned side=0;side<2;++side){poll();
             const auto &source=(side?plan.handles().incoming():plan.handles().outgoing()).data();
-            if(!source.expected.stretch)continue;
-            const auto &nominal=source.nominalAsset?*source.nominalAsset:source.base;
+            const auto &original=source.regeneration?source.regeneration->data().originalNominalClip:source.expected;
+            if(!original.stretch)continue;
+            check(!source.regeneration || source.regeneration->data().originalNominal.has_value(),"Regenerated nominal source missing");
+            const auto &nominal=source.regeneration?*source.regeneration->data().originalNominal:(source.nominalAsset?*source.nominalAsset:source.base);
             const auto relative="media/derived/"+nominal.id.str();
             check(nominal.relativePath==relative+"/audio.wav","Nominal comp media lacks its original owned render path");
             media_io::JobLease lease(root/utf8Path(relative),false);
             check(lease.status()==media_io::LeaseStatus::Held,"Original nominal render has not retired");
-            const ClipStretchPlan original{source.track,source.expected,source.raw,*source.expected.stretch};
-            const auto reviewed=verifyOwnedClipStretch(root,original,nominal.id,limits.nominalPolicies[side],ledger,stop);
-            check(reviewed.edit().rendered==nominal && reviewed.edit().value==*source.expected.stretch,
+            const ClipStretchPlan nominalPlan{source.track,original,source.raw,*original.stretch};
+            const auto reviewed=verifyOwnedClipStretch(root,nominalPlan,nominal.id,limits.nominalPolicies[side],ledger,stop);
+            check(reviewed.edit().rendered==nominal && reviewed.edit().value==*original.stretch,
                 "Original nominal completion differs from canonical comp asset or anchor");
             nominals[side]=nominal;poll();
         }

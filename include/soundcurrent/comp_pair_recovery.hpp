@@ -57,6 +57,9 @@ struct CompPairRecovery {
     bool staleSelection=false;
     bool candidatesReady() const noexcept;
 };
+// Candidate readiness validates span files and current metadata only. Original
+// assembly ancestry is reviewed by high-level assembly publication/verification.
+// This result does not authorize canonical adoption.
 CompPairRecovery inspectCompPair(const std::filesystem::path &,const Session &,
     const CompHandlePlanContext &,const CompPairSelection &,ResourceLedger,std::stop_token={});
 // Verify readiness, fresh model/context and original intent before the start ack.

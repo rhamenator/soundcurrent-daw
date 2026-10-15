@@ -40,8 +40,6 @@ void immutable(const std::filesystem::path &root,std::string_view relative,std::
 bool present(const std::filesystem::path &p){return std::filesystem::exists(std::filesystem::symlink_status(p));}
 }
 CompPairSelection prepareCompPairSelection(CompProcessingRecipe recipe,CompRecipeExecutor parent,std::string worker,const std::array<Id,2> &operations,CompSpanWorkerPolicy p,ResourceLedger ledger){
-    check(!recipe.plan().handles().outgoing().data().regeneration && !recipe.plan().handles().incoming().data().regeneration,
-        "Repeated comp pairs require verified queued adoption",ErrorCode::UnsupportedSchema);
     check(p.memoryBytes>=128ULL*1024*1024 && p.memoryBytes<=4096ULL*1024*1024 && p.memoryBytes%(1024*1024)==0 && p.maximumSourceBytes>0 && p.maximumSourceBytes<=8ULL*1024*1024*1024 && p.maximumOutputBytes>=4096 && p.maximumOutputBytes<=8ULL*1024*1024*1024 && p.deadlineMilliseconds>=100 && p.deadlineMilliseconds<=3600000,"Invalid paired worker policy");
     check(sha(worker) && operations[0]!=operations[1] && operations[0]!=recipe.operation() && operations[1]!=recipe.operation(),"Invalid paired worker/operations");auto retained=ledger.reserve(65536);std::array<std::optional<CompSpanRequest>,2> children;
     for(unsigned side=0;side<2;++side){const auto domain=side?recipe.plan().incoming().domain:recipe.plan().outgoing().domain;

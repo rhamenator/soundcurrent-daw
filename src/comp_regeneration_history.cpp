@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_regeneration_history.hpp>
-#include <soundcurrent/comp_assembly_job.hpp>
+#include "comp_assembly_file_verifier.hpp"
 #include <soundcurrent/comp_playback_source.hpp>
 #include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/approved_media.hpp>
@@ -79,7 +79,7 @@ ReviewedCompRegenerationHistory reviewCompRegenerationHistory(const std::filesys
             check(p!=d.history.end() && p->assembly==h.assembly && p->side==side && p->selectionSha256==h.selectionSha256,"Historical paired output closure incomplete");
             expectedSamples+=std::uint64_t(p->source.rendered.frames)*p->source.rendered.layout.channels;
         }
-        const auto verified=verifyCompAssembly(root,selected,context,pair,request,ledger,stop);poll(stop);
+        const auto verified=detail::CompAssemblyFileVerifier::verify(root,selected,context,pair,request,ledger,stop);poll(stop);
         check(verified.requestDigest()==h.assembly.requestSha256 && verified.comparedSamples()==expectedSamples,"Historical assembly verification identity changed");
         for(unsigned side=0;side<2;++side)if(verified.outputs()[side]){
             const auto *p=findCompPlaybackSource(s,verified.outputs()[side]->id);check(p && p->assembly==h.assembly && p->side==side && p->selectionSha256==h.selectionSha256,"Historical completion differs from source identity");

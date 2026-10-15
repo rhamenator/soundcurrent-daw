@@ -161,11 +161,10 @@ void mixedAdmission(Session s){
         check(plan.outgoing().domain==CompProcessingDomain::ExistingMedia && plan.incoming().domain!=CompProcessingDomain::ExistingMedia &&
             plan.handles().outgoing().data().regeneration && !plan.handles().incoming().data().regeneration,"Mixed corpus failed to reach unchanged assembled side");
         auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),executor,ledger);
-        const auto unsupported=[&](auto f){try{f();throw std::runtime_error("Mixed unverified history admitted");}
-            catch(const ProjectError &error){check(error.code()==ErrorCode::UnsupportedSchema,"Mixed history lacked explicit producer refusal");}};
         auto mixed=encodeCompSpanRequest(recipe,executor,1,Id::generate(),std::string(64,'b'),ledger);
         check(mixed.requiresHistory() && mixed.protocol()==compRegenerationSpanProtocol,"Unchanged assembled sibling lost history requirement");
-        unsupported([&]{(void)prepareCompPairSelection(std::move(recipe),executor,std::string(64,'b'),{Id::generate(),Id::generate()},{},ledger);});
+        auto pair=prepareCompPairSelection(std::move(recipe),executor,std::string(64,'b'),{Id::generate(),Id::generate()},{},ledger);
+        check(!pair.children()[0] && pair.children()[1] && pair.children()[1]->requiresHistory(),"Mixed pair lost unchanged sibling history");
     }
     check(s==original && !ledger.usage().reservedBytes,"Mixed admission modified state or leaked resources");
 }
@@ -240,6 +239,6 @@ int main(){try{
     auto invalid=s;invalid.compPlaybackSources.clear();refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     invalid=s;invalid.compPlaybackSources[0].source.rawMap[0].raw.frame++;refuses([&]{resolveCompRegenerationSource(invalid,invalid.tracks[0].id,c.id,context,ledger);});
     check(ledger.usage().reservedBytes==0 && s==original,"Refusal changed state or leaked resources");
-    Json result{{"clockRenders",clockRenders},{"guardedPlans",guardedPlans},{"ancestorDependencyRefusals",ancestorDependencyRefusals},{"checks",checks},{"mixedAdmissionRefused",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",true},{"ownedRegeneration",false},{"qualityAdmission",false}};
+    Json result{{"clockRenders",clockRenders},{"guardedPlans",guardedPlans},{"ancestorDependencyRefusals",ancestorDependencyRefusals},{"checks",checks},{"mixedPairPlanned",true},{"plannedRecipes",plannedRecipes},{"legacyRecipes",legacyRecipes},{"actualAdoptedSourceCases",reports},{"metadataOnlyAdditionalGenerations",depth},{"stateUnchanged",true},{"joinedMemoryReleased",true},{"fileVerification",false},{"newRendering",true},{"ownedRegeneration",false},{"qualityAdmission",false}};
     std::ofstream out(root/"regeneration-source-report.json");out<<result.dump(2)<<'\n';check(bool(out),"Report write failed");std::cout<<result.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

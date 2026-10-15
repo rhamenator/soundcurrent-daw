@@ -2,6 +2,7 @@
 #pragma once
 #include "comp_pair_assembly.hpp"
 namespace soundcurrent::daw {
+namespace detail {struct CompAssemblyFileVerifier;}
 inline constexpr std::string_view compAssemblyProtocol="sc-comp-assembly-v1";
 struct CompAssemblyJobPolicy {
     CompPairAssemblyLimits assembly;
@@ -65,6 +66,7 @@ class VerifiedCompAssembly {
     const auto &requestDigest() const {return digest_;}
     std::uint64_t comparedSamples() const {return compared_;}
   private:
+    friend struct detail::CompAssemblyFileVerifier;
     friend VerifiedCompAssembly verifyCompAssembly(const std::filesystem::path &,const Session &,const CompHandlePlanContext &,const CompPairSelection &,const CompAssemblyRequest &,ResourceLedger,std::stop_token);
     VerifiedCompAssembly(ResourceLease lease,std::array<std::optional<Asset>,2> outputs,std::string digest,std::uint64_t compared)
         :lease_(std::move(lease)),outputs_(std::move(outputs)),digest_(std::move(digest)),compared_(compared){}
@@ -74,7 +76,8 @@ class VerifiedCompAssembly {
     std::uint64_t compared_;
 };
 // Read-only after writer retirement: exact original intent, full WAV/hash and
-// independently recomputed complete PCM, plus separate scope review. This is a
+// independently recomputed complete PCM, separate scope review, and original
+// histories of both sides before and after verification. This is a
 // file-integrity/algorithm result, NOT sonic quality or a model-adoption token.
 VerifiedCompAssembly verifyCompAssembly(const std::filesystem::path &,const Session &,const CompHandlePlanContext &,
     const CompPairSelection &,const CompAssemblyRequest &,ResourceLedger,std::stop_token={});

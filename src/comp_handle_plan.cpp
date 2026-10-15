@@ -105,7 +105,8 @@ CompHandleEnvelope prepareCompHandleEnvelope(const Session &s,const Id &trackId,
     const auto &raw=regeneration?regeneration->data().raw:find(s.assets,c.stretch?c.stretch->sourceAssetId:c.assetId);
     const auto &base=find(s.assets,c.assetId),&retainedAsset=find(s.assets,retained.assetId);
     const auto &original=regeneration?regeneration->data().originalNominalClip:c;
-    require(raw.id==retained.assetId || (original.stretch && retained.stretch && raw.id==retained.stretch->sourceAssetId && original.stretch->sourceSha256==retained.stretch->sourceSha256),"Handle render source differs from retained take");
+    const auto *retainedAssembly=findCompPlaybackSource(s,retained.assetId);
+    require(raw.id==retained.assetId || (retainedAssembly && retainedAssembly->source.raw==raw) || (original.stretch && retained.stretch && raw.id==retained.stretch->sourceAssetId && original.stretch->sourceSha256==retained.stretch->sourceSha256),"Handle render source differs from retained take");
     PreparedMap preparedMap;
     if(regeneration){
         const auto &resolved=regeneration->data();
@@ -118,7 +119,16 @@ CompHandleEnvelope prepareCompHandleEnvelope(const Session &s,const Id &trackId,
     const auto m=clipSourceMap(c,base.sampleRate,s.sampleRate);const auto outputFirst=coordinate(m,first-c.startFrame),outputLast=coordinate(m,end-1-c.startFrame),outputEnd=coordinate(m,end-c.startFrame);
     const auto rawFirst=rawAt(outputFirst,oldMap),rawLast=rawAt(outputLast,oldMap),rawEnd=rawAt(outputEnd,oldMap);
     const auto allowed=clipSourceMap(retained,retainedAsset.sampleRate,s.sampleRate);auto allowedFirst=allowed.at(0),allowedEnd=allowed.at(retained.lengthFrames);
-    if(retained.assetId!=raw.id){require(bool(retained.stretch),"Missing retained raw map");auto rg=stretchGeometry(*retained.stretch,raw.frames);if(!retained.compHandles && sourcePositionLess(rg.visibleEnd,allowedEnd))allowedEnd=rg.visibleEnd;allowedFirst=processedClipOutputToRaw(retained,raw,allowedFirst);allowedEnd=processedClipOutputToRaw(retained,raw,allowedEnd);}
+    if(retained.assetId!=raw.id){
+        if(retained.stretch){auto rg=stretchGeometry(*retained.stretch,raw.frames);if(!retained.compHandles && sourcePositionLess(rg.visibleEnd,allowedEnd))allowedEnd=rg.visibleEnd;
+            allowedFirst=processedClipOutputToRaw(retained,raw,allowedFirst);allowedEnd=processedClipOutputToRaw(retained,raw,allowedEnd);
+        }else{
+            require(retainedAssembly && retainedAssembly->source.raw==raw,"Missing retained assembled raw map");
+            if(sourcePositionLess({retainedAsset.frames,0,1},allowedEnd))allowedEnd={retainedAsset.frames,0,1};
+            allowedFirst=compPlaybackRawPosition(retainedAssembly->source,allowedFirst);
+            allowedEnd=compPlaybackRawPosition(retainedAssembly->source,allowedEnd);
+        }
+    }
         if(c.stretch || regeneration)require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),"Requested handles exceed retained take");
     else require(!sourcePositionLess(rawFirst,allowedFirst) && !sourcePositionLess(allowed.at(retained.lengthFrames-1),rawLast),"Requested raw handles exceed retained take");
     const auto prefix=outputFirst.negative?ceil(outputFirst.magnitude):0;
