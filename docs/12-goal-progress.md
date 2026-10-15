@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Concurrent startup readiness (2026-10-15)
+
+[Checkpoint 306](306-startup-snapshot-admission.md) reproduces a caller-clock
+snapshot failure in both monitor consumers. Readiness newer than that sample now
+waits for fresh independent time while preserving silence, finite PCM, cancellation
+and bounded warmup. PipeWire bank counters are read after readiness acquisition.
+Seven Debug and seven Release suites pass; six C++ units pass Windows cross syntax.
+The original failures and two explicit fixture corrections remain retained.
+Measured CI timings now place the full inventory in three Linux shards with all
+checks and existing deadlines retained. Native Windows execution and actual CI
+scheduling results remain pending; installed previews and the full goal are unchanged.
+
+
 ## Repeated protected history (2026-10-15)
 
 [Checkpoint 305](305-protected-comp-history.md) regenerates protected spans from

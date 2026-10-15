@@ -84,8 +84,10 @@ installed delivery remains pending.
 regenerates from original raw anchors with versioned history bindings. One Debug
 and five Release suites pass; all 24 new audio hashes match across builds.
 Repeated protected desktop interaction and native Windows runtime remain pending.
-The preceding CI has a one-frame recording failure under investigation and a
-Linux job that exhausted its time budget after CTest during archive verification.
+A [startup handoff correction](docs/306-startup-snapshot-admission.md) now handles
+readiness published after a caller's clock sample. Seven Debug and seven Release
+suites pass. CI scheduling now uses measured weights across three Linux jobs;
+new native Windows and scheduling confirmation remain pending.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.
