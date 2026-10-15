@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Waveform source preparation (2026-10-15)
+
+[Checkpoint 341](341-waveform-source-pyramid.md) adds a Qt-independent, bounded
+per-channel min/max pyramid from fully validated pinned WAVE media. Exact source
+intervals, floating headroom, identity verification, cancellation and resource
+retirement are covered by 164,507 checks. The existing WAVE suite also passes;
+both suites pass Release and ASan/UBSan. Native Windows CI coverage is added but
+has not yet run on this change. The timeline and installed previews are unchanged.
+Next implement the isolated worker protocol, asynchronous controller and viewport
+drawing with stale-result rejection. Full goal incomplete.
+
 ## Installed Windows timing gate passes (2026-10-15)
 
 [Checkpoint 340](340-installed-windows-timing.md) repairs asynchronous dialog
