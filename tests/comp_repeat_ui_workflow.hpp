@@ -55,7 +55,7 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
         if(auto *box=qobject_cast<QMessageBox *>(w);box && box->isVisible())if(auto *b=box->button(QMessageBox::Discard))b->click();});dismiss.start(2);
     for(unsigned mode=0;mode<(expanded?6U:1U);++mode){
         const auto folder=scope/("case-"+std::to_string(mode)),root=folder/utf8Path("project-é-日本");
-        std::filesystem::create_directories(folder);std::filesystem::copy(source,root,std::filesystem::copy_options::recursive);
+        std::filesystem::create_directories(folder);std::filesystem::copy(fileSystemApiPath(source),fileSystemApiPath(root),std::filesystem::copy_options::recursive);
         ProjectStore(root).save(baseline);Json row{{"case",mode},{"generations",Json::array()}};
         ResourceLedger memory(512*1024*1024,"Repeated UI assembly");
         {

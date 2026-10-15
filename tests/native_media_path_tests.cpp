@@ -62,6 +62,14 @@ int main(){std::filesystem::path base;try{
     options.beforePublish=[]{throw ProjectError(ErrorCode::Canceled,"Injected publication failure");};
     refuses([&]{store.save(interrupted,options);});check(store.load()==session,"Interrupted long save changed current project");
 
+    const auto relocated=root.parent_path()/utf8Path("relocated-é-日本");
+    std::filesystem::copy(fileSystemApiPath(root),fileSystemApiPath(relocated),std::filesystem::copy_options::recursive);
+    check(ProjectStore(relocated).load()==session && ProjectStore(relocated).loadPrevious()==prior,
+        "Copied long project or backup changed");
+    check(hashMediaFile(relocated/"audio.wav")==hash.digest(),"Copied long media bytes changed");
+    check(media_io::readJournal(relocated/"intent.json")=="second\n","Copied long journal changed");
+    check(store.load()==session && hashMediaFile(output)==hash.digest(),"Relocation copy changed original");
+
     const auto length=root.native().size();std::filesystem::remove_all(fileSystemApiPath(base));
-    std::cout<<"{\"checks\":"<<checks<<",\"rootNativeUnits\":"<<length<<",\"unprefixedWin32Error\":"<<unprefixedError<<",\"projectSavedReopened\":true,\"mediaHashVerified\":true,\"journalPublished\":true,\"overwriteRefused\":true,\"leaseConflictRefused\":true}\n";return 0;
+    std::cout<<"{\"checks\":"<<checks<<",\"rootNativeUnits\":"<<length<<",\"unprefixedWin32Error\":"<<unprefixedError<<",\"relocationCopyVerified\":true,\"projectSavedReopened\":true,\"mediaHashVerified\":true,\"journalPublished\":true,\"overwriteRefused\":true,\"leaseConflictRefused\":true}\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<"; fixture retained at "<<base<<'\n';return 1;}}

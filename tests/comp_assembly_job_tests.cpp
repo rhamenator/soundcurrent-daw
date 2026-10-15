@@ -149,7 +149,7 @@ int main(int argc,char **argv){try{
     auto wrong=prepareCompAssemblyRequest(s,context,pair,Id::generate(),{Id::generate(),Id::generate()},std::string(64,'0'),{},ledger);refuses([&]{publishCompAssembly(root,s,context,pair,wrong,ledger);});check(!std::filesystem::exists(folder(wrong)),"Wrong executable created job");
     {auto checked=verifyCompAssembly(root,s,context,pair,r,ledger);check(checked.outputs()==outputs,"Restored pair changed verified identity");}
     check(ProjectStore(root).load()==registered,"Assembly publication mutated registered project");
-    const auto relocated=root.parent_path()/"relocated-assembly";std::filesystem::copy(root,relocated,std::filesystem::copy_options::recursive);
+    const auto relocated=root.parent_path()/"relocated-assembly";std::filesystem::copy(fileSystemApiPath(root),fileSystemApiPath(relocated),std::filesystem::copy_options::recursive);
     const auto moved=ProjectStore(relocated).load();const CompHandlePlanContext movedContext{61,"relocated-assembly-owner"};
     auto movedPair=loadReferencedCompPairSelection(relocated,moved,movedContext,reference.selectionOperation,ledger);
     auto movedRequest=loadReferencedCompAssemblyRequest(relocated,moved,movedContext,movedPair,reference.operation,ledger);
