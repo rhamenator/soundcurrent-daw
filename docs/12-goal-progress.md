@@ -1,5 +1,23 @@
 # Active full-suite goal: progress and completion evidence
 
+## Exact-clock protected gap rendering (2026-10-15)
+
+[Checkpoint 309](309-clocked-protected-warp.md) adds an isolated full-gap renderer
+with exact intrinsic grids, bounded sampling and crop-stable semantic halo blends.
+A separate 64-bit processing grid preserves the existing project timing formats.
+Eight Release, eight Debug and five optimized ASan/UBSan suites pass. Two prior
+unoptimized sanitizer timeouts remain recorded as failures under the original
+180-second limit. Seven renderer cases and a 37-case independent exact oracle
+pass; the existing resampling kernel remains bit-identical in its comparison bank.
+The preceding original CI now passes all ten jobs: 203 Linux, 27+93 native core
+and 22/6/1 desktop tests. All logs, nine ZIPs and 214 PNGs are retained. Native
+prepared-core oracle responses match Linux; its C++ PASS is retained but emitted
+counters were overwritten, so future CI preserves the first CTest log separately.
+Exact fractional outer handles, worker/history binding, application adoption,
+new native execution, independent quality and installed previews remain open.
+The full DAW goal remains incomplete.
+
+
 ## Exact protected-core sampling (2026-10-15)
 
 [Checkpoint 308](308-protected-core-sampling.md) adds an owned, bounded sampler for

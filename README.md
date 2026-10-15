@@ -87,18 +87,21 @@ The [repeated protected desktop workflow](docs/307-protected-repeated-desktop.md
 now passes nine adoptions and failure/close checks in Debug/Release, with exact
 Linux engine/export comparisons. Native engine history tests pass; measured
 44.1 kHz numerical differences remain documented. The native repeated desktop bank
-now also passes; the separate original desktop job exceeded its deadline after
-all tests passed. CI scheduling is being corrected; installed delivery is pending.
-[Exact protected-core sampling](docs/308-protected-core-sampling.md) now passes
-fractional-clock and cropped-window geometry, sample, lifetime and sanitizer
-checks. Full gap/halo rendering and worker integration remain in development;
-this component does not yet enable fractional protected edits in the app.
-A [startup handoff correction](docs/306-startup-snapshot-admission.md) now handles
-readiness published after a caller's clock sample. Seven Debug and seven Release
-suites pass. CI scheduling now uses measured weights across three Linux jobs;
-the preceding original CI now passes all 200 Linux, 118 native core and 28 native
-desktop suites. The new desktop bank has separate native CI under the same required
-status, with all existing deadlines retained.
+now also passes. The preceding original CI passes all ten jobs: 203 Linux,
+27+93 native core and 22/6/1 native desktop suites, including the required aggregate.
+[Exact protected-core sampling](docs/308-protected-core-sampling.md) passes
+fractional-clock and cropped-window geometry, sample, lifetime and sanitizer checks;
+native exact oracle responses now match Linux.
+[Exact-clock gap rendering](docs/309-clocked-protected-warp.md) adds an isolated
+renderer with crop-stable halo blending and bounded sampling. Eight Release, eight
+Debug and five optimized sanitizer suites pass; two prior unoptimized sanitizer
+timeouts remain documented. Full fractional outer-handle and worker integration
+remain in development; these components do not yet enable fractional protected
+edits in the app. Independent quality admission and installed delivery remain open.
+A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
+readiness published after a caller's clock sample, with the original native
+one-frame regression now passing. CI scheduling uses measured Linux weights and
+preserves every check and deadline.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.
