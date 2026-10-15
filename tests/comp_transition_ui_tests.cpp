@@ -101,6 +101,9 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         auto expected=original;
         if((mode>=1 && mode<=3) || mode==7){
             wait([&]{return entered.load();});int ticks=0;QTimer timer;timer.setInterval(5);QObject::connect(&timer,&QTimer::timeout,&window,[&]{++ticks;});timer.start();QTest::qWait(35);check(ticks>0,"Preparation blocks GUI");row["guiTicks"]=ticks;
+            if(mode==1){auto *elapsed=widget<QLabel>(window,"compRenderElapsed");const auto before=elapsed->text();
+                wait([&]{return elapsed->text()!=before;});check(elapsed->isVisible(),"Render elapsed time is hidden");
+                row["elapsedWhilePreparing"]=elapsed->text().toStdString();}
             if(mode==1)widget<QPushButton>(window,"cancelCompRender")->click();
             if(mode==2){window.openProject(root);wait([&]{return window.snapshot()->projectEpoch!=opened->projectEpoch && window.snapshot()->io==IoOperation::None;});}
             if(mode==3){auto processing=track.clips[0].processing;processing.gainDb=1;
@@ -138,6 +141,10 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             const auto operation=*window.compAssemblySnapshot()->operation;
             check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Old fixture job reused");
             auto *reviewNew=widget<QPushButton>(window,"reviewCreatedComp");wait([&]{return reviewNew->isEnabled();});
+            auto *elapsed=widget<QLabel>(window,"compRenderElapsed");const auto finishedTime=elapsed->text();
+            check(finishedTime.startsWith("Elapsed: ") && finishedTime.endsWith(" s"),"Render elapsed time missing");
+            QTest::qWait(220);check(elapsed->text()==finishedTime,"Completed render elapsed time kept advancing");
+            row["elapsedAtCompletion"]=finishedTime.toStdString();
             check(widget<QDialog>(window,"compRenderProgress")->grab().save(qtPath(root.parent_path()/"rendered.png")),"Result screenshot failed");reviewNew->click();
             auto *list=widget<QListWidget>(window,"compAssemblyList");check(list->currentItem() && list->currentItem()->data(Qt::UserRole).toString()==QString::fromStdString(operation.str()),"New request not selected for review");
             auto *apply=widget<QPushButton>(window,"applyCompAssembly");wait([&]{return apply->isEnabled();});

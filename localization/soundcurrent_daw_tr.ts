@@ -2898,11 +2898,31 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Checking source audio and previous render history…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verifying rendered source audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Rendering the two source spans…</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Loading the saved transition and source history…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verifying transition audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Assembling and verifying transition audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Elapsed: %1 s</source>
       <translation type="unfinished" />
     </message>
     <message>

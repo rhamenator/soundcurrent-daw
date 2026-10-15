@@ -51,8 +51,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "e07bf99eb066d081ad8cbb617d00c84b99b51a6770089b72adfd76ed6025dd2d",
-    "ui/studio_window.hpp": "143d477a7a39bb4ac1cca610ab1eed215c96447f20789123c854d0b465245404",
+    "ui/studio_window.cpp": "6748660cb2b81b7b91f113730292fc2d202181962a2335cb04d55a1a6d2d5ce9",
+    "ui/studio_window.hpp": "b1f10a38dbcf2fdea37dbe8d95645232ffcc26d96fad2aeede62fd7b9e33eeaa",
     "ui/timeline_editor.cpp": "676bf20e5a509cef254da5f4b14d6865a203db6e28d8bf51ba9c6937729691fe",
     "ui/timeline_editor.hpp": "7e7c58783f6298dec40c02619484985d0177a4d64c0c8675388deee996d3a48e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -4320,13 +4320,43 @@
     ],
     [
       "StudioWindow",
+      "Checking source audio and previous render history…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying rendered source audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Rendering the two source spans…",
       "",
       false
     ],
     [
       "StudioWindow",
+      "Loading the saved transition and source history…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying transition audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Assembling and verifying transition audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Elapsed: %1 s",
       "",
       false
     ],

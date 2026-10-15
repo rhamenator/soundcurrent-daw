@@ -816,6 +816,7 @@ bool StudioWindow::requestCompTransition(PrepareCompTransition transition,Frame 
         if(compAssembly_.prepare(owner,std::move(transition),maximum)!=Admission::Accepted)return false;
         compRenderOwner_=owner;compRenderSelection_.reset();compRenderOperation_.reset();compRegistering_=0;
         compRenderCancel_=false;compRenderMessage_.clear();compRenderStage_=CompRenderStage::Preparing;
+        compRenderClock_.start();compRenderElapsedMs_=0;
         // A newly accepted render has not been applied, regardless of the previous job.
         compAssemblyMessage_.clear();
         compPair_.clearResult();showCompRenderProgress();return true;
@@ -827,6 +828,7 @@ void StudioWindow::cancelCompTransition() {
 }
 void StudioWindow::pollCompRender(const std::shared_ptr<const ControllerSnapshot> &owner) {
     if(!compRenderActive())return;
+    compRenderElapsedMs_=compRenderClock_.elapsed();
     const auto assembly=compAssembly_.snapshot();const auto pair=compPair_.snapshot();
     const auto fail=[&](const QString &message){compRenderMessage_=message;compRenderStage_=CompRenderStage::Fault;
         compRegistering_=0;compPair_.requestCancel();compAssembly_.requestCancel();notice_->setText(message);};
@@ -889,22 +891,41 @@ void StudioWindow::showCompRenderProgress() {
     dialog->setObjectName("compRenderProgress");dialog->setWindowTitle(tr("Render transition"));
     auto *layout=new QVBoxLayout(dialog);auto *status=new QLabel;status->setWordWrap(true);status->setTextFormat(Qt::PlainText);
     status->setObjectName("compRenderStatus");layout->addWidget(status);
+    auto *elapsed=new QLabel;elapsed->setObjectName("compRenderElapsed");
+    elapsed->setTextFormat(Qt::PlainText);layout->addWidget(elapsed);
     auto *buttons=new QDialogButtonBox(QDialogButtonBox::Close);layout->addWidget(buttons);
     auto *cancel=buttons->addButton(tr("Cancel rendering"),QDialogButtonBox::ActionRole);cancel->setObjectName("cancelCompRender");
     auto *review=buttons->addButton(tr("Review rendered transition"),QDialogButtonBox::ActionRole);review->setObjectName("reviewCreatedComp");
     auto *timer=new QTimer(dialog);timer->setInterval(100);
-    const auto refresh=[this,status,cancel,review]{
+    const auto refresh=[this,status,elapsed,cancel,review]{
         QString message=compRenderMessage_;
         if(compRenderCancel_ && compRenderActive())message=tr("Canceling rendering and waiting for active work to retire…");
         else switch(compRenderStage_){
           case CompRenderStage::Preparing:message=tr("Preparing transition sources and owned job files…");break;
           case CompRenderStage::Registering:message=tr("Registering the transition against the current project…");break;
           case CompRenderStage::Saving:message=tr("Saving the project and render references…");break;
-          case CompRenderStage::Spans:message=tr("Rendering the two source spans…");break;
-          case CompRenderStage::Assembly:message=tr("Assembling and verifying transition audio…");break;
+          case CompRenderStage::Spans:{
+            const auto pair=compPair_.snapshot();
+            if(pair->phase==CompPairPhase::Queued || pair->phase==CompPairPhase::Preparing)
+                message=tr("Checking source audio and previous render history…");
+            else if(pair->phase==CompPairPhase::Verifying)
+                message=tr("Verifying rendered source audio…");
+            else message=tr("Rendering the two source spans…");
+          }break;
+          case CompRenderStage::Assembly:{
+            const auto assembly=compAssembly_.snapshot();
+            if(assembly->phase==CompAssemblyPhase::Queued || assembly->phase==CompAssemblyPhase::Loading)
+                message=tr("Loading the saved transition and source history…");
+            else if(assembly->phase==CompAssemblyPhase::Verifying)
+                message=tr("Verifying transition audio…");
+            else message=tr("Assembling and verifying transition audio…");
+          }break;
           default:break;
         }
         status->setText(message);cancel->setEnabled(compRenderActive() && !compRenderCancel_);
+        // Wall time observed by the GUI, frozen once the operation is terminal.
+        // This is neither an estimate of remaining work nor an audio clock.
+        elapsed->setText(tr("Elapsed: %1 s").arg(locale().toString(double(compRenderElapsedMs_)/1000.0,'f',1)));
         review->setEnabled(compRenderStage_==CompRenderStage::Complete && compAssemblyCanWork());
     };
     connect(timer,&QTimer::timeout,dialog,refresh);connect(cancel,&QPushButton::clicked,dialog,[this]{cancelCompTransition();});

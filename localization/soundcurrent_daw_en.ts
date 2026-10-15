@@ -2906,12 +2906,32 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Saving the project and render references…</translation>
     </message>
     <message>
+      <source>Checking source audio and previous render history…</source>
+      <translation>Checking source audio and previous render history…</translation>
+    </message>
+    <message>
+      <source>Verifying rendered source audio…</source>
+      <translation>Verifying rendered source audio…</translation>
+    </message>
+    <message>
       <source>Rendering the two source spans…</source>
       <translation>Rendering the two source spans…</translation>
     </message>
     <message>
+      <source>Loading the saved transition and source history…</source>
+      <translation>Loading the saved transition and source history…</translation>
+    </message>
+    <message>
+      <source>Verifying transition audio…</source>
+      <translation>Verifying transition audio…</translation>
+    </message>
+    <message>
       <source>Assembling and verifying transition audio…</source>
       <translation>Assembling and verifying transition audio…</translation>
+    </message>
+    <message>
+      <source>Elapsed: %1 s</source>
+      <translation>Elapsed: %1 s</translation>
     </message>
     <message>
       <source>Transition review could not start. Check Project resources and retry.</source>

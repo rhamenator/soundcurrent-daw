@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Visible render stages and elapsed time (2026-10-15)
+
+[Checkpoint 329](329-comp-render-progress.md) shows source/history verification
+and assembly stages separately, with locale-formatted elapsed time frozen at the
+terminal outcome. Three focused checks pass in 22.02 seconds, including eight
+actual desktop cases at three rates and catalog validation. New strings use
+untranslated fallback where needed. Native Windows and installed qualification
+remain pending; this does not resolve the earlier Windows render delay. No VM or
+installed-preview change. Full goal incomplete.
+
 ## Preserve original interruption failures during cleanup (2026-10-15)
 
 [Checkpoint 328](328-interruption-cleanup.md) fixes the Windows observer so a

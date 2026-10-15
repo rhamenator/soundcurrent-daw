@@ -251,3 +251,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Bounded comp source scans](326-comp-source-scan-batching.md)
 - [Native Windows comp scan observation](327-windows-comp-scan-observation.md)
 - [Preserve interruption failures through cleanup](328-interruption-cleanup.md)
+- [Visible transition render stages and elapsed time](329-comp-render-progress.md)

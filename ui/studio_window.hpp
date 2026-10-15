@@ -15,6 +15,7 @@
 #include "comp_assembly_controller.hpp"
 #include "comp_pair_controller.hpp"
 #include <QPointer>
+#include <QElapsedTimer>
 #include <QMainWindow>
 #include <QCoreApplication>
 #include <vector>
@@ -107,6 +108,8 @@ class StudioWindow : public QMainWindow {
     CompAssemblyController compAssembly_;
     CompPairController compPair_;
     CompRenderStage compRenderStage_=CompRenderStage::Idle;
+    QElapsedTimer compRenderClock_;
+    qint64 compRenderElapsedMs_=0;
     bool compRenderCancel_=false;
     std::shared_ptr<const ControllerSnapshot> compRenderOwner_;
     std::optional<Id> compRenderSelection_,compRenderOperation_;
