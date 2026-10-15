@@ -20,6 +20,7 @@ for kind in kinds:
 
 def retain(): (scope/'processes.json').write_text(json.dumps(rows,indent=2)+'\n')
 def fixture(mode,root,**data):
+    if a.original_context:data.update(protected=True,clocked=True)
     proc=subprocess.Popen([str(a.repeat_fixture.resolve()),mode],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:out,err=proc.communicate(json.dumps(dict(root=str(root),workerSha256=binary,originalContext=a.original_context,**data)),timeout=180)
     except BaseException:proc.kill();proc.communicate();raise
