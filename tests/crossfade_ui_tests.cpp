@@ -21,13 +21,18 @@ using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
 unsigned checks=0;
+void stage(const char *name) {
+    std::cerr << "crossfade_stage=" << name << " checks=" << checks << std::endl;
+}
 void check(bool value,const char *message) {++checks;if(!value)throw std::runtime_error(message);}
 template<class T> T *widget(QObject &parent,const char *name) {
     auto *value=parent.findChild<T *>(name);check(value!=nullptr,"Crossfade widget missing");return value;
 }
 }
 int main(int argc,char **argv) {
+    stage("application-start");
     QApplication app(argc,argv);
+    stage("application-ready");
     try {
         const auto family=qEnvironmentVariable("SC_CROSSFADE_FONT");
         if(!family.isEmpty()){
@@ -38,11 +43,13 @@ int main(int argc,char **argv) {
         }
         // Geometry with missing-glyph boxes is not usable UI evidence. Check the
         // real resolved application font before opening or capturing the dialog.
+        stage("font-resolve");
         const auto font=QRawFont::fromFont(app.font());
         check(font.isValid(),"Crossfade test has no resolved application font");
         for(char c='!';c<='~';++c)
             check(font.supportsCharacter(uint(c)),"Crossfade test font cannot render English controls");
         std::cout<<"crossfade_font_family="<<font.familyName().toStdString()<<'\n';
+        stage("fixture-create");
         auto session=makeOneTrackSession("Crossfade UI", "Track");
         Asset asset;asset.relativePath="media/owned.wav";asset.sha256=std::string(64,'a');asset.frames=4096;
         Clip out,in;out.assetId=in.assetId=asset.id;
@@ -55,15 +62,19 @@ int main(int argc,char **argv) {
             check(edits.size()==1 && std::holds_alternative<SetClipCrossfade>(edits[0]),"Dialog did not submit one paired edit");
             ++submissions;const bool changed=history.structural(edits);publish();return changed;
         };
+        stage("timeline-publish");
         publish();timeline.show();
+        stage("timeline-shown");
         auto *clips=widget<QComboBox>(timeline,"timelineClips");
         clips->setCurrentIndex(clips->findData(QString::fromStdString(out.id.str())));
         auto *action=widget<QPushButton>(timeline,"crossfadeClips");
         check(action->isEnabled(),"Crossfade action unavailable for selected clip");
         std::exception_ptr fault;
         const auto dialogAction=[&](bool accept,bool inspectSaved) {
+            stage(accept ? "pair-accept" : inspectSaved ? "pair-reopen" : "pair-cancel");
             QTimer::singleShot(0,[&] {
                 try {
+                    stage("dialog-callback");
                     auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget());
                     check(dialog && dialog->objectName()=="crossfadeDialog","Actual crossfade dialog did not open");
                     auto *peer=widget<QComboBox>(*dialog,"crossfadeIncoming");
@@ -79,13 +90,15 @@ int main(int argc,char **argv) {
                     start->setText("500");end->setText("757");
                     curve->setCurrentIndex(curve->findData(int(ClipFadeCurve::EqualPower)));
                     if(accept && argc==2) check(dialog->grab().save(QString::fromLocal8Bit(argv[1])),"Dialog screenshot not saved");
+                    stage("pair-button-click");
                     buttons->button(accept?QDialogButtonBox::Ok:QDialogButtonBox::Cancel)->click();
                 } catch(...) {
+                    stage("dialog-exception");
                     fault=std::current_exception();
                     if(auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget()))dialog->reject();
                 }
             });
-            action->click();if(fault)std::rethrow_exception(fault);
+            stage("dialog-open");action->click();stage("dialog-returned");if(fault)std::rethrow_exception(fault);
         };
         const auto original=session;const auto before=history.resources();
         dialogAction(false,false);check(session==original && history.resources()==before && submissions==0,"Cancel changed project/history");
@@ -96,22 +109,27 @@ int main(int argc,char **argv) {
         dialogAction(false,true);check(session==selected && submissions==1,"Reopened dialog changed state on Cancel");
         check(history.undo() && session==original,"UI pair requires multiple Undo steps");publish();
         check(history.redo() && session==selected,"UI Redo differs");publish();
+        stage("pair-undo-redo-complete");
         for(const bool replaceProject:{false,true}) {
+            stage(replaceProject ? "guard-replace" : "guard-busy");
             const auto beforeRefusal=history.resources();
             QTimer::singleShot(0,[&] {
                 try {
+                    stage("dialog-callback");
                     auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget());
                     check(dialog,"Guarded dialog missing");
                     auto *peer=widget<QComboBox>(*dialog,"crossfadeIncoming");
                     peer->setCurrentIndex(peer->findData(QString::fromStdString(in.id.str())));
                     if(replaceProject) {++epoch;publish();} else timeline.editing(false);
+                    stage("guard-accept");
                     dialog->accept();
                 } catch(...) {
+                    stage("dialog-exception");
                     fault=std::current_exception();
                     if(auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget()))dialog->reject();
                 }
             });
-            action->click();if(fault)std::rethrow_exception(fault);
+            stage("dialog-open");action->click();stage("dialog-returned");if(fault)std::rethrow_exception(fault);
             check(submissions==1 && session==selected && history.resources()==beforeRefusal,
                   "Dialog accepted across busy/project replacement");
             check(widget<QLabel>(timeline,"timelineStatus")->text().contains("Crossfade selection changed"),
@@ -120,6 +138,7 @@ int main(int argc,char **argv) {
             clips->setCurrentIndex(clips->findData(QString::fromStdString(out.id.str())));
         }
         timeline.editing(false);check(!action->isEnabled(),"Crossfade edit enabled while transport is busy");
+        stage("handles-fixture");
         // An adjacent comp pair must explicitly opt into retained handles.
         timeline.editing(true);
         const auto track=session.tracks[0].id;
@@ -142,6 +161,7 @@ int main(int argc,char **argv) {
         };
         QTimer::singleShot(0,[&] {
             try {
+                stage("handles-callback");
                 auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget());check(dialog,"Comp handle dialog missing");
                 auto *peer=widget<QComboBox>(*dialog,"crossfadeIncoming");peer->setCurrentIndex(peer->findData(QString::fromStdString(second.str())));
                 auto *buttons=dialog->findChild<QDialogButtonBox *>();check(buttons,"Comp dialog buttons missing");
@@ -151,12 +171,14 @@ int main(int argc,char **argv) {
                 check(buttons->button(QDialogButtonBox::Ok)->isEnabled() &&
                       widget<QLineEdit>(*dialog,"crossfadeStart")->text()=="392" &&
                       widget<QLineEdit>(*dialog,"crossfadeEnd")->text()=="632","Quiet default handle window differs");
+                stage("handles-layout");
                 QApplication::processEvents();
                 auto *help=widget<QLabel>(*dialog,"crossfadeHelp");
                 check(help->height()>=help->heightForWidth(help->width()),"Retained-handle explanation is clipped");
                 auto *scroll=widget<QScrollArea>(*dialog,"crossfadeScroll");
                 const auto capture=qEnvironmentVariable("SC_CROSSFADE_CAPTURE");
                 if(!capture.isEmpty()) {QDir().mkpath(capture);check(dialog->grab().save(capture+"/default.png"),"Default dialog capture failed");}
+                stage("handles-small-layout");
                 dialog->resize(350,240);QApplication::processEvents();
                 check(help->height()>=help->heightForWidth(help->width()) && scroll->widgetResizable(),
                       "Small crossfade dialog clips explanation rather than scrolling");
@@ -170,14 +192,16 @@ int main(int argc,char **argv) {
                 check(scroll->horizontalScrollBar()->maximum()==0,"Small crossfade dialog requires horizontal reading of help");
                 widget<QLineEdit>(*dialog,"crossfadeStart")->setText("486");
                 widget<QLineEdit>(*dialog,"crossfadeEnd")->setText("538");
+                stage("handles-accept");
                 buttons->button(QDialogButtonBox::Ok)->click();
-            } catch(...) {fault=std::current_exception();if(auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget()))dialog->reject();}
+            } catch(...) {stage("handles-exception");fault=std::current_exception();if(auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget()))dialog->reject();}
         });
-        action->click();if(fault)std::rethrow_exception(fault);
+        stage("handles-open");action->click();stage("handles-returned");if(fault)std::rethrow_exception(fault);
         check(session.tracks[0].clips[0].lengthFrames==538 && session.tracks[0].clips[1].startFrame==486,
               "UI comp handles did not create requested overlap");
         check(compHistory.undo() && session==hardCuts,"UI comp preparation did not undo atomically");
 
+        stage("complete");
         std::cout<<"crossfade_ui_checks="<<checks<<" actual_dialog_cancel_apply_reopen_undo=passed\n";
         return 0;
     } catch(const std::exception &e) {std::cerr<<e.what()<<'\n';return 1;}
