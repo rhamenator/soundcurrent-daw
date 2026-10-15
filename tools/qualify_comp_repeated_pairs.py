@@ -14,13 +14,14 @@ assert not git('status','--porcelain');head=git('rev-parse','HEAD');tree=git('re
 files=[n for n in git('ls-files').splitlines() if (n.startswith(('include/','src/','ui/','third_party/','tests/','tools/','.github/')) and not n.startswith('tests/results/')) or n in ['CMakeLists.txt','research/linux-ci-test-durations.json']]
 sources={n:sha(repo/n) for n in files}
 inputs=[build/n for n in ['sc-native-media-path-tests','sc-session-tests','sc-comp-repeat-fixture','sc-comp-handle-plan-tests','sc-comp-regeneration-source-tests','sc-comp-assembly-ui-tests','sc-comp-processing-plan-tests','sc-comp-regeneration-history-tests','sc-comp-span-v2-fixture','sc-comp-assembly-job-tests','sc-comp-span-worker','sc-comp-span-worker-fixture','sc-comp-pair-recovery-fixture','sc-comp-pair-assembly-tests','sc-stretch-render-worker']]+sorted(build.glob('lib*.a'))
+if a.checkpoint==295:inputs.append(build/'sc-wave-validation-tests')
 binaries={str(n):sha(n) for n in inputs};evidence.mkdir(parents=True,exist_ok=True);scope=Path(tempfile.mkdtemp(prefix='qualified-',dir=evidence))
 roots=[build/n for n in ['comp-regeneration-history-evidence','comp-span-v2-evidence','comp-assembly-ui-evidence','comp-regeneration-source-evidence','comp-repeat-evidence']]
 if a.checkpoint==295:roots.append(build/'comp-paired-history-evidence')
 for r in roots:r.mkdir(exist_ok=True)
 before=[set(r.iterdir()) for r in roots]
 command=['ctest','--test-dir',str(build),'--output-on-failure','--no-tests=error','-R','^(native-media-long-path|session-state|comp-repeated-pair-production|comp-handle-envelope-plans|ci-shard-coverage|comp-transition-processing-permissions|comp-regeneration-source|comp-regeneration-history|comp-clocked-span-worker|desktop-comp-assembly-apply)$']
-if a.checkpoint==295:command[-1]=command[-1].replace('native-media-long-path|','comp-paired-history-review|native-media-long-path|')
+if a.checkpoint==295:command[-1]=command[-1].replace('native-media-long-path|','approved-wave-content|comp-paired-history-review|native-media-long-path|')
 selected=json.loads(subprocess.check_output(['ctest','--test-dir',str(build),'--show-only=json-v1','-R',command[-1]],text=True))
 assert {t['name'] for t in selected['tests']}==set(command[-1][2:-2].split('|')), 'Missing qualification test'
 (scope/'started.json').write_text(json.dumps(dict(sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command),indent=2)+'\n')
