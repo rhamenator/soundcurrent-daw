@@ -248,3 +248,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [ADR 202: original-context comp pairs](decisions/202-original-context-comp-pairs.md)
 
 - [Installed Windows editing with Linux render history](325-installed-windows-portable-comp.md)
+- [Bounded comp source scans](326-comp-source-scan-batching.md)

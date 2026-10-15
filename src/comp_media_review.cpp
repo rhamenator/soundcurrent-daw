@@ -60,7 +60,11 @@ ReviewedCompMedia reviewCompMedia(const std::filesystem::path &root,const Sessio
         check(std::chrono::steady_clock::now()<deadline,"Comp media review deadline exceeded",ErrorCode::ResourceLimit);};
     poll();auto retained=ledger.reserve(65536);ApprovedMediaRoot approved(root,ledger,{2});CompMediaReviewCounts counts;
     const auto validateAsset=[&](ApprovedMediaFile &file,const Asset &a,std::uint64_t maximum,bool result){
-        const auto wave=validateApprovedWave(file,waveLimits(a,maximum),stop,{},poll);
+        auto scanLimits=waveLimits(a,maximum);
+        // This scan has no borrowed-block observer. Bound the decoded slab to
+        // 64 KiB while avoiding hundreds of tiny verified reads for stereo takes.
+        scanLimits.blockFrames=std::uint32_t(std::min<std::size_t>(8192,65536/(std::size_t(std::max(1U,a.layout.channels))*sizeof(double))));
+        const auto wave=validateApprovedWave(file,scanLimits,stop,{},poll);
         check(wave.frames==std::uint64_t(a.frames) && wave.rate==a.sampleRate && wave.channels==a.layout.channels &&
             std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==a.sha256 &&
             (!result || wave.encoding==WaveEncoding::Float32),"Comp media format/hash differs from declaration");file.verifyUnchanged();

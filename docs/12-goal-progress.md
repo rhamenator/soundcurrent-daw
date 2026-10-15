@@ -1,5 +1,14 @@
 # Active full-suite goal: progress and completion evidence
 
+## Comp source scan batching (2026-10-15)
+
+[Checkpoint 326](326-comp-source-scan-batching.md) measures retained-history
+verification and batches source scans within a 64 KiB decoded slab. The same
+Windows-created project needs about 65% fewer system calls and has a 9% lower
+median verification time on Linux, with identical verified samples and all files
+unchanged. Integrity checks and worker policies remain enabled. Native Windows
+performance and installed qualification remain next; full goal incomplete.
+
 ## Installed Windows portable comp workflow (2026-10-15)
 
 [Checkpoint 325](325-installed-windows-portable-comp.md) installs `61bcaa3` and

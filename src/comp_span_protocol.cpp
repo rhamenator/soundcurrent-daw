@@ -266,7 +266,13 @@ void admitCompSpanSources(const std::filesystem::path &root,const CompSpanReques
     ApprovedMediaRoot approved(root,ledger,{2});
     const auto verify=[&](const Asset &a){poll();
         for(const auto *checked:seen){poll();if(*checked==a)return;}
-        auto file=approved.open(a.relativePath,p.maximumSourceBytes);const auto wave=validateApprovedWave(file,waveLimits(a,p.maximumSourceBytes),{}, {},poll);
+        auto file=approved.open(a.relativePath,p.maximumSourceBytes);
+        auto sourceLimits=waveLimits(a,p.maximumSourceBytes);
+        // No sample observer needs the smaller output-verification slab here.
+        // Scan every sample in at most 64 KiB of decoded doubles; retain pinned
+        // reads, per-block cancellation, full-file hashing and mutation checks.
+        sourceLimits.blockFrames=std::uint32_t(std::min<std::size_t>(8192,65536/(std::size_t(std::max(1U,a.layout.channels))*sizeof(double))));
+        const auto wave=validateApprovedWave(file,sourceLimits,{}, {},poll);
         check(wave.frames==std::uint64_t(a.frames) && wave.rate==a.sampleRate && wave.channels==a.layout.channels && std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==a.sha256,"Comp span input changed",ErrorCode::MediaMismatch);file.verifyUnchanged();
         for(const auto &e:a.nativeEvidence){poll();auto f=approved.open(e.relativePath,std::min(p.maximumSourceBytes,e.bytes));check(f.size()==e.bytes,"Span input evidence extent changed");const auto h=f.digest({},poll);check(std::string(h.begin(),h.end())==e.sha256,"Span input evidence changed",ErrorCode::MediaMismatch);f.verifyUnchanged();}
         // Register only after the WAV and every declared companion completed.
