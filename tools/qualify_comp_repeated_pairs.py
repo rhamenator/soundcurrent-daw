@@ -6,6 +6,7 @@ import argparse,hashlib,json,subprocess,tempfile,time,zipfile
 repo=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser()
 for n in ['build','evidence','public']:p.add_argument(n,type=Path)
+p.add_argument('--checkpoint',type=int,choices=[294,295],default=294)
 a=p.parse_args();build=a.build.resolve();evidence=a.evidence.resolve();public=a.public.resolve()
 def git(*args):return subprocess.check_output(['git',*args],cwd=repo,text=True).strip()
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -15,9 +16,11 @@ sources={n:sha(repo/n) for n in files}
 inputs=[build/n for n in ['sc-native-media-path-tests','sc-session-tests','sc-comp-repeat-fixture','sc-comp-handle-plan-tests','sc-comp-regeneration-source-tests','sc-comp-assembly-ui-tests','sc-comp-processing-plan-tests','sc-comp-regeneration-history-tests','sc-comp-span-v2-fixture','sc-comp-assembly-job-tests','sc-comp-span-worker','sc-comp-span-worker-fixture','sc-comp-pair-recovery-fixture','sc-comp-pair-assembly-tests','sc-stretch-render-worker']]+sorted(build.glob('lib*.a'))
 binaries={str(n):sha(n) for n in inputs};evidence.mkdir(parents=True,exist_ok=True);scope=Path(tempfile.mkdtemp(prefix='qualified-',dir=evidence))
 roots=[build/n for n in ['comp-regeneration-history-evidence','comp-span-v2-evidence','comp-assembly-ui-evidence','comp-regeneration-source-evidence','comp-repeat-evidence']]
+if a.checkpoint==295:roots.append(build/'comp-paired-history-evidence')
 for r in roots:r.mkdir(exist_ok=True)
 before=[set(r.iterdir()) for r in roots]
 command=['ctest','--test-dir',str(build),'--output-on-failure','--no-tests=error','-R','^(native-media-long-path|session-state|comp-repeated-pair-production|comp-handle-envelope-plans|ci-shard-coverage|comp-transition-processing-permissions|comp-regeneration-source|comp-regeneration-history|comp-clocked-span-worker|desktop-comp-assembly-apply)$']
+if a.checkpoint==295:command[-1]=command[-1].replace('native-media-long-path|','comp-paired-history-review|native-media-long-path|')
 selected=json.loads(subprocess.check_output(['ctest','--test-dir',str(build),'--show-only=json-v1','-R',command[-1]],text=True))
 assert {t['name'] for t in selected['tests']}==set(command[-1][2:-2].split('|')), 'Missing qualification test'
 (scope/'started.json').write_text(json.dumps(dict(sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command),indent=2)+'\n')
@@ -28,7 +31,7 @@ seconds=time.monotonic()-start;(scope/'LastTest.log').write_bytes((build/'Testin
 runs=[];reports=[]
 for root,old in zip(roots,before):
     new=set(root.iterdir())-old;assert len(new)==1;run=new.pop();runs.append(run);reports.append(json.loads((run/'report.json').read_text()))
-history,v2,ui,plans,repeat=reports
+history,v2,ui,plans,repeat=reports[:5]
 assert repeat['actualPairedAdoptions']==9 and repeat['successfulWorkers']==15 and repeat['retainedAssembledMixedCases']==3
 assert not repeat['applicationEntryEnabled'] and not repeat['qualityAdmission'] and not repeat['physicalAudio']
 assert all(p['exitCode']==0 for p in repeat['processes'])
@@ -64,14 +67,31 @@ for workflow in [history['inputs']['inputWorkflow'],v2['inputWorkflow']['inputWo
     processes=[p for p in workflow['processes'] if p['kind'] in ['worker','nominal-worker']]
     assert len(processes)==12 and all(p['exitCode']==0 and not p['retirementPending'] and not p['observationTimedOut'] for p in processes)
 assert sources=={n:sha(repo/n) for n in files} and binaries=={str(n):sha(n) for n in inputs} and head==git('rev-parse','HEAD')
-receipt=dict(checkpoint=294,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,queuedHistoricalGuards=6,queuedStaleRefusals=48,layeredGuards=12,ancestorDependencyRefusals=sum(r['ancestorDependencyRefusals'] for r in plans['reports']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),historicalPcmComparisons=sum(c['comparedSamples'] for c in reviews),successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2['completePcmSamples'],mainWindowCases=6,legacyExportHashesUnchanged=True,allObservedProcessesReaped=True,applicationEntryEnabled=False,pairedAssemblyExercised=True,actualPairedAdoptions=9,successfulRepeatedWorkers=15,retainedAssembledMixedCases=3,lateHistoryBeforeCompletionRefusals=1,unchangedPlaybackSamples=sum(r['result']['unchangedSamples'] for r in repeat['reports']),liveExportSamples=sum(r['result']['liveExportSamples'] for r in repeat['reports']),nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
+receipt=dict(checkpoint=a.checkpoint,sourceHead=head,sourceTree=tree,sourceInputs=sources,binaryInputs=binaries,command=command,pid=proc.pid,exitCode=code,seconds=seconds,sourceAndBinariesUnchanged=True,reports=reports,queuedHistoricalGuards=6,queuedStaleRefusals=48,layeredGuards=12,ancestorDependencyRefusals=sum(r['ancestorDependencyRefusals'] for r in plans['reports']),historyChecks=sum(r['checks'] for r in history['reports']),historyRefusals=sum(len(r['refusals']) for r in history['reports']),historicalPcmComparisons=sum(c['comparedSamples'] for c in reviews),successfulV2Workers=9,refusedV2Workers=4,workerPcmComparisons=v2['completePcmSamples'],mainWindowCases=6,legacyExportHashesUnchanged=True,allObservedProcessesReaped=True,applicationEntryEnabled=False,pairedAssemblyExercised=True,actualPairedAdoptions=9,successfulRepeatedWorkers=15,retainedAssembledMixedCases=3,lateHistoryBeforeCompletionRefusals=1,unchangedPlaybackSamples=sum(r['result']['unchangedSamples'] for r in repeat['reports']),liveExportSamples=sum(r['result']['liveExportSamples'] for r in repeat['reports']),nativeWindowsQualified=False,physicalAudio=False,qualityAdmission=False,fullDawParity=False)
+if a.checkpoint==295:
+    pairedReport=reports[5]
+    assert all(p['exitCode']==0 for p in pairedReport['reviewProcesses'])
+    assert all(r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and r['newRendering'] and not r['reviewerRendersNewAudio'] and not r['qualityAdmission'] for r in pairedReport['reports'])
+    paired=[r['pairedReview'] for r in pairedReport['reports']]
+    assert len(paired)==3
+    for r in paired:
+        assert r['separateAssemblies']==2 and r['pairedAssemblies']==1 and r['disjointAssembliesVerified']==2
+        assert r['separateSamples']==2*r['pairedSamples'] and r['pairedSamples']>0
+        assert r['additionalOriginalAssemblyFixtures']==1
+        assert all(r[k] for k in ['bothOrders','staleCoveredSourceRefused','crossOperationCorruptionRefused','coveredOutputCorruptionRefused','cancellationRefused','disjointCorruptionRefused'])
+    with zipfile.ZipFile(repo/'tests/results/M2/2026-10-14-comp-repeated-pairs/acceptance.zip') as z:
+        previous=json.loads(z.read('qualification.json'))
+    assert [r['result']['exportSha256'] for r in repeat['reports']]==[r['result']['exportSha256'] for r in previous['reports'][4]['reports']]
+    receipt.update(pairedHistoryReviews=paired,repeatedExportHashesUnchangedFrom294=True,additionalOriginalAssemblyFixtures=3)
 (scope/'qualification.json').write_text(json.dumps(receipt,indent=2)+'\n');public.mkdir(parents=True,exist_ok=True);archive=public/'acceptance.zip';assert not archive.exists()
 manifest={};blobs=set()
 with zipfile.ZipFile(archive,'x',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
     # Keep the receipt directly readable, and de-duplicate identical original
     # payloads across independently generated corpora without discarding bytes.
     z.write(scope/'qualification.json','qualification.json')
-    for root,prefix in [(scope,''),(runs[0],'history/'),(runs[1],'v2-workers/'),(runs[2],'main-window/'),(runs[3],'layered-planning/'),(runs[4],'repeated-pairs/')]:
+    evidenceRoots=[(scope,''),(runs[0],'history/'),(runs[1],'v2-workers/'),(runs[2],'main-window/'),(runs[3],'layered-planning/'),(runs[4],'repeated-pairs/')]
+    if a.checkpoint==295:evidenceRoots.append((runs[5],'paired-history/'))
+    for root,prefix in evidenceRoots:
         for f in sorted(root.rglob('*')):
             if not f.is_file() or f==scope/'qualification.json':continue
             name=prefix+f.relative_to(root).as_posix();b=f.read_bytes();digest=hashlib.sha256(b).hexdigest();blob='blobs/'+digest

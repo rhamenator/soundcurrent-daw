@@ -622,6 +622,11 @@ if(SC_BUILD_MEDIA)
         $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests> $<TARGET_FILE:sc-comp-regeneration-history-tests>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-regeneration-history-evidence)
       set_tests_properties(comp-regeneration-history PROPERTIES TIMEOUT 180)
+      add_test(NAME comp-paired-history-review COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_regeneration_history_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests> $<TARGET_FILE:sc-comp-regeneration-history-tests>
+        --paired-only --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-paired-history-evidence)
+      set_tests_properties(comp-paired-history-review PROPERTIES TIMEOUT 180)
       add_executable(sc-comp-span-v2-fixture tests/comp_span_v2_fixture.cpp)
       target_link_libraries(sc-comp-span-v2-fixture PRIVATE sc-comp-assembly-job sc-media)
       target_include_directories(sc-comp-span-v2-fixture PRIVATE src)

@@ -91,4 +91,33 @@ ReviewedCompRegenerationHistory reviewCompRegenerationHistory(const std::filesys
     auto result=ReviewedCompRegenerationHistory(std::move(lease),std::make_unique<const CompHistoryReviewData>(std::move(d)));
     verifyCompRegenerationHistoryCurrent(s,context,result);poll(stop);return result;
 }
+CompPairedHistoryReviews reviewCompPairedRegenerationHistory(const std::filesystem::path &root,
+    const Session &s,const CompHandlePlanContext &context,
+    const std::array<std::shared_ptr<const CompRegenerationSource>,2> &sources,
+    ResourceLedger ledger,CompHistoryReviewLimits limits,const std::function<void()> &progress,std::stop_token stop){
+    check(bool(progress),"Missing paired history poll",ErrorCode::InvalidParameter);
+    const auto checkpoint=[&]{poll(stop);progress();poll(stop);};
+    const auto current=[&]{for(const auto &source:sources)if(source){
+        checkpoint();verifyCompRegenerationSourceCurrent(s,context,*source);
+        check(!source->data().history.empty(),"Empty paired assembly history");
+    }};
+    checkpoint();current();CompPairedHistoryReviews reviews;
+    for(std::size_t side=0;side<sources.size();++side){
+        checkpoint();if(!sources[side])continue;
+        const auto &history=sources[side]->data().history;
+        const bool covered=std::any_of(reviews.begin(),reviews.end(),[&](const auto &review){
+            if(!review)return false;
+            const auto &done=review->data().history;
+            return std::all_of(history.begin(),history.end(),[&](const auto &h){
+                checkpoint();return std::find(done.begin(),done.end(),h)!=done.end();
+            });
+        });
+        if(!covered)reviews[side].emplace(reviewCompRegenerationHistory(root,s,context,sources[side],ledger,limits,stop));
+    }
+    // Recheck all sources, including a covered source whose live clip is distinct
+    // from the source retained by the completed review.
+    current();
+    for(const auto &review:reviews)if(review){checkpoint();verifyCompRegenerationHistoryCurrent(s,context,*review);}
+    checkpoint();return reviews;
+}
 } // namespace soundcurrent::daw

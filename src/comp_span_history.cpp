@@ -6,13 +6,13 @@ void verifyCompSpanHistory(const std::filesystem::path &root,const CompSpanReque
     const CompSpanWorkerPolicy &policy,ResourceLedger ledger,const std::function<void()> &poll,std::stop_token stop){
     if(!poll)throw ProjectError(ErrorCode::InvalidParameter,"Missing span history poll");
     poll();if(stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Span history canceled");
-    const auto &handles=r.recipe().plan().handles();bool needed=false;
-    for(const auto *h:{&handles.outgoing(),&handles.incoming()})if(h->data().regeneration){
-        needed=true;poll();CompHistoryReviewLimits limits;limits.maximumInputFileBytes=policy.maximumSourceBytes;
-        const auto review=reviewCompRegenerationHistory(root,r.recipe().selection(),h->data().context,h->data().regeneration,ledger,limits,stop);
-        verifyCompRegenerationHistoryCurrent(r.recipe().selection(),h->data().context,review);poll();
-    }
+    const auto &handles=r.recipe().plan().handles();
+    const std::array sources{handles.outgoing().data().regeneration,handles.incoming().data().regeneration};
+    const bool needed=bool(sources[0]) || bool(sources[1]);
     if(needed!=r.requiresHistory())throw ProjectError(ErrorCode::InvalidState,"Span history protocol mismatch");
+    CompHistoryReviewLimits limits;limits.maximumInputFileBytes=policy.maximumSourceBytes;
+    const auto reviews=reviewCompPairedRegenerationHistory(root,r.recipe().selection(),
+        handles.outgoing().data().context,sources,ledger,limits,poll,stop);
     poll();
 }
 } // namespace soundcurrent::daw

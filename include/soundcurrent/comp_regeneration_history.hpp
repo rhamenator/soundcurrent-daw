@@ -2,6 +2,9 @@
 #pragma once
 #include "comp_regeneration_source.hpp"
 #include <filesystem>
+#include <array>
+#include <functional>
+#include <optional>
 #include <stop_token>
 namespace soundcurrent::daw {
 struct CompHistoryReviewLimits {
@@ -52,4 +55,14 @@ ReviewedCompRegenerationHistory reviewCompRegenerationHistory(const std::filesys
 // a retained review never grants permanent filesystem integrity or sonic quality.
 void verifyCompRegenerationHistoryCurrent(const Session &,const CompHandlePlanContext &,
     const ReviewedCompRegenerationHistory &);
+using CompPairedHistoryReviews=std::array<std::optional<ReviewedCompRegenerationHistory>,2>;
+// One serialized review operation for both source envelopes. A completed review
+// may cover the other source only by exact equality of its entire history closure.
+// Both current source snapshots are checked even when historical I/O is shared.
+// Empty slots mean no additional review was required, not that a source is trusted
+// forever. Never reuse the returned reviews to skip a later operation's file checks.
+CompPairedHistoryReviews reviewCompPairedRegenerationHistory(const std::filesystem::path &,
+    const Session &,const CompHandlePlanContext &,
+    const std::array<std::shared_ptr<const CompRegenerationSource>,2> &,
+    ResourceLedger,CompHistoryReviewLimits,const std::function<void()> &,std::stop_token={});
 } // namespace soundcurrent::daw

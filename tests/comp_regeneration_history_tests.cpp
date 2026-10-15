@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_regeneration_history.hpp>
+#include <soundcurrent/comp_assembly_adoption.hpp>
+#include <chrono>
 #include <soundcurrent/comp_pair_recovery.hpp>
 #include <soundcurrent/project_store.hpp>
 #include "media_io.hpp"
@@ -16,6 +18,112 @@ template<class F>void refuses(const char *label,F f){try{f();}catch(const Projec
 std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Missing history fixture file");return {(std::istreambuf_iterator<char>(f)),{}};}
 void write(const std::filesystem::path &p,std::string_view b){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(b.data(),std::streamsize(b.size()));check(bool(f),"Cannot write owned history fixture");}
 const CompHandlePlanContext context{91,"history-review/é-日本"};
+Json pairedReviewWorkflow(const std::filesystem::path &root,const Session &s,const Session &registered,ResourceLedger ledger){
+    using Clock=std::chrono::steady_clock;
+    const auto noProgress=[]{};
+    const auto sourcesFor=[&](const Session &current){
+        const auto &t=current.tracks[0];
+        return std::array{
+            std::make_shared<const CompRegenerationSource>(resolveCompRegenerationSource(current,t.id,t.clips[0].id,context,ledger)),
+            std::make_shared<const CompRegenerationSource>(resolveCompRegenerationSource(current,t.id,t.clips[1].id,context,ledger))};
+    };
+    const auto sources=sourcesFor(s);const auto sourceBytes=ledger.usage().reservedBytes;
+    std::uint64_t separateSamples=0,pairedSamples=0;unsigned separateAssemblies=0,pairedAssemblies=0;
+    const auto start=Clock::now();
+    for(const auto &source:sources){auto review=reviewCompRegenerationHistory(root,s,context,source,ledger);
+        for(const auto &entry:review.data().entries){separateSamples+=entry.comparedSamples;++separateAssemblies;}}
+    const auto separateSeconds=std::chrono::duration<double>(Clock::now()-start).count();
+    const auto pairedStart=Clock::now();
+    {
+        const auto reviews=reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},noProgress);
+        check(reviews[0] && !reviews[1],"Paired history repeated a completed exact closure");
+        for(const auto &entry:reviews[0]->data().entries){pairedSamples+=entry.comparedSamples;++pairedAssemblies;}
+    }
+    const auto pairedSeconds=std::chrono::duration<double>(Clock::now()-pairedStart).count();
+    check(separateAssemblies==2 && pairedAssemblies==1 && separateSamples==2*pairedSamples && pairedSamples>0,
+        "Paired review did not preserve one complete PCM comparison");
+    {
+        const std::array reversed{sources[1],sources[0]};
+        const auto reviews=reviewCompPairedRegenerationHistory(root,s,context,reversed,ledger,{},noProgress);
+        check(reviews[0] && !reviews[1] && reviews[0]->data().entries[0].comparedSamples==pairedSamples,"Reversed coverage changed verified PCM");
+        const std::array<std::shared_ptr<const CompRegenerationSource>,2> incomingOnly{nullptr,sources[1]};
+        const auto single=reviewCompPairedRegenerationHistory(root,s,context,incomingOnly,ledger,{},noProgress);
+        check(!single[0] && single[1],"Unchanged outgoing side lost incoming history");
+        const auto empty=reviewCompPairedRegenerationHistory(root,s,context,{},ledger,{},noProgress);
+        check(!empty[0] && !empty[1],"Empty history produced trust");
+    }
+    check(ledger.usage().reservedBytes==sourceBytes,"Paired review leaked joined credits");
+    for(unsigned side=0;side<2;++side){auto stale=s;stale.tracks[0].clips[side].processing.gainDb+=1;
+        refuses("paired stale current source",[&]{reviewCompPairedRegenerationHistory(root,stale,context,sources,ledger,{},noProgress);});}
+    {
+        auto changed=s;bool injected=false;
+        refuses("covered current source changes during review",[&]{reviewCompPairedRegenerationHistory(root,changed,context,sources,ledger,{},[&]{
+            if(!injected && ledger.usage().reservedBytes>sourceBytes){changed.tracks[0].clips[1].processing.gainDb+=1;injected=true;}
+        });});
+        check(injected,"Covered source mutation did not reach completed review");
+    }
+    std::stop_source stopped;stopped.request_stop();
+    refuses("paired pre-cancel",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},noProgress,stopped.get_token());});
+    {
+        std::stop_source canceled;bool injected=false;
+        refuses("paired cancel after first review",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},[&]{
+            if(ledger.usage().reservedBytes>sourceBytes){injected=true;canceled.request_stop();}
+        },canceled.get_token());});check(injected,"Paired cancellation was not injected");
+    }
+    refuses("paired missing poll",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},{});});
+    refuses("paired memory limit",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ResourceLedger(1,"Tiny paired history"),{},noProgress);});
+    CompHistoryReviewLimits shortBudget;shortBudget.maximumComparedSamples=pairedSamples-1;
+    refuses("paired sample budget",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,shortBudget,noProgress);});
+    const auto sibling=root/utf8Path(sources[1]->data().current.relativePath);
+    const auto siblingBytes=read(sibling);auto changedSibling=siblingBytes;changedSibling.back()^=1;write(sibling,changedSibling);
+    try{refuses("covered paired output corruption",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},noProgress);});}
+    catch(...){write(sibling,siblingBytes);throw;}write(sibling,siblingBytes);
+    const auto marker=root/"media/comp-assemblies"/sources[0]->data().history.front().assembly.operation.str()/"complete.json";
+    const auto original=read(marker);auto altered=original;altered.back()^=1;
+    {
+        // Holding an earlier review never grants filesystem trust to a later call.
+        const auto earlier=reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},noProgress);
+        write(marker,altered);
+        try{refuses("paired cross-operation corruption",[&]{reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,{},noProgress);});}
+        catch(...){write(marker,original);throw;}write(marker,original);
+    }
+    check(ledger.usage().reservedBytes==sourceBytes,"Paired refusal leaked joined credits");
+    // Produce a second independent original assembly using the same already
+    // completed raw-source children. Its histories are disjoint, even though the
+    // original selection and raw media are shared. Do not fabricate job receipts.
+    auto pair=loadReferencedCompPairSelection(root,registered,context,registered.compPairSelections[0].operation,ledger);
+    auto request=prepareCompAssemblyRequest(registered,context,pair,Id::generate(),{Id::generate(),Id::generate()},compAssemblyExecutableSha256(),{},ledger);
+    auto independent=registered;
+    const auto reference=persistCompAssemblyRequest(root,independent,context,pair,request,ledger);
+    applySessionEdits(independent,{AddCompAssembly{reference}});
+    publishCompAssembly(root,independent,context,pair,request,ledger);
+    const auto adoption=verifyCompAssemblyAdoption(root,independent,context,pair,request,ledger);
+    applySessionEdits(independent,{adoption.edit()});
+    for(const auto &asset:s.assets)if(std::none_of(independent.assets.begin(),independent.assets.end(),[&](const auto &a){return a.id==asset.id;}))independent.assets.push_back(asset);
+    // The first original assembly was pending in registered, but its outputs
+    // are now being retained as adopted history. Release its reserved output IDs.
+    check(std::erase_if(independent.compAssemblies,[&](const auto &pending){return pending==s.compPlaybackSources.front().assembly;})==1,
+        "Independent fixture lost first pending assembly");
+    independent.compPlaybackSources.insert(independent.compPlaybackSources.end(),s.compPlaybackSources.begin(),s.compPlaybackSources.end());
+    independent.tracks[0].clips[0]=s.tracks[0].clips[0];validate(independent);
+    const auto distinct=sourcesFor(independent);
+    check(distinct[0]->data().history.size()==2 && distinct[1]->data().history.size()==2 &&
+        distinct[0]->data().history[0].assembly.operation!=distinct[1]->data().history[0].assembly.operation,"Disjoint fixture shares its assembly");
+    for(bool reverse:{false,true}){
+        const auto ordered=reverse?std::array{distinct[1],distinct[0]}:distinct;
+        const auto reviews=reviewCompPairedRegenerationHistory(root,independent,context,ordered,ledger,{},noProgress);
+        check(reviews[0] && reviews[1] && reviews[0]->data().entries.size()==1 && reviews[1]->data().entries.size()==1,
+            "Disjoint historical assembly skipped");
+    }
+    const auto secondMarker=root/"media/comp-assemblies"/reference.operation.str()/"complete.json";
+    const auto secondBytes=read(secondMarker);write(secondMarker,secondBytes+"!");
+    try{refuses("disjoint second history corruption",[&]{reviewCompPairedRegenerationHistory(root,independent,context,distinct,ledger,{},noProgress);});}
+    catch(...){write(secondMarker,secondBytes);throw;}write(secondMarker,secondBytes);
+    return {{"separateAssemblies",separateAssemblies},{"pairedAssemblies",pairedAssemblies},{"separateSamples",separateSamples},
+        {"pairedSamples",pairedSamples},{"separateSeconds",separateSeconds},{"pairedSeconds",pairedSeconds},
+        {"bothOrders",true},{"disjointAssembliesVerified",2},{"additionalOriginalAssemblyFixtures",1},{"staleCoveredSourceRefused",true},{"crossOperationCorruptionRefused",true},{"coveredOutputCorruptionRefused",true},
+        {"cancellationRefused",true},{"disjointCorruptionRefused",true}};
+}
 static_assert(!std::is_copy_constructible_v<ReviewedCompRegenerationHistory> && !std::is_move_assignable_v<ReviewedCompRegenerationHistory>);
 }
 int main(){try{
@@ -23,7 +131,8 @@ int main(){try{
     const auto projectBytes=read(root/"project.json"),adoptedBytes=read(root/"adopted-project.json");
     const auto s=decodeProject(adoptedBytes);const auto original=s;validate(s);
     ResourceLedger ledger(512*1024*1024,"Historical assembly review test");Json reviewed=Json::array();
-    for(unsigned side=0;side<2;++side){
+    const bool pairedOnly=input.value("pairedOnly",false);
+    if(!pairedOnly)for(unsigned side=0;side<2;++side){
         auto source=std::make_shared<const CompRegenerationSource>(resolveCompRegenerationSource(s,s.tracks[0].id,s.tracks[0].clips[side].id,context,ledger));
         const auto sourceBytes=ledger.usage().reservedBytes;
         {
@@ -123,7 +232,9 @@ int main(){try{
             refuses("review policy bound",[&]{reviewCompRegenerationHistory(root,s,context,source,ledger,limits);});
         check(ledger.usage().reservedBytes==sourceBytes,"History refusal leaked memory");
     }
+    Json paired;
+    if(pairedOnly)paired=pairedReviewWorkflow(root,s,decodeProject(projectBytes),ledger);
     check(!ledger.usage().reservedBytes && s==original && read(root/"project.json")==projectBytes && read(root/"adopted-project.json")==adoptedBytes,"History check modified canonical state or leaked memory");
-    const Json report{{"checks",checks},{"reviews",reviewed},{"refusals",refusals},{"projectBytesUnchanged",true},{"joinedMemoryReleased",true},{"newRendering",false},{"qualityAdmission",false}};
+    const Json report{{"pairedReview",paired},{"checks",checks},{"reviews",reviewed},{"refusals",refusals},{"projectBytesUnchanged",true},{"joinedMemoryReleased",true},{"newRendering",pairedOnly},{"reviewerRendersNewAudio",false},{"qualityAdmission",false}};
     write(root/"regeneration-history-report.json",report.dump(2)+"\n");std::cout<<report.dump()<<'\n';return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

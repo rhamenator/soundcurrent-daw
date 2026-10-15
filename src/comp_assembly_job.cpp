@@ -40,12 +40,10 @@ std::function<void()> polling(const std::filesystem::path &root,const CompAssemb
 void verifyHistory(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,
     const CompPairSelection &p,const CompAssemblyRequest &r,ResourceLedger ledger,
     const std::function<void()> &poll,std::stop_token stop){
-    for(const auto *h:{&p.recipe().plan().handles().outgoing(),&p.recipe().plan().handles().incoming()}){
-        poll();if(!h->data().regeneration)continue;
-        CompHistoryReviewLimits limits;limits.maximumInputFileBytes=r.policy().maximumFileBytes;
-        const auto review=reviewCompRegenerationHistory(root,s,ctx,h->data().regeneration,ledger,limits,stop);
-        verifyCompRegenerationHistoryCurrent(s,ctx,review);poll();
-    }
+    const auto &handles=p.recipe().plan().handles();
+    const std::array sources{handles.outgoing().data().regeneration,handles.incoming().data().regeneration};
+    CompHistoryReviewLimits limits;limits.maximumInputFileBytes=r.policy().maximumFileBytes;
+    const auto reviews=reviewCompPairedRegenerationHistory(root,s,ctx,sources,ledger,limits,poll,stop);
 }
 std::string read(ApprovedMediaRoot &root,std::string_view path,std::stop_token stop,const std::function<void()> &poll){poll();auto file=root.open(path,16384,stop);std::string bytes(std::size_t(file.size()),'\0');file.readAt(0,bytes,stop);file.verifyUnchanged();poll();return bytes;}
 void immutable(const std::filesystem::path &path,std::string_view bytes){check(bytes.size()<=16384,"Assembly publication marker exceeds bank");const auto partial=path.parent_path()/(Id::generate().str()+".partial");media_io::File f(partial,true);f.write(bytes);f.flush();f.close();media_io::publishMedia(partial,path);}

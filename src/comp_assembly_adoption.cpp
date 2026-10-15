@@ -22,14 +22,12 @@ VerifiedCompAssemblyAdoption verifyCompAssemblyAdoption(const std::filesystem::p
     const auto verified=verifyCompAssembly(root,s,context,pair,request,ledger,stop);poll();
     check(verified.requestDigest()==reference.requestSha256,"Comp adoption request changed");
     const auto &plan=pair.recipe().plan();
-    std::vector<ReviewedCompRegenerationHistory> reviews;
-    for(const auto *envelope:{&plan.handles().outgoing(),&plan.handles().incoming()})if(envelope->data().regeneration){
-        poll();CompHistoryReviewLimits limits;limits.maximumInputFileBytes=request.policy().maximumFileBytes;
-        reviews.push_back(reviewCompRegenerationHistory(root,s,context,envelope->data().regeneration,ledger,limits,stop));
-    }
+    const std::array sources{plan.handles().outgoing().data().regeneration,plan.handles().incoming().data().regeneration};
+    CompHistoryReviewLimits limits;limits.maximumInputFileBytes=request.policy().maximumFileBytes;
+    const auto reviews=reviewCompPairedRegenerationHistory(root,s,context,sources,ledger,limits,poll,stop);
     std::vector<CompAssemblyDependencyView> dependencies;
-    for(const auto &review:reviews){const auto &d=review.data();
-        verifyCompRegenerationHistoryCurrent(s,context,review);
+    for(const auto &review:reviews)if(review){const auto &d=review->data();
+        verifyCompRegenerationHistoryCurrent(s,context,*review);
         dependencies.push_back({d.assets,d.history,d.selections,d.retained,d.tracks});
     }
     auto guard=std::make_shared<const CompAssemblyDependencies>(captureCompAssemblyDependencies(s,pair.recipe().selection(),dependencies,ledger));
