@@ -20,6 +20,9 @@ namespace {
 using Json=nlohmann::json;unsigned checks=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid assembly publication accepted");}
+// Crash/recovery observations must use the same Win32 path representation as
+// publication; otherwise a committed file beyond MAX_PATH appears absent.
+bool observedExists(const std::filesystem::path &p){return std::filesystem::exists(fileSystemApiPath(p));}
 std::string read(const std::filesystem::path &p){std::ifstream f(fileSystemApiPath(p),std::ios::binary);check(bool(f),"Missing job evidence");return {(std::istreambuf_iterator<char>(f)),{}};}
 void write(const std::filesystem::path &p,std::string_view v){std::ofstream f(fileSystemApiPath(p),std::ios::binary|std::ios::trunc);f.write(v.data(),std::streamsize(v.size()));check(bool(f),"Cannot save job evidence");}
 std::string hash(std::string_view bytes){media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});return h.digest();}
@@ -87,8 +90,8 @@ Json adoptionWorkflow(const std::filesystem::path &root,const Session &registere
 int main(int argc,char **argv){try{
     if(argc==3 && std::string_view(argv[1])=="--image-probe"){
         std::cout<<compAssemblyExecutableSha256()<<std::endl;const auto ack=utf8Path(argv[2]);const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
-        while(!std::filesystem::exists(ack) && std::chrono::steady_clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        check(std::filesystem::exists(ack),"Missing image probe acknowledgment");std::cout<<compAssemblyExecutableSha256()<<std::endl;return 0;}
+        while(!observedExists(ack) && std::chrono::steady_clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        check(observedExists(ack),"Missing image probe acknowledgment");std::cout<<compAssemblyExecutableSha256()<<std::endl;return 0;}
 
     const bool crash=argc==2 && std::string_view(argv[1])=="--crash-publish";
     const bool inspectCrash=argc==2 && std::string_view(argv[1])=="--inspect-crash";
@@ -111,10 +114,10 @@ int main(int argc,char **argv){try{
         const auto operation=Id(input.at("operation").get<std::string>());auto r=loadReferencedCompAssemblyRequest(root,s,context,pair,operation,ledger);
         auto recovered=inspectCompAssembly(root,s,context,pair,r,ledger);
         check(recovered.state==CompAssemblyRecoveryState::Interrupted && !recovered.result,"Abrupt exit exposed a completed pair");
-        check(!std::filesystem::exists(root/"media/comp-assemblies"/r.operation().str()/"complete.json"),"Abrupt exit published completion");
+        check(!observedExists(root/"media/comp-assemblies"/r.operation().str()/"complete.json"),"Abrupt exit published completion");
         const auto stage=input.at("stage").get<unsigned>();check(stage<=2,"Invalid crash inspection stage");
         unsigned published=0,needed=0;for(const auto &out:r.outputs())if(out){++needed;
-            if(std::filesystem::exists(root/"media/comp-results"/pair.recipe().operation().str()/(out->str()+".wav")))++published;
+            if(observedExists(root/"media/comp-results"/pair.recipe().operation().str()/(out->str()+".wav")))++published;
         }
         check(published==(stage==0?0:stage==1?1:needed),"Abrupt exit lost its observed publication boundary");
         refuses([&]{publishCompAssembly(root,s,context,pair,r,ledger);});
@@ -151,7 +154,7 @@ int main(int argc,char **argv){try{
     for(unsigned slot=0;slot<2;++slot){auto ids=outputIds();if(slot)ids[0]=s.tracks[0].id;auto bad=prepareCompAssemblyRequest(s,context,pair,slot?Id::generate():s.tracks[0].id,
         ids,executable,{},ledger);
         refuses([&]{persistCompAssemblyRequest(root,s,context,pair,bad,ledger);});
-        check(!std::filesystem::exists(root/"media/comp-assembly-requests"/(bad.operation().str()+".json")),"Colliding request sidecar published");}
+        check(!observedExists(root/"media/comp-assembly-requests"/(bad.operation().str()+".json")),"Colliding request sidecar published");}
     record(r,"complete");check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Absent,"Fresh job not absent");unsigned observed=0;
     publishCompAssembly(root,s,context,pair,r,ledger,[&](auto,unsigned){check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Active,"Live writer not active");refuses([&]{verifyCompAssembly(root,s,context,pair,r,ledger);});++observed;});check(observed==1+2*unsigned(bool(r.outputs()[0])+bool(r.outputs()[1])),"Publication stages missing");
     auto result=verifyCompAssembly(root,s,context,pair,r,ledger);check(result.comparedSamples()>0 && result.requestDigest()==r.digest(),"Verified pair lost request binding");const auto outputs=result.outputs();const auto originalComplete=read(folder(r)/"complete.json");
@@ -170,12 +173,12 @@ int main(int argc,char **argv){try{
         refuses([&]{publishCompAssembly(root,s,context,pair,interrupted,ledger,[&](auto stage,unsigned side){
             if((scenario==0 && stage==CompAssemblyStage::FileClosed && side==0)||(scenario==2 && stage==CompAssemblyStage::BeforeCompletion)){reached=true;throw ProjectError(ErrorCode::Io,"Injected owned publication interruption");}
             if(scenario==1 && stage==CompAssemblyStage::FilePublished && side==0){reached=true;write(folder(interrupted)/"cancel.request","cancel\n");}
-        });});check(reached && !std::filesystem::exists(folder(interrupted)/"complete.json"),"Interrupted job committed");auto recovered=inspectCompAssembly(root,s,context,pair,interrupted,ledger);check(recovered.state==(scenario==1?CompAssemblyRecoveryState::Canceled:CompAssemblyRecoveryState::Interrupted) && !recovered.result,"Interrupted job yielded accepted pair");
+        });});check(reached && !observedExists(folder(interrupted)/"complete.json"),"Interrupted job committed");auto recovered=inspectCompAssembly(root,s,context,pair,interrupted,ledger);check(recovered.state==(scenario==1?CompAssemblyRecoveryState::Canceled:CompAssemblyRecoveryState::Interrupted) && !recovered.result,"Interrupted job yielded accepted pair");
         refuses([&]{publishCompAssembly(root,s,context,pair,interrupted,ledger);});
     }
-    auto pre=request();record(pre,"precancel");std::stop_source canceled;canceled.request_stop();refuses([&]{publishCompAssembly(root,s,context,pair,pre,ledger,{},canceled.get_token());});check(!std::filesystem::exists(folder(pre)),"Precanceled job created files");
-    auto tinyRequest=request();ResourceLedger tiny(1,"Refused job quota");refuses([&]{publishCompAssembly(root,s,context,pair,tinyRequest,tiny);});check(!std::filesystem::exists(folder(tinyRequest)) && !tiny.usage().reservedBytes,"Quota refusal modified job or leaked credit");
-    auto wrong=prepareCompAssemblyRequest(s,context,pair,Id::generate(),outputIds(),std::string(64,'0'),{},ledger);refuses([&]{publishCompAssembly(root,s,context,pair,wrong,ledger);});check(!std::filesystem::exists(folder(wrong)),"Wrong executable created job");
+    auto pre=request();record(pre,"precancel");std::stop_source canceled;canceled.request_stop();refuses([&]{publishCompAssembly(root,s,context,pair,pre,ledger,{},canceled.get_token());});check(!observedExists(folder(pre)),"Precanceled job created files");
+    auto tinyRequest=request();ResourceLedger tiny(1,"Refused job quota");refuses([&]{publishCompAssembly(root,s,context,pair,tinyRequest,tiny);});check(!observedExists(folder(tinyRequest)) && !tiny.usage().reservedBytes,"Quota refusal modified job or leaked credit");
+    auto wrong=prepareCompAssemblyRequest(s,context,pair,Id::generate(),outputIds(),std::string(64,'0'),{},ledger);refuses([&]{publishCompAssembly(root,s,context,pair,wrong,ledger);});check(!observedExists(folder(wrong)),"Wrong executable created job");
     {auto checked=verifyCompAssembly(root,s,context,pair,r,ledger);check(checked.outputs()==outputs,"Restored pair changed verified identity");}
     check(ProjectStore(root).load()==registered,"Assembly publication mutated registered project");
     const auto relocated=root.parent_path()/"relocated-assembly";std::filesystem::copy(fileSystemApiPath(root),fileSystemApiPath(relocated),std::filesystem::copy_options::recursive);

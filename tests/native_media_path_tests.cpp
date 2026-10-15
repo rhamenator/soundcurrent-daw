@@ -37,6 +37,9 @@ int main(){std::filesystem::path base;try{
     const auto partial=root/"audio.partial",output=root/"audio.wav";
     {media_io::File f(partial,true);f.write("owned audio payload\n");f.flush();f.close();}
     media_io::publishMedia(partial,output);check(!std::filesystem::exists(fileSystemApiPath(partial)),"Published partial remained");
+    check(std::filesystem::exists(fileSystemApiPath(output)),"Published long-path media appeared absent");
+    std::error_code unprefixedStatusError;
+    const bool unprefixedExists=std::filesystem::exists(output,unprefixedStatusError);
     {media_io::File f(output,false);check(f.readBounded(100)=="owned audio payload\n","Long media descriptor read differs");}
     refuses([&]{media_io::File f(output,true);});
     {media_io::File f(partial,true);f.write("replacement must not publish");f.flush();}
@@ -72,5 +75,5 @@ int main(){std::filesystem::path base;try{
     check(store.load()==session && store.loadPrevious()==backupBeforeCopy && hashMediaFile(output)==hash.digest(),"Relocation copy changed original");
 
     const auto length=root.native().size();std::filesystem::remove_all(fileSystemApiPath(base));
-    std::cout<<"{\"checks\":"<<checks<<",\"rootNativeUnits\":"<<length<<",\"unprefixedWin32Error\":"<<unprefixedError<<",\"relocationCopyVerified\":true,\"projectSavedReopened\":true,\"mediaHashVerified\":true,\"journalPublished\":true,\"overwriteRefused\":true,\"leaseConflictRefused\":true}\n";return 0;
+    std::cout<<"{\"checks\":"<<checks<<",\"rootNativeUnits\":"<<length<<",\"unprefixedWin32Error\":"<<unprefixedError<<",\"unprefixedExists\":"<<(unprefixedExists?"true":"false")<<",\"unprefixedStatusError\":"<<unprefixedStatusError.value()<<",\"prefixedExistsVerified\":true,\"relocationCopyVerified\":true,\"projectSavedReopened\":true,\"mediaHashVerified\":true,\"journalPublished\":true,\"overwriteRefused\":true,\"leaseConflictRefused\":true}\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<"; fixture retained at "<<base<<'\n';return 1;}}
