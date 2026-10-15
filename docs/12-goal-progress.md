@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Linux render-progress preview (2026-10-15)
+
+[Checkpoint 331](331-installed-progress-preview.md) qualifies the installed
+`b5dc256` candidate through public render/review/Apply/Undo/Redo/save/reopen/export
+controls. The exported WAV matches an independent calculation bit for bit.
+Visible stages and a terminal-frozen elapsed timer pass. The normal Applications
+launcher now opens this build; the prior preview remains available as
+“SoundCurrent DAW Preview (before render progress)”. A fixture preparation error
+before rendering is retained separately. No VM or physical audio was used.
+Matching-source CI is still running; Windows qualification and the full goal
+remain incomplete.
+
 ## Qualified Linux preview candidate (2026-10-15)
 
 [Checkpoint 330](330-linux-preview-candidate.md) prepares the `b5dc256` Ubuntu
