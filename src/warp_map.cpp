@@ -55,7 +55,7 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
     : ClipWarpMap(ExactClipWarpRegion{region.rawOrigin,region.physicalRate,region.availableSourceFrames,
           {region.inputFrames,0,1},{region.outputFrames,0,1},region.visibleSourceBegin,region.visibleSourceEnd},
           region,markers,ledger,limits) {}
-ClipWarpMap::ClipWarpMap(ExactClipWarpRegion region, std::span<const WarpAnchor> markers,
+ClipWarpMap::ClipWarpMap(ExactWarpDomain, ExactClipWarpRegion region, std::span<const WarpAnchor> markers,
                  ResourceLedger ledger, ClipWarpLimits limits)
     : ClipWarpMap(region,std::nullopt,markers,ledger,limits) {}
 ClipWarpMap::ClipWarpMap(ExactClipWarpRegion region, std::optional<ClipWarpRegion> legacy,
@@ -85,9 +85,13 @@ ClipWarpMap::ClipWarpMap(ExactClipWarpRegion region, std::optional<ClipWarpRegio
         legacyRegion_->visibleSourceBegin=region_.visibleSourceBegin;
         legacyRegion_->visibleSourceEnd=region_.visibleSourceEnd;
     } else {
-        require(!sourcePositionLess({region_.availableSourceFrames,0,1},
-                                    addSourcePosition(region_.rawOrigin,region_.inputExtent)),
-                "Exact warp extent exceeds source asset");
+        require(sourcePositionLess(region_.rawOrigin,{region_.availableSourceFrames,0,1}),
+                "Exact warp origin has no source sample");
+        // The exclusive endpoint is a semantic coordinate, not a requested
+        // source sample. A fractional extent can pass the final asset boundary
+        // while every actual sample remains in range. Reject arithmetic overflow
+        // here; sampling adapters separately verify their complete actual grid.
+        (void)addSourcePosition(region_.rawOrigin,region_.inputExtent);
     }
     require(sourcePositionLess(region_.visibleSourceBegin, region_.visibleSourceEnd) &&
             !sourcePositionLess(region_.inputExtent, region_.visibleSourceEnd),

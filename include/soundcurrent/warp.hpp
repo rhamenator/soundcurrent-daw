@@ -26,7 +26,8 @@ struct ClipWarpRegion {
     SourcePosition visibleSourceBegin, visibleSourceEnd;
 };
 // Semantic extents, not sample counts. No rounding is permitted when adapting
-// fractional outer handles. This path requires the whole raw extent to exist.
+// fractional outer handles. Actual sample/footprint admission belongs to the
+// prepared sampling adapter; an exclusive extent is not itself a sample.
 struct ExactClipWarpRegion {
     SourcePosition rawOrigin;
     std::uint32_t physicalRate = 48000;
@@ -34,10 +35,12 @@ struct ExactClipWarpRegion {
     SourcePosition inputExtent, outputExtent;
     SourcePosition visibleSourceBegin, visibleSourceEnd;
 };
+struct ExactWarpDomain {};
+inline constexpr ExactWarpDomain exactWarpDomain{};
 class ClipWarpMap {
   public:
     ClipWarpMap(ClipWarpRegion, std::span<const WarpAnchor>, ResourceLedger, ClipWarpLimits = {});
-    ClipWarpMap(ExactClipWarpRegion, std::span<const WarpAnchor>, ResourceLedger, ClipWarpLimits = {});
+    ClipWarpMap(ExactWarpDomain, ExactClipWarpRegion, std::span<const WarpAnchor>, ResourceLedger, ClipWarpLimits = {});
     // Legacy integer-grid access refuses an exact-domain plan, even if its
     // current endpoints happen to be integers. Callers must opt into the model.
     const ClipWarpRegion &region() const;
@@ -66,7 +69,7 @@ struct ProtectedWarpGap { SourcePosition sourceBegin,sourceEnd,outputBegin,outpu
 class ProtectedWarpPlan {
  public:
   ProtectedWarpPlan(ClipWarpRegion,std::span<const WarpAnchor>,WarpProtection,ResourceLedger,ClipWarpLimits={});
-  ProtectedWarpPlan(ExactClipWarpRegion,std::span<const WarpAnchor>,WarpProtection,ResourceLedger,ClipWarpLimits={});
+  ProtectedWarpPlan(ExactWarpDomain,ExactClipWarpRegion,std::span<const WarpAnchor>,WarpProtection,ResourceLedger,ClipWarpLimits={});
   std::span<const ProtectedWarpSpan> spans() const noexcept { return spans_; }
   std::span<const ProtectedWarpGap> gaps() const noexcept { return gaps_; }
   const ClipWarpMap &map() const noexcept { return *map_; }

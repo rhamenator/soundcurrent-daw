@@ -31,8 +31,8 @@ Id scratchId(std::size_t index){
 ProtectedWarpPlan::ProtectedWarpPlan(ClipWarpRegion region,std::span<const WarpAnchor> markers,WarpProtection policy,ResourceLedger ledger,ClipWarpLimits limits):policy_(policy){
  ClipWarpMap original(region,markers,ledger,limits);prepare(original,markers,ledger,limits);
 }
-ProtectedWarpPlan::ProtectedWarpPlan(ExactClipWarpRegion region,std::span<const WarpAnchor> markers,WarpProtection policy,ResourceLedger ledger,ClipWarpLimits limits):policy_(policy){
- ClipWarpMap original(region,markers,ledger,limits);prepare(original,markers,ledger,limits);
+ProtectedWarpPlan::ProtectedWarpPlan(ExactWarpDomain,ExactClipWarpRegion region,std::span<const WarpAnchor> markers,WarpProtection policy,ResourceLedger ledger,ClipWarpLimits limits):policy_(policy){
+ ClipWarpMap original(exactWarpDomain,region,markers,ledger,limits);prepare(original,markers,ledger,limits);
 }
 void ProtectedWarpPlan::prepare(const ClipWarpMap &original,std::span<const WarpAnchor> markers,ResourceLedger ledger,ClipWarpLimits limits){
  const auto &region=original.exactRegion();const auto policy=policy_;
@@ -69,7 +69,7 @@ void ProtectedWarpPlan::prepare(const ClipWarpMap &original,std::span<const Warp
  // Preserve the constructor's domain identity; integer consumers cannot use
  // exact geometry merely because a particular endpoint is integral.
  if(original.hasLegacyRegion())map_=std::make_unique<ClipWarpMap>(original.region(),derived,ledger,limits);
- else map_=std::make_unique<ClipWarpMap>(region,derived,ledger,limits);
+ else map_=std::make_unique<ClipWarpMap>(exactWarpDomain,region,derived,ledger,limits);
  // Scratch map UUIDs are evaluation-only. Persisted identity is owner+start/anchor/end role.
 }
 std::size_t warpPayloadBytes(const WarpSettings &w) {
