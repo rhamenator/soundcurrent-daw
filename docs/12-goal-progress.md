@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows progress candidate and CI evidence separation (2026-10-15)
+
+[Checkpoint 332](332-windows-progress-preview.md) prepares the matching `b5dc256`
+unsigned Windows installer and verifies all 8,079 corresponding-source files.
+Native helper qualification and normal interactive startup/close pass on the
+independent development clone; installed acceptance remains pending. All VMs are
+off. Original CI passes every Windows job but cancels Linux shard 4 after its
+45 CTests pass, during archived-evidence checks at the 30-minute job limit.
+All original logs and 12 artifact archives are retained. The unchanged evidence
+command bank moves to its own required job; CTest assignments and deadlines stay
+unchanged. New hosted execution is pending. Full goal incomplete.
+
 ## Installed Linux render-progress preview (2026-10-15)
 
 [Checkpoint 331](331-installed-progress-preview.md) qualifies the installed

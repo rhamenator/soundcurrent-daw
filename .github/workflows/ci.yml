@@ -12,15 +12,16 @@ concurrency:
 jobs:
   linux-desktop:
     name: Linux desktop and synthetic tests
-    needs: linux-tests
+    needs: [linux-tests, linux-retained-evidence]
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
-      - name: Require every Linux shard to pass
+      - name: Require every Linux shard and retained evidence to pass
         env:
           LINUX_RESULT: ${{ needs.linux-tests.result }}
-        run: test "$LINUX_RESULT" = success
+          EVIDENCE_RESULT: ${{ needs.linux-retained-evidence.result }}
+        run: test "$LINUX_RESULT" = success && test "$EVIDENCE_RESULT" = success
   linux-tests:
     name: Linux synthetic shard ${{ matrix.shard }}
     strategy:
@@ -43,6 +44,74 @@ jobs:
         run: cmake --build build --parallel 2
       - name: Test synthetic workflows
         run: python3 .github/scripts/run-linux-test-shard.py build ${{ matrix.shard }} --count 5
+      - name: Verify controller failure retention
+        if: always()
+        run: python3 tests/controller_retention_tests.py
+      - name: Verify interruption cleanup fault handling
+        if: always()
+        run: python3 tests/parent_interruption_cleanup_tests.py
+      - name: Preserve controller failure projects
+        if: always()
+        run: python3 .github/scripts/retain-controller-failure-projects.py build
+      - name: Retain test log
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          archive: true
+          name: linux-synthetic-test-log-${{ matrix.shard }}
+          path: |
+            build/Testing/Temporary/*.log
+            build/ci-test-inventory.json
+            build/ci-shard-plan.json
+            build/controller-failure-projects/**
+            build/comp-assembly-state-evidence/**
+            build/comp-assembly-job-evidence/**
+            build/comp-regeneration-source-evidence/**
+            build/comp-regeneration-history-evidence/**
+            build/comp-paired-history-evidence/**
+            build/comp-repeat-evidence/**
+            build/comp-span-v2-evidence/**
+            build/comp-pair-assembly-evidence/**
+            build/comp-assembly-controller-evidence/**
+            build/comp-assembly-ui-evidence/**
+            build/comp-transition-ui-evidence/**
+            build/comp-protected-ui-evidence/**
+            build/comp-repeat-ui-evidence/**
+            build/comp-protected-repeat-ui-evidence/**
+            build/comp-clocked-repeat-ui-evidence/**
+            build/protected-core-sampling-evidence/**
+            build/exact-processing-grid-evidence/**
+            build/exact-warp-extents-evidence/**
+            build/comp-original-context-pair-evidence/**
+            build/comp-uniform-context-worker-evidence/**
+            build/comp-uniform-context-evidence/**
+            build/comp-clocked-protected-pair-evidence/**
+            build/comp-clocked-protected-worker-evidence/**
+            build/comp-clocked-protected-history-worker-evidence/**
+            build/comp-clocked-protected-evidence/**
+            build/comp-protected-clock-evidence/**
+            build/comp-pair-controller-evidence/**
+            build/comp-pair-state-evidence/**
+            build/comp-pair-recovery-evidence/**
+            build/comp-protected-pair-evidence/**
+            build/comp-protected-assembly-evidence/**
+            build/comp-protected-repeat-evidence/**
+            build/comp-protected-span-evidence/**
+            build/comp-protected-worker-evidence/**
+            build/comp-span-worker-evidence/**
+            build/comp-span-evidence/**
+            build/comp-media-review-evidence/**
+          if-no-files-found: ignore
+  linux-retained-evidence:
+    name: Retained workflow evidence (no native replay)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Verify relocated native startup evidence (no audio replay)
         run: |
           python3 tests/native_startup_archive_integrity_tests.py
@@ -139,64 +208,6 @@ jobs:
           python3 tests/results/M2/2026-10-10-windows-bounded-observation/verify.py
           python3 tests/results/M2/2026-10-10-windows-protected-preview/verify.py
           python3 tests/results/M2/2026-10-10-windows-protected-preview/refusals.py
-      - name: Verify controller failure retention
-        if: always()
-        run: python3 tests/controller_retention_tests.py
-      - name: Verify interruption cleanup fault handling
-        if: always()
-        run: python3 tests/parent_interruption_cleanup_tests.py
-      - name: Preserve controller failure projects
-        if: always()
-        run: python3 .github/scripts/retain-controller-failure-projects.py build
-      - name: Retain test log
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          archive: true
-          name: linux-synthetic-test-log-${{ matrix.shard }}
-          path: |
-            build/Testing/Temporary/*.log
-            build/ci-test-inventory.json
-            build/ci-shard-plan.json
-            build/controller-failure-projects/**
-            build/comp-assembly-state-evidence/**
-            build/comp-assembly-job-evidence/**
-            build/comp-regeneration-source-evidence/**
-            build/comp-regeneration-history-evidence/**
-            build/comp-paired-history-evidence/**
-            build/comp-repeat-evidence/**
-            build/comp-span-v2-evidence/**
-            build/comp-pair-assembly-evidence/**
-            build/comp-assembly-controller-evidence/**
-            build/comp-assembly-ui-evidence/**
-            build/comp-transition-ui-evidence/**
-            build/comp-protected-ui-evidence/**
-            build/comp-repeat-ui-evidence/**
-            build/comp-protected-repeat-ui-evidence/**
-            build/comp-clocked-repeat-ui-evidence/**
-            build/protected-core-sampling-evidence/**
-            build/exact-processing-grid-evidence/**
-            build/exact-warp-extents-evidence/**
-            build/comp-original-context-pair-evidence/**
-            build/comp-uniform-context-worker-evidence/**
-            build/comp-uniform-context-evidence/**
-            build/comp-clocked-protected-pair-evidence/**
-            build/comp-clocked-protected-worker-evidence/**
-            build/comp-clocked-protected-history-worker-evidence/**
-            build/comp-clocked-protected-evidence/**
-            build/comp-protected-clock-evidence/**
-            build/comp-pair-controller-evidence/**
-            build/comp-pair-state-evidence/**
-            build/comp-pair-recovery-evidence/**
-            build/comp-protected-pair-evidence/**
-            build/comp-protected-assembly-evidence/**
-            build/comp-protected-repeat-evidence/**
-            build/comp-protected-span-evidence/**
-            build/comp-protected-worker-evidence/**
-            build/comp-span-worker-evidence/**
-            build/comp-span-evidence/**
-            build/comp-media-review-evidence/**
-          if-no-files-found: ignore
   windows-core-cross-build:
     name: Windows core cross-build (no native runtime claim)
     runs-on: ubuntu-24.04
