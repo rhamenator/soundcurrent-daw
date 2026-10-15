@@ -20,7 +20,7 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
         const auto requests=Json::parse(read(root/"requests.json"));const auto first=read(root/requests[0].at("file").get<std::string>());const auto j=Json::parse(first);
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id"),j.at("recipeExecutor").at("buildSha256")};
         auto recipe=decodeCompProcessingRecipe(j.at("recipe").get<std::string>(),Id(j.at("recipeOperation")),context,parent,j.at("recipeDigest").get<std::string>(),ledger);
-        const auto binary=j.at("executor").at("buildSha256").get<std::string>();std::array<Id,2> operations{Id(requests[0].at("operation")),Id(requests[1].at("operation"))};
+        const auto binary=j.at("executor").at("buildSha256").get<std::string>();std::array<Id,2> operations{Id(requests[0].at("operation")),requests[1].is_null()?Id::generate():Id(requests[1].at("operation"))};
         auto selectedPolicy=policy();selectedPolicy.deadlineMilliseconds=input.value("deadline",10000u);const auto spanPolicy=input.value("protected",false)?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly;
         if(spanPolicy==CompPairSpanPolicy::ProtectedOriginal){
             auto legacy=decodeCompProcessingRecipe(j.at("recipe").get<std::string>(),Id(j.at("recipeOperation")),context,parent,j.at("recipeDigest").get<std::string>(),ledger);
@@ -28,7 +28,10 @@ int main(int argc,char **argv){try{check(argc==2,"Expected pair fixture mode");J
         }
         auto selection=prepareCompPairSelection(std::move(recipe),parent,binary,operations,selectedPolicy,ledger,spanPolicy);
         check(selection.spanPolicy()==spanPolicy,"Selection lost explicit span policy");
-        if(spanPolicy==CompPairSpanPolicy::ProtectedOriginal)for(const auto &child:selection.children())check(child && child->isProtected(),"Protected pair selected uniform child");
+        if(spanPolicy==CompPairSpanPolicy::ProtectedOriginal)for(unsigned side=0;side<2;++side){
+            const auto &child=selection.children()[side];check(bool(child)!=requests[side].is_null(),"Pair changed needed child presence");
+            if(child){const auto saved=Json::parse(read(root/requests[side].at("file").get<std::string>()));check(child->protocol()==saved.at("protocol").get<std::string>(),"Pair changed explicit child producer");}
+        }
         const auto digest=persistCompPairSelection(root,current,context,selection,ledger);
         check(persistCompPairSelection(root,current,context,selection,ledger)==digest,"Repeated selection publication changed bytes");
         auto fresh=loadCompPairSelection(root,current,context,selection.recipe().operation(),digest,ledger);check(fresh.digest()==digest && fresh.manifest()==selection.manifest() && fresh.spanPolicy()==spanPolicy,"Selection reopened differently");

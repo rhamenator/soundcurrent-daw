@@ -633,6 +633,11 @@ if(SC_BUILD_MEDIA)
         $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture> $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-assembly-job-evidence)
       set_tests_properties(comp-owned-assembly-publication PROPERTIES TIMEOUT 180)
+      add_test(NAME comp-protected-assembly-publication COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_protected_assembly_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-protected-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests>
+        --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-protected-assembly-evidence)
+      set_tests_properties(comp-protected-assembly-publication PROPERTIES TIMEOUT 600)
     endif()
     if(BUILD_TESTING)
       add_executable(sc-comp-regeneration-source-tests tests/comp_regeneration_source_tests.cpp)

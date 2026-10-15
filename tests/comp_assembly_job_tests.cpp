@@ -14,6 +14,7 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <cstdlib>
 using namespace soundcurrent::daw;
 namespace {
 using Json=nlohmann::json;unsigned checks=0;
@@ -89,9 +90,37 @@ int main(int argc,char **argv){try{
         while(!std::filesystem::exists(ack) && std::chrono::steady_clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
         check(std::filesystem::exists(ack),"Missing image probe acknowledgment");std::cout<<compAssemblyExecutableSha256()<<std::endl;return 0;}
 
-    check(argc==1,"Invalid publication fixture arguments");
+    const bool crash=argc==2 && std::string_view(argv[1])=="--crash-publish";
+    const bool inspectCrash=argc==2 && std::string_view(argv[1])=="--inspect-crash";
+    check(argc==1 || crash || inspectCrash,"Invalid publication fixture arguments");
     Json input;std::cin>>input;const auto root=utf8Path(input.at("root").get<std::string>());ResourceLedger ledger(512*1024*1024,"Assembly publication test");const auto s=ProjectStore(root).load();const CompHandlePlanContext context{51,"owned-assembly-owner"};auto pair=loadReferencedCompPairSelection(root,s,context,s.compPairSelections.at(0).operation,ledger);const auto executable=compAssemblyExecutableSha256();Json jobs=Json::array();
-    auto request=[&]{std::array<std::optional<Id>,2> ids{Id::generate(),Id::generate()};return prepareCompAssemblyRequest(s,context,pair,Id::generate(),ids,executable,{},ledger);};
+    const auto outputIds=[&]{std::array<std::optional<Id>,2> ids;for(unsigned side=0;side<2;++side)if(pair.children()[side])ids[side]=Id::generate();return ids;};
+    auto request=[&]{auto ids=outputIds();return prepareCompAssemblyRequest(s,context,pair,Id::generate(),ids,executable,{},ledger);};
+    if(crash){
+        auto r=request();auto registered=s;const auto ref=persistCompAssemblyRequest(root,s,context,pair,r,ledger);
+        applySessionEdits(registered,{AddCompAssembly{ref}});ProjectStore(root).save(registered);
+        const auto target=input.at("stage").get<unsigned>();check(target<=2,"Invalid crash stage");
+        publishCompAssembly(root,registered,context,pair,r,ledger,[&](auto stage,unsigned side){
+            if(unsigned(stage)==target && (target==2 || side==0)){
+                std::cout<<Json{{"operation",r.operation().str()},{"stage",target},{"abruptExit",true}}.dump()<<std::endl;
+                std::_Exit(86);
+            }
+        });throw std::runtime_error("Crash boundary not reached");
+    }
+    if(inspectCrash){
+        const auto operation=Id(input.at("operation").get<std::string>());auto r=loadReferencedCompAssemblyRequest(root,s,context,pair,operation,ledger);
+        auto recovered=inspectCompAssembly(root,s,context,pair,r,ledger);
+        check(recovered.state==CompAssemblyRecoveryState::Interrupted && !recovered.result,"Abrupt exit exposed a completed pair");
+        check(!std::filesystem::exists(root/"media/comp-assemblies"/r.operation().str()/"complete.json"),"Abrupt exit published completion");
+        const auto stage=input.at("stage").get<unsigned>();check(stage<=2,"Invalid crash inspection stage");
+        unsigned published=0,needed=0;for(const auto &out:r.outputs())if(out){++needed;
+            if(std::filesystem::exists(root/"media/comp-results"/pair.recipe().operation().str()/(out->str()+".wav")))++published;
+        }
+        check(published==(stage==0?0:stage==1?1:needed),"Abrupt exit lost its observed publication boundary");
+        refuses([&]{publishCompAssembly(root,s,context,pair,r,ledger);});
+        check(ProjectStore(root).load()==s,"Crash review changed project");
+        std::cout<<Json{{"operation",r.operation().str()},{"interrupted",true},{"completionAbsent",true},{"resumeRefused",true},{"publishedFiles",published},{"neededFiles",needed}}.dump()<<'\n';return 0;
+    }
     auto r=request();auto reopened=decodeCompAssemblyRequest(r.bytes(),r.digest(),s,context,pair,ledger);check(reopened.bytes()==r.bytes(),"Request changed across codec");
     refuses([&]{decodeCompAssemblyRequest(r.bytes(),std::string(64,'0'),s,context,pair,ledger);});
     for(unsigned mode=0;mode<5;++mode){auto j=Json::parse(r.bytes());if(mode==0)j["extra"]=true;if(mode==1)j["policy"]["maximumFileBytes"]=32;if(mode==2)j["outputs"][1]=j["outputs"][0];if(mode==3)j["policy"]["deadlineMilliseconds"]=1.0;if(mode==4)j["selectionDigest"]=std::string(64,'0');const auto bad=j.dump();refuses([&]{decodeCompAssemblyRequest(bad,hash(bad),s,context,pair,ledger);});}
@@ -119,12 +148,12 @@ int main(int argc,char **argv){try{
     check(ProjectStore(root).load()==registered,"Missing request prevented project reopen");
     refuses([&]{loadReferencedCompAssemblyRequest(root,registered,context,pair,r.operation(),ledger);});
     std::filesystem::rename(missingSidecar,sidecar);
-    for(unsigned slot=0;slot<2;++slot){auto bad=prepareCompAssemblyRequest(s,context,pair,slot?Id::generate():s.tracks[0].id,
-        {slot?s.tracks[0].id:Id::generate(),Id::generate()},executable,{},ledger);
+    for(unsigned slot=0;slot<2;++slot){auto ids=outputIds();if(slot)ids[0]=s.tracks[0].id;auto bad=prepareCompAssemblyRequest(s,context,pair,slot?Id::generate():s.tracks[0].id,
+        ids,executable,{},ledger);
         refuses([&]{persistCompAssemblyRequest(root,s,context,pair,bad,ledger);});
         check(!std::filesystem::exists(root/"media/comp-assembly-requests"/(bad.operation().str()+".json")),"Colliding request sidecar published");}
     record(r,"complete");check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Absent,"Fresh job not absent");unsigned observed=0;
-    publishCompAssembly(root,s,context,pair,r,ledger,[&](auto,unsigned){check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Active,"Live writer not active");refuses([&]{verifyCompAssembly(root,s,context,pair,r,ledger);});++observed;});check(observed==5,"Publication stages missing");
+    publishCompAssembly(root,s,context,pair,r,ledger,[&](auto,unsigned){check(inspectCompAssembly(root,s,context,pair,r,ledger).state==CompAssemblyRecoveryState::Active,"Live writer not active");refuses([&]{verifyCompAssembly(root,s,context,pair,r,ledger);});++observed;});check(observed==1+2*unsigned(bool(r.outputs()[0])+bool(r.outputs()[1])),"Publication stages missing");
     auto result=verifyCompAssembly(root,s,context,pair,r,ledger);check(result.comparedSamples()>0 && result.requestDigest()==r.digest(),"Verified pair lost request binding");const auto outputs=result.outputs();const auto originalComplete=read(folder(r)/"complete.json");
     const auto adoption=adoptionWorkflow(root,registered,context,pair,reference,result,ledger);
     refuses([&]{publishCompAssembly(root,s,context,pair,r,ledger);});check(read(folder(r)/"complete.json")==originalComplete,"Retry replaced completed job");
@@ -146,7 +175,7 @@ int main(int argc,char **argv){try{
     }
     auto pre=request();record(pre,"precancel");std::stop_source canceled;canceled.request_stop();refuses([&]{publishCompAssembly(root,s,context,pair,pre,ledger,{},canceled.get_token());});check(!std::filesystem::exists(folder(pre)),"Precanceled job created files");
     auto tinyRequest=request();ResourceLedger tiny(1,"Refused job quota");refuses([&]{publishCompAssembly(root,s,context,pair,tinyRequest,tiny);});check(!std::filesystem::exists(folder(tinyRequest)) && !tiny.usage().reservedBytes,"Quota refusal modified job or leaked credit");
-    auto wrong=prepareCompAssemblyRequest(s,context,pair,Id::generate(),{Id::generate(),Id::generate()},std::string(64,'0'),{},ledger);refuses([&]{publishCompAssembly(root,s,context,pair,wrong,ledger);});check(!std::filesystem::exists(folder(wrong)),"Wrong executable created job");
+    auto wrong=prepareCompAssemblyRequest(s,context,pair,Id::generate(),outputIds(),std::string(64,'0'),{},ledger);refuses([&]{publishCompAssembly(root,s,context,pair,wrong,ledger);});check(!std::filesystem::exists(folder(wrong)),"Wrong executable created job");
     {auto checked=verifyCompAssembly(root,s,context,pair,r,ledger);check(checked.outputs()==outputs,"Restored pair changed verified identity");}
     check(ProjectStore(root).load()==registered,"Assembly publication mutated registered project");
     const auto relocated=root.parent_path()/"relocated-assembly";std::filesystem::copy(fileSystemApiPath(root),fileSystemApiPath(relocated),std::filesystem::copy_options::recursive);

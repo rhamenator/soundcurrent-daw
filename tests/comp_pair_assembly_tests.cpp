@@ -15,8 +15,8 @@ using namespace soundcurrent::daw;
 namespace {
 using Json=nlohmann::json;unsigned checks=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
-std::string bytes(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Fixture input missing");return {(std::istreambuf_iterator<char>(f)),{}};}
-void save(const std::filesystem::path &p,std::string_view text){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(text.data(),std::streamsize(text.size()));check(bool(f),"Fixture write failed");}
+std::string bytes(const std::filesystem::path &p){std::ifstream f(fileSystemApiPath(p),std::ios::binary);check(bool(f),"Fixture input missing");return {(std::istreambuf_iterator<char>(f)),{}};}
+void save(const std::filesystem::path &p,std::string_view text){std::ofstream f(fileSystemApiPath(p),std::ios::binary|std::ios::trunc);f.write(text.data(),std::streamsize(text.size()));check(bool(f),"Fixture write failed");}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid assembly accepted");}
 SNDFILE *open(const std::filesystem::path &p,int mode,SF_INFO &info){
 #ifdef _WIN32
@@ -40,15 +40,22 @@ const CompHandlePlanContext context{99,"assembly-test-owner"};
 int main(int argc,char **argv){try{
     check(argc==2,"Expected assembly fixture mode");Json input;std::cin>>input;const auto root=utf8Path(input.at("root").get<std::string>());ResourceLedger ledger(512*1024*1024,"Assembly test");auto s=ProjectStore(root).load();
     if(std::string_view(argv[1])=="nominal-prepare"){
+        if(input.contains("pairKind")){
+            const auto kind=input.at("pairKind").get<std::string>();auto &c=s.tracks[0].clips[1];
+            check(kind=="protected" || kind=="uniform" || kind=="existing","Unknown protected pair fixture kind");
+            if(kind=="uniform"){c.stretch->warp.reset();c.stretch->processor=std::string(stretchProcessorFor(c.stretch->settings));}
+            if(kind=="existing"){c.stretch.reset();c.assetId=s.assets[0].id;c.sourceFrame=16384;c.sourceTiming={};}
+            validate(s);ProjectStore(root).save(s);
+        }
         Json requests=Json::array();const auto &t=s.tracks[0];
-        for(const auto &clip:t.clips){auto plan=prepareClipStretch(s,t.id,clip.id,clip.stretch->settings);
+        for(const auto &clip:t.clips){if(!clip.stretch){requests.push_back(nullptr);continue;}auto plan=prepareClipStretch(s,t.id,clip.id,clip.stretch->settings,clip.stretch->context,clip.stretch->warp);
             const auto op=Id::generate();auto request=encodeStretchRenderRequest(plan,op,{},ledger);requests.push_back(Json::parse(request.bytes()));}
         save(root/"nominal-requests.json",requests.dump(2));std::cout<<requests.dump()<<'\n';return 0;
     }
     if(std::string_view(argv[1])=="nominal-ready"){
         const auto side=input.at("fragment").get<unsigned>();check(side<2,"Invalid nominal ready fragment");
         const auto requests=Json::parse(bytes(root/"nominal-requests.json"));const auto op=Id(requests.at(side).at("operation"));const auto &t=s.tracks[0];
-        auto plan=prepareClipStretch(s,t.id,t.clips[side].id,t.clips[side].stretch->settings);
+        auto plan=prepareClipStretch(s,t.id,t.clips[side].id,t.clips[side].stretch->settings,t.clips[side].stretch->context,t.clips[side].stretch->warp);
         auto request=encodeStretchRenderRequest(plan,op,{},ledger);check(Json::parse(request.bytes())==requests.at(side),"Nominal request changed before start");
         verifyStretchRenderReady(input.at("ready").dump(),plan,op,ledger);
         save(root/("nominal-ready-"+std::to_string(side)+".json"),input.at("ready").dump());
@@ -57,8 +64,8 @@ int main(int argc,char **argv){try{
     if(std::string_view(argv[1])=="nominal-adopt"){
         const auto requests=Json::parse(bytes(root/"nominal-requests.json"));Json accepted=Json::array();
         const auto before=s;EditHistory history(s);
-        for(unsigned side=0;side<2;++side){const auto &t=s.tracks[0];const auto op=Id(requests.at(side).at("operation"));
-            auto plan=prepareClipStretch(s,t.id,t.clips[side].id,t.clips[side].stretch->settings);auto request=encodeStretchRenderRequest(plan,op,{},ledger);
+        for(unsigned side=0;side<2;++side){if(requests.at(side).is_null()){accepted.push_back(nullptr);continue;}const auto &t=s.tracks[0];const auto op=Id(requests.at(side).at("operation"));
+            auto plan=prepareClipStretch(s,t.id,t.clips[side].id,t.clips[side].stretch->settings,t.clips[side].stretch->context,t.clips[side].stretch->warp);auto request=encodeStretchRenderRequest(plan,op,{},ledger);
             check(Json::parse(request.bytes())==requests.at(side),"Original nominal request differs from canonical plan");
             verifyStretchRenderReady(bytes(root/("nominal-ready-"+std::to_string(side)+".json")),plan,op,ledger);
             auto verified=verifyOwnedClipStretch(root,plan,op,{},ledger);const auto previous=s;
@@ -71,14 +78,24 @@ int main(int argc,char **argv){try{
     }
     if(std::string_view(argv[1])=="prepare"){
         if(input.at("physical").get<bool>()){
-            auto &t=s.tracks[0];for(auto &c:t.clips){c.playbackRate={1,1};c.sourceTiming={0,1};c.lengthFrames=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &asset){return asset.id==c.assetId;})->frames;}
+            auto &t=s.tracks[0];for(auto &c:t.clips){c.playbackRate={1,1};c.sourceTiming={0,1};if(c.stretch)c.lengthFrames=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &asset){return asset.id==c.assetId;})->frames;}
             t.clips[1].startFrame=t.clips[0].startFrame+t.clips[0].lengthFrames;validate(s);ProjectStore(root).save(s);
         }
         const auto &t=s.tracks[0];const auto join=t.clips[1].startFrame;
-        auto plan=prepareCompProcessing(s,{t.id,t.clips[0].id,t.clips[1].id,join-26,join+26,ClipFadeCurve::EqualPower},context,8,ledger);
+        const bool protectedMode=input.value("protected",false);
+        const Frame before=protectedMode?3008:26;
+        const Frame after=protectedMode?(t.clips[0].stretch->warp->markers.size()==1?4544:1472):26;
+        auto plan=prepareCompProcessing(s,{t.id,t.clips[0].id,t.clips[1].id,join-before,join+after,ClipFadeCurve::EqualPower},context,8,ledger);
         const CompRecipeExecutor parent{"soundcurrent.comp-join-quintic-v1",std::string(64,'e')};
         auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),parent,ledger);Json requests=Json::array();
-        for(unsigned side=0;side<2;++side){auto r=encodeCompSpanRequest(recipe,parent,side,Id::generate(),input.at("workerSha256").get<std::string>(),ledger);const auto file="request-"+std::to_string(side)+".json";save(root/file,r.bytes());requests.push_back({{"file",file},{"digest",r.digest()},{"operation",r.operation().str()}});}
+        for(unsigned side=0;side<2;++side){
+            const auto &processing=side?recipe.plan().incoming():recipe.plan().outgoing();
+            if(processing.domain==CompProcessingDomain::ExistingMedia){requests.push_back(nullptr);continue;}
+            const auto &c=t.clips[side];const auto binary=input.at("workerSha256").get<std::string>();
+            auto r=protectedMode && c.stretch && c.stretch->warp?
+                encodeProtectedCompSpanRequest(recipe,parent,side,Id::generate(),binary,ledger):
+                encodeCompSpanRequest(recipe,parent,side,Id::generate(),binary,ledger);
+            const auto file="request-"+std::to_string(side)+".json";save(root/file,r.bytes());requests.push_back({{"file",file},{"digest",r.digest()},{"operation",r.operation().str()}});}
         save(root/"requests.json",requests.dump());std::cout<<requests.dump()<<'\n';return 0;
     }
     const auto original=s;auto pair=loadReferencedCompPairSelection(root,s,context,s.compPairSelections.at(0).operation,ledger);
@@ -89,9 +106,11 @@ int main(int argc,char **argv){try{
     const auto baselineCredit=ledger.usage().reservedBytes;std::array<std::optional<Asset>,2> outputs;Json sides=Json::array();
     std::filesystem::create_directories(root/"media/comp-results"/pair.recipe().operation().str());
     for(unsigned side=0;side<2;++side){
+        if(!pair.children()[side]){unsigned calls=0;refuses([&]{streamCompPairFragment(root,s,context,pair,side,[&](auto){++calls;},ledger);});check(!calls,"Existing media emitted new PCM");continue;}
         std::vector<float> actual;auto report=streamCompPairFragment(root,s,context,pair,side,[&](auto v){check(v.size()<=1024,"Assembly exceeded 512-frame sink slab");actual.insert(actual.end(),v.begin(),v.end());},ledger);
         const auto &e=(side?pair.recipe().plan().handles().incoming():pair.recipe().plan().handles().outgoing()).data();const auto &p=side?pair.recipe().plan().incoming():pair.recipe().plan().outgoing();
-        check(report.nominals[0] && report.nominals[1] && report.nominals[side]->id==e.base.id,"Assembly lost original nominal binding");
+        for(unsigned n=0;n<2;++n)check(bool(report.nominals[n])==bool(s.tracks[0].clips[n].stretch),"Assembly lost original nominal presence");
+        check(report.nominals[side] && report.nominals[side]->id==e.base.id,"Assembly lost original nominal binding");
         check(report.context==context && report.recipeDigest==pair.recipe().digest() && report.selectionDigest==pair.digest() && report.requestDigest==pair.children()[side]->digest(),"Assembly lost identity");
         check(report.domain==p.domain && report.pcm.writtenFrames==p.pcm.prefixFrames+p.pcm.currentFrames+p.pcm.suffixFrames,"Assembly lost geometry");
         auto old=decode(root/utf8Path(e.base.relativePath)),candidate=decode(root/utf8Path(report.span.relativePath));
@@ -126,15 +145,15 @@ int main(int argc,char **argv){try{
     std::stop_source during;refuses([&]{streamCompPairFragment(root,s,context,pair,0,[&](auto){++calls;during.request_stop();},ledger,{},during.get_token());});check(calls==1,"Cancellation did not stop next output slab");
     refuses([&]{streamCompPairFragment(root,s,context,pair,0,[](auto){throw ProjectError(ErrorCode::Io,"Owned fixture sink failure");},ledger);});
     // Real completion corruption between the first output slab and final check.
-    const auto complete=root/"media/comp-spans"/pair.children()[1]->operation().str()/"complete.json";const auto before=bytes(complete);bool altered=false;
+    const auto complete=root/"media/comp-spans"/pair.children()[pair.children()[1]?1:0]->operation().str()/"complete.json";const auto before=bytes(complete);bool altered=false;
     refuses([&]{streamCompPairFragment(root,s,context,pair,0,[&](auto){if(!altered){altered=true;save(complete,"{}");}},ledger);});save(complete,before);check(altered,"Late marker refusal unexercised");
-    const auto &nominal=s.assets.at(std::size_t(std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &asset){return asset.id==s.tracks[0].clips[1].assetId;})-s.assets.begin()));
+    const auto &nominal=s.assets.at(std::size_t(std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &asset){return asset.id==s.tracks[0].clips[0].assetId;})-s.assets.begin()));
     const auto nominalMarker=root/"media/derived"/nominal.id.str()/"complete.json";const auto nominalBytes=bytes(nominalMarker);
     {media_io::JobLease exclusive(nominalMarker.parent_path(),false,true);check(exclusive.status()==media_io::LeaseStatus::Held,"Original lease fixture failed");calls=0;
         refuses([&]{streamCompPairFragment(root,s,context,pair,0,count,ledger);});check(!calls,"Busy original lease emitted PCM");}
     save(nominalMarker,"{}");calls=0;refuses([&]{streamCompPairFragment(root,s,context,pair,0,count,ledger);});check(!calls,"Unproven nominal emitted PCM");save(nominalMarker,nominalBytes);
     bool nominalAltered=false;refuses([&]{streamCompPairFragment(root,s,context,pair,0,[&](auto){if(!nominalAltered){nominalAltered=true;save(nominalMarker,"{}");}},ledger);});save(nominalMarker,nominalBytes);check(nominalAltered,"Late nominal receipt mutation unexercised");
-    auto wrongPolicy=CompPairAssemblyLimits{};wrongPolicy.nominalPolicies[1].memoryBytes=128*1024*1024;calls=0;
+    auto wrongPolicy=CompPairAssemblyLimits{};wrongPolicy.nominalPolicies[0].memoryBytes=128*1024*1024;calls=0;
     refuses([&]{streamCompPairFragment(root,s,context,pair,0,count,ledger,wrongPolicy);});check(!calls,"Nominal policy mismatch emitted PCM");
     check(s==original && ProjectStore(root).load()==original,"Assembly mutated canonical state");check(ledger.usage().reservedBytes==baselineCredit,"Assembly leaked payload credit");
     const Json result{{"checks",checks},{"sides",sides},{"physicalSamplesCompared",physical},{"projectSamplesCompared",project},{"ownedNominalWorkflowQualified",true},{"nominalBinaryBoundByProtocol",false},{"firQualityQualified",false},{"qualityAdmission",false},{"modelAdoptionChanged",false},{"postSrcLiveOverlayImplemented",false}};
