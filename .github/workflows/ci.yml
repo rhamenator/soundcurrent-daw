@@ -173,6 +173,7 @@ jobs:
             build/protected-core-sampling-evidence/**
             build/exact-processing-grid-evidence/**
             build/exact-warp-extents-evidence/**
+            build/comp-clocked-protected-pair-evidence/**
             build/comp-clocked-protected-worker-evidence/**
             build/comp-clocked-protected-history-worker-evidence/**
             build/comp-clocked-protected-evidence/**
@@ -238,7 +239,7 @@ jobs:
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
           cmake --build build-native --parallel 2 --target sc-comp-clocked-protected-worker-fixture sc-comp-clocked-protected-span-tests sc-exact-warp-extents-tests sc-clocked-protected-warp-tests sc-exact-processing-grid-tests sc-protected-core-sampling-tests sc-comp-protected-worker-fixture sc-comp-protected-span-tests sc-comp-repeat-fixture sc-native-media-path-tests sc-comp-span-v2-fixture sc-comp-regeneration-history-tests sc-comp-regeneration-source-tests sc-comp-assembly-state-tests sc-comp-assembly-job-tests sc-comp-pair-assembly-tests sc-comp-pair-state-tests sc-comp-pair-recovery-fixture sc-comp-span-worker sc-comp-span-worker-fixture sc-comp-span-render-tests sc-comp-media-review-tests sc-comp-processing-recipe-tests sc-processing-grid-tests sc-comp-handle-pcm-tests sc-comp-handle-blend-tests sc-comp-processing-plan-tests
           if errorlevel 1 exit /b 1
-          ctest --test-dir build-native -R "^(comp-clocked-protected-worker|comp-clocked-protected-history-worker|comp-clocked-protected-44100|comp-clocked-protected-48000|comp-clocked-protected-96000|comp-protected-clock-oracle|exact-warp-extents|exact-warp-extents-oracle|clocked-protected-warp|wide-processing-grid|wide-processing-grid-oracle|protected-core-sampling|protected-core-sampling-oracle|comp-protected-repeated-production|comp-protected-assembly-publication|comp-protected-pair-recovery|comp-owned-protected-worker|comp-protected-span-render|comp-repeated-pair-production|native-media-long-path|comp-clocked-span-worker|comp-regeneration-history|comp-paired-history-review|comp-regeneration-source|comp-assembly-project-state|comp-owned-assembly-publication|comp-verified-pair-assembly|comp-paired-project-state|comp-paired-selection-recovery|comp-owned-span-worker|comp-uniform-span-render|comp-actual-media-review|comp-processing-recipe-recovery|comp-transition-processing-permissions|comp-handle-explicit-blend|comp-handle-pcm-assembly|exact-processing-grid|processing-grid-fraction-oracle)$" --output-on-failure --no-tests=error
+          ctest --test-dir build-native -R "^(comp-clocked-protected-paired-production|comp-clocked-protected-mixed-production|comp-clocked-protected-worker|comp-clocked-protected-history-worker|comp-clocked-protected-44100|comp-clocked-protected-48000|comp-clocked-protected-96000|comp-protected-clock-oracle|exact-warp-extents|exact-warp-extents-oracle|clocked-protected-warp|wide-processing-grid|wide-processing-grid-oracle|protected-core-sampling|protected-core-sampling-oracle|comp-protected-repeated-production|comp-protected-assembly-publication|comp-protected-pair-recovery|comp-owned-protected-worker|comp-protected-span-render|comp-repeated-pair-production|native-media-long-path|comp-clocked-span-worker|comp-regeneration-history|comp-paired-history-review|comp-regeneration-source|comp-assembly-project-state|comp-owned-assembly-publication|comp-verified-pair-assembly|comp-paired-project-state|comp-paired-selection-recovery|comp-owned-span-worker|comp-uniform-span-render|comp-actual-media-review|comp-processing-recipe-recovery|comp-transition-processing-permissions|comp-handle-explicit-blend|comp-handle-pcm-assembly|exact-processing-grid|processing-grid-fraction-oracle)$" --output-on-failure --no-tests=error
           set "SC_COMP_TEST_EXIT=%ERRORLEVEL%"
           copy /Y "build-native\Testing\Temporary\LastTest.log" "build-native\Testing\Temporary\LastCompTest.log"
           if errorlevel 1 exit /b 1
@@ -320,6 +321,7 @@ jobs:
             build-native/protected-core-sampling-evidence/**
             build-native/exact-processing-grid-evidence/**
             build-native/exact-warp-extents-evidence/**
+            build-native/comp-clocked-protected-pair-evidence/**
             build-native/comp-clocked-protected-worker-evidence/**
             build-native/comp-clocked-protected-history-worker-evidence/**
             build-native/comp-clocked-protected-evidence/**

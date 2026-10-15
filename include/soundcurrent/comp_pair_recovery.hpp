@@ -6,7 +6,8 @@ namespace soundcurrent::daw {
 // Explicit admission policy. Existing callers retain uniform-only behavior.
 // ProtectedOriginal preserves semantic anchors in original, same-clock clips;
 // unsupported protected history/timing remains an error, never a uniform fallback.
-enum class CompPairSpanPolicy { UniformOnly, ProtectedOriginal };
+// ClockedProtected opts into original-geometry clocks without reinterpreting old manifests.
+enum class CompPairSpanPolicy { UniformOnly, ProtectedOriginal, ClockedProtected };
 class CompPairSelection {
   public:
     CompPairSelection(CompPairSelection &&) noexcept=default;

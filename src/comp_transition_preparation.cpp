@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/comp_transition_preparation.hpp>
 #include <soundcurrent/comp_regeneration_source.hpp>
+#include <algorithm>
 namespace soundcurrent::daw {
 PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &root,
     const Session &s,const CompHandlePlanContext &context,const PrepareCompTransition &transition,
@@ -19,9 +20,18 @@ PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &r
     for(const auto *fragment:{&recipe.plan().handles().outgoing(),&recipe.plan().handles().incoming()}){
         const auto &data=fragment->data();
         const auto &original=data.regeneration?data.regeneration->data().originalNominalClip:data.expected;
-        // Use the original semantic protection. Unsupported timing/history must
-        // fail in the protected adapter before any sidecars are published.
-        if(original.stretch && original.stretch->warp)pairPolicy=CompPairSpanPolicy::ProtectedOriginal;
+        // Select modern timing explicitly from source metadata, never by trying
+        // a failed worker or dropping protection. Preserve the legacy identity
+        // for same-clock integer requests and all retained legacy manifests.
+        if(original.stretch && original.stretch->warp){
+            const bool clocked=data.raw.sampleRate!=data.base.sampleRate || data.projectRate!=data.base.sampleRate ||
+                data.expected.sourceTiming.fraction || data.expected.playbackRate.numerator!=data.expected.playbackRate.denominator ||
+                (data.regeneration && (data.regeneration->data().bakedPitchScale!=SourcePosition{1,0,1} ||
+                    data.regeneration->data().backendClockScale!=SourcePosition{1,0,1})) ||
+                std::any_of(data.map.begin(),data.map.end(),[](const auto &point){return point.raw.fraction || point.output.fraction;});
+            if(clocked)pairPolicy=CompPairSpanPolicy::ClockedProtected;
+            else if(pairPolicy==CompPairSpanPolicy::UniformOnly)pairPolicy=CompPairSpanPolicy::ProtectedOriginal;
+        }
     }
     auto selection=std::make_shared<const CompPairSelection>(prepareCompPairSelection(std::move(recipe),executor,
         std::move(worker),{Id::generate(),Id::generate()},spanPolicy,ledger,pairPolicy));
