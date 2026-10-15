@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows waveform timing qualification (2026-10-15)
+
+[Checkpoint 355](355-windows-waveform-timing.md) completes a fresh installed
+waveform/edit/export workflow with the corrected observer from the start. The
+independent render observation passes in 21,821 ms within the original 30-second
+limit. Export remains bit-exact, float headroom is preserved, and both launches
+exit normally. Earlier failure evidence is unchanged. All 15 jobs in the current
+CI run passed, with original logs and 12 artifact ZIPs retained. The clone ran
+alone for about four minutes, shut down, and temporary resources were removed.
+This qualifies the frozen preview workflow, not full DAW parity. Fine-window
+waveform preparation and the remaining suite milestones remain next.
+
 ## Installed Windows waveform workflows (2026-10-15)
 
 [Checkpoint 354](354-installed-windows-waveforms.md) installs the matching frozen
