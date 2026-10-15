@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Short uniform context feasibility (2026-10-15)
+
+[Checkpoint 315](315-uniform-short-context-feasibility.md) confirms that the failing
+4,054-frame uniform region is below the observed R3 minimum, while longer real
+context renders successfully in 36 sampled configurations. Fixed 512-frame runs
+repeat exactly; changing block size changes PCM in 13 cases. A versioned context
+plan with exact crop timing is the next implementation slice. The experiment does
+not implement the missing short-edit workflow. Fresh checkpoint-314 CI is running.
+
+
 ## Repeated desktop speed edits and original CI repairs (2026-10-15)
 
 [Checkpoint 314](314-comp-clocked-repeat-ui.md) qualifies repeated fractional,
