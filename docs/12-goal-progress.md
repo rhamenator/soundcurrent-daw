@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Windows timing gate passes (2026-10-15)
+
+[Checkpoint 340](340-installed-windows-timing.md) repairs asynchronous dialog
+observation within the original 30-second stopwatch budget. One complete run on
+unchanged installed `97e9ecd` observes readiness at 20.481 seconds and passes
+Review/Apply, exact Undo/Redo, save/reopen/export and normal close. Independent
+export samples match exactly; 468 installed-preview files and 268 previous-workflow
+files remain unchanged. The original observer failure stays retained. All VMs are
+off and temporary transport is removed. CI at `cae1cb1` subsequently passes all
+15 jobs; original full logs and 12 published archives are retained and verified.
+Four native interruption cases have verified terminal cleanup with no errors;
+this does not explain the earlier failure. Next add asynchronous waveform
+preparation/drawing to the M2 timeline. Earlier interruption and protected-warp
+failures, broader performance and full DAW parity remain open.
+
 ## Matching Windows preview installed (2026-10-15)
 
 [Checkpoint 339](339-installed-windows-batched.md) installs frozen `97e9ecd` and

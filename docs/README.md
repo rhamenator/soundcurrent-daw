@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Installed Windows render timing and complete editing workflow](340-installed-windows-timing.md)
 - [Installed Windows batched-verification preview and retained observer failure](339-installed-windows-batched.md)
 - [Product scope and frozen reference baseline](00-scope-baseline.md)
 - [Traceable parity matrix and acceptance register](01-parity-matrix.md)

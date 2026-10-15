@@ -22,10 +22,11 @@ is available locally as **SoundCurrent DAW Preview** in Applications, with a
 **before batched verification** entry for rollback. Its Release DEB and matching GPL source are
 prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
 recording/playback and packaged save/reopen/export have scoped evidence.
-The [matching Windows preview](docs/339-installed-windows-batched.md) now passes
+The [matching Windows preview](docs/340-installed-windows-timing.md) now passes
 installation and the installed editing/export workflow in the independent test VM,
-with bit-exact independent export verification. An initial automation failure is
-retained; the independent render-timing check remains open.
+with bit-exact independent export verification. The repaired observer qualifies
+the original 30-second render check on the retained fixture; earlier failures remain
+documented and broader performance qualification is still required.
 New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
 are now prepared locally with matching source. Native helper checks and actual
 packaged/deployed startup pass. The refreshed Linux Applications entry also passes
