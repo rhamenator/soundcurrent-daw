@@ -814,6 +814,9 @@ bool StudioWindow::requestCompTransition(PrepareCompTransition transition,Frame 
         if(compAssemblyDialog_)compAssemblyDialog_->close();
         const auto owner=controller_.snapshot();
         if(compAssembly_.prepare(owner,std::move(transition),maximum)!=Admission::Accepted)return false;
+        // This explicit new render replaces the old review result. A later
+        // accepted Open/Create invalidates it again, even before epoch changes.
+        compAssemblyReviewInvalidated_=false;
         compRenderOwner_=owner;compRenderSelection_.reset();compRenderOperation_.reset();compRegistering_=0;
         compRenderCancel_=false;compRenderMessage_.clear();compRenderStage_=CompRenderStage::Preparing;
         compRenderClock_.start();compRenderElapsedMs_=0;
@@ -945,12 +948,13 @@ bool StudioWindow::reviewCompAssembly(const Id &operation) {
     if(!compAssemblyCanWork())return false;
     try {
         compAssemblyMessage_.clear();
-        return compAssembly_.review(operation)==Admission::Accepted;
+        if(compAssembly_.review(operation)!=Admission::Accepted)return false;
+        compAssemblyReviewInvalidated_=false;return true;
     }catch(const std::exception &){compAssemblyMessage_=tr("Transition review could not start. Check Project resources and retry.");return false;}
 }
 bool StudioWindow::applyCompAssembly() {
     const auto result=compAssembly_.snapshot();const auto owner=controller_.snapshot();
-    if(!compAssemblyCanWork() || result->phase!=CompAssemblyPhase::Complete || !result->operation ||
+    if(compAssemblyReviewInvalidated_ || !compAssemblyCanWork() || result->phase!=CompAssemblyPhase::Complete || !result->operation ||
         !result->project || !owner->session || result->project->projectEpoch!=owner->projectEpoch ||
         result->project->root!=owner->root || result->project->session->id!=owner->session->id)return false;
     try {
@@ -990,7 +994,7 @@ bool StudioWindow::showCompAssemblies(std::optional<Id> selected) {
     if(compAssemblyDialog_){compAssemblyDialog_->show();compAssemblyDialog_->raise();return true;}
     if(!compAssemblyCanWork())return false;
     const auto source=controller_.snapshot();
-    struct ListState {ResourceLease lease;std::size_t first=0;std::shared_ptr<const Session> shown;QString selected;};
+    struct ListState {ResourceLease lease;std::size_t first=0;std::shared_ptr<const Session> shown;QString selected;bool invalidated=false;};
     auto state=std::make_shared<ListState>();
     if(selected){state->selected=text(selected->str());const auto &refs=source->session->compAssemblies;
         const auto found=std::find_if(refs.begin(),refs.end(),[&](const auto &r){return r.operation==*selected;});
@@ -1014,7 +1018,7 @@ bool StudioWindow::showCompAssemblies(std::optional<Id> selected) {
     auto *timer=new QTimer(dialog);timer->setInterval(100);
     const auto refresh=[this,source,state,list,status,previous,next,review,apply,cancel]{
         const auto owner=controller_.snapshot();const auto result=compAssembly_.snapshot();
-        const bool same=owner->session && owner->projectEpoch==source->projectEpoch && owner->root==source->root;
+        const bool same=!state->invalidated && owner->session && owner->projectEpoch==source->projectEpoch && owner->root==source->root;
         if(!same){list->clear();state->shown.reset();status->setText(tr("This review belongs to a previous project opening. Close it and review the current project."));
             review->setEnabled(false);apply->setEnabled(false);previous->setEnabled(false);next->setEnabled(false);cancel->setEnabled(result->busy);return;}
         const auto &refs=owner->session->compAssemblies;
@@ -1039,7 +1043,7 @@ bool StudioWindow::showCompAssemblies(std::optional<Id> selected) {
         }
         previous->setEnabled(free && state->first>0);next->setEnabled(free && state->first+128<refs.size());
         review->setEnabled(free && !selected.isEmpty());cancel->setEnabled(result->busy && !compAssemblyAdopting_);
-        apply->setEnabled(free && matches && result->phase==CompAssemblyPhase::Complete && result->project && result->project->projectEpoch==owner->projectEpoch);
+        apply->setEnabled(!compAssemblyReviewInvalidated_ && free && matches && result->phase==CompAssemblyPhase::Complete && result->project && result->project->projectEpoch==owner->projectEpoch);
         QString message=compAssemblyMessage_;
         if(result->busy)message=compAssemblyApplying_?tr("Checking audio before Apply…"):tr("Reviewing transition audio…");
         else if(compAssemblyAdopting_)message=tr("Applying both clips…");
@@ -1052,6 +1056,7 @@ bool StudioWindow::showCompAssemblies(std::optional<Id> selected) {
         }
         status->setText(message);
     };
+    invalidateCompAssemblyDialog_=[state,refresh]{state->invalidated=true;refresh();};
     connect(timer,&QTimer::timeout,dialog,refresh);
     connect(list,&QListWidget::currentRowChanged,dialog,[refresh](int){refresh();});
     connect(previous,&QPushButton::clicked,dialog,[state,refresh]{state->first-=std::min<std::size_t>(state->first,128);state->shown.reset();refresh();});
@@ -1060,7 +1065,7 @@ bool StudioWindow::showCompAssemblies(std::optional<Id> selected) {
     connect(apply,&QPushButton::clicked,dialog,[this,refresh]{applyCompAssembly();refresh();});
     connect(cancel,&QPushButton::clicked,dialog,[this]{compAssemblyApplying_=false;compAssembly_.requestCancel();});
     connect(buttons,&QDialogButtonBox::rejected,dialog,&QDialog::reject);
-    connect(dialog,&QDialog::finished,this,[this,dialog]{if(compAssemblyDialog_==dialog)compAssemblyDialog_.clear();compAssemblyApplying_=false;compAssembly_.requestCancel();});
+    connect(dialog,&QDialog::finished,this,[this,dialog]{if(compAssemblyDialog_==dialog){compAssemblyDialog_.clear();invalidateCompAssemblyDialog_={};}compAssemblyApplying_=false;compAssembly_.requestCancel();});
     refresh();timer->start();const auto area=screen()?screen()->availableGeometry():QRect(0,0,800,600);
     dialog->resize(std::min(760,std::max(1,area.width()-40)),std::min(500,std::max(1,area.height()-40)));dialog->show();return true;
 }
@@ -1457,11 +1462,20 @@ bool StudioWindow::submitEdit(ProjectCommand command) {
                            "project structure."));
         return false;
     }
+    const bool replacement=command.kind==CommandKind::Open || command.kind==CommandKind::Create;
     const auto admission = controller_.submit(std::move(command));
     if (admission != Admission::Accepted) {
         state_->setText(admission == Admission::Full ? tr("Too many pending changes. Please retry.")
                                                      : tr("Closing project…"));
         return false;
+    }
+    if(replacement){
+        // Admission invalidates old review intent immediately, before the model
+        // worker can publish Open/Create or a new epoch. Periodic GUI refresh is
+        // presentation only; a delayed timer must not keep old Apply actionable.
+        compAssemblyReviewInvalidated_=true;compAssemblyApplying_=false;
+        compAssembly_.requestCancel();compAssembly_.clearResult();
+        if(invalidateCompAssemblyDialog_)invalidateCompAssemblyDialog_();
     }
     return true;
 }

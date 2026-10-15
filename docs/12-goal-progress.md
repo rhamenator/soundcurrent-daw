@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Comp review invalidation at Open/Create admission (2026-10-15)
+
+[Checkpoint 343](343-comp-review-invalidation.md) reproduces a stale enabled Apply
+control with its refresh timer stopped, then invalidates both review intent and
+controls immediately on accepted project replacement. The repaired same-root
+reopen test and adjacent transition-creation workflow pass on Linux; fresh
+Review/Apply/Undo remains available. The first repair's creation regression and
+the original Windows combined-assertion failure are retained. All 15 original CI
+logs and 12 original archives were preserved before branch advancement. Exact
+causal attribution of the earlier combined assertion and native Windows repair
+qualification remain open. Installed previews are unchanged. Next continue the
+waveform controller and drawing work while checking the new native CI gate.
+
 ## Waveform worker boundary (2026-10-15)
 
 [Checkpoint 342](342-waveform-worker-protocol.md) adds a read-only isolated worker

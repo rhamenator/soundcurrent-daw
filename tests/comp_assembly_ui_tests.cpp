@@ -103,8 +103,40 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             apply->click();wait([&]{return !window.compAssemblySnapshot()->busy;});QTest::qWait(110);
             check(!window.compAssemblySnapshot()->adoption && *window.snapshot()->session==registered,"Changed output applied after Review");row["changedFileRefused"]=true;
         }else if(mode==2){
-            window.openProject(root);wait([&]{return window.snapshot()->projectEpoch!=opened->projectEpoch && window.snapshot()->io==IoOperation::None;});QTest::qWait(110);
-            check(!window.applyCompAssembly() && !apply->isEnabled() && *window.snapshot()->session==registered,"Old opening applied into new owner");row["sameRootReopenRefused"]=true;
+            // Deterministically withhold periodic presentation refresh. Project
+            // replacement must invalidate review controls at command admission,
+            // even if the next display timer is delayed indefinitely.
+            const auto timers=dialog->findChildren<QTimer *>();check(timers.size()==1,"Unexpected review refresh timer ownership");
+            for(auto *timer:timers)timer->stop();
+            window.openProject(root);
+            const bool immediateEnabled=apply->isEnabled();
+            const bool immediateAccepted=window.applyCompAssembly();
+            wait([&]{return window.snapshot()->projectEpoch!=opened->projectEpoch && window.snapshot()->io==IoOperation::None;});
+            const bool staleAccepted=window.applyCompAssembly(),staleEnabled=apply->isEnabled();
+            const bool unchanged=*window.snapshot()->session==registered;
+            row["sameRootReopenObservation"]={{"timerStopped",true},{"immediateApplyEnabled",immediateEnabled},
+                {"immediateApplyAccepted",immediateAccepted},{"afterReopenApplyAccepted",staleAccepted},
+                {"afterReopenApplyEnabled",staleEnabled},{"sessionUnchanged",unchanged},
+                {"oldEpoch",opened->projectEpoch},{"newEpoch",window.snapshot()->projectEpoch}};
+            {std::ofstream observed(root.parent_path()/"reopen-observation.json");observed<<row.dump(2)<<'\n';check(bool(observed),"Reopen observation write failed");}
+            check(!immediateEnabled,"Accepted reopen left old review Apply enabled");
+            check(!immediateAccepted,"Accepted reopen admitted old review Apply");
+            check(!staleAccepted,"Old opening admitted Apply into new owner");
+            check(!staleEnabled,"Reopened owner left old review Apply enabled");
+            check(unchanged,"Old opening changed the reopened session");row["sameRootReopenRefused"]=true;
+            // The invalidation is scoped to that opening. A new explicit review
+            // must still support Apply and Undo on the reopened project.
+            QPointer<QDialog> previousDialog=dialog;dialog->close();wait([&]{return previousDialog.isNull();});
+            check(window.showCompAssemblies(),"Fresh review after reopen unavailable");
+            auto *freshList=window.findChild<QListWidget *>("compAssemblyList");
+            auto *freshReview=window.findChild<QPushButton *>("reviewCompAssembly");
+            auto *freshApply=window.findChild<QPushButton *>("applyCompAssembly");
+            check(freshList && freshReview && freshApply,"Fresh review controls missing");
+            freshList->setCurrentRow(0);wait([&]{return freshReview->isEnabled();});
+            freshReview->click();wait([&]{return freshApply->isEnabled();});freshApply->click();
+            wait([&]{return window.snapshot()->session->compAssemblies.empty() && window.compAssemblySnapshot()->phase==CompAssemblyPhase::Idle;});
+            check(window.submitEdit({CommandKind::Undo}),"Fresh review Undo refused");
+            wait([&]{return *window.snapshot()->session==registered;});row["freshReviewApplyUndo"]=true;
         }else{
             hold=true;apply->click();wait([&]{return entered.load();});
             int ticks=0;QTimer timer;timer.setInterval(5);QObject::connect(&timer,&QTimer::timeout,&window,[&]{++ticks;});timer.start();QTest::qWait(45);

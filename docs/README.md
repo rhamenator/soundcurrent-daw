@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Immediate comp-review invalidation on project replacement](343-comp-review-invalidation.md)
 - [Isolated waveform worker and bounded reply](342-waveform-worker-protocol.md)
 - [Bounded source waveform preparation](341-waveform-source-pyramid.md)
 - [Installed Windows render timing and complete editing workflow](340-installed-windows-timing.md)

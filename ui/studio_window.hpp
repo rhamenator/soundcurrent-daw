@@ -122,6 +122,8 @@ class StudioWindow : public QMainWindow {
     QPointer<QDialog> compAssemblyDialog_;
     QString compAssemblyMessage_;
     bool compAssemblyApplying_=false;
+    bool compAssemblyReviewInvalidated_=false;
+    std::function<void()> invalidateCompAssemblyDialog_;
     std::uint64_t compAssemblyAdopting_=0;
     bool compAssemblyCanWork() const;
     void pollCompAssembly(const std::shared_ptr<const ControllerSnapshot> &);
