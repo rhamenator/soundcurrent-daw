@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Paired historical verification performance (2026-10-14)
+
+[Checkpoint 295](295-comp-history-sharing.md) shares only completed exact history
+coverage within each operation and optimizes admitted RF64 byte decoding after a
+bounded partial profile. All twelve selected Release suites and four Debug suites
+pass; nine repeated and three legacy export hashes remain exact. Original failed
+Debug runs and profiler output are preserved alongside successful evidence.
+The slowest Debug child took 9.9911 seconds against ten seconds, so portable timing
+margin remains open. Test-only extended-path stream corrections await native
+runtime confirmation. Actual repeated desktop creation/review/Apply remains the
+next implementation gate. No installed preview changes; the full goal is active.
+
 ## Repeated paired comp production (2026-10-14)
 
 [Checkpoint 294](294-repeated-paired-production.md) qualifies nine actual repeated

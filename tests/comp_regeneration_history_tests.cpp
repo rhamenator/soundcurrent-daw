@@ -5,6 +5,7 @@
 #include <soundcurrent/comp_pair_recovery.hpp>
 #include <soundcurrent/project_store.hpp>
 #include "media_io.hpp"
+#include "windows_file_path.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <fstream>
@@ -15,8 +16,8 @@ namespace {
 using Json=nlohmann::json;unsigned checks=0;Json refusals=Json::array();
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(const char *label,F f){try{f();}catch(const ProjectError &e){++checks;refusals.push_back({{"case",label},{"reason",e.what()}});return;}throw std::runtime_error(std::string("Accepted invalid history: ")+label);}
-std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Missing history fixture file");return {(std::istreambuf_iterator<char>(f)),{}};}
-void write(const std::filesystem::path &p,std::string_view b){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(b.data(),std::streamsize(b.size()));check(bool(f),"Cannot write owned history fixture");}
+std::string read(const std::filesystem::path &p){std::ifstream f(fileSystemApiPath(p),std::ios::binary);check(bool(f),"Missing history fixture file");return {(std::istreambuf_iterator<char>(f)),{}};}
+void write(const std::filesystem::path &p,std::string_view b){std::ofstream f(fileSystemApiPath(p),std::ios::binary|std::ios::trunc);f.write(b.data(),std::streamsize(b.size()));check(bool(f),"Cannot write owned history fixture");}
 const CompHandlePlanContext context{91,"history-review/é-日本"};
 Json pairedReviewWorkflow(const std::filesystem::path &root,const Session &s,const Session &registered,ResourceLedger ledger){
     using Clock=std::chrono::steady_clock;

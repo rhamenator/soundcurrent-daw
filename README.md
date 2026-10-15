@@ -58,6 +58,9 @@ core workflow evidence for successive rendered edits, retained assembled takes,
 Undo/Redo, save/reopen and matching playback/export. Historical jobs are reviewed
 around publication and adoption. Desktop repeated-render integration and current
 native Windows qualification remain in development.
+[Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
+verification overhead, with twelve Release and four Debug suites passing and
+unchanged export hashes. Native confirmation and broader timing margin remain open.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.

@@ -1,6 +1,6 @@
 # ADR 184: native integer loads within admitted WAVE byte ranges
 
-Status: implemented; full workflow timing qualification pending.
+Status: implemented; local Release and Debug workflows passed; native timing qualification pending.
 Date: 2026-10-14.
 
 ## Measured problem
@@ -42,3 +42,8 @@ resource limits and complete resource retirement. It passes with the initial
 optimization in Debug. Full repeated-history and worker timing qualification,
 unchanged export hashes, and native Windows execution remain required. Test and
 worker deadlines are not increased.
+
+Checkpoint [295](../295-comp-history-sharing.md) records four passing Debug and
+twelve passing Release suites with exact prior export hashes. The slowest Debug
+worker took 9.9911 seconds against ten seconds; portable timing margin remains
+unqualified. Original failures and the partial profiler capture are preserved.

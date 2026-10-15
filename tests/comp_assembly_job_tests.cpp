@@ -19,8 +19,8 @@ namespace {
 using Json=nlohmann::json;unsigned checks=0;
 void check(bool v,const char *m){++checks;if(!v)throw std::runtime_error(m);}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid assembly publication accepted");}
-std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);check(bool(f),"Missing job evidence");return {(std::istreambuf_iterator<char>(f)),{}};}
-void write(const std::filesystem::path &p,std::string_view v){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(v.data(),std::streamsize(v.size()));check(bool(f),"Cannot save job evidence");}
+std::string read(const std::filesystem::path &p){std::ifstream f(fileSystemApiPath(p),std::ios::binary);check(bool(f),"Missing job evidence");return {(std::istreambuf_iterator<char>(f)),{}};}
+void write(const std::filesystem::path &p,std::string_view v){std::ofstream f(fileSystemApiPath(p),std::ios::binary|std::ios::trunc);f.write(v.data(),std::streamsize(v.size()));check(bool(f),"Cannot save job evidence");}
 std::string hash(std::string_view bytes){media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});return h.digest();}
 SNDFILE *open(const std::filesystem::path &p,int mode,SF_INFO &info){
 #ifdef _WIN32

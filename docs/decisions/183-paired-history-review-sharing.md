@@ -1,6 +1,6 @@
 # ADR 183: share complete historical verification within one paired operation
 
-Status: accepted for implementation; native and Debug qualification pending.
+Status: implemented; local Release and Debug qualification passed; native qualification pending.
 Date: 2026-10-14.
 
 ## Evidence and decision
@@ -57,3 +57,6 @@ do not gate correctness on a noisy wall-clock speed ratio.
 
 The application repeated-render gate remains until its actual desktop workflow
 is qualified. This optimization makes no independent processing-quality claim.
+
+Checkpoint [295](../295-comp-history-sharing.md) records the complete coverage,
+original failures, corrected Debug/Release results and remaining timing margin.
