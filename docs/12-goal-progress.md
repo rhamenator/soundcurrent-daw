@@ -1,5 +1,21 @@
 # Active full-suite goal: progress and completion evidence
 
+## Exact outer warp boundaries (2026-10-15)
+
+[Checkpoint 310](310-exact-warp-extents.md) adds an explicit exact semantic domain
+for fractional outer boundaries. The original integer-grid constructor stays
+separate; exact plans refuse legacy integer adapters. The clocked renderer and
+core sampler preserve those boundaries and admit actual samples independently of
+exclusive coordinates. Seven Release, seven Debug and five optimized sanitizer
+suites pass; 48 independent oracle cases match across builds. All 18 legacy audio
+hashes are unchanged. Original short-fixture and overload failures remain retained.
+The preceding original CI passes all ten jobs (206 Linux, 30+93 native core and
+22/6/1 desktop tests); original native renderer counters and exact oracle responses
+are retained and audited with all nine ZIPs and 214 PNGs.
+Comp/history and worker integration, new native execution, application delivery
+and full DAW/quality/localization parity remain incomplete.
+
+
 ## Exact-clock protected gap rendering (2026-10-15)
 
 [Checkpoint 309](309-clocked-protected-warp.md) adds an isolated full-gap renderer

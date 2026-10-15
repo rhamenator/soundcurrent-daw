@@ -87,17 +87,22 @@ The [repeated protected desktop workflow](docs/307-protected-repeated-desktop.md
 now passes nine adoptions and failure/close checks in Debug/Release, with exact
 Linux engine/export comparisons. Native engine history tests pass; measured
 44.1 kHz numerical differences remain documented. The native repeated desktop bank
-now also passes. The preceding original CI passes all ten jobs: 203 Linux,
-27+93 native core and 22/6/1 native desktop suites, including the required aggregate.
+now also passes. The preceding original CI passes all ten jobs: 206 Linux,
+30+93 native core and 22/6/1 native desktop suites, including the required aggregate.
 [Exact protected-core sampling](docs/308-protected-core-sampling.md) passes
 fractional-clock and cropped-window geometry, sample, lifetime and sanitizer checks;
 native exact oracle responses now match Linux.
 [Exact-clock gap rendering](docs/309-clocked-protected-warp.md) adds an isolated
 renderer with crop-stable halo blending and bounded sampling. Eight Release, eight
 Debug and five optimized sanitizer suites pass; two prior unoptimized sanitizer
-timeouts remain documented. Full fractional outer-handle and worker integration
+timeouts remain documented. The preceding renderer now also passes native Windows
+CI with retained numeric and exact-oracle evidence. Full fractional outer-handle and worker integration
 remain in development; these components do not yet enable fractional protected
 edits in the app. Independent quality admission and installed delivery remain open.
+[Exact semantic outer boundaries](docs/310-exact-warp-extents.md) now preserve
+fractional extents through the clocked renderer, with separate legacy admission.
+Release, Debug, sanitizer and independent rational-oracle checks pass. Comp/history
+and worker integration remain required before this reaches the editor.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and
