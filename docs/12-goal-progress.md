@@ -1,5 +1,14 @@
 # Active full-suite goal: progress and completion evidence
 
+## Qualified Linux preview candidate (2026-10-15)
+
+[Checkpoint 330](330-linux-preview-candidate.md) prepares the `b5dc256` Ubuntu
+candidate after 27 scoped checks pass in 184.48 seconds. Its 7.1 MB DEB and exact
+8,079-file corresponding-source archive pass payload/archive verification.
+Installation testing is next; existing previews remain unchanged. Original CI
+at `8c2e447` passes all 14 jobs and is fully retained before draft PR advancement.
+New CI at `b5dc256` is live. All VMs remain off; full goal incomplete.
+
 ## Visible render stages and elapsed time (2026-10-15)
 
 [Checkpoint 329](329-comp-render-progress.md) shows source/history verification
