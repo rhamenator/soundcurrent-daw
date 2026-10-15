@@ -2,6 +2,7 @@
 #include "timeline_view.hpp"
 #include "gui_resources.hpp"
 #include <QPainter>
+#include <QTimer>
 #include <QScrollBar>
 #include <QMouseEvent>
 #include <QHelpEvent>
@@ -13,7 +14,7 @@
 #include <limits>
 namespace soundcurrent::daw::ui {
 namespace {
-constexpr int header = 35, rowHeight = 56, labelWidth = 70;
+constexpr int header = 35, labelWidth = 70;
 QString text(const std::string &s) {
     return QString::fromUtf8(s);
 }
@@ -30,7 +31,7 @@ Frame clippedFrame(long double v, Frame extent) {
 }
 } // namespace
 TimelineView::TimelineView(QWidget *parent, ResourceLedger memory)
-    : QAbstractScrollArea(parent), memory_(std::move(memory)) {
+    : QAbstractScrollArea(parent), memory_(std::move(memory)), waveforms_(memory_) {
     setObjectName("audioTimeline");
     setLayoutDirection(Qt::LeftToRight);
     setAccessibleName(tr("Audio clip timeline"));
@@ -38,13 +39,17 @@ TimelineView::TimelineView(QWidget *parent, ResourceLedger memory)
     setFocusPolicy(Qt::StrongFocus);
     horizontalScrollBar()->setSingleStep(20);
     verticalScrollBar()->setSingleStep(1);
+    waveformTimer_ = new QTimer(this); waveformTimer_->setInterval(80);
+    connect(waveformTimer_, &QTimer::timeout, this, [this] { pollWaveforms(); });
+    waveformTimer_->start();
 }
 double TimelineView::scale() const {
     return 800. / double(extent_) * std::exp2((zoom_ - 50) / 10.);
 }
 void TimelineView::geometry() {
+    waveformsDirty_ = true;
     const auto rows = session_ ? session_->tracks.size() : 0;
-    const auto shown = std::size_t(std::max(1, (viewport()->height() - header) / rowHeight));
+    const auto shown = std::size_t(std::max(1, (viewport()->height() - header) / rowHeight()));
     // Qt uses signed-int scrollbar positions. Future larger-than-INT_MAX row
     // inventories need paging; do not silently wrap or truncate an admitted view.
     const auto maximum = rows > shown ? rows - shown : 0;
@@ -58,7 +63,8 @@ void TimelineView::geometry() {
     horizontalScrollBar()->setPageStep(std::max(1, viewport()->width() - labelWidth));
 }
 struct TimelineView::Prepared {
-    ResourceLease reservation;
+    ResourceLease reservation, rootCredit;
+    std::filesystem::path root;
     std::unordered_map<std::string, std::size_t> tracks;
     std::vector<Lane> lanes;
     std::vector<std::size_t> visible;
@@ -68,12 +74,16 @@ struct TimelineView::Prepared {
     bool reuse = false;
 };
 std::shared_ptr<TimelineView::Prepared> TimelineView::prepare(std::shared_ptr<const Session> s,
-                                                              std::uint64_t epoch) const {
-    if (s == session_ && epoch == epoch_)
+                                                              std::uint64_t epoch, std::filesystem::path root) const {
+    if (!root.empty() && (!root.is_absolute() || root.native().size() > 4096))
+        throw ProjectError(ErrorCode::InvalidParameter, "Invalid timeline root");
+    if (s == session_ && epoch == epoch_ && root == root_)
         return {};
     if (!s) {
         auto p = std::make_shared<Prepared>();
         p->epoch = epoch;
+        if (!root.empty()) p->rootCredit = memory_.reserve(65536);
+        p->root = std::filesystem::path(root.native().data(), root.native().data()+root.native().size());
         return p;
     }
     bool same = bool(s) == bool(session_);
@@ -88,6 +98,8 @@ std::shared_ptr<TimelineView::Prepared> TimelineView::prepare(std::shared_ptr<co
         p->reuse = true;
         p->session = std::move(s);
         p->epoch = epoch;
+        if (!root.empty()) p->rootCredit = memory_.reserve(65536);
+        p->root = std::filesystem::path(root.native().data(), root.native().data()+root.native().size());
         p->extent = extent_;
         return p;
     }
@@ -169,6 +181,8 @@ std::shared_ptr<TimelineView::Prepared> TimelineView::prepare(std::shared_ptr<co
     prepared->reservation.resize(actual.bytes());
     prepared->session = std::move(s);
     prepared->epoch = epoch;
+    if (!root.empty()) prepared->rootCredit = memory_.reserve(65536);
+    prepared->root = std::filesystem::path(root.native().data(), root.native().data()+root.native().size());
     prepared->extent = extent;
     return prepared;
 }
@@ -178,6 +192,10 @@ void TimelineView::commit(std::shared_ptr<Prepared> p) {
     const bool newProject = epoch_ != p->epoch;
     session_ = std::move(p->session);
     epoch_ = p->epoch;
+    root_ = std::move(p->root); rootCredit_ = std::move(p->rootCredit);
+    waveforms_.context(session_, root_, epoch_);
+    waveformStatus_.clear();
+    waveformsDirty_ = true;
     if (!p->reuse) {
         tracks_ = std::move(p->tracks);
         lanes_ = std::move(p->lanes);
@@ -193,8 +211,8 @@ void TimelineView::commit(std::shared_ptr<Prepared> p) {
     }
     viewport()->update();
 }
-void TimelineView::setSnapshot(std::shared_ptr<const Session> s, std::uint64_t epoch) {
-    commit(prepare(std::move(s), epoch));
+void TimelineView::setSnapshot(std::shared_ptr<const Session> s, std::uint64_t epoch, std::filesystem::path root) {
+    commit(prepare(std::move(s), epoch, std::move(root)));
 }
 void TimelineView::setZoom(int z) {
     z = std::clamp(z, 0, 100);
@@ -216,12 +234,13 @@ void TimelineView::resizeEvent(QResizeEvent *e) {
     geometry();
 }
 void TimelineView::scrollContentsBy(int, int) {
+    waveformsDirty_ = true;
     viewport()->update();
 }
 QRectF TimelineView::rectangle(std::size_t row, const Clip &c) const {
     return {labelWidth + double(c.startFrame) * scale() - horizontalScrollBar()->value(),
-            header + (double(row) - verticalScrollBar()->value()) * rowHeight,
-            std::max(.002, double(c.lengthFrames) * scale()), 38};
+            header + (double(row) - verticalScrollBar()->value()) * rowHeight(),
+            std::max(.002, double(c.lengthFrames) * scale()), double(rowHeight()-18)};
 }
 QRectF TimelineView::clipRectangle(const Id &track, const Id &clip) const {
     const auto p = tracks_.find(track.str());
@@ -237,7 +256,7 @@ bool TimelineView::ensureTrackVisible(const Id &id) {
     if (p == tracks_.end())
         return false;
     const auto first = std::size_t(verticalScrollBar()->value());
-    const auto shown = std::size_t(std::max(1, (viewport()->height() - header) / rowHeight));
+    const auto shown = std::size_t(std::max(1, (viewport()->height() - header) / rowHeight()));
     if (p->second < first)
         verticalScrollBar()->setValue(int(p->second));
     else if (p->second >= first + shown)
@@ -303,22 +322,23 @@ void TimelineView::paintEvent(QPaintEvent *) {
         p.drawText(QPointF(labelWidth + f * k - horizontal, 20),
                    QLocale().toString(f / session_->sampleRate, 'f', 2) + tr(" s"));
     }
+    p.drawText(QPointF(labelWidth, 33), waveformStatus_);
     const auto begin = std::size_t(verticalScrollBar()->value());
     const auto shown =
-        std::size_t(std::max(0, viewport()->height() - header) + rowHeight - 1) / rowHeight;
+        std::size_t(std::max(0, viewport()->height() - header) + rowHeight() - 1) / rowHeight();
     const auto limit = std::min(session_->tracks.size(), begin + shown);
     for (std::size_t row = begin; row < limit; ++row) {
         ++stats_.rows;
         const auto &t = session_->tracks[row];
-        const auto y = header + double(row - begin) * rowHeight;
+        const auto y = header + double(row - begin) * rowHeight();
         p.setPen(palette().text().color());
-        p.drawText(QRectF(0, y, labelWidth - 5, 44),
+        p.drawText(QRectF(0, y, labelWidth - 5, rowHeight()-12),
                    Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, text(t.name));
         p.save();
         p.setClipRect(QRectF(labelWidth, header, viewport()->width() - labelWidth,
                              viewport()->height() - header));
         p.setPen(palette().mid().color());
-        p.drawLine(QPointF(labelWidth, y + 44), QPointF(viewport()->width(), y + 44));
+        p.drawLine(QPointF(labelWidth, y + rowHeight()-12), QPointF(viewport()->width(), y + rowHeight()-12));
         visibleClips(row, first, end, visible_, &stats_.intervalNodes);
         for (const auto ordinal : visible_) {
             const auto &c = t.clips[ordinal];
@@ -333,15 +353,41 @@ void TimelineView::paintEvent(QPaintEvent *) {
                 track_ == std::optional<Id>(t.id) && clip_ == std::optional<Id>(c.id) ? 3 : 1));
             p.setBrush(QColor::fromHsv(int((row % 360) * 47) % 360, 150, 195));
             p.drawRect(r);
+            waveforms_.draw(p, c, r, QRectF(labelWidth,header,viewport()->width()-labelWidth,viewport()->height()-header));
         }
         p.restore();
     }
 }
+void TimelineView::pollWaveforms() {
+    if (!session_ || root_.empty() || (!waveformsDirty_ && !waveforms_.pending())) return;
+    // The active worker needs polling until terminal even when the view is still.
+    std::vector<Id> assets; assets.reserve(33);
+    const auto k = scale(); const auto horizontal = horizontalScrollBar()->value();
+    const auto first = clippedFrame(static_cast<long double>(horizontal)/k, extent_);
+    const auto end = clippedFrame((static_cast<long double>(horizontal)+std::max(1,viewport()->width()-labelWidth))/k,extent_);
+    const auto begin = std::size_t(verticalScrollBar()->value());
+    const auto shown = std::size_t(std::max(0,viewport()->height()-header)+rowHeight()-1)/rowHeight();
+    for (auto row=begin; row<std::min(session_->tracks.size(),begin+shown) && assets.size()<=32; ++row) {
+        visibleClips(row,first,end,visible_);
+        for (auto n:visible_) {
+            const auto &id=session_->tracks[row].clips[n].assetId;
+            if (std::find(assets.begin(),assets.end(),id)==assets.end()) assets.push_back(id);
+            if (assets.size()>32) break;
+        }
+    }
+    const auto before=waveforms_.readyCount();
+    waveforms_.update(assets);
+    const auto message=waveforms_.status();
+    if (waveformsDirty_ || before!=waveforms_.readyCount() || message!=waveformStatus_) viewport()->update();
+    waveformStatus_=message; waveformsDirty_=false;
+}
+void TimelineView::shutdownWaveforms() { waveformTimer_->stop(); waveforms_.shutdown(); }
+bool TimelineView::waveformsClosed() const { return waveforms_.closed(); }
 std::pair<std::optional<Id>, std::optional<Id>> TimelineView::hit(const QPoint &point) const {
     if (!session_ || point.y() < header)
         return {};
     const auto row =
-        std::size_t(verticalScrollBar()->value()) + std::size_t((point.y() - header) / rowHeight);
+        std::size_t(verticalScrollBar()->value()) + std::size_t((point.y() - header) / rowHeight());
     if (row >= session_->tracks.size())
         return {};
     const auto &t = session_->tracks[row];

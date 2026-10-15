@@ -51,12 +51,14 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "d02c8f0753b0870d22fd9e818be3d089d37e9ffce7f4a8db7a01e9b9822c8dc8",
+    "ui/studio_window.cpp": "fe8c88d0a0d8373333b8530a9efe6891300fd30baa19c2933e1bcd868a9af2b0",
     "ui/studio_window.hpp": "3907db316be960a0a5c7eaa9b44e9b61138feb087d67a26bb4c71690e4b975d9",
-    "ui/timeline_editor.cpp": "676bf20e5a509cef254da5f4b14d6865a203db6e28d8bf51ba9c6937729691fe",
-    "ui/timeline_editor.hpp": "7e7c58783f6298dec40c02619484985d0177a4d64c0c8675388deee996d3a48e",
-    "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
-    "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
+    "ui/timeline_editor.cpp": "766f842e6bb518bf14659375c0cd2dfffafcb5f59aa5707facd36e6ac33a4133",
+    "ui/timeline_editor.hpp": "fde0dd94e440cbe14aa41e16abc9d1bf48be6d1aaa31c743a186991e6491689d",
+    "ui/timeline_view.cpp": "77326866fe4630d54801b96ebff2c52a34a5bcf8eaac4eec2edd3d98eab1bb98",
+    "ui/timeline_view.hpp": "34e93c6d660347bea6956570702ae1b5d70cf7889b3503d269189cb0d467ca6f",
+    "ui/timeline_waveforms.cpp": "5552f952f4ad929bb84ad3833de0a6b653a63167997f90c708d01d91e3897eb5",
+    "ui/timeline_waveforms.hpp": "9e0cf27af8fbd06b6da38ea4b5119a9fabbfc6c40660c071c3ddab4464bfc2ab",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
     "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
@@ -6641,6 +6643,30 @@
     [
       "TimelineView",
       "Start %1 · source %2 + %3/%4 · length %5 project frames",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Waveforms unavailable: visible source/resource limit",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Some source waveforms are unavailable; reopen to retry",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Preparing source waveforms…",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Source PCM · shaded edges need finer detail · >2 channels combined",
       "",
       false
     ]

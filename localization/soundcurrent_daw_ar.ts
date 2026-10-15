@@ -4462,4 +4462,23 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
   </context>
+  <context>
+    <name>soundcurrent::daw::ui::TimelineWaveforms</name>
+    <message>
+      <source>Waveforms unavailable: visible source/resource limit</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Some source waveforms are unavailable; reopen to retry</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preparing source waveforms…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
 </TS>

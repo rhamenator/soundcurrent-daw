@@ -506,6 +506,7 @@ void TimelineEditor::mutate(std::vector<SessionEdit> edits) {
 }
 struct TimelineEditor::Prepared {
     std::shared_ptr<const Session> model;
+    std::filesystem::path root;
     std::uint64_t epoch = 0;
     bool editable = false, force = false;
     std::optional<Id> track, clip, pending;
@@ -514,9 +515,10 @@ struct TimelineEditor::Prepared {
 };
 std::shared_ptr<TimelineEditor::Prepared>
 TimelineEditor::prepare(std::shared_ptr<const Session> s, std::uint64_t epoch, bool editable,
-                        std::optional<Id> selected, std::optional<Id> clip, bool specific) const {
+                        std::optional<Id> selected, std::optional<Id> clip, bool specific, std::filesystem::path root) const {
     auto p = std::make_shared<Prepared>();
     p->model = std::move(s);
+    p->root = std::move(root);
     p->epoch = epoch;
     p->editable = editable;
     p->force = epoch != epoch_;
@@ -558,13 +560,13 @@ TimelineEditor::prepare(std::shared_ptr<const Session> s, std::uint64_t epoch, b
         t ? p->model : nullptr, t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
     p->assets = assets_->prepare(t ? p->model : nullptr,
                                  t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
-    p->view = view_->prepare(p->model, epoch);
+    p->view = view_->prepare(p->model, epoch, p->root);
     return p;
 }
 std::shared_ptr<TimelineEditor::Prepared>
 TimelineEditor::prepareModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
-                             bool editable) const {
-    return prepare(std::move(s), epoch, editable, {}, {}, false);
+                             bool editable, std::filesystem::path root) const {
+    return prepare(std::move(s), epoch, editable, {}, {}, false, std::move(root));
 }
 std::optional<Id> TimelineEditor::preparedTrack(const std::shared_ptr<Prepared> &p) const {
     return p ? p->track : track_;
@@ -591,6 +593,7 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         assets_->commit(std::move(p->assets));
         view_->commit(std::move(p->view));
         model_ = std::move(p->model);
+        root_ = std::move(p->root);
         epoch_ = p->epoch;
         editable_ = p->editable;
         track_ = std::move(p->track);
@@ -612,8 +615,8 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         selectionChanged();
 }
 void TimelineEditor::updateModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
-                                 bool editable) {
-    commitModel(prepareModel(std::move(s), epoch, editable));
+                                 bool editable, std::filesystem::path root) {
+    commitModel(prepareModel(std::move(s), epoch, editable, std::move(root)));
 }
 void TimelineEditor::editCrossfade() {
     if (!editable_ || !track_ || !clip_) return;
@@ -759,7 +762,7 @@ bool TimelineEditor::select(std::optional<Id> id, std::optional<Id> clip) {
     if (auto *focused = window()->focusWidget())
         focused->clearFocus();
     try {
-        auto p = prepare(model_, epoch_, editable_, id, clip, true);
+        auto p = prepare(model_, epoch_, editable_, id, clip, true, root_);
         if (selectionAdmission && !selectionAdmission(model_, p->track)) {
             refresh(false, false);
             return false;
@@ -899,7 +902,7 @@ void TimelineEditor::refreshTake(bool force) {
     } else compSource_->setText(tr("Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp."));
 }
 void TimelineEditor::draw() {
-    view_->setSnapshot(model_, epoch_);
+    view_->setSnapshot(model_, epoch_, root_);
     view_->setZoom(zoom_->value());
     view_->setSelection(track_, clip_);
 }

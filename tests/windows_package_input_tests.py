@@ -185,14 +185,18 @@ def run():
     with tempfile.TemporaryDirectory(prefix='sc-media-package-') as tmp:
         root=Path(tmp);all_data={**data,'sc-import-inspect-worker.exe':b'owned inspection worker',
                                'sc-approved-wave-probe.exe':b'owned media worker','sc-media-import-worker.exe':b'owned copy worker',
-                               'sc-stretch-render-worker.exe':b'owned stretch worker'}
+                               'sc-stretch-render-worker.exe':b'owned stretch worker','sc-waveform-worker.exe':b'owned waveform worker'}
         all_manifest={'files':[{'path':n,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
                                for n,b in all_data.items()]}
         archive=root/'complete.zip'
         with zipfile.ZipFile(archive,'w') as z:
             for n,b in all_data.items():z.writestr(n,b)
         destination=root/'payload';destination.mkdir()
-        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True,require_copy_worker=True,require_stretch_worker=True)
+        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True,require_copy_worker=True,require_stretch_worker=True,require_waveform_worker=True)
+        missing={"files":[row for row in all_manifest["files"] if row["path"]!="sc-waveform-worker.exe"]}
+        try:deploy_payload(archive,missing,root/"missing",require_waveform_worker=True)
+        except ValueError:pass
+        else:raise AssertionError("Missing waveform helper accepted")
         assert all((destination/n).read_bytes()==b for n,b in all_data.items())
     print(f'Stretch deployment: four sibling workers; {stretch_refusals} native render receipt refusals; Linux/Windows identity separated')
     wrong = deepcopy(pinned)

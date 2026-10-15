@@ -14,7 +14,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 APPLICATIONS = ('soundcurrent-daw.exe', 'sc-import-inspect-worker.exe',
                 'sc-approved-wave-probe.exe', 'sc-media-import-worker.exe',
-                'sc-stretch-render-worker.exe', 'sc-comp-span-worker.exe')
+                'sc-stretch-render-worker.exe', 'sc-comp-span-worker.exe','sc-waveform-worker.exe')
 
 
 def digest(path):

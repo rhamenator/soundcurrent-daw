@@ -135,6 +135,17 @@ comp_installed.chmod(0o755)
 assert len(builder.verify_staged_install(stage,source,binary))==12
 print('Comp payload: missing/stale/non-executable helper refused; matching helper accepted.')
 
+# A waveform-enabled source tree must ship the exact real worker, executable.
+(source/'ui/timeline_waveforms.cpp').write_text('fixture marker')
+wave_worker=binary.parent/'sc-waveform-worker';wave_worker.write_bytes(b'qualified waveform worker')
+refuse('missing-waveform-worker')
+wave_installed=stage/'usr/bin/sc-waveform-worker';wave_installed.write_bytes(wave_worker.read_bytes())
+builder.normalize_staged_permissions(stage)
+builder.verify_staged_install(stage,source,binary)
+wave_installed.write_bytes(b'stale waveform worker');refuse('stale-waveform-worker')
+wave_installed.write_bytes(wave_worker.read_bytes())
+print('Waveform desktop payload: exact executable worker required.')
+
 # Verify Debian preserves the normalized mode, independently of input byte hashes.
 control=stage/'DEBIAN';control.mkdir()
 (control/'control').write_text('Package: sc-permission-fixture\nVersion: 1\nArchitecture: all\nMaintainer: Test <test@example.invalid>\nDescription: owned permission fixture\n')
@@ -150,4 +161,5 @@ builder.verify_payload_mode(extracted/'usr/bin/sc-media-import-worker','usr/bin/
 builder.verify_payload_mode(extracted/'usr/bin/sc-stretch-render-worker','usr/bin/sc-stretch-render-worker')
 builder.verify_payload_mode(extracted/'usr/bin/sc-comp-span-worker','usr/bin/sc-comp-span-worker')
 builder.verify_payload_mode(extracted/'usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt','usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt')
-print('PASS: all six executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')
+builder.verify_payload_mode(extracted/'usr/bin/sc-waveform-worker','usr/bin/sc-waveform-worker')
+print('PASS: all seven executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')

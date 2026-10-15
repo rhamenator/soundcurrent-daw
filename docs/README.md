@@ -2,6 +2,8 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Visible timeline source waveforms](347-timeline-source-waveforms.md)
+- [Native crossfade stage diagnostics](346-crossfade-stage-diagnostics.md)
 - [Bounded waveform cache and source geometry](345-waveform-cache.md)
 - [Asynchronous waveform supervision](344-waveform-controller.md)
 - [Immediate comp-review invalidation on project replacement](343-comp-review-invalidation.md)

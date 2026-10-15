@@ -1569,7 +1569,7 @@ bool StudioWindow::syncGui(const std::shared_ptr<const ControllerSnapshot> &cano
     }
     try {
         auto timeline =
-            timeline_->prepareModel(canonical->session, canonical->projectEpoch, editable);
+            timeline_->prepareModel(canonical->session, canonical->projectEpoch, editable, canonical->root);
         auto arms = armedTrackModel_->prepare(canonical->session);
         const auto selected = timeline_->preparedTrack(timeline);
         auto projection =
@@ -3369,6 +3369,7 @@ void StudioWindow::reviewRecordings() {
 }
 
 void StudioWindow::shutdownWorkers() {
+    timeline_->shutdownWaveforms();
     compPair_.requestShutdown();
     compAssembly_.requestShutdown();
     stretch_.requestShutdown();
@@ -3548,7 +3549,7 @@ void StudioWindow::poll() {
     pollPlayback();
     refreshLoop();
     pollExport();
-    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
+    if (view->closed && timeline_->waveformsClosed() && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed && compAssembly_.snapshot()->closed && compPair_.snapshot()->closed &&
         manual_->snapshot()->closed && nativeClosed() && (!importDialog_ || importDialog_->retired()) && closing_) {
         close();
@@ -3690,7 +3691,7 @@ void StudioWindow::poll() {
 }
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = inspectorSnapshot();
-    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
+    if (view->closed && timeline_->waveformsClosed() && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed && compAssembly_.snapshot()->closed && compPair_.snapshot()->closed &&
         manual_->snapshot()->closed && nativeClosed() && (!importDialog_ || importDialog_->retired())) {
         event->accept();

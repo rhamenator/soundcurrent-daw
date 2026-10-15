@@ -50,7 +50,7 @@ def relative(value):
             'Unsafe Windows payload component')
     return p
 
-def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False, require_copy_worker=False, require_stretch_worker=False, require_comp_worker=False):
+def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False, require_copy_worker=False, require_stretch_worker=False, require_comp_worker=False, require_waveform_worker=False):
     expected = {}
     for row in manifest['files']:
         name = relative(row['path']).as_posix()
@@ -62,6 +62,7 @@ def deploy_payload(archive, manifest, destination, *, require_worker=False, requ
     if require_media_worker: required.add('sc-approved-wave-probe.exe')
     if require_copy_worker: required.add('sc-media-import-worker.exe')
     if require_stretch_worker: required.add('sc-stretch-render-worker.exe')
+    if require_waveform_worker: required.add('sc-waveform-worker.exe')
     if require_comp_worker: required.add('sc-comp-span-worker.exe')
     require(required <= set(expected) and len(expected)<=64, 'Missing/excess deployment payload')
     require(all(0<r['bytes']<=64*1024*1024 for r in expected.values()) and
@@ -100,7 +101,7 @@ def qualified_dependencies(manifest):
     require(trusted['qtSourceSha256']==QT_SOURCE and
             trusted['sndfileSourceSha256']==SNDFILE_SOURCE, 'Dependency source anchor differs')
     dependencies = {r['path']:r for r in manifest['files'] if r['path'] not in
-                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe','sc-media-import-worker.exe','sc-stretch-render-worker.exe','sc-comp-span-worker.exe'}}
+                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe','sc-media-import-worker.exe','sc-stretch-render-worker.exe','sc-comp-span-worker.exe','sc-waveform-worker.exe'}}
     require(dependencies==trusted['files'], 'Unqualified dependency binary identity')
 
 def qualify_worker(manifest, qualification, head):
@@ -275,6 +276,10 @@ def package(args):
         comp=next((r for r in manifest['files'] if r['path']=='sc-comp-span-worker.exe'),{})
         require(bool(comp) and qualification.get('executable_sha256',{}).get('sc-comp-span-worker.exe')==comp.get('sha256'),
                 'Comp worker differs from the native main-workflow qualification')
+    if (ROOT/'ui/timeline_waveforms.cpp').is_file():
+        wave=next((r for r in manifest['files'] if r['path']=='sc-waveform-worker.exe'),{})
+        require(bool(wave) and qualification.get('executable_sha256',{}).get('sc-waveform-worker.exe')==wave.get('sha256'),
+                'Waveform worker differs from the native main-workflow qualification')
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
@@ -282,7 +287,8 @@ def package(args):
     deploy_payload(args.deploy_zip,manifest,stage,require_worker=needs_worker,
                    require_media_worker=needs_media_worker,require_copy_worker=needs_copy_worker,
                    require_stretch_worker=needs_stretch_worker,
-                   require_comp_worker=needs_comp_worker)
+                   require_comp_worker=needs_comp_worker,
+                   require_waveform_worker=(ROOT/'ui/timeline_waveforms.cpp').is_file())
     legal=stage/'licenses';legal.mkdir()
     for name,path in {'GPL-3.0.txt':ROOT/'LICENSE','libsndfile-LGPL.txt':ROOT/'third_party/libsndfile/COPYING',
                       'libsamplerate-BSD-2-Clause.txt':ROOT/'third_party/libsamplerate/COPYING',

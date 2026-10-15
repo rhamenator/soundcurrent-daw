@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Visible source waveform timeline (2026-10-15)
+
+[Checkpoint 347](347-timeline-source-waveforms.md) connects the source cache to
+real timeline painting with project-root/epoch propagation, separate stereo lanes,
+source-headroom color, explicit coarse-edge shading and async close gates. The
+seven focused Release suites and the ASan/UBSan GUI fixture pass, including
+actual worker/rendered pixels,
+8,192-track virtualization, surrounding editing, localization and packaging.
+The original old centre-pixel oracle failure is retained; the corrected check
+samples the preserved track-coloured edge. Native Windows drawing, installed
+preview delivery, fine-window/large-file work and per-channel multichannel
+inspection remain open. Installed previews remain unchanged. The full goal is
+incomplete. [Checkpoint 346](346-crossfade-stage-diagnostics.md) supplies flushed
+native timeout diagnostics; its preceding CI remains separate from this GUI work.
+
 ## Waveform cache and projection (2026-10-15)
 
 [Checkpoint 345](345-waveform-cache.md) adds complete-view cache admission,

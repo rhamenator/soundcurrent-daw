@@ -55,7 +55,7 @@ def verify_build_source(cache, root):
             'Build tree belongs to another source checkout')
 EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker',
                     'usr/bin/sc-approved-wave-probe','usr/bin/sc-media-import-worker',
-                    'usr/bin/sc-stretch-render-worker','usr/bin/sc-comp-span-worker'}
+                    'usr/bin/sc-stretch-render-worker','usr/bin/sc-comp-span-worker','usr/bin/sc-waveform-worker'}
 def installed_mode(relative):
     return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
 def normalize_staged_permissions(stage):
@@ -79,6 +79,8 @@ def verify_staged_install(stage, root, executable):
         expected['usr/bin/sc-import-inspect-worker']=executable.parent/'sc-import-inspect-worker'
     if (root/'ui/import_media_dialog.cpp').is_file():
         expected['usr/bin/sc-approved-wave-probe']=executable.parent/'sc-approved-wave-probe'
+    if (root/'ui/timeline_waveforms.cpp').is_file():
+        expected['usr/bin/sc-waveform-worker']=executable.parent/'sc-waveform-worker'
     if (root/'ui/media_copy_controller.cpp').is_file():
         expected['usr/bin/sc-media-import-worker']=executable.parent/'sc-media-import-worker'
     if (root/'include/soundcurrent/comp_transition_preparation.hpp').is_file():
