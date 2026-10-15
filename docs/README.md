@@ -257,3 +257,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Windows render-progress candidate and required CI evidence job](332-windows-progress-preview.md)
 
 - [Installed Windows preview with render progress](333-installed-windows-progress.md)
+
+- [Installed Windows render timing and process observations](334-windows-render-diagnostic.md)

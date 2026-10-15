@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows render diagnosis and passing required CI (2026-10-15)
+
+[Checkpoint 334](334-windows-render-diagnostic.md) captures bounded process and
+public-stage observations from the unchanged installed Windows candidate. The
+render completes at 36.9 seconds; two worker results match the prior verified WAVs
+exactly. Similar worker CPU/read totals but differing elapsed time narrow the next
+investigation; accessibility observation overhead prevents a benchmark claim. The
+automation fails later during Apply and is retained as failed. Saved Apply and
+normal window closure are observed separately; all VMs are off. Original CI at
+`1cc2db5` passes all 15 jobs, with full logs and 12 archives retained and verified.
+Responsiveness and full-suite completion remain open.
+
 ## Installed Windows render-progress preview (2026-10-15)
 
 [Checkpoint 333](333-installed-windows-progress.md) installs the exact `b5dc256`
