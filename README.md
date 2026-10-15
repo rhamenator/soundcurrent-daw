@@ -59,6 +59,10 @@ Undo/Redo, save/reopen and matching playback/export. Historical jobs are reviewe
 around publication and adoption. The [desktop repeated-edit workflow](docs/296-repeated-desktop-comp-transitions.md)
 now passes timeline creation, explicit Review/Apply and recovery tests. Current
 native Windows and installed-preview qualification remain in development.
+[Native build follow-up](docs/297-native-comp-build-followup.md) addresses deep
+Windows fixture paths and compiles the desktop window once across UI targets.
+Twenty selected local suites have current-build coverage; fresh native confirmation
+remains required.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.

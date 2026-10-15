@@ -1,6 +1,6 @@
 # ADR 186: compile the desktop window once per configuration
 
-Status: implementation under qualification.
+Status: accepted after local Release qualification; native duration pending.
 Date: 2026-10-14.
 
 Original Windows CI run 38664035143 passed all 26 desktop tests and retained its

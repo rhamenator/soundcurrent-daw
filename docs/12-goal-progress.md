@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native comp paths and desktop build follow-up (2026-10-14)
+
+[Checkpoint 297](297-native-comp-build-followup.md) corrects deep Windows fixture
+copies and shares the window compilation across application/test targets. Original
+CI passed all 193 Linux tests; three native comp tests failed during relocation,
+and the desktop job exceeded its budget despite passing 26/26 tests. All original
+artifacts are retained and audited. Sixteen rebuilt local suites plus four fresh
+helper suites pass; the original backup-expectation failure and three stale-helper
+results are retained explicitly. A Debug repeated-desktop probe completes one
+adoption but times out during the next creation; its full failure evidence is
+retained and the PR head is held for a measured correction. Fresh native confirmation, current installed
+preview delivery and the full frozen goal remain incomplete.
+
 ## Repeated desktop rendered transitions (2026-10-14)
 
 [Checkpoint 296](296-repeated-desktop-comp-transitions.md) removes the temporary
