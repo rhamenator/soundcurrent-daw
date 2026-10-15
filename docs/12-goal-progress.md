@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Protected comp-handle feasibility (2026-10-14)
+
+[Checkpoint 299](299-protected-comp-candidate.md) records nine isolated Release
+renders using exact rebased protected anchors. Six expanded handle regions and
+three nominal controls pass 105 independent rational map checks; 11,520 protected
+core samples remain bit-exact. Cancellation, budget and fractional-position
+refusals pass. This opt-in experiment has no shipping hook. Owned-worker
+integration, repeated history, fractional/changed clocks, sound-quality review,
+native Windows execution and the full frozen goal remain open.
+
 ## Repeated comp source admission performance (2026-10-14)
 
 [Checkpoint 298](298-comp-source-admission-performance.md) traces the prior Debug
