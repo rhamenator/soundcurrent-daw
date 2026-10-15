@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated desktop speed edits and original CI repairs (2026-10-15)
+
+[Checkpoint 314](314-comp-clocked-repeat-ui.md) qualifies repeated fractional,
+post-SRC and mixed-take edits through actual speed, render, review and Apply
+controls. Four Release and two Debug suites pass; six new exports match across
+builds and nine legacy exports are unchanged. The prior original CI remains failed:
+two Windows setup checks misobserved existing long-path files, and one Linux job
+exceeded its whole-job limit after all its tests passed. Test-only path corrections
+pass three Release/Debug suites; five Linux shards preserve every check and deadline.
+Fresh native and scheduling qualification, installed previews, short uniform windows,
+processing quality, localization and full-suite parity remain open.
+
+
 ## Clocked protected paired adoption (2026-10-15)
 
 [Checkpoint 313](313-comp-clocked-protected-pair.md) versions pair selection and

@@ -108,8 +108,10 @@ preserves outside anchors and baked pitch across cropped ancestry.
 geometry and timing to verified media/history requests. Release and Debug worker
 checks pass. [Clocked paired adoption](docs/313-comp-clocked-protected-pair.md)
 now passes core Release/Debug checks and a fractional desktop adoption workflow,
-with legacy output hashes preserved. Repeated post-SRC desktop histories, native
-execution and installed preview delivery remain required.
+with legacy output hashes preserved. [Repeated desktop speed edits](docs/314-comp-clocked-repeat-ui.md)
+now pass Linux Release/Debug workflows. A native long-path observation correction
+and revised CI scheduling await fresh qualification; installed preview delivery
+remains required.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and
