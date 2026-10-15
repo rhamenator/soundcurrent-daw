@@ -22,6 +22,9 @@ is available locally as **SoundCurrent DAW Preview** in Applications, with a
 **before batched verification** entry for rollback. Its Release DEB and matching GPL source are
 prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
 recording/playback and packaged save/reopen/export have scoped evidence.
+A [matching Windows installer candidate](docs/338-windows-batched-preview.md)
+is prepared from the same frozen source. Native startup and helper checks pass;
+its installer and installed editing-workflow checks are next.
 New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
 are now prepared locally with matching source. Native helper checks and actual
 packaged/deployed startup pass. The refreshed Linux Applications entry also passes

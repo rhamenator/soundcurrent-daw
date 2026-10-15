@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Matching Windows candidate prepared (2026-10-15)
+
+[Checkpoint 338](338-windows-batched-preview.md) prepares the Windows installer
+for frozen `97e9ecd`, matching the current Linux preview. All 1,810 native source
+inputs and 15 deployment files verify; native media helpers, v4/v5 stretch checks
+and normal GUI startup/close pass in the independent development clone. The first
+dispatch's premature setup-receipt failure is retained. All 8,101 corresponding
+application-source files verify. Original hosted CI passes all 15 jobs, with full
+logs and 12 artifact archives retained before PR advancement. All VMs are off.
+The installer and actual installed Windows editing workflow are the next gate;
+the existing Windows preview is unchanged. Full goal incomplete.
+
 ## Updated installed Linux preview (2026-10-15)
 
 [Checkpoint 337](337-installed-batched-preview.md) prepares the `97e9ecd` DEB
