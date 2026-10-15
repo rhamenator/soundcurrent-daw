@@ -34,8 +34,8 @@ success=[c for r in reports for c in r['cases'] if c['case']==0]
 steps=[g for c in success for g in c['generations']]
 assert len(steps)==3 and sum(g['mixedRetained'] for g in steps)==1
 assert sum(len(g['children']) for g in steps)==5
-expected=['sc-comp-span-protected-clocked-v1','sc-comp-span-protected-clocked-v1' if a.kind=='protected' else 'sc-comp-span-v2']
-assert all(g['clockedSamples']>0 and g['freshOperationIdentities'] and g['currentReviewStatus'] and g['pairFormat']=='sc-comp-pair-selection-clocked-protected-v1' for g in steps)
+expected=['sc-comp-span-protected-clocked-v1','sc-comp-span-protected-clocked-v1' if a.kind=='protected' else 'sc-comp-span-uniform-context-v1']
+assert all(g['clockedSamples']>0 and g['freshOperationIdentities'] and g['currentReviewStatus'] and g['pairFormat']==('sc-comp-pair-selection-clocked-protected-v1' if a.kind=='protected' else 'sc-comp-pair-selection-original-context-v1') for g in steps)
 assert [g['spanProtocols'] for g in steps]==[expected,expected,expected[1:]]
 assert [g['speedControlQualified'] for g in steps]==[True,True,False]
 assert all(g['undoRedoSaveReopen'] and g['noAudioBeforeApply'] and g['unchangedSamples']>0 and g['liveExportSamples']>0 and g['peak']>1 for g in steps)

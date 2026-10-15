@@ -16,10 +16,16 @@ PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &r
     const auto image=compAssemblyExecutableSha256();poll();
     const CompRecipeExecutor executor{"soundcurrent.comp-join-quintic-v1",image};
     auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),executor,ledger,{},stop);
-    auto pairPolicy=CompPairSpanPolicy::UniformOnly;
+    auto pairPolicy=CompPairSpanPolicy::UniformOnly;bool hasHistory=false,uniformProcessing=false;
     for(const auto *fragment:{&recipe.plan().handles().outgoing(),&recipe.plan().handles().incoming()}){
         const auto &data=fragment->data();
         const auto &original=data.regeneration?data.regeneration->data().originalNominalClip:data.expected;
+        const auto domain=fragment==&recipe.plan().handles().outgoing()?recipe.plan().outgoing().domain:recipe.plan().incoming().domain;
+        // Regenerated uniform clips use their original analysis domain so a crop
+        // cannot accidentally choose a shorter backend window or erase baked pitch.
+        hasHistory=hasHistory || bool(data.regeneration);
+        if(domain!=CompProcessingDomain::ExistingMedia && original.stretch && !original.stretch->warp)
+            uniformProcessing=true;
         // Select modern timing explicitly from source metadata, never by trying
         // a failed worker or dropping protection. Preserve the legacy identity
         // for same-clock integer requests and all retained legacy manifests.
@@ -33,6 +39,7 @@ PreparedCompTransition prepareOwnedCompTransition(const std::filesystem::path &r
             else if(pairPolicy==CompPairSpanPolicy::UniformOnly)pairPolicy=CompPairSpanPolicy::ProtectedOriginal;
         }
     }
+    if(hasHistory && uniformProcessing)pairPolicy=CompPairSpanPolicy::OriginalContext;
     auto selection=std::make_shared<const CompPairSelection>(prepareCompPairSelection(std::move(recipe),executor,
         std::move(worker),{Id::generate(),Id::generate()},spanPolicy,ledger,pairPolicy));
     const auto pairRef=referenceCompPairSelection(s,context,*selection);

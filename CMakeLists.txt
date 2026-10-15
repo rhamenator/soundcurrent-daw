@@ -778,6 +778,12 @@ if(SC_BUILD_MEDIA)
         $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests>
         $<TARGET_FILE:sc-comp-repeat-fixture> --kind uniform --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-clocked-protected-pair-evidence)
       set_tests_properties(comp-clocked-protected-mixed-production PROPERTIES TIMEOUT 300)
+      add_test(NAME comp-original-context-paired-production COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_clocked_protected_pair_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-protected-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests>
+        $<TARGET_FILE:sc-comp-repeat-fixture> --kind uniform --original-context --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-original-context-pair-evidence)
+      set_tests_properties(comp-original-context-paired-production PROPERTIES TIMEOUT 300)
 
     endif()
     add_executable(sc-comp-span-worker tools/comp_span_worker.cpp)

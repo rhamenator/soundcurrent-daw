@@ -7,7 +7,7 @@ from worker_observation import observe,diagnostic
 p=argparse.ArgumentParser()
 names=['worker','span_fixture','pair_fixture','assembly_fixture','nominal_worker','job_fixture','repeat_fixture']
 for n in names:p.add_argument(n,type=Path)
-p.add_argument('--kind',choices=['protected','uniform']);p.add_argument('--evidence',type=Path,required=True);a=p.parse_args();a.evidence.mkdir(parents=True,exist_ok=True)
+p.add_argument('--original-context',action='store_true');p.add_argument('--kind',choices=['protected','uniform']);p.add_argument('--evidence',type=Path,required=True);a=p.parse_args();a.evidence.mkdir(parents=True,exist_ok=True)
 scope=Path(tempfile.mkdtemp(prefix='run-',dir=a.evidence)).resolve();rows=[];reports=[];failures=[]
 worker=a.worker.resolve();binary=hashlib.sha256(worker.read_bytes()).hexdigest()
 roots=[]
@@ -21,7 +21,7 @@ for kind in kinds:
 def retain(): (scope/'processes.json').write_text(json.dumps(rows,indent=2)+'\n')
 def fixture(mode,root,**data):
     proc=subprocess.Popen([str(a.repeat_fixture.resolve()),mode],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-    try:out,err=proc.communicate(json.dumps(dict(root=str(root),workerSha256=binary,**data)),timeout=180)
+    try:out,err=proc.communicate(json.dumps(dict(root=str(root),workerSha256=binary,originalContext=a.original_context,**data)),timeout=180)
     except BaseException:proc.kill();proc.communicate();raise
     prefix=root/f'repeat-{len(rows)}-{mode}';prefix.with_suffix('.stdout').write_text(out);prefix.with_suffix('.stderr').write_text(err)
     rows.append(dict(kind=mode,pid=proc.pid,exitCode=proc.returncode));retain();assert proc.returncode==0,(root,proc.returncode,err);return json.loads(out)
@@ -54,7 +54,7 @@ for root in sorted(p for parent in roots for p in parent.glob('case-*/project-*'
         prepared=fixture('prepare',root,generation=generation,mixed=generation==2,protected=True,clocked=True)
         assert len(prepared['requests'])==(1 if generation==2 else 2)
         assert prepared['retainedAssembledCoverageRefused']==(generation==2)
-        expected=['sc-comp-span-protected-clocked-v1','sc-comp-span-v2' if root.parent.name.endswith('-uniform') else 'sc-comp-span-protected-clocked-v1']
+        expected=['sc-comp-span-protected-clocked-v1',('sc-comp-span-uniform-context-v1' if a.original_context else 'sc-comp-span-v2') if root.parent.name.endswith('-uniform') else 'sc-comp-span-protected-clocked-v1']
         assert [r['protocol'] for r in prepared['requests']]==(expected[1:] if generation==2 else expected)
         for request in prepared['requests']:
             ready=[]
@@ -76,5 +76,5 @@ for root in sorted(p for parent in roots for p in parent.glob('case-*/project-*'
 assert len(failures)==(2 if 'protected' in kinds else 0)
 assert len(reports)==3*len(kinds) and len([r for r in rows if r['kind']=='worker'])==5*len(kinds)
 assert sum(r['result']['lateHistoryBeforeCompletionRefused'] for r in reports)==(1 if 'protected' in kinds else 0)
-result=dict(inputWorkflows=[json.loads((p/'report.json').read_text()) for p in roots],workerSha256=binary,processes=rows,reports=reports,failures=failures,actualPairedAdoptions=3*len(kinds),successfulWorkers=5*len(kinds),retainedAssembledMixedCases=len(kinds),clockedProtectedPolicy=True,applicationPreparationQualified=True,desktopWorkflowQualified=False,physicalAudio=False,qualityAdmission=False)
+result=dict(inputWorkflows=[json.loads((p/'report.json').read_text()) for p in roots],workerSha256=binary,processes=rows,reports=reports,failures=failures,actualPairedAdoptions=3*len(kinds),successfulWorkers=5*len(kinds),retainedAssembledMixedCases=len(kinds),clockedProtectedPolicy=True,originalContextPolicy=a.original_context,applicationPreparationQualified=True,desktopWorkflowQualified=False,physicalAudio=False,qualityAdmission=False)
 (scope/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(scope=str(scope),actualPairedAdoptions=3*len(kinds),successfulWorkers=5*len(kinds))))

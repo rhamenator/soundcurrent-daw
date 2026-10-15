@@ -37,7 +37,7 @@ std::vector<float> playback(const std::filesystem::path &root,const Session &s,F
 }
 int main(int argc,char **argv){try{
     check(argc==2,"Expected repeated fixture mode");Json input;std::cin>>input;const auto root=utf8Path(input.at("root").get<std::string>());
-    const auto mode=std::string_view(argv[1]);const bool protectedMode=input.value("protected",false),clocked=input.value("clocked",false);check(!clocked || protectedMode,"Clocked fixture requires semantic protection");ResourceLedger ledger(512*1024*1024,"Repeated comp production");Json result;
+    const auto mode=std::string_view(argv[1]);const bool protectedMode=input.value("protected",false),clocked=input.value("clocked",false),originalContext=input.value("originalContext",false);check(!originalContext || clocked,"Context fixture requires clocked history");check(!clocked || protectedMode,"Clocked fixture requires semantic protection");ResourceLedger ledger(512*1024*1024,"Repeated comp production");Json result;
     {
         if(mode=="prepare"){
             auto s=input.at("generation")==0?decodeProject(read(root/"adopted-project.json")):ProjectStore(root).load();
@@ -49,7 +49,7 @@ int main(int argc,char **argv){try{
                     check(asset!=s.assets.end(),"Clocked fixture asset missing");
                     const auto original=resolveCompRegenerationSource(s,t.id,c->id,context,ledger);
                     const bool uniform=!original.data().originalNominalClip.stretch->warp;
-                    const Frame length=uniform?(first?(input.value("shortUniformFirst",false)?4000:16384):8000):(first?4000:3000);
+                    const Frame length=uniform?(first?((originalContext || input.value("shortUniformFirst",false))?4000:16384):(originalContext?3000:8000)):(first?4000:3000);
                     const Frame sourceSpan=first?length*3/2:(length*2+2)/3;
                     c->sourceFrame=c==&out?asset->frames-sourceSpan:0;
                     if(first)c->sourceTiming={1,7};else c->sourceTiming={2,11};
@@ -86,23 +86,44 @@ int main(int argc,char **argv){try{
             if(clocked){
                 const auto originalSession=s;const auto originalProject=read(root/"project.json");
                 auto prepared=prepareOwnedCompTransition(root,s,context,plan.handles().transition(),8,input.at("workerSha256").get<std::string>(),policy(),{},ledger);
-                check(prepared.selection().spanPolicy()==CompPairSpanPolicy::ClockedProtected && prepared.ownedBy(ledger),"Application preparation did not choose owned clocked policy");
+                bool contextExpected=false,historyExpected=false;
+                for(unsigned side=0;side<2;++side){const auto &e=(side?plan.handles().incoming():plan.handles().outgoing()).data();const auto domain=side?plan.incoming().domain:plan.outgoing().domain;
+                    historyExpected=historyExpected || bool(e.regeneration);const auto &source=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
+                    if(domain!=CompProcessingDomain::ExistingMedia && source.stretch && !source.stretch->warp)contextExpected=true;}
+                contextExpected=contextExpected && historyExpected;
+                check(prepared.selection().spanPolicy()==(contextExpected?CompPairSpanPolicy::OriginalContext:CompPairSpanPolicy::ClockedProtected) && prepared.ownedBy(ledger),"Application preparation did not choose owned original-context policy");
                 check(s==originalSession && read(root/"project.json")==originalProject,"Application preparation changed canonical project");
             }
             const CompRecipeExecutor executor{"soundcurrent.comp-join-quintic-v1",compAssemblyExecutableSha256()};
             auto recipe=encodeCompProcessingRecipe(s,context,plan,Id::generate(),executor,ledger);
-            auto pair=prepareCompPairSelection(std::move(recipe),executor,input.at("workerSha256").get<std::string>(),{Id::generate(),Id::generate()},policy(),ledger,clocked?CompPairSpanPolicy::ClockedProtected:protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly);
-            if(clocked)check(Json::parse(pair.manifest()).at("format")=="sc-comp-pair-selection-clocked-protected-v1","Clocked pair format not versioned");
+            auto pair=prepareCompPairSelection(std::move(recipe),executor,input.at("workerSha256").get<std::string>(),{Id::generate(),Id::generate()},policy(),ledger,originalContext?CompPairSpanPolicy::OriginalContext:clocked?CompPairSpanPolicy::ClockedProtected:protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly);
+            if(clocked)check(Json::parse(pair.manifest()).at("format")==(originalContext?"sc-comp-pair-selection-original-context-v1":"sc-comp-pair-selection-clocked-protected-v1"),"Clocked/context pair format not versioned");
             const auto pairRef=referenceCompPairSelection(s,context,pair);persistCompPairSelection(root,s,context,pair,ledger);
+            if(originalContext){
+                const auto marker=root/"media/comp-pairs"/(pair.recipe().operation().str()+".json");const auto saved=read(marker);
+                auto reopened=loadCompPairSelectionSnapshot(root,context,pair.recipe().operation(),pair.digest(),ledger);
+                check(reopened.spanPolicy()==CompPairSpanPolicy::OriginalContext && reopened.manifest()==pair.manifest(),"Context selection did not round-trip exactly");
+                for(unsigned mutation=0;mutation<2;++mutation){auto changed=Json::parse(saved);
+                    if(mutation==0)changed["format"]="sc-comp-pair-selection-clocked-protected-v1";
+                    else changed["children"][1]["requestDigest"]=std::string(64,'0');
+                    const auto altered=changed.dump();media_io::SampleHash hash;hash.updateBytes({reinterpret_cast<const std::byte *>(altered.data()),altered.size()});
+                    write(marker,altered);try{refuses([&]{loadCompPairSelectionSnapshot(root,context,pair.recipe().operation(),hash.digest(),ledger);});}catch(...){write(marker,saved);throw;}write(marker,saved);
+                }
+            }
             applySessionEdits(s,{AddCompPairSelection{pairRef}});std::array<std::optional<Id>,2> outputs;
             Json requests=Json::array();for(unsigned side=0;side<2;++side)if(pair.children()[side]){outputs[side]=Id::generate();const auto &r=*pair.children()[side];
                 if(clocked){
                     const auto &e=(side?pair.recipe().plan().handles().incoming():pair.recipe().plan().handles().outgoing()).data();
                     const auto &original=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
                     const bool protectedSource=original.stretch && original.stretch->warp;
-                    check(r.isClockedProtected()==protectedSource && r.protocol()==(protectedSource?compClockedProtectedSpanProtocol:compRegenerationSpanProtocol) && r.requiresHistory(),"Clocked pair identity lost");
+                    check(r.isClockedProtected()==protectedSource && r.protocol()==(protectedSource?compClockedProtectedSpanProtocol:originalContext?compUniformContextSpanProtocol:compRegenerationSpanProtocol) && r.requiresHistory(),"Clocked pair identity lost");
                     const auto expected=input.at("generation")==1?SourcePosition{1,1,2}:SourcePosition{1,0,1};
                     check((e.regeneration?e.regeneration->data().bakedPitchScale:SourcePosition{1,0,1})==expected,"Pair lost independently expected baked pitch");
+                    if(originalContext && !protectedSource){
+                        check(r.isUniformContext() && r.uniformContextSpan().bakedPitchScale()==expected,"Context pair lost uniform producer/pitch");
+                        if(input.at("generation")==1){auto legacy=prepareCompSpan(side?pair.recipe().plan().handles().incoming():pair.recipe().plan().handles().outgoing(),ledger);
+                            check(legacy.processingFrames()<4096 && r.uniformContextSpan().inputFrames()>=4096,"Context pair did not cover short legacy window");}
+                    }
                     if(protectedSource){
                         const auto &g=r.clockedProtectedSpan().geometry();
                         check(r.clockedProtectedSpan().bakedPitchScale()==expected && g.spans().size()==2,"Clocked pair lost pitch/original anchors");
@@ -128,7 +149,7 @@ int main(int argc,char **argv){try{
         }else{
             auto s=ProjectStore(root).load();auto pair=loadReferencedCompPairSelection(root,s,context,Id(input.at("selection").get<std::string>()),ledger);
             auto request=loadReferencedCompAssemblyRequest(root,s,context,pair,Id(input.at("assembly").get<std::string>()),ledger);
-            if(clocked)check(pair.spanPolicy()==CompPairSpanPolicy::ClockedProtected,"Saved clocked pair policy did not round-trip");
+            if(clocked)check(pair.spanPolicy()==(originalContext?CompPairSpanPolicy::OriginalContext:CompPairSpanPolicy::ClockedProtected),"Saved clocked pair policy did not round-trip");
             if(mode=="cancel"){
                 cancelCompPair(root,pair,ledger);result={{"cancelRequested",true}};
             }else if(mode=="inspect"){
@@ -220,7 +241,7 @@ int main(int argc,char **argv){try{
                     at+=n;}
                 check(sf_close(wave.release())==0,"Repeated export close failed");
                 check(exported.peak>1,"Repeated export lost floating headroom");
-                result={{"audibleEditFirst",editedFirst},{"audibleEditEnd",editedEnd},{"requestedTransitionFirst",transition.startFrame},{"requestedTransitionEnd",transition.endFrame},{"protectedSamples",protectedSamples},{"clockedSamples",clockedSamples},{"clockedProtected",clocked},{"historySources",s.compPlaybackSources.size()},{"queuedStaleApplyRefused",true},{"historyFailureBeforePublication",true},{"changedHistoryVerificationRefused",true},{"lateHistoryBeforeCompletionRefused",input.value("lateFailure",false)},{"undoRedo",true},{"savedReopened",true},{"unchangedSamples",unchanged},{"playbackEdgeGuardFrames",128},{"liveExportSamples",after.size()},{"exportSha256",exported.fileSha256},{"peak",exported.peak},{"mainWindow",false},{"qualityAdmission",false}};
+                result={{"audibleEditFirst",editedFirst},{"audibleEditEnd",editedEnd},{"requestedTransitionFirst",transition.startFrame},{"requestedTransitionEnd",transition.endFrame},{"protectedSamples",protectedSamples},{"clockedSamples",clockedSamples},{"clockedProtected",clocked},{"originalContext",originalContext},{"historySources",s.compPlaybackSources.size()},{"queuedStaleApplyRefused",true},{"historyFailureBeforePublication",true},{"changedHistoryVerificationRefused",true},{"lateHistoryBeforeCompletionRefused",input.value("lateFailure",false)},{"undoRedo",true},{"savedReopened",true},{"unchangedSamples",unchanged},{"playbackEdgeGuardFrames",128},{"liveExportSamples",after.size()},{"exportSha256",exported.fileSha256},{"peak",exported.peak},{"mainWindow",false},{"qualityAdmission",false}};
             }
         }
     }

@@ -83,9 +83,7 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                     for(auto *clip:{&out,&in}){
                         const auto asset=std::find_if(state.assets.begin(),state.assets.end(),[&](const auto &a){return a.id==clip->assetId;});
                         check(asset!=state.assets.end(),"Clocked desktop asset missing");
-                        const auto original=resolveCompRegenerationSource(state,track.id,clip->id,historyContext,memory);
-                        const bool uniform=!original.data().originalNominalClip.stretch->warp;
-                        const Frame length=uniform?(first?16384:8000):(first?4000:3000);
+                        const Frame length=first?4000:3000;
                         const Frame sourceSpan=first?length*3/2:(length*2+2)/3;
                         clip->sourceFrame=clip==&out?asset->frames-sourceSpan:0;
                         clip->sourceTiming=first?ClipSourceTiming{1,7}:ClipSourceTiming{2,11};
@@ -174,7 +172,11 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                     check(children.size()==(mixed?1U:2U),"Wrong repeated child count");step["children"]=children;
                     const auto operation=*window.compAssemblySnapshot()->operation;
                     const auto pair=window.compPairSnapshot();
-                    check(pair->selection && pair->selection->spanPolicy()==(clocked?CompPairSpanPolicy::ClockedProtected:protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Repeated original protection policy lost");
+                    check(bool(pair->selection),"Repeated selection missing");
+                    bool uniformProcessing=false;
+                    for(unsigned side=0;side<2;++side){const auto &plan=pair->selection->recipe().plan();const auto &e=(side?plan.handles().incoming():plan.handles().outgoing()).data();const auto &source=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
+                        if((side?plan.incoming().domain:plan.outgoing().domain)!=CompProcessingDomain::ExistingMedia && source.stretch && !source.stretch->warp)uniformProcessing=true;}
+                    check(pair->selection->spanPolicy()==(uniformProcessing?CompPairSpanPolicy::OriginalContext:clocked?CompPairSpanPolicy::ClockedProtected:protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Repeated original protection/context policy lost");
                     check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Repeated durable operation differs");
                     check(operations.insert(operation.str()).second && operations.insert(pair->operation->str()).second,"Repeated operation identity reused");
                     if(clocked && !mixed)check(pair->selection->recipe().plan().outgoing().domain==CompProcessingDomain::ProjectAfterSrc && pair->selection->recipe().plan().incoming().domain==CompProcessingDomain::ProjectAfterSrc,"Clocked desktop did not exercise post-SRC assembly");
@@ -187,8 +189,12 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
                             const auto &e=(child->fragment()?plan.handles().incoming():plan.handles().outgoing()).data();
                             const auto &original=e.regeneration?e.regeneration->data().originalNominalClip:e.expected;
                             const bool protectedSource=original.stretch && original.stretch->warp;
-                            check(child->requiresHistory() && child->isClockedProtected()==protectedSource && child->protocol()==(protectedSource?compClockedProtectedSpanProtocol:compRegenerationSpanProtocol),"Clocked desktop original protocol differs");
+                            check(child->requiresHistory() && child->isClockedProtected()==protectedSource && child->protocol()==(protectedSource?compClockedProtectedSpanProtocol:compUniformContextSpanProtocol),"Clocked desktop original protocol differs");
                             const auto baked=generation==1?SourcePosition{1,1,2}:SourcePosition{1,0,1};
+                            if(!protectedSource){check(child->isUniformContext(),"Uniform history lost context producer");
+                                if(generation==1){auto legacy=prepareCompSpan(child->fragment()?plan.handles().incoming():plan.handles().outgoing(),memory);
+                                    check(legacy.processingFrames()<4096 && child->uniformContextSpan().inputFrames()>=4096,"Desktop did not exercise short legacy context");}}
+
                             check((e.regeneration?e.regeneration->data().bakedPitchScale:SourcePosition{1,0,1})==baked,"Clocked desktop lost expected baked pitch");
                             if(protectedSource && generation==1){const auto &g=child->clockedProtectedSpan().geometry();unsigned outside=0;
                                 for(const auto &span:g.spans()){const auto raw=addSourcePosition(g.map().exactRegion().rawOrigin,span.sourceAnchor);
