@@ -117,7 +117,7 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         wait([&]{const auto phase=window.compRenderStage();return phase==CompRenderStage::Complete || phase==CompRenderStage::Fault || phase==CompRenderStage::Canceled;});
         wait([&]{return !window.compAssemblySnapshot()->busy && !window.compPairSnapshot()->busy;});
         row["stage"]=int(window.compRenderStage());
-        if(mode==0){
+        if(mode==0 || mode==6){
             check(window.compRenderStage()==CompRenderStage::Complete,"Transition render did not complete");
             const auto registered=*window.snapshot()->session;
             check(registered.tracks==original.tracks && registered.assets==original.assets && registered.compPlaybackSources==original.compPlaybackSources,"Render applied audio without consent");
@@ -127,11 +127,12 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             for(const auto &p:pair->children){if(!p.pid){check(needed==1,"Needed span child missing");continue;}check(p.pid && p.ready && p.reaped && p.exitCode==0 && !p.abnormal,"New span child not retired successfully");
                 processes.push_back({{"pid",p.pid},{"exitCode",*p.exitCode},{"reaped",p.reaped},{"stdout",p.log?p.log->output:""},{"stderr",p.log?p.log->errors:""}});}
             check(processes.size()==std::size_t(needed),"Wrong number of new span children");
-            check(pair->selection && pair->selection->spanPolicy()==(protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Original semantic policy not preserved");
+            check(pair->selection && pair->selection->spanPolicy()==(mode==6?CompPairSpanPolicy::ClockedProtected:protectedMode?CompPairSpanPolicy::ProtectedOriginal:CompPairSpanPolicy::UniformOnly),"Original semantic policy not preserved");
             Json protocols=Json::array();
             for(unsigned side=0;side<2;++side){const auto &child=pair->selection->children()[side];
                 if(!child){check(!track.clips[side].stretch,"Processed side lost child");protocols.push_back(nullptr);continue;}
                 check(child->isProtected()==bool(track.clips[side].stretch->warp),"Original semantic protection changed");protocols.push_back(std::string(child->protocol()));}
+            if(mode==6)row["fractionalGeometryRenderedAndAdopted"]=true;
             row["spanProtocols"]=protocols;row["pairFormat"]=Json::parse(pair->selection->manifest()).at("format");
             const auto operation=*window.compAssemblySnapshot()->operation;
             check(operation==registered.compAssemblies.back().operation && pair->operation==registered.compPairSelections.back().operation,"Old fixture job reused");
@@ -157,11 +158,6 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
                 check(current.tracks==original.tracks && current.compAssemblies.size()==original.compAssemblies.size()+1 && current.compPairSelections.size()==original.compPairSelections.size()+1,"Save failure changed audio or partial reference registration");
                 check(ProjectStore(root).load()==original,"Failed save published project");row["saveFailureRetainsAtomicRefsWithoutAudio"]=true;
             }else check(*window.snapshot()->session==expected,"Failed/canceled/stale preparation changed canonical state");
-            if(mode==6){
-                for(const auto *folder:{"comp-pairs","comp-recipes","comp-assembly-requests","comp-assemblies"})
-                    check(!std::filesystem::exists(root/"media"/folder),"Unsupported geometry published sidecars");
-                row["fractionalGeometryRefusedBeforeSidecars"]=true;
-            }
             row["noChildLaunch"]=true;
         }
         window.close();wait([&]{return !window.isVisible();});check(window.compPairSnapshot()->closed && window.compAssemblySnapshot()->closed && window.snapshot()->closed,"Close did not retire all workers");row["asynchronousClose"]=true;return row;

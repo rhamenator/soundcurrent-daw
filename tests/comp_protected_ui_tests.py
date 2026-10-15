@@ -47,8 +47,13 @@ for rate,kind in [(44100,'protected'),(48000,'protected'),(96000,'protected'),(4
     assert len(successful['newChildren'])==(1 if kind=='existing' else 2)
     assert all(c['reaped'] and c['exitCode']==0 for c in successful['newChildren'])
     if len(cases)>1:
-        assert cases[6]['fractionalGeometryRefusedBeforeSidecars'] and cases[7]['closeDuringPreparation']
-        assert all(c['noChildLaunch'] for c in cases[1:])
+        fractional=cases[6]
+        assert fractional['fractionalGeometryRenderedAndAdopted'] and fractional['noAudioBeforeApply'] and fractional['undoRedoSaveReopen']
+        assert fractional['pairFormat']=='sc-comp-pair-selection-clocked-protected-v1'
+        assert fractional['spanProtocols']==['sc-comp-span-protected-clocked-v1']*2
+        assert len(fractional['newChildren'])==2 and all(c['reaped'] and c['exitCode']==0 for c in fractional['newChildren'])
+        assert cases[7]['closeDuringPreparation']
+        assert all(c['noChildLaunch'] for c in cases[1:6]+cases[7:])
     reports.append(dict(rate=rate,pairKind=kind,nominalProcessors=nominal_ids,originalInputsUnchanged=True,desktop=report))
 assert sha(a.worker)==binary and sha(a.nominal_worker)==nominal_binary and sha(a.controller)==controller_binary
 (scope/'report.json').write_text(json.dumps(dict(workerSha256=binary,nominalWorkerSha256=nominal_binary,controllerSha256=controller_binary,processes=rows,reports=reports,actualNominalWorkers=True,actualTimelineDialog=True,physicalAudio=False,qualityAdmission=False),indent=2)+'\n')
