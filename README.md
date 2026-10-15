@@ -56,8 +56,9 @@ remain in development.
 [Repeated paired comp production](docs/294-repeated-paired-production.md) now has
 core workflow evidence for successive rendered edits, retained assembled takes,
 Undo/Redo, save/reopen and matching playback/export. Historical jobs are reviewed
-around publication and adoption. Desktop repeated-render integration and current
-native Windows qualification remain in development.
+around publication and adoption. The [desktop repeated-edit workflow](docs/296-repeated-desktop-comp-transitions.md)
+now passes timeline creation, explicit Review/Apply and recovery tests. Current
+native Windows and installed-preview qualification remain in development.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.

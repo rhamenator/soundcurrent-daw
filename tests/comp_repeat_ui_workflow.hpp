@@ -29,6 +29,8 @@ void repeatDialog(StudioWindow &window,const PrepareCompTransition &transition,c
         widget<QLineEdit>(*dialog,"crossfadeEnd")->setText(QString::number(transition.endFrame));
         auto *curve=widget<QComboBox>(*dialog,"crossfadeCurve");curve->setCurrentIndex(curve->findData(int(transition.curve)));
         auto *buttons=dialog->findChild<QDialogButtonBox *>();check(buttons && buttons->button(QDialogButtonBox::Ok)->text()=="Save and render","Repeated consent missing");
+        QApplication::processEvents();
+        check(buttons->button(QDialogButtonBox::Ok)->width()>=buttons->button(QDialogButtonBox::Ok)->sizeHint().width(),"Repeated save caption clipped");
         check(dialog->grab().save(qtPath(picture)),"Repeated dialog screenshot failed");buttons->button(QDialogButtonBox::Ok)->click();
     }catch(...){error=std::current_exception();if(auto *d=qobject_cast<QDialog *>(QApplication::activeModalWidget()))d->reject();}});
     auto *action=widget<QPushButton>(*timeline,"crossfadeClips");check(action->isEnabled(),"Repeated crossfade action disabled");action->click();if(error)std::rethrow_exception(error);

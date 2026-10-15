@@ -1,6 +1,6 @@
 # ADR 185: repeated rendered transitions through the desktop owner
 
-Status: implementation under qualification; not an installed preview update.
+Status: implemented with local desktop qualification; native and installed qualification pending.
 Date: 2026-10-14.
 
 ## Decision
@@ -39,3 +39,7 @@ additional unchanged-playback comparison excludes the transition plus a
 128-frame edge guard; it is not an independent sonic quality assertion. The full
 original-file validators still run. Native Windows, installed delivery and
 broader layout/quality/localization acceptance remain separate gates.
+
+[Checkpoint 296](../296-repeated-desktop-comp-transitions.md) records nine real
+desktop adoptions, five failure cases and six passing selected suites. No frozen
+functional or processing-quality family is promoted to parity.

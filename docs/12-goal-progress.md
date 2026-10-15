@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated desktop rendered transitions (2026-10-14)
+
+[Checkpoint 296](296-repeated-desktop-comp-transitions.md) removes the temporary
+repeated-render gate after nine actual timeline create/review/Apply adoptions at
+three source rates, including retained assembled takes. Six selected suites pass
+in 338.62 seconds. Undo/Redo/save/reopen, exact live/export audio, cancellation,
+stale/corrupt history rejection and resource retirement are covered. A test-only
+settled-layout capture follow-up passes another three adoptions. Native Windows,
+installed preview delivery and the previous narrow Debug timing margin remain
+open; the complete frozen DAW goal remains active.
+
 ## Paired historical verification performance (2026-10-14)
 
 [Checkpoint 295](295-comp-history-sharing.md) shares only completed exact history
