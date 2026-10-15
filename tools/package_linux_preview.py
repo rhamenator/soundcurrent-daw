@@ -100,6 +100,9 @@ def verify_staged_install(stage, root, executable):
     return {relative:digest(source) for relative,source in expected.items()}
 def qualify_protected_worker(qualification, head, source_tree, executable):
     return qualify_protected_warp(qualification,head,source_tree,digest(executable),'linux')
+def qualify_waveform_worker(qualification, executable):
+    require(qualification.get('executable_sha256',{}).get('sc-waveform-worker')==digest(executable),
+            'Waveform worker differs from qualified worker')
 
 def package(args):
     require(not command(['git','status','--porcelain']), 'Commit the tested source before packaging')
@@ -114,6 +117,8 @@ def package(args):
     require(qualification.get('exit_code')==0, 'Qualification did not pass')
     require(qualification.get('executable_sha256',{}).get('soundcurrent-daw')==digest(executable),
             'Desktop executable differs from the tested executable')
+    if (ROOT/'ui/timeline_waveforms.cpp').is_file():
+        qualify_waveform_worker(qualification, build/'sc-waveform-worker')
     if (ROOT/'ui/import_inspection_dialog.cpp').is_file():
         worker=build/'sc-import-inspect-worker'
         require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),

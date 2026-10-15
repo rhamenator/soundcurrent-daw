@@ -138,6 +138,17 @@ print('Comp payload: missing/stale/non-executable helper refused; matching helpe
 # A waveform-enabled source tree must ship the exact real worker, executable.
 (source/'ui/timeline_waveforms.cpp').write_text('fixture marker')
 wave_worker=binary.parent/'sc-waveform-worker';wave_worker.write_bytes(b'qualified waveform worker')
+wave_qualification={'executable_sha256':{'sc-waveform-worker':builder.digest(wave_worker)}}
+builder.qualify_waveform_worker(wave_qualification,wave_worker)
+for qualification in ({}, {'executable_sha256':{}}, {'executable_sha256':{'sc-waveform-worker':'0'*64}}):
+    try:builder.qualify_waveform_worker(qualification,wave_worker)
+    except RuntimeError:pass
+    else:raise AssertionError('Untested waveform helper accepted')
+wave_worker.write_bytes(b'changed after qualification')
+try:builder.qualify_waveform_worker(wave_qualification,wave_worker)
+except RuntimeError:pass
+else:raise AssertionError('Changed waveform helper accepted')
+wave_worker.write_bytes(b'qualified waveform worker')
 refuse('missing-waveform-worker')
 wave_installed=stage/'usr/bin/sc-waveform-worker';wave_installed.write_bytes(wave_worker.read_bytes())
 builder.normalize_staged_permissions(stage)
