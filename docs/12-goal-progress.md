@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Repeated protected history (2026-10-15)
+
+[Checkpoint 305](305-protected-comp-history.md) regenerates protected spans from
+original raw/nominal history using exact semantic anchors and a versioned request.
+One Debug and five Release suites pass. Each new bank completes nine adoptions,
+three retained mixed cases, 15 successful workers and two required failures;
+all 24 new audio hashes match across configurations and legacy hashes are stable.
+The original failed playback-scope assertion and its correction remain retained.
+New native Windows and repeated protected desktop qualification remain open.
+Preceding CI38681796679 is still running; its native core job failed the existing
+one-frame recording test, while its desktop job passed. Full terminal retention
+and failure diagnosis precede the next PR advance. Installed previews are unchanged.
+The full DAW goal remains incomplete.
+
+
 ## Protected desktop transitions (2026-10-15)
 
 [Checkpoint 304](304-protected-desktop-transitions.md) enables protected original

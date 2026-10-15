@@ -79,6 +79,11 @@ live/export and abrupt-process-exit checks. The [protected desktop workflow](doc
 now passes timeline creation, Review/Apply, Undo/Redo/save/reopen/export and failure
 checks in Debug/Release, including mixed pairs and actual project-memory cleanup.
 Native confirmation of the new workflow and installed delivery remain pending.
+[Repeated protected-history rendering](docs/305-protected-comp-history.md) now
+regenerates from original raw anchors with versioned history bindings. One Debug
+and five Release suites pass; all 24 new audio hashes match across builds.
+Repeated protected desktop interaction and native Windows runtime remain pending.
+The preceding CI has an existing one-frame recording failure under investigation.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.
