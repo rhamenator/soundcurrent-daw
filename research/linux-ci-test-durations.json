@@ -274,7 +274,8 @@
     "windows-stop-analysis": 3.93,
     "worker-observation-failures": 4.44,
     "writer-phase-timing": 0.0,
-    "comp-uniform-original-context": 48.38187672197819
+    "comp-uniform-original-context": 48.38187672197819,
+    "comp-owned-uniform-context-worker": 166.11124962591566
   },
   "newEstimates": [
     {
@@ -282,6 +283,14 @@
       "seconds": 48.38187672197819,
       "basis": "Twice local Debug elapsed CTest time, scheduling estimate only",
       "sourceHead": "d4729b9231a28a0ef1df5e2f4ac4877dfb1689d7"
+    },
+    {
+      "test": "comp-owned-uniform-context-worker",
+      "seconds": 166.11124962591566,
+      "basis": "Twice local Debug elapsed CTest time, scheduling estimate only",
+      "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+      "receipt": "qualified-worker-Debug-covyqe5l/receipt.json",
+      "evidence": "tests/results/M2/2026-10-15-uniform-context-worker/acceptance.zip"
     }
   ]
 }

@@ -241,3 +241,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Queued comp dependency checks](293-queued-comp-dependencies.md)
 - [ADR 179: immutable queued comp dependencies](decisions/179-queued-comp-dependencies.md)
 - [ADR 180: complete Linux CI partition](decisions/180-complete-linux-ci-partition.md)
+
+- [Original-context uniform renderer](316-uniform-original-context-renderer.md)
+- [Original-context owned worker and native CI results](317-uniform-context-worker.md)

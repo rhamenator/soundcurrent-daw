@@ -109,11 +109,13 @@ geometry and timing to verified media/history requests. Release and Debug worker
 checks pass. [Clocked paired adoption](docs/313-comp-clocked-protected-pair.md)
 now passes core Release/Debug checks and a fractional desktop adoption workflow,
 with legacy output hashes preserved. [Repeated desktop speed edits](docs/314-comp-clocked-repeat-ui.md)
-now pass Linux Release/Debug workflows. A native long-path observation correction
-and revised CI scheduling await fresh qualification; installed preview delivery
-remains required. A new [original-context uniform renderer](docs/316-uniform-original-context-renderer.md)
-passes core short-edit checks on Linux; its worker and desktop integration remain
-pending.
+now pass Linux Release/Debug and native Windows CI workflows, including the
+long-path observation correction and revised CI scheduling. Installed preview
+delivery remains required. A new
+[original-context uniform renderer](docs/316-uniform-original-context-renderer.md)
+and [isolated worker](docs/317-uniform-context-worker.md) pass short-edit checks
+on Linux. New-source native qualification, paired selection and desktop
+integration remain pending.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and

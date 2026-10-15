@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original-context owned worker (2026-10-15)
+
+[Checkpoint 317](317-uniform-context-worker.md) publishes short uniform candidates
+through a separately versioned isolated worker. Three Release and one Debug suites
+pass; three candidate outputs match across builds, with 33 refusal cases and
+210,770 PCM comparisons per configuration. A real adopted 4,041-frame crop that
+the legacy renderer refuses now renders from its original context. MinGW syntax
+checks pass. Original checkpoint-314 CI passed all 12 jobs, with logs and artifacts
+retained; new-source native execution remains pending. Versioned paired selection
+and application integration are next, followed by installed preview qualification.
+
 ## Original-context uniform renderer (2026-10-15)
 
 [Checkpoint 316](316-uniform-original-context-renderer.md) implements a new core
