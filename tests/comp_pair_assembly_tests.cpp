@@ -100,7 +100,9 @@ int main(int argc,char **argv){try{
     }
     const auto original=s;auto pair=loadReferencedCompPairSelection(root,s,context,s.compPairSelections.at(0).operation,ledger);
     if(std::string_view(argv[1])=="unready"){
-        unsigned calls=0;refuses([&]{streamCompPairFragment(root,s,context,pair,0,[&](auto){++calls;},ledger);});check(!calls,"Incomplete pair emitted output");std::cout<<Json{{"incompletePairRefused",true}}.dump()<<'\n';return 0;
+        unsigned calls=0;refuses([&]{streamCompPairFragment(root,s,context,pair,0,[&](auto){++calls;},ledger);});check(!calls,"Incomplete pair emitted output");
+        std::array<CompHandlePcmWrite,2> writes;for(unsigned side=0;side<2;++side)if(pair.children()[side])writes[side]=[&](auto){++calls;};
+        refuses([&]{streamCompPairFragments(root,s,context,pair,writes,ledger);});check(!calls,"Incomplete batch emitted output");std::cout<<Json{{"incompletePairRefused",true}}.dump()<<'\n';return 0;
     }
     check(std::string_view(argv[1])=="verify","Unknown fixture mode");
     const auto baselineCredit=ledger.usage().reservedBytes;std::array<std::optional<Asset>,2> outputs;Json sides=Json::array();
@@ -133,6 +135,38 @@ int main(int argc,char **argv){try{
         wave(root/utf8Path(out.relativePath),out.sampleRate,actual);out.sha256=hashMediaFile(root/utf8Path(out.relativePath));outputs[side]=out;
         sides.push_back({{"fragment",side},{"domain",unsigned(p.domain)},{"frames",out.frames},{"sha256",out.sha256},{"spanSha256",report.span.sha256},{"exactSamples",exactSamples},{"blendedSamples",blendedSamples},{"curveMaximumError",maxError},{"peakLinear",report.pcm.floatPeak}});
     }
+    // Batched recomputation must preserve both complete legacy streams exactly.
+    {
+        std::array<std::vector<float>,2> actual;std::array<CompHandlePcmWrite,2> writes;
+        unsigned lastSide=0;bool emitted=false;
+        for(unsigned side=0;side<2;++side)if(outputs[side])writes[side]=[&,side](auto v){
+            check(!emitted || side>=lastSide,"Batch interleaved output sides");lastSide=side;emitted=true;
+            actual[side].insert(actual[side].end(),v.begin(),v.end());
+        };
+        auto reports=streamCompPairFragments(root,s,context,pair,writes,ledger);
+        for(unsigned side=0;side<2;++side){
+            check(bool(reports[side])==bool(outputs[side]),"Batch changed selected sides");if(!outputs[side])continue;
+            const auto expected=decode(root/utf8Path(outputs[side]->relativePath));
+            check(expected.size()==actual[side].size(),"Batch output extent changed");
+            for(std::size_t n=0;n<expected.size();++n)check(exact(expected[n],actual[side][n]),"Batch PCM differs from single-fragment stream");
+            check(reports[side]->pcm.writtenFrames==outputs[side]->frames && reports[side]->requestDigest==pair.children()[side]->digest(),"Batch report identity changed");
+        }
+    }
+    check(ledger.usage().reservedBytes==baselineCredit,"Batch leaked payload credit");
+    unsigned batchCalls=0;std::array<CompHandlePcmWrite,2> batchWrites;
+    for(unsigned side=0;side<2;++side)if(outputs[side])batchWrites[side]=[&](auto){++batchCalls;};
+    refuses([&]{streamCompPairFragments(root,s,context,pair,{},ledger);});
+    auto batchLimit=CompPairAssemblyLimits{};batchLimit.maximumPcmBytes=64;
+    refuses([&]{streamCompPairFragments(root,s,context,pair,batchWrites,ledger,batchLimit);});check(!batchCalls,"Batch preflight exposed samples");
+    std::stop_source batchStop;unsigned firstSide=outputs[0]?0:1,otherCalls=0;
+    auto canceledWrites=batchWrites;canceledWrites[firstSide]=[&](auto){batchStop.request_stop();};
+    if(outputs[1] && firstSide==0)canceledWrites[1]=[&](auto){++otherCalls;};
+    refuses([&]{streamCompPairFragments(root,s,context,pair,canceledWrites,ledger,{},batchStop.get_token());});check(!otherCalls,"Batch cancellation reached sibling output");
+    const auto batchMarker=root/"media/comp-spans"/pair.children()[pair.children()[1]?1:0]->operation().str()/"complete.json";
+    const auto batchMarkerBytes=bytes(batchMarker);bool batchAltered=false;auto alteredWrites=batchWrites;
+    alteredWrites[firstSide]=[&](auto){if(!batchAltered){batchAltered=true;save(batchMarker,"{}");}};
+    refuses([&]{streamCompPairFragments(root,s,context,pair,alteredWrites,ledger);});save(batchMarker,batchMarkerBytes);
+    check(batchAltered && ledger.usage().reservedBytes==baselineCredit,"Late batch mutation missing or leaked credit");
     std::uint64_t physical=0,project=0;{auto review=reviewCompMedia(root,s,context,pair.recipe(),outputs,ledger);physical=review.counts().physicalSamplesCompared;project=review.counts().projectSamplesCompared;}
     unsigned calls=0;const CompHandlePcmWrite count=[&](auto){++calls;};
     auto stale=context;++stale.projectEpoch;refuses([&]{streamCompPairFragment(root,s,stale,pair,0,count,ledger);});

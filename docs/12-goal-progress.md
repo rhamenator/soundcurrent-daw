@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Measured reduction in comp verification work (2026-10-15)
+
+[Checkpoint 335](335-batched-comp-verification.md) batches complete output
+recomputation between full paired source/nominal checks. Independent WAV/hash,
+bitwise sample, outside-edit and history checks remain; there is no persistent
+verification cache. Four focused suites pass in 82.35 seconds, including new
+batch equivalence, cancellation and corruption cases. The retained Linux
+verification diagnostic improves from a 2.976 to 1.871-second median, with
+42% fewer bytes hashed and 225 unchanged input files. Native Windows and installed
+performance are unqualified; previews stay unchanged. Full goal incomplete.
+
 ## Windows render diagnosis and passing required CI (2026-10-15)
 
 [Checkpoint 334](334-windows-render-diagnostic.md) captures bounded process and

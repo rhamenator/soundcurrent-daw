@@ -259,3 +259,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Installed Windows preview with render progress](333-installed-windows-progress.md)
 
 - [Installed Windows render timing and process observations](334-windows-render-diagnostic.md)
+
+- [Batched comp verification with measured work reduction](335-batched-comp-verification.md)
+- [ADR 203: batched comp recomputation](decisions/203-batched-comp-recomputation.md)

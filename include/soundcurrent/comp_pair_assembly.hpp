@@ -20,6 +20,17 @@ struct CompPairAssemblyReport {
     std::uint32_t sampleRate;
     CompHandlePcmReport pcm;
 };
+using CompPairAssemblyReports=std::array<std::optional<CompPairAssemblyReport>,2>;
+// Streams selected sides in order, with both owned candidates and original
+// nominals verified before the first callback and after the final callback.
+// Empty writers omit a side; at least one is required. Every requested extent
+// is admitted before callbacks. Reports are returned only after the complete
+// batch passes; all sinks remain unpublished on exception. The same cooperative
+// deadline covers the entire batch. No verification survives this invocation.
+CompPairAssemblyReports streamCompPairFragments(const std::filesystem::path &,
+    const Session &,const CompHandlePlanContext &,const CompPairSelection &,
+    const std::array<CompHandlePcmWrite,2> &,ResourceLedger,
+    CompPairAssemblyLimits={},std::stop_token={});
 // Serialized disk/control work, never audio or GUI. Independently verifies BOTH
 // owned span files and the current trusted project reference before and after streaming
 // one fragment. Physical artifacts blend on their source grid. ProjectAfterSrc

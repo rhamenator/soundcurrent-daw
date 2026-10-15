@@ -57,19 +57,38 @@ Json row(const Asset &a,CompProcessingDomain domain,std::string samples,double p
 // Independent complete-file validation and complete sample recomputation. The
 // separate media reviewer also checks the original outside-edit scopes.
 std::uint64_t verifyFiles(const std::filesystem::path &root,const Session &s,const CompHandlePlanContext &ctx,const CompPairSelection &p,const CompAssemblyRequest &r,const std::array<std::optional<Asset>,2> &assets,const Json &rows,ResourceLedger ledger,std::stop_token stop,const std::function<void()> &poll){
-    check(rows.is_array() && rows.size()==2,"Wrong assembly output count");std::uint64_t compared=0,totalBytes=0;ApprovedMediaRoot approved(root,ledger,{1});
+    check(rows.is_array() && rows.size()==2,"Wrong assembly output count");std::uint64_t compared=0,totalBytes=0;ApprovedMediaRoot approved(root,ledger,{2});
+    std::array<std::optional<ApprovedMediaFile>,2> pinned;
     for(unsigned side=0;side<2;++side){poll();if(!assets[side]){check(rows[side].is_null(),"Unexpected unchanged assembly output");continue;}
-        const auto &a=*assets[side];auto file=approved.open(a.relativePath,r.policy().maximumFileBytes,stop);check(file.size()<=r.policy().maximumFileBytes-totalBytes,"Assembly pair exceeds file grant",ErrorCode::ResourceLimit);totalBytes+=file.size();
+        const auto &a=*assets[side];pinned[side].emplace(approved.open(a.relativePath,r.policy().maximumFileBytes,stop));auto &file=*pinned[side];check(file.size()<=r.policy().maximumFileBytes-totalBytes,"Assembly pair exceeds file grant",ErrorCode::ResourceLimit);totalBytes+=file.size();
         std::array<char,4> magic{};file.readAt(0,magic,stop);check(std::string_view(magic.data(),4)=="RF64","Assembly result is not RF64");
         auto credit=ledger.reserve(std::size_t(512)*a.layout.channels*sizeof(float));std::vector<float> slab(std::size_t(512)*a.layout.channels);media_io::SampleHash samples;
         WaveValidationLimits limits;limits.maximumFrames=std::uint64_t(a.frames);limits.maximumChannels=a.layout.channels;limits.blockFrames=512;limits.maximumBytesRead=r.policy().maximumFileBytes*4+65536;limits.maximumIoOperations=16000000;
         const auto wave=validateApprovedWave(file,limits,stop,[&](std::uint64_t,std::span<const double> values){poll();check(values.size()<=slab.size(),"Assembly sample slab exceeded");for(std::size_t i=0;i<values.size();++i)slab[i]=float(values[i]);samples.update({slab.data(),values.size()});},poll);
         check(wave.frames==std::uint64_t(a.frames) && wave.rate==a.sampleRate && wave.channels==a.layout.channels && wave.encoding==WaveEncoding::Float32 && std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==a.sha256,"Assembly WAV differs from expected asset",ErrorCode::MediaMismatch);
         check(warp_codec::exact(rows[side],row(a,processing(p,side).domain,samples.digest(),wave.peak)),"Assembly completion differs from actual WAV");file.verifyUnchanged();
-        MediaCacheConfig config;config.maximumOpenFiles=1;config.pageFrames=256;config.cacheBudgetBytes=std::size_t(256)*a.layout.channels*sizeof(float)+256;config.registryBudgetBytes=256*1024;config.resources=ledger;
-        MediaReadCache cache(root,std::span<const Asset>(&a,1),s.sampleRate,config,poll);Frame at=0;
-        auto report=streamCompPairFragment(root,s,ctx,p,side,[&](std::span<const float> expected){poll();check(expected.size()<=slab.size(),"Assembly recomputation exceeds slab");auto actual=std::span(slab).first(expected.size());cache.read(0,at,actual);for(std::size_t n=0;n<actual.size();++n)check(std::bit_cast<std::uint32_t>(actual[n])==std::bit_cast<std::uint32_t>(expected[n]),"Assembly PCM differs from complete recomputation",ErrorCode::MediaMismatch);at+=Frame(expected.size()/a.layout.channels);compared+=expected.size();},ledger,r.policy().assembly,stop);
-        check(at==a.frames && report.pcm.writtenFrames==a.frames,"Assembly recomputation incomplete");file.verifyUnchanged();
+    }
+    // Recompute the two unpublished outputs as one batch: the same complete
+    // candidate/nominal pair is checked before and after all requested samples.
+    std::uint32_t channels=0;for(const auto &a:assets)if(a)channels=std::max(channels,a->layout.channels);
+    auto slabCredit=ledger.reserve(std::size_t(512)*channels*sizeof(float));std::vector<float> slab(std::size_t(512)*channels);
+    std::optional<MediaReadCache> cache;unsigned cachedSide=2;std::array<Frame,2> positions{};
+    std::array<CompHandlePcmWrite,2> writes;
+    for(unsigned side=0;side<2;++side)if(assets[side])writes[side]=[&,side](std::span<const float> expected){
+        poll();const auto &a=*assets[side];check(expected.size()<=slab.size(),"Assembly recomputation exceeds slab");
+        if(cachedSide!=side){
+            cache.reset();MediaCacheConfig config;config.maximumOpenFiles=1;config.pageFrames=256;
+            config.cacheBudgetBytes=std::size_t(256)*a.layout.channels*sizeof(float)+256;config.registryBudgetBytes=256*1024;config.resources=ledger;
+            cache.emplace(root,std::span<const Asset>(&a,1),s.sampleRate,config,poll);cachedSide=side;
+        }
+        auto actual=std::span(slab).first(expected.size());cache->read(0,positions[side],actual);
+        for(std::size_t n=0;n<actual.size();++n)check(std::bit_cast<std::uint32_t>(actual[n])==std::bit_cast<std::uint32_t>(expected[n]),"Assembly PCM differs from complete recomputation",ErrorCode::MediaMismatch);
+        positions[side]+=Frame(expected.size()/a.layout.channels);compared+=expected.size();
+    };
+    const auto reports=streamCompPairFragments(root,s,ctx,p,writes,ledger,r.policy().assembly,stop);
+    for(unsigned side=0;side<2;++side)if(assets[side]){
+        check(reports[side] && positions[side]==assets[side]->frames && reports[side]->pcm.writtenFrames==assets[side]->frames,"Assembly recomputation incomplete");
+        pinned[side]->verifyUnchanged();
     }
     auto reviewed=reviewCompMedia(root,s,ctx,p.recipe(),assets,ledger,{p.policy().maximumSourceBytes,r.policy().maximumFileBytes,r.policy().assembly.deadlineMilliseconds},stop);poll();return compared;
 }
