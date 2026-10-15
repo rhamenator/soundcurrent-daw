@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Linux preview refresh (2026-10-15)
+
+[Checkpoint 320](320-installed-linux-comp-preview.md) installs the unchanged
+`2580164` candidate into a new per-user directory and updates Applications.
+All payload bytes match; both older preview launchers and the preceding installed
+files are preserved. Actual desktop-entry launches pass Save/Quit/reopen and WAV
+export/normal Quit. All 480,000 exported mono samples match an independent SciPy
+EQ calculation exactly. Two initial automation failures remain recorded separately.
+No physical audio routes or VMs were used. The existing Windows installer is next;
+current documentation-head CI is still running, so no new PR revision is pushed.
+Full DAW and quality parity remain open.
+
 ## Linux and Windows comp preview candidates (2026-10-15)
 
 [Checkpoint 319](319-linux-windows-comp-previews.md) prepares both packages from

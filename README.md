@@ -17,15 +17,16 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
-The [current Ubuntu comp and take-audition preview](docs/259-comp-audition-preview.md)
+The [current installed Ubuntu preview](docs/320-installed-linux-comp-preview.md)
 is available locally as **SoundCurrent DAW Preview** in Applications, with a
 **previous** entry for rollback. Its Release DEB and matching GPL source are
 prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
 recording/playback and packaged save/reopen/export have scoped evidence.
 New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
 are now prepared locally with matching source. Native helper checks and actual
-packaged/deployed startup pass; updated installation and sustained hardware
-qualification remain required.
+packaged/deployed startup pass. The refreshed Linux Applications entry also passes
+save/reopen and independently verified export. Updated Windows installation and
+sustained hardware qualification remain required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).

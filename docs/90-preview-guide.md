@@ -7,17 +7,20 @@ amd64 and unsigned Windows x64 candidates at source `2580164`, sequence
 `20261015124133`. The 7.1 MB DEB and 30.5 MB Windows installer have matching
 source/checksums. Native Linux package checks, private PipeWire tests, native
 Windows helper/startup checks and all 12 original CI jobs pass. Clean-install
-and updated installed-workflow acceptance remain separate; neither candidate
-has replaced the current installed preview or been uploaded as a binary release.
+acceptance remains separate. The Linux candidate now supplies the local Applications
+launcher; the Windows installer still awaits updated installed-workflow acceptance.
+Neither candidate has been uploaded as a binary release.
 
-## Current local Ubuntu preview (2026-10-13)
+## Current local Ubuntu preview (2026-10-15)
 
 **SoundCurrent DAW Preview** is installed in this workstation's Applications menu.
-Version `0.1.0~preview.20261013210831.1a3b2022cffa` is a Release build with the
-[retained-take and comp-audition workflow evidence](259-comp-audition-preview.md).
+Version `0.1.0~preview.20261015124133.258016450f93` is a Release build with
+[installed launch, save/reopen and independently checked WAV export evidence](320-installed-linux-comp-preview.md).
 It has a dedicated per-user version directory; no system-wide package was installed.
 Its DEB and exact GPL source archive are local under
-`.cache/p259-package-20261013210831/`. The newer candidates above remain uninstalled.
+`.cache/p319-package-20261015124133/`. The **SoundCurrent DAW Preview (before
+2026-10-15)** entry preserves the preceding version; the older **previous** entry
+is also unchanged. Close a preview before opening the same project in another version.
 This is a usable preview, with full DAW parity and hardware qualification unfinished.
 
 ## Earlier candidates and original qualification scopes
