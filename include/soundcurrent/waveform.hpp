@@ -4,6 +4,7 @@
 #include <utility>
 
 namespace soundcurrent::daw {
+struct WaveformTicket;
 struct WaveformIdentity {
     std::array<char, 64> sha256{};
     std::uint64_t frames = 0;
@@ -45,6 +46,8 @@ class Waveform {
     std::pair<std::uint64_t, std::uint64_t> sourceRange(std::size_t level, std::uint64_t bin) const;
     std::size_t chargedBytes() const noexcept { return reservation_.bytes(); }
   private:
+    friend Waveform decodeWaveformReply(std::span<const char>, const WaveformTicket &,
+        std::uint64_t, ResourceLedger, WaveformLimits, std::stop_token);
     friend Waveform buildApprovedWaveform(ApprovedMediaFile &, const WaveformIdentity &,
         WaveformLimits, std::stop_token, const std::function<void()> &);
     Waveform() = default;

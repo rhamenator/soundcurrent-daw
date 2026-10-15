@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Waveform worker boundary (2026-10-15)
+
+[Checkpoint 342](342-waveform-worker-protocol.md) adds a read-only isolated worker
+and bounded binary reply codec tied to source, operation, epoch, generation and
+observed process identity. Release and ASan/UBSan pass 21,060 protocol checks,
+53 actual worker cases and both existing source/WAVE suites. GUI integration and
+native Windows qualification remain open; installed previews are unchanged.
+The preceding PR CI has a retained Windows comp stale-owner assertion failure;
+investigate it before another preview. Next implement the asynchronous waveform
+controller and viewport drawing after that diagnosis. Full goal incomplete.
+
 ## Waveform source preparation (2026-10-15)
 
 [Checkpoint 341](341-waveform-source-pyramid.md) adds a Qt-independent, bounded
