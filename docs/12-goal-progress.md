@@ -8,8 +8,10 @@ Release and Debug paired/desktop workflows pass the short 4,054-frame crop, five
 workers and three adoptions per workflow; six export PCM files match across
 builds. Ordinary repeated edits and legacy mixed exports also pass. A test-driver
 mode omission was corrected with production binaries unchanged; the original
-failure is retained. Native execution of this source and updated installable
-previews are the next delivery gates. Full DAW and quality parity remain open.
+failure is retained. The preceding core/worker source passes all twelve CI jobs,
+including its native Windows workflows, with original evidence retained. Native
+execution of the new paired/desktop source and updated installable previews are
+the next delivery gates. Full DAW and quality parity remain open.
 
 ## Original-context owned worker (2026-10-15)
 

@@ -75,15 +75,31 @@ no renderer or test admission check changed.
 
 ## Delivery status and next task
 
+The preceding [CI run 38729254730](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38729254730)
+at `de56b1d4a79d3361a50798172afd49cbb9ff9a25` passed all twelve jobs. All
+220 Linux tests ran in five disjoint shards; native Windows passed 42 comp and
+93 other tests, plus the existing desktop, import/localization and cross-build
+jobs. All twelve complete logs, eleven original artifact ZIPs and 270 PNGs were
+retained and audited before advancing the draft. The
+[portable CI review](../tests/results/M2/2026-10-15-original-context-pairs/original-ci-index.json)
+includes all review metadata, logs and PNGs, plus the complete new native
+original-context core/worker corpora; all original ZIPs remain locally retained.
+
+On that preceding source, all seven core PCM files match Linux byte-for-byte.
+The native owned worker passes three candidates, two seed workers, 33 refusal
+cases and 210,770 candidate comparisons. Two candidate outputs match Linux PCM
+exactly; the remaining history case has maximum absolute difference
+2.9802322387695312e-8. These results qualify the core and worker; they do not
+qualify this newly integrated paired/desktop source.
+
 CI adds the new pair suite to the native comp bank and complete Linux inventory,
 with its evidence retained. Expected inventory: 221 Linux tests and 43 tests in
 the first native comp bank, followed by the existing 93-test bank. Scheduling
 estimates do not change any deadline.
 
-The preceding CI run at `de56b1d` must finish and be retained/audited before the
-draft PR advances again. Then qualify this paired/desktop source natively and
-prepare updated Linux and Windows preview packages. No installed app or physical
-audio route was changed by this work.
+Next qualify this paired/desktop source natively and prepare updated Linux and
+Windows preview packages. No installed app or physical audio route was changed
+by this work.
 
 Newly rendered PCM can differ from older crop-local results; saved audio is not
 rerendered on open. Genuinely short whole original domains, long-context processing

@@ -114,7 +114,7 @@ long-path observation correction and revised CI scheduling. Installed preview
 delivery remains required. A new
 [original-context uniform renderer](docs/316-uniform-original-context-renderer.md)
 and [isolated worker](docs/317-uniform-context-worker.md) pass short-edit checks
-on Linux. [Paired selection and desktop integration](docs/318-original-context-pairs.md)
+on Linux and native Windows CI. [Paired selection and desktop integration](docs/318-original-context-pairs.md)
 now pass repeated short-edit render/review/Apply workflows in Release and Debug.
 Native qualification of this source and updated installed previews remain pending.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
