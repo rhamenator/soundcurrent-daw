@@ -31,9 +31,11 @@ struct Release {std::atomic<bool> &v;~Release(){v=true;}};
 QString qtPath(const std::filesystem::path &path){const auto bytes=path.generic_u8string();return QString::fromUtf8(reinterpret_cast<const char *>(bytes.data()),qsizetype(bytes.size()));}
 void save(StudioWindow &w){check(w.submitEdit({CommandKind::Save}),"Save refused");wait([&]{return !w.snapshot()->dirty && w.snapshot()->io==IoOperation::None;});}
 }
+#include "comp_repeat_ui_workflow.hpp"
 int main(int argc,char **argv){QApplication app(argc,argv);try{
     check(argc==1,"Expected fixture input");Json input;std::cin>>input;
     const auto source=utf8Path(input.at("root").get<std::string>()),scope=utf8Path(input.at("evidence").get<std::string>());
+    if(input.value("repeated",false)){std::cout<<repeatedUiWorkflow(source,scope).dump()<<'\n';return 0;}
     const auto baseline=ProjectStore(source).load();const bool expanded=baseline.assets[0].sampleRate==48000;
     std::filesystem::create_directories(scope);Json cases=Json::array();
     QTimer dismiss;QObject::connect(&dismiss,&QTimer::timeout,[]{for(auto *w:QApplication::topLevelWidgets())

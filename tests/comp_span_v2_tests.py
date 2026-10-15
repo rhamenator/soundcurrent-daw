@@ -69,5 +69,5 @@ for root in sorted(roots[0].glob('inputs/run-*/case-*/project-*')):
     assert (root/'project.json').read_bytes()==project and (root/'adopted-project.json').read_bytes()==adopted
 assert len(reports)==9 and len(failures)==4
 assert {r['request']['outputRate'] for r in reports}=={44100,48000,96000}
-result=dict(inputWorkflow=json.loads((roots[0]/'report.json').read_text()),workerSha256=binary,processes=rows,reports=reports,failures=failures,successfulV2Workers=9,refusedV2Workers=4,completePcmSamples=sum(r['verification']['comparedSamples'] for r in reports),projectBytesUnchanged=True,applicationEntryEnabled=False,pairedAssemblyExercised=False,qualityAdmission=False,physicalAudio=False)
+result=dict(inputWorkflow=json.loads((roots[0]/'report.json').read_text()),workerSha256=binary,processes=rows,reports=reports,failures=failures,successfulV2Workers=9,refusedV2Workers=4,completePcmSamples=sum(r['verification']['comparedSamples'] for r in reports),projectBytesUnchanged=True,applicationEntryEnabled=True,pairedAssemblyExercised=False,qualityAdmission=False,physicalAudio=False)
 (scope/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(scope=str(scope),successfulV2Workers=9,refusedV2Workers=4,comparedSamples=result['completePcmSamples'])))

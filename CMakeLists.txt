@@ -943,13 +943,19 @@ if(SC_BUILD_DESKTOP)
       set_tests_properties(desktop-comp-assembly-apply PROPERTIES TIMEOUT 240 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
       add_executable(sc-comp-transition-ui-tests tests/comp_transition_ui_tests.cpp ui/studio_window.cpp)
       target_link_libraries(sc-comp-transition-ui-tests PRIVATE sc-ui-timeline sc-ui-controller sc-ui-playback sc-ui-recording sc-ui-export sc-ui-equipment sc-ui-history sc-ui-import sc-ui-stretch Qt6::Widgets Qt6::Test)
-      target_include_directories(sc-comp-transition-ui-tests SYSTEM PRIVATE third_party)
-      add_dependencies(sc-comp-transition-ui-tests sc-comp-span-worker sc-comp-span-worker-fixture sc-comp-pair-recovery-fixture sc-comp-pair-assembly-tests sc-stretch-render-worker)
+      target_include_directories(sc-comp-transition-ui-tests PRIVATE src)
+      target_include_directories(sc-comp-transition-ui-tests SYSTEM PRIVATE third_party third_party/libsndfile)
+      add_dependencies(sc-comp-transition-ui-tests sc-comp-assembly-job-tests sc-comp-span-worker sc-comp-span-worker-fixture sc-comp-pair-recovery-fixture sc-comp-pair-assembly-tests sc-stretch-render-worker)
       add_test(NAME desktop-comp-transition-create COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_transition_ui_tests.py
         $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
         $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-transition-ui-tests>
         --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-transition-ui-evidence)
       set_tests_properties(desktop-comp-transition-create PROPERTIES TIMEOUT 240 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+      add_test(NAME desktop-comp-repeated-transition COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/comp_repeat_ui_tests.py
+        $<TARGET_FILE:sc-comp-span-worker> $<TARGET_FILE:sc-comp-span-worker-fixture> $<TARGET_FILE:sc-comp-pair-recovery-fixture>
+        $<TARGET_FILE:sc-comp-pair-assembly-tests> $<TARGET_FILE:sc-stretch-render-worker> $<TARGET_FILE:sc-comp-assembly-job-tests> $<TARGET_FILE:sc-comp-transition-ui-tests>
+        --evidence ${CMAKE_CURRENT_BINARY_DIR}/comp-repeat-ui-evidence)
+      set_tests_properties(desktop-comp-repeated-transition PROPERTIES TIMEOUT 900 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
       add_executable(sc-comp-assembly-controller-tests tests/comp_assembly_controller_tests.cpp)
       target_link_libraries(sc-comp-assembly-controller-tests PRIVATE sc-ui-comp-assembly sc-ui-controller Qt6::Test)
       target_include_directories(sc-comp-assembly-controller-tests SYSTEM PRIVATE third_party)

@@ -59,10 +59,12 @@ int main(int argc,char **argv){try{
             const auto file="v2-"+label+"-"+std::to_string(side)+".request.json";write(root/file,request.bytes());
             requests.push_back({{"file",file},{"digest",request.digest()},{"operation",request.operation().str()},{"fragment",side},{"sourceRate",request.span().source().sampleRate},{"outputRate",request.span().outputSampleRate()},{"frames",request.span().outputFrames()},{"mixed",mixed}});
         }
-        // Low-level paired jobs are being qualified; the application entry point
-        // remains gated until repeated end-to-end workflows are accepted.
-        refuses([&]{prepareOwnedCompTransition(root,s,context,plan.handles().transition(),8,
-            input.at("workerSha256").get<std::string>(),policy(),{},ledger);});
+        // Application preparation writes owned references but never applies audio
+        // or changes the canonical project. The desktop suite covers adoption.
+        const auto prepared=prepareOwnedCompTransition(root,s,context,plan.handles().transition(),8,
+            input.at("workerSha256").get<std::string>(),policy(),{},ledger);
+        check(prepared.pairReference().operation!=prepared.assemblyReference().operation,
+            "Application preparation reused operation identity");
         check(read(root/"project.json")==projectBytes && decodeProject(read(root/"adopted-project.json"))==original,"V2 preparation changed project state");
         std::cout<<Json{{"checks",checks},{"requests",requests},{"historicalCompletion","media/comp-assemblies/"+original.compPlaybackSources[0].assembly.operation.str()+"/complete.json"},{"projectUnchanged",true}}.dump()<<'\n';return 0;
     }

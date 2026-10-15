@@ -47,5 +47,5 @@ for root in sorted(roots[0].glob('inputs/run-*/case-*/project-*')):
     assert (root/'adopted-project.json').read_bytes()==original
 assert len(reports)==9 and len([r for r in rows if r['kind']=='worker'])==15
 assert sum(r['result']['lateHistoryBeforeCompletionRefused'] for r in reports)==1
-result=dict(inputWorkflow=json.loads((roots[0]/'report.json').read_text()),workerSha256=binary,processes=rows,reports=reports,actualPairedAdoptions=9,successfulWorkers=15,retainedAssembledMixedCases=3,applicationEntryEnabled=False,physicalAudio=False,qualityAdmission=False)
+result=dict(inputWorkflow=json.loads((roots[0]/'report.json').read_text()),workerSha256=binary,processes=rows,reports=reports,actualPairedAdoptions=9,successfulWorkers=15,retainedAssembledMixedCases=3,applicationEntryEnabled=True,physicalAudio=False,qualityAdmission=False)
 (scope/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(scope=str(scope),actualPairedAdoptions=9,successfulWorkers=15)))
