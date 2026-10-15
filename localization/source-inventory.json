@@ -53,12 +53,12 @@
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "fe8c88d0a0d8373333b8530a9efe6891300fd30baa19c2933e1bcd868a9af2b0",
     "ui/studio_window.hpp": "3907db316be960a0a5c7eaa9b44e9b61138feb087d67a26bb4c71690e4b975d9",
-    "ui/timeline_editor.cpp": "d39727e100254a30c48cfbdc6110961958e3b6a745ecbbb4fc564cbdc6b93b8a",
+    "ui/timeline_editor.cpp": "62b9663aff733deaf66eb04fc61182ed9beaf6376707c09e4c0df3b704cf9f71",
     "ui/timeline_editor.hpp": "fde0dd94e440cbe14aa41e16abc9d1bf48be6d1aaa31c743a186991e6491689d",
-    "ui/timeline_view.cpp": "04f7c3e4d6903ba83c1a75c1b4e304c4a45ce6920878d551bf86eebfb4a32519",
+    "ui/timeline_view.cpp": "59f2255d01a2cdf533242bbebab1a4fbc417fc3a079b7c23de806af15315a9ba",
     "ui/timeline_view.hpp": "1981c0cf9a33aaaac99fedeb5da5e85cad4eae7ad2695c089a45c6b67d8a3612",
-    "ui/timeline_waveforms.cpp": "ee123b35821271cea18bb13db4bd9288ef0fa74fc496a9e115cd8f66861809d7",
-    "ui/timeline_waveforms.hpp": "3c92429b53ccfcc34f0ebf08c379a45b12fcc96698ce62ec77a06ffa2e1b072e",
+    "ui/timeline_waveforms.cpp": "69b73210373a181719515eb5064d1e7958eb0f1f37767198f737d29e6e10c721",
+    "ui/timeline_waveforms.hpp": "eaac5429264d6a103f1cd054408463661705e5f6527841374f391140e53330da",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
     "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
@@ -6037,6 +6037,12 @@
     [
       "TimelineEditor",
       "Waveform display",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail.",
       "",
       false
     ],

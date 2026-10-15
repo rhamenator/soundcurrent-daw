@@ -7,9 +7,13 @@ namespace soundcurrent::daw::ui {
 // reads prepared immutable data. No disk or child work is performed by painting.
 class TimelineWaveforms {
   public:
+    // View metadata bound, not a session track/asset limit. All visible sources
+    // are admitted together; the overview shares a fixed peak-detail allowance.
+    static constexpr std::size_t maximumVisibleSources = 512;
     explicit TimelineWaveforms(ResourceLedger);
     void context(std::shared_ptr<const Session>, std::filesystem::path, std::uint64_t);
     void update(const std::vector<Id> &visibleAssets);
+    void poll();
     void draw(QPainter &, const Clip &, const QRectF &, const QRectF &viewport) const;
     QString status() const;
     void setChannel(std::optional<std::uint32_t>);

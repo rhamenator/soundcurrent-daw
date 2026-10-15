@@ -4055,6 +4055,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Overview</source>
       <translation type="unfinished" />
     </message>

@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Dense waveform overviews (2026-10-15)
+
+[Checkpoint 352](352-dense-waveform-overviews.md) replaces the small 32-source
+overview allowance with bounded shared detail and 512 viewport metadata slots.
+All 72 independent sources in a dense-view fixture prepare and paint within its
+256 MiB ledger; Release and ASan/UBSan pass. Still views stop rebuilding source
+keys on every poll. Full-window, cache/controller, catalog and freshly linked
+editing/virtualization checks pass. The preceding Windows preview now passes its
+desktop tests and repaired deployment collection; installed Windows and native
+dense-view qualification remain next. Installed Linux remains the qualified
+checkpoint-351 preview. Full parity remains incomplete.
+
 ## Installed Linux waveform preview (2026-10-15)
 
 [Checkpoint 351](351-installed-waveform-preview.md) activates the tested Linux

@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QLocale>
 #include <algorithm>
+#include <bit>
 #include <cmath>
 namespace soundcurrent::daw::ui {
 namespace { QString tr(const char *s) { return QCoreApplication::translate("TimelineWaveforms", s); } }
@@ -19,15 +20,22 @@ void TimelineWaveforms::context(std::shared_ptr<const Session> session, std::fil
 void TimelineWaveforms::update(const std::vector<Id> &assets) {
     if (closing_ || !session_ || root_.empty() || !epoch_) return;
     try {
-        if (assets.size() > 32) throw ProjectError(ErrorCode::ResourceLimit, "Visible waveform source count");
+        if (assets.size() > maximumVisibleSources) throw ProjectError(ErrorCode::ResourceLimit, "Visible waveform source count");
         if (!cache_) {
-            auto credit = memory_.reserve(128 * 1024);
+            auto credit = memory_.reserve(65536 + maximumVisibleSources * 4096);
             WaveformCacheOptions options; options.controller.memory = memory_;
+            options.maximumEntries = maximumVisibleSources;
+            options.maximumResidentBytes = 48 * 1024 * 1024;
             auto cache = std::make_unique<WaveformCache>(options);
-            items_.reserve(32); metadata_ = std::move(credit); cache_ = std::move(cache);
+            items_.reserve(maximumVisibleSources); metadata_ = std::move(credit); cache_ = std::move(cache);
         }
-        std::vector<Item> next; next.reserve(32);
-        std::vector<WaveformKey> keys; keys.reserve(32);
+        std::vector<Item> next; next.reserve(maximumVisibleSources);
+        std::vector<WaveformKey> keys; keys.reserve(maximumVisibleSources);
+        // At most 1,048,576 base channel-bins across the whole view, plus
+        // unavoidable one-bin/channel minima and fixed model metadata. Power-of-
+        // two source-count buckets avoid changing keys for every added clip.
+        const auto slots = std::bit_ceil(std::max<std::size_t>(1, assets.size()));
+        const auto channelBins = std::min<std::size_t>(65536, 1048576 / slots);
         for (const auto &id : assets) {
             const auto a = std::find_if(session_->assets.begin(), session_->assets.end(), [&](const auto &a) { return a.id == id; });
             if (a == session_->assets.end() || !a->relativePath.starts_with("media/"))
@@ -35,10 +43,10 @@ void TimelineWaveforms::update(const std::vector<Id> &assets) {
             const auto channels = a->layout.channels;
             if (!channels || a->frames <= 0 || a->sha256.size() != 64)
                 throw ProjectError(ErrorCode::InvalidState, "Invalid waveform source format");
-            // Aim at <= 65,536 channel-bins at the finest level. Short sources
-            // retain per-sample detail; large sources need finer window support.
+            // Detail is explicit overview policy, not a fallback after a worker
+            // rejects a requested resolution. Fine-window support remains separate.
             std::uint64_t width = 1;
-            const auto target = std::max<std::uint64_t>(1, 65536 / channels);
+            const auto target = std::max<std::uint64_t>(1, channelBins / channels);
             while ((a->frames / width + (a->frames % width != 0)) > target) width *= 2;
             WaveformKey key; std::copy(a->sha256.begin(), a->sha256.end(), key.source.sha256.begin());
             key.source.frames=std::uint64_t(a->frames); key.source.rate=a->sampleRate; key.source.channels=channels;
@@ -46,11 +54,19 @@ void TimelineWaveforms::update(const std::vector<Id> &assets) {
             keys.push_back(key); next.push_back({id, std::move(key), {}});
         }
         cache_->setVisible(root_ / "media", epoch_, std::move(keys));
-        cache_->poll();
-        for (auto &item : next) item.result = cache_->lookup(root_ / "media", epoch_, item.key);
         items_ = std::move(next); refused_ = false;
+        poll();
     } catch (const std::exception &) {
         // A rejected complete view must never display the previous view's data.
+        items_.clear(); refused_ = true;
+    }
+}
+void TimelineWaveforms::poll() {
+    if (closing_ || refused_ || !cache_) return;
+    try {
+        cache_->poll();
+        for (auto &item : items_) item.result = cache_->lookup(root_ / "media", epoch_, item.key);
+    } catch (const std::exception &) {
         items_.clear(); refused_ = true;
     }
 }

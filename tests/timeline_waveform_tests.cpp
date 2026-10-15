@@ -14,7 +14,7 @@ using namespace soundcurrent::daw::ui;
 namespace {
 unsigned checks=0;
 void check(bool b,const char *m) { ++checks;if(!b)throw std::runtime_error(m); }
-template<class F> void wait(F f) { QElapsedTimer timer;timer.start();while(!f()){if(timer.elapsed()>15000)throw std::runtime_error("Timeline waveform observation timeout");QTest::qWait(10);} }
+template<class F> void wait(F f,int milliseconds=15000) { QElapsedTimer timer;timer.start();while(!f()){if(timer.elapsed()>milliseconds)throw std::runtime_error("Timeline waveform observation timeout");QTest::qWait(10);} }
 void put(std::string &s,std::uint64_t v,unsigned n){for(unsigned i=0;i<n;++i)s+=char((v>>(i*8))&255);}
 }
 int main(int argc,char **argv) {
@@ -57,6 +57,53 @@ int main(int argc,char **argv) {
             view.setSnapshot(std::make_shared<const Session>(invalid),3,root);QTest::qWait(500);
             check(view.waveformReadyCount()==0,"Wrong source digest displayed old waveform");
             view.shutdownWaveforms();wait([&]{return view.waveformsClosed();});
+        }
+        // A dense view exceeds the old 32-source ceiling. Use actual independent
+        // source files and the real worker; all 72 visible sources must publish.
+        {
+            auto dense=makeOneTrackSession("Dense waveform view","Track");
+            dense.tracks.clear();dense.assets.clear();
+            for(unsigned row=0;row<4;++row) {
+                auto track=makeOneTrackSession("Fixture","Track").tracks.front();
+                track.layout={LayoutKind::Stereo,2};
+                for(unsigned n=0;n<18;++n) {
+                    auto source=a;source.id=Id::generate();source.relativePath="media/dense-"+std::to_string(row*18+n)+".wav";
+                    std::filesystem::copy_file(root/"media/source.wav",root/source.relativePath);
+                    Clip clip;clip.assetId=source.id;clip.startFrame=n*2200;clip.lengthFrames=2000;
+                    track.clips.push_back(clip);dense.assets.push_back(std::move(source));
+                }
+                dense.tracks.push_back(std::move(track));
+            }
+            validate(dense);
+            ResourceLedger denseMemory(256*1024*1024);
+            TimelineView view(nullptr,denseMemory);view.resize(1100,500);view.show();
+            view.setSnapshot(std::make_shared<const Session>(dense),4,root);
+            wait([&]{return view.waveformReadyCount()==72;},45000);
+            check(view.waveformReadyCount()==72,"Dense view did not publish every visible source");
+            check(view.accessibleDescription().startsWith("Source PCM"),"Dense view still refused or pending");
+            const auto image=view.viewport()->grab().toImage();
+            for(const auto &track:dense.tracks) for(const auto &clip:track.clips) {
+                const auto rectangle=view.clipRectangle(track.id,clip.id).adjusted(3,5,-3,-5).toAlignedRect();
+                bool peak=false;
+                for(int y=rectangle.top();y<=rectangle.bottom() && !peak;++y)
+                    for(int x=rectangle.left();x<=rectangle.right();++x)
+                        if(image.pixelColor(QPoint(x,y)*image.devicePixelRatio())==QColor(225,245,255)){peak=true;break;}
+                check(peak,"Dense clip has no painted source peaks");
+            }
+            const auto peakBefore=denseMemory.usage().peakBytes;
+            const auto denseCapture=qEnvironmentVariable("SC_DENSE_WAVEFORM_CAPTURE");
+            if(!denseCapture.isEmpty())check(view.grab().save(denseCapture),"Dense-view screenshot failed");
+            QTest::qWait(250);
+            check(view.waveformReadyCount()==72 && denseMemory.usage().peakBytes==peakBefore,"Idle waveform view rebuilt prepared data");
+            view.shutdownWaveforms();wait([&]{return view.waveformsClosed();});
+            check(denseMemory.usage().peakBytes<=256*1024*1024,"Dense view exceeded declared memory budget");
+            std::cout<<"dense_waveform_sources=72 peak_reserved_bytes="<<peakBefore<<'\n';
+            TimelineWaveforms oversized(denseMemory);oversized.context(std::make_shared<const Session>(dense),root,4);
+            oversized.update(std::vector<Id>(TimelineWaveforms::maximumVisibleSources+1,dense.assets.front().id));
+            check(!oversized.readyCount() && oversized.status().contains("limit"),"Oversized view silently admitted a subset");
+            ResourceLedger tiny(1024);TimelineWaveforms refused(tiny);
+            refused.context(std::make_shared<const Session>(dense),root,4);refused.update({dense.assets.front().id});
+            check(!refused.readyCount() && refused.status().contains("limit") && tiny.usage().reservedBytes==0,"Refused metadata retained credit or source data");
         }
         std::filesystem::remove_all(root);
         std::cout<<checks<<" rendered timeline waveform checks passed\n";return 0;

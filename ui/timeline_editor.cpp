@@ -106,6 +106,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     auto *waveformMode = new FocusCombo;
     waveformMode->setObjectName("waveformChannelMode");
     waveformMode->setAccessibleName(tr("Waveform display"));
+    waveformMode->setToolTip(tr("Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail."));
     waveformMode->addItem(tr("Overview"));waveformMode->addItem(tr("Single channel"));
     auto *waveformChannel = new QSpinBox;
     waveformChannel->setObjectName("waveformDisplayChannel");waveformChannel->setRange(1,1024);

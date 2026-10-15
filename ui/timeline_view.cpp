@@ -360,23 +360,27 @@ void TimelineView::paintEvent(QPaintEvent *) {
 }
 void TimelineView::pollWaveforms() {
     if (!session_ || root_.empty() || (!waveformsDirty_ && !waveforms_.pending())) return;
-    // The active worker needs polling until terminal even when the view is still.
-    std::vector<Id> assets; assets.reserve(33);
-    const auto k = scale(); const auto horizontal = horizontalScrollBar()->value();
-    const auto first = clippedFrame(static_cast<long double>(horizontal)/k, extent_);
-    const auto end = clippedFrame((static_cast<long double>(horizontal)+std::max(1,viewport()->width()-labelWidth))/k,extent_);
-    const auto begin = std::size_t(verticalScrollBar()->value());
-    const auto shown = std::size_t(std::max(0,viewport()->height()-header)+rowHeight()-1)/rowHeight();
-    for (auto row=begin; row<std::min(session_->tracks.size(),begin+shown) && assets.size()<=32; ++row) {
-        visibleClips(row,first,end,visible_);
-        for (auto n:visible_) {
-            const auto &id=session_->tracks[row].clips[n].assetId;
-            if (std::find(assets.begin(),assets.end(),id)==assets.end()) assets.push_back(id);
-            if (assets.size()>32) break;
-        }
-    }
     const auto before=waveforms_.readyCount();
-    waveforms_.update(assets);
+    // Still views only poll results; do not rebuild asset keys and scan the
+    // project on every timer tick while many source workers finish in sequence.
+    if (waveformsDirty_) {
+        constexpr auto maximum = TimelineWaveforms::maximumVisibleSources;
+        std::vector<Id> assets; assets.reserve(maximum + 1);
+        const auto k = scale(); const auto horizontal = horizontalScrollBar()->value();
+        const auto first = clippedFrame(static_cast<long double>(horizontal)/k, extent_);
+        const auto end = clippedFrame((static_cast<long double>(horizontal)+std::max(1,viewport()->width()-labelWidth))/k,extent_);
+        const auto begin = std::size_t(verticalScrollBar()->value());
+        const auto shown = std::size_t(std::max(0,viewport()->height()-header)+rowHeight()-1)/rowHeight();
+        for (auto row=begin; row<std::min(session_->tracks.size(),begin+shown) && assets.size()<=maximum; ++row) {
+            visibleClips(row,first,end,visible_);
+            for (auto n:visible_) {
+                const auto &id=session_->tracks[row].clips[n].assetId;
+                if (std::find(assets.begin(),assets.end(),id)==assets.end()) assets.push_back(id);
+                if (assets.size()>maximum) break;
+            }
+        }
+        waveforms_.update(assets);
+    } else waveforms_.poll();
     const auto message=waveforms_.status();
     if (waveformsDirty_ || before!=waveforms_.readyCount() || message!=waveformStatus_) viewport()->update();
     waveformStatus_=message; setAccessibleDescription(message); waveformsDirty_=false;
