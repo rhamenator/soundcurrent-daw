@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1]
+        shard: [0, 1, 2]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: cmake --build build --parallel 2
       - name: Test synthetic workflows
-        run: python3 .github/scripts/run-linux-test-shard.py build ${{ matrix.shard }}
+        run: python3 .github/scripts/run-linux-test-shard.py build ${{ matrix.shard }} --count 3
       - name: Verify relocated native startup evidence (no audio replay)
         run: |
           python3 tests/native_startup_archive_integrity_tests.py
