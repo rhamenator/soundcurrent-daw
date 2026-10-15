@@ -2,6 +2,7 @@
 #include "media_io.hpp"
 #include "windows_file_path.hpp"
 #include <soundcurrent/approved_media.hpp>
+#include <soundcurrent/project_store.hpp>
 #include <array>
 #include <iostream>
 #ifdef _WIN32
@@ -50,6 +51,17 @@ int main(){std::filesystem::path base;try{
     ResourceLedger ledger(1024*1024,"Long media fixture");
     {ApprovedMediaRoot approved(root,ledger);auto file=approved.open("audio.wav",100);std::array<char,20> text{};file.readAt(0,text);file.verifyUnchanged();check(std::string_view(text.data(),text.size())=="owned audio payload\n","Approved long-root read failed");}
     check(!ledger.usage().reservedBytes,"Long-root admission leaked payload");
+    media_io::SampleHash hash;const std::string original="owned audio payload\n";
+    hash.updateBytes({reinterpret_cast<const std::byte *>(original.data()),original.size()});
+    check(hashMediaFile(output)==hash.digest(),"Long project-store media hash differs");
+    auto session=makeOneTrackSession("Long project — 日本", "Audio");ProjectStore store(root);
+    store.save(session);check(store.load()==session,"Long project did not reopen");
+    const auto prior=session;session.name="Renamed long project";store.save(session);
+    check(store.load()==session && store.loadPrevious()==prior,"Long project replacement or backup differs");
+    auto interrupted=session;interrupted.name="Must not commit";SaveOptions options;
+    options.beforePublish=[]{throw ProjectError(ErrorCode::Canceled,"Injected publication failure");};
+    refuses([&]{store.save(interrupted,options);});check(store.load()==session,"Interrupted long save changed current project");
+
     const auto length=root.native().size();std::filesystem::remove_all(fileSystemApiPath(base));
-    std::cout<<"{\"checks\":"<<checks<<",\"rootNativeUnits\":"<<length<<",\"unprefixedWin32Error\":"<<unprefixedError<<",\"journalPublished\":true,\"overwriteRefused\":true,\"leaseConflictRefused\":true}\n";return 0;
+    std::cout<<"{\"checks\":"<<checks<<",\"rootNativeUnits\":"<<length<<",\"unprefixedWin32Error\":"<<unprefixedError<<",\"projectSavedReopened\":true,\"mediaHashVerified\":true,\"journalPublished\":true,\"overwriteRefused\":true,\"leaseConflictRefused\":true}\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<"; fixture retained at "<<base<<'\n';return 1;}}

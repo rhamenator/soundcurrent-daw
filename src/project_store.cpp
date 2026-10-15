@@ -8,6 +8,7 @@
 #include <soundcurrent/stretch.hpp>
 #include <soundcurrent/comp_playback_state.hpp>
 #include "warp_codec.hpp"
+#include "windows_file_path.hpp"
 #include <soundcurrent/positioned_resampling.hpp>
 #include <unordered_set>
 #ifdef SC_STORE_IMPORT_STATE
@@ -126,21 +127,21 @@ RouteIntent readRoute(const Json &j, bool legacy) {
     return r;
 }
 bool plainFile(const std::filesystem::path &p) {
-    const auto s = std::filesystem::symlink_status(p);
+    const auto s = std::filesystem::symlink_status(fileSystemApiPath(p));
     if (!std::filesystem::is_regular_file(s))
         return false;
 #ifdef _WIN32
-    auto attributes = GetFileAttributesW(p.c_str());
+    auto attributes = GetFileAttributesW(windowsFileApiPath(p).c_str());
     if (attributes == INVALID_FILE_ATTRIBUTES || (attributes & FILE_ATTRIBUTE_REPARSE_POINT))
         return false;
 #endif
     return true;
 }
 void noLink(const std::filesystem::path &p) {
-    require(!std::filesystem::is_symlink(std::filesystem::symlink_status(p)),
+    require(!std::filesystem::is_symlink(std::filesystem::symlink_status(fileSystemApiPath(p))),
             "Linked project path refused", ErrorCode::Io);
 #ifdef _WIN32
-    auto a = GetFileAttributesW(p.c_str());
+    auto a = GetFileAttributesW(windowsFileApiPath(p).c_str());
     require(a == INVALID_FILE_ATTRIBUTES || !(a & FILE_ATTRIBUTE_REPARSE_POINT),
             "Reparse point refused", ErrorCode::Io);
 #endif
@@ -148,8 +149,8 @@ void noLink(const std::filesystem::path &p) {
 std::string readFile(const std::filesystem::path &p, ProjectBudget budget) {
     require(plainFile(p), "Project file missing or not a regular file", ErrorCode::Io);
     PayloadCharge bytes("Encoded project", budget.encodedBytes);
-    bytes.add(std::filesystem::file_size(p));
-    std::ifstream f(p, std::ios::binary);
+    bytes.add(std::filesystem::file_size(fileSystemApiPath(p)));
+    std::ifstream f(fileSystemApiPath(p), std::ios::binary);
     require(bool(f), "Cannot read project", ErrorCode::Io);
     std::string out;
     std::array<char, 8192> buffer{};
@@ -168,7 +169,7 @@ class WriterLock {
         const auto p = root / ".save.lock";
         noLink(p);
 #ifdef _WIN32
-        handle_ = CreateFileW(p.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS,
+        handle_ = CreateFileW(windowsFileApiPath(p).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS,
                               FILE_ATTRIBUTE_NORMAL, nullptr);
         require(handle_ != INVALID_HANDLE_VALUE, "Project is locked or unavailable", ErrorCode::Io);
 #else
@@ -203,7 +204,7 @@ class WriterLock {
 Durability publish(const std::filesystem::path &destination, std::string_view bytes,
                    const SaveOptions &options = {}) {
     noLink(destination);
-    if (std::filesystem::exists(destination))
+    if (std::filesystem::exists(fileSystemApiPath(destination)))
         require(plainFile(destination), "Cannot replace nonregular project file", ErrorCode::Io);
     const auto tmp = destination.parent_path() / utf8Path("." + destination.filename().string() +
                                                           "." + Id::generate().str() + ".partial");
@@ -213,12 +214,12 @@ Durability publish(const std::filesystem::path &destination, std::string_view by
         ~Cleanup() {
             if (owned) {
                 std::error_code e;
-                std::filesystem::remove(path, e);
+                std::filesystem::remove(fileSystemApiPath(path), e);
             }
         }
     } cleanup{tmp};
 #ifdef _WIN32
-    HANDLE h = CreateFileW(tmp.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW,
+    HANDLE h = CreateFileW(windowsFileApiPath(tmp).c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW,
                            FILE_ATTRIBUTE_NORMAL, nullptr);
     require(h != INVALID_HANDLE_VALUE, "Cannot create temporary project", ErrorCode::Io);
     cleanup.owned = true;
@@ -238,7 +239,7 @@ Durability publish(const std::filesystem::path &destination, std::string_view by
     require(ok && closed, "Cannot flush temporary project", ErrorCode::Io);
     if (options.beforePublish)
         options.beforePublish();
-    require(MoveFileExW(tmp.c_str(), destination.c_str(),
+    require(MoveFileExW(windowsFileApiPath(tmp).c_str(), windowsFileApiPath(destination).c_str(),
                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0,
             "Cannot publish project", ErrorCode::Io);
     return Durability::FileFlushed;
@@ -930,7 +931,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
 }
 std::string hashMediaFile(const std::filesystem::path &p, const std::function<void()> &beforeRead) {
     require(plainFile(p), "Media missing or not a regular file", ErrorCode::MissingMedia);
-    std::ifstream f(p, std::ios::binary);
+    std::ifstream f(fileSystemApiPath(p), std::ios::binary);
     require(bool(f), "Cannot read media", ErrorCode::Io);
     std::array<unsigned char, 32> digest{};
     std::array<char, 65536> buffer{};
@@ -997,7 +998,7 @@ std::string hashMediaFile(const std::filesystem::path &p, const std::function<vo
 void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &beforeRead) const {
     const ValidatedSession checked(s, budget_.state);
     noLink(root_);
-    require(std::filesystem::is_directory(root_), "Project directory unavailable", ErrorCode::Io);
+    require(std::filesystem::is_directory(fileSystemApiPath(root_)), "Project directory unavailable", ErrorCode::Io);
     for (const auto &a : s.assets) {
         auto p = root_;
         const auto relative = utf8Path(a.relativePath);
@@ -1012,7 +1013,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
         auto path = root_;
         for (const auto &part : utf8Path(f.relativePath)) { path /= part; noLink(path); }
         require(plainFile(path), "Imported evidence missing or not a plain file", ErrorCode::MissingMedia);
-        require(std::filesystem::file_size(path) == f.bytes, "Imported evidence size differs",
+        require(std::filesystem::file_size(fileSystemApiPath(path)) == f.bytes, "Imported evidence size differs",
                 ErrorCode::MediaMismatch);
         std::uint64_t reads = 0;
         const auto maximumReads = f.bytes / 65536 + 1;
@@ -1021,7 +1022,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
                     ErrorCode::MediaMismatch);
             if (beforeRead) beforeRead();
         });
-        require(digest == f.sha256 && std::filesystem::file_size(path) == f.bytes,
+        require(digest == f.sha256 && std::filesystem::file_size(fileSystemApiPath(path)) == f.bytes,
                 "Imported evidence checksum differs", ErrorCode::MediaMismatch);
     };
     for(const auto &asset:s.assets)for(const auto &f:asset.nativeEvidence)evidence(f);
@@ -1045,13 +1046,13 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
 SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) const {
     const auto encoded = encodeProject(s, budget_);
     noLink(root_);
-    std::filesystem::create_directories(root_);
+    std::filesystem::create_directories(fileSystemApiPath(root_));
     WriterLock lock(root_);
     verifyMedia(s);
     const auto current = root_ / "project.json";
     bool previous = false;
     noLink(current);
-    if (std::filesystem::exists(current)) {
+    if (std::filesystem::exists(fileSystemApiPath(current))) {
         auto old = readFile(current, budget_);
         const auto prior = decodeProject(old, budget_);
         require(prior.id == s.id, "Refusing to overwrite another project");

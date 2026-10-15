@@ -3,6 +3,7 @@
 #include <soundcurrent/comp_media_review.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
 #include "media_io.hpp"
+#include "windows_file_path.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -19,7 +20,7 @@ void save(const std::filesystem::path &p,std::string_view text){std::ofstream f(
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid assembly accepted");}
 SNDFILE *open(const std::filesystem::path &p,int mode,SF_INFO &info){
 #ifdef _WIN32
-    return sf_wchar_open(p.c_str(),mode,&info);
+    return sf_wchar_open(windowsFileApiPath(p).c_str(),mode,&info);
 #else
     return sf_open(p.c_str(),mode,&info);
 #endif

@@ -6,6 +6,7 @@
 #include <soundcurrent/playback_reader.hpp>
 #include <soundcurrent/export.hpp>
 #include "media_io.hpp"
+#include "windows_file_path.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -23,7 +24,7 @@ void write(const std::filesystem::path &p,std::string_view v){std::ofstream f(p,
 std::string hash(std::string_view bytes){media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});return h.digest();}
 SNDFILE *open(const std::filesystem::path &p,int mode,SF_INFO &info){
 #ifdef _WIN32
-    return sf_wchar_open(p.c_str(),mode,&info);
+    return sf_wchar_open(windowsFileApiPath(p).c_str(),mode,&info);
 #else
     return sf_open(p.c_str(),mode,&info);
 #endif
