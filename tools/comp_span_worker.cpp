@@ -61,9 +61,9 @@ int run(const std::vector<std::string> &args){bool publicationMayHaveCommitted=f
         check(writer.status()==media_io::LeaseStatus::Held,"Span writer ownership unavailable",ErrorCode::Io);media_io::publishJournal(job/"intent.json",intentText);
         auto ready=intent;ready["event"]="ready";std::cout<<ready.dump()<<'\n'<<std::flush;
         while(!std::filesystem::exists(std::filesystem::symlink_status(job/"start.request"))){poll();std::this_thread::sleep_for(std::chrono::milliseconds(1));}poll();
-        const auto &asset=request.span().source();MediaCacheConfig config;config.maximumOpenFiles=1;config.pageFrames=256;config.cacheBudgetBytes=std::size_t(256)*asset.layout.channels*sizeof(float)+256;config.registryBudgetBytes=256*1024;config.resources=ledger;
-        MediaReadCache cache(sourceRoot,std::span<const Asset>(&asset,1),asset.sampleRate,config,poll);Wave wave(job/"audio.partial",request.span().outputSampleRate(),asset.layout.channels);media_io::SampleHash samples;
-        const auto rendered=renderCompSpan(request.span(),[&](Frame at,std::span<float> values){poll();cache.read(0,at,values);},[&](std::span<const float> values){poll();const auto frames=values.size()/asset.layout.channels;
+        const auto &asset=request.source();MediaCacheConfig config;config.maximumOpenFiles=1;config.pageFrames=256;config.cacheBudgetBytes=std::size_t(256)*asset.layout.channels*sizeof(float)+256;config.registryBudgetBytes=256*1024;config.resources=ledger;
+        MediaReadCache cache(sourceRoot,std::span<const Asset>(&asset,1),asset.sampleRate,config,poll);Wave wave(job/"audio.partial",request.outputSampleRate(),asset.layout.channels);media_io::SampleHash samples;
+        const auto rendered=renderRequestedCompSpan(request,[&](Frame at,std::span<float> values){poll();cache.read(0,at,values);},[&](std::span<const float> values){poll();const auto frames=values.size()/asset.layout.channels;
             check(sf_writef_float(wave.file,values.data(),sf_count_t(frames))==sf_count_t(frames) && sf_error(wave.file)==SF_ERR_NO_ERROR,"Span RF64 write failed",ErrorCode::Io);samples.update(values);},ledger,poll);
         wave.close();poll();check(std::filesystem::file_size(job/"audio.partial")<=policy.maximumOutputBytes,"Span file exceeds grant",ErrorCode::ResourceLimit);
         const auto audioSha=hashMediaFile(job/"audio.partial",poll);admitCompSpanSources(sourceRoot,request,policy,ledger,poll);check(media_io::executingImageSha256(poll)==executable,"Span binary changed during processing",ErrorCode::MediaMismatch);poll();
