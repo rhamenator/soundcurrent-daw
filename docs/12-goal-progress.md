@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Protected pair selection and recovery (2026-10-15 UTC)
+
+[Checkpoint 302](302-protected-comp-pair-recovery.md) adds an explicit saved policy,
+semantic producer selection and exact request rederivation. Two Debug and four
+Release suites pass; three protected pairs reopen and relocate per configuration,
+with cancellation, waiting/interrupted state, corruption and stale-state guards.
+All six protected audio hashes match the prior worker bank. Uniform assembly and
+paired-history regressions pass. Protected paired assembly, desktop adoption and
+new native execution remain pending. Original CI at the preceding core revision
+passed 195 Linux, 114 native Windows core and 27 desktop tests; all available
+original artifacts are retained. Its detailed protected-core output folder was
+omitted by CI, so only its test-log PASS is claimed; upload paths are corrected.
+
+
 ## Protected comp worker protocol (2026-10-15 UTC)
 
 [Checkpoint 301](301-protected-comp-worker.md) integrates the protected owned core

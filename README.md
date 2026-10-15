@@ -72,8 +72,9 @@ semantic anchors and raw-source timing across expanded integer-clock handles.
 Debug/Release checks cover two anchors and failure/lifetime handling. The
 [protected worker protocol](docs/301-protected-comp-worker.md) now binds semantic
 geometry and validates isolated output, with 69 worker cases per configuration.
-Existing rendering hashes remain unchanged; paired recovery and desktop integration
-remain pending.
+Existing rendering hashes remain unchanged. [Explicit protected-pair recovery](docs/302-protected-comp-pair-recovery.md)
+now survives save/reopen and relocation with guarded readiness. Protected paired
+assembly and desktop integration remain pending.
 [Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
 verification overhead, with twelve Release and four Debug suites passing and
 unchanged export hashes. Native confirmation and broader timing margin remain open.
