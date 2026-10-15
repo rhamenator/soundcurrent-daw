@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Matching Windows waveform candidate (2026-10-15)
+
+[Checkpoint 353](353-windows-waveform-preview.md) qualifies the frozen Linux-preview
+source on the Windows clone: all three helper groups and normal desktop launch/exit
+pass. The installer and complete corresponding source are prepared and verified;
+installation and editing qualification remain next. The clone ran alone for about
+five minutes and shut down gracefully. Original CI finished with a Linux resource
+fixture failure, now reproduced and corrected without relaxing memory or timeout
+checks; 80 local assertions pass. All original CI logs/artifacts remain retained.
+The installed Windows preview is unchanged; full parity remains incomplete.
+
 ## Dense waveform overviews (2026-10-15)
 
 [Checkpoint 352](352-dense-waveform-overviews.md) replaces the small 32-source
