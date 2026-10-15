@@ -142,6 +142,9 @@ jobs:
       - name: Verify controller failure retention
         if: always()
         run: python3 tests/controller_retention_tests.py
+      - name: Verify interruption cleanup fault handling
+        if: always()
+        run: python3 tests/parent_interruption_cleanup_tests.py
       - name: Preserve controller failure projects
         if: always()
         run: python3 .github/scripts/retain-controller-failure-projects.py build
@@ -459,6 +462,12 @@ jobs:
           path: .cache/windows-media-build-review/**
           retention-days: 3
           if-no-files-found: ignore
+      - name: Verify interruption cleanup fault handling
+        if: always() && matrix.suite == 'main'
+        shell: pwsh
+        run: |
+          python tests/parent_interruption_cleanup_tests.py
+          if ($LASTEXITCODE -ne 0) { throw "Interruption cleanup checks failed" }
       - name: Verify and preserve desktop controller failure projects
         if: always()
         shell: pwsh

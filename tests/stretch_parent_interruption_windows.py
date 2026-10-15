@@ -136,10 +136,13 @@ class Process:
         return {"pid": self.pid, "creationFileTime": self.identity["creationFileTime"], "exitCode": code.value}
 
     def kill(self, code):
-        checked(Terminate(self.handle, code))
+        self.request_termination(code)
         result = wait_for(self.terminal, 5)
         assert result["exitCode"] == code
         return result
+
+    def request_termination(self, code):
+        checked(Terminate(self.handle, code))
 
     def close(self):
         if self.handle:
@@ -171,20 +174,96 @@ class FrozenThreads:
                 entry.dwSize = ctypes.sizeof(entry)
                 good = ThreadNext(snapshot, ctypes.byref(entry))
             assert self.handles and process.running()
-        except Exception:
-            self.resume()
+        except Exception as error:
+            try:
+                self.resume()
+            except Exception as cleanup_error:
+                error.add_note(f"Thread rollback also failed: {cleanup_error!r}")
             raise
         finally:
             checked(CloseHandle(snapshot))
 
     def resume(self):
+        errors = []
         while self.handles:
             handle, previous, tid = self.handles.pop()
             try:
                 if self.process.running():
                     assert Resume(handle) == previous + 1, ("Resume count changed", tid)
+            except Exception as error:
+                errors.append(error)
             finally:
-                checked(CloseHandle(handle))
+                try:
+                    checked(CloseHandle(handle))
+                except Exception as error:
+                    errors.append(error)
+        if errors:
+            for error in errors[1:]:
+                errors[0].add_note(f"Additional thread cleanup failure: {error!r}")
+            raise errors[0]
+
+
+def cleanup_case(directory, parent, child, frozen, launcher, parent_log, timing,
+                 frozen_scope, primary_error):
+    """Retire every owned instance; cleanup never turns a failed case into a pass."""
+    errors, terminals = [], []
+
+    def attempt(operation, action):
+        try:
+            return action()
+        except Exception as error:
+            errors.append({"operation": operation, "type": type(error).__name__,
+                           "message": str(error), "winerror": getattr(error, "winerror", None)})
+            return None
+
+    if frozen:
+        attempt("suspension-end", lambda: timing.mark(frozen_scope + ".end"))
+        attempt("resume-begin", lambda: timing.mark("resume.begin"))
+        attempt("resume", frozen.resume)
+        attempt("resume-end", lambda: timing.mark("resume.end"))
+    owned = [("parent", parent, PARENT_EXIT), ("helper", child, HELPER_EXIT)]
+    parent_stop_observed_or_requested = False
+
+    def request(process, code):
+        process.request_termination(code)
+        return True
+
+    # Request all terminations before waiting. An error on the parent must not
+    # strand its helper. Use only the already opened instance handles, never PID
+    # lookup/reopening. A request is not evidence that termination completed.
+    for name, process, code in owned:
+        if process:
+            stopped = attempt(name + "-terminal-before", process.terminal) is not None
+            if not stopped:
+                stopped = attempt(name + "-request-termination", lambda p=process, c=code: request(p, c)) is True
+            if name == "parent":
+                parent_stop_observed_or_requested = stopped
+    if not parent_stop_observed_or_requested and attempt("launcher-poll", launcher.poll) is None:
+        attempt("launcher-kill", launcher.kill)  # Popen owns the same parent instance.
+    attempt("launcher-wait", lambda: launcher.wait(timeout=5))
+    for name, process, _ in owned:
+        if process:
+            terminal = attempt(name + "-terminal-wait", lambda p=process: wait_for(p.terminal, 5))
+            if terminal is not None:
+                terminals.append(terminal)  # Preserve actual exit, not the requested code.
+            attempt(name + "-close", process.close)
+    attempt("parent-log-close", parent_log.close)
+    attempt("terminal-report", lambda: (directory / "cleanup-terminal.json").write_text(
+        json.dumps(terminals, indent=2) + "\n", encoding="utf-8"))
+    attempt("timing-report", lambda: (directory / "observation-timing.json").write_text(
+        json.dumps(timing.snapshot(), indent=2) + "\n", encoding="utf-8"))
+    report = {"schemaMajor": 1, "primaryFailurePresent": primary_error is not None,
+              "terminalObservations": terminals, "errors": errors,
+              "allOwnedTerminalsObserved": len(terminals) == sum(p is not None for _, p, _ in owned)}
+    attempt("cleanup-report", lambda: (directory / "cleanup-report.json").write_text(
+        json.dumps(report, indent=2) + "\n", encoding="utf-8"))
+    if errors:
+        detail = "Owned interruption cleanup failures: " + json.dumps(errors, sort_keys=True)
+        if primary_error is not None:
+            primary_error.add_note(detail)
+        else:
+            raise RuntimeError(detail)
+    return report
 
 
 def run_case(probe, helper, directory, stage):
@@ -206,6 +285,7 @@ def run_case(probe, helper, directory, stage):
     timing.mark("parent-launch.end")
     parent, child, frozen = None, None, None
     frozen_scope = None
+    primary_error = None
     report = {"stage": stage, "fixtureBefore": baseline}
 
     def scan(expected):
@@ -356,36 +436,28 @@ def run_case(probe, helper, directory, stage):
         report["timing"] = timing.snapshot()
         return report
     except Exception as error:
+        primary_error = error
         # Preserve the original bounded assertions. Owned process terminal state
         # and the recovery response explain a failure; neither is guessed.
         diagnostic = {**report, "timing": timing.snapshot(), "failureType": type(error).__name__, "failure": str(error)}
-        diagnostic["ownedTerminalAtFailure"] = {
-            name: process.terminal() for name, process in (("parent", parent), ("helper", child)) if process}
-        diagnostic["jobFilesAtFailure"] = sorted(p.name for p in job.iterdir()) if "job" in locals() else []
-        print("parent_interruption_failure " + json.dumps(diagnostic, sort_keys=True), flush=True)
-        (directory / "failure-report.json").write_text(json.dumps(diagnostic, indent=2) + "\n", encoding="utf-8")
+        diagnostic["ownedTerminalAtFailure"] = {}
+        for name, process in (("parent", parent), ("helper", child)):
+            if process:
+                try:
+                    diagnostic["ownedTerminalAtFailure"][name] = process.terminal()
+                except Exception as observation_error:
+                    diagnostic.setdefault("observationErrors", []).append({
+                        "process": name, "error": repr(observation_error)})
+        try:
+            diagnostic["jobFilesAtFailure"] = sorted(p.name for p in job.iterdir()) if "job" in locals() else []
+            print("parent_interruption_failure " + json.dumps(diagnostic, sort_keys=True), flush=True)
+            (directory / "failure-report.json").write_text(json.dumps(diagnostic, indent=2) + "\n", encoding="utf-8")
+        except Exception as diagnostic_error:
+            error.add_note(f"Failure report also failed: {diagnostic_error!r}")
         raise
     finally:
-        if frozen:
-            timing.mark(frozen_scope + ".end")
-            timing.mark("resume.begin")
-            frozen.resume()
-            timing.mark("resume.end")
-        cleanup = []
-        for process, code in [(parent, PARENT_EXIT), (child, HELPER_EXIT)]:
-            if process:
-                if process.running():
-                    process.kill(code)
-                actual_terminal = process.terminal()
-                assert actual_terminal
-                cleanup.append(actual_terminal)
-                process.close()
-        if launcher.poll() is None:
-            launcher.kill()  # Popen owns the exact instance even if identity query failed.
-        launcher.wait(timeout=5)
-        (directory / "cleanup-terminal.json").write_text(json.dumps(cleanup, indent=2) + "\n", encoding="utf-8")
-        parent_log.close()
-        (directory / "observation-timing.json").write_text(json.dumps(timing.snapshot(), indent=2) + "\n", encoding="utf-8")
+        cleanup_case(directory, parent, child, frozen, launcher, parent_log, timing,
+                     frozen_scope, primary_error)
 
 
 def main():
@@ -413,7 +485,7 @@ def main():
             (root / stage / "case-report.json").write_text(json.dumps(case, indent=2) + "\n", encoding="utf-8")
             report["cases"].append(case)
             if observation_root:
-                for name in ("case-report.json", "observation-timing.json", "cleanup-terminal.json", "parent-ready.json"):
+                for name in ("case-report.json", "observation-timing.json", "cleanup-terminal.json", "cleanup-report.json", "parent-ready.json"):
                     original = root / stage / name
                     if original.is_file():
                         shutil.copyfile(original, observation_root / (stage + "-" + name))
@@ -423,7 +495,7 @@ def main():
     except Exception:
         if observation_root:
             for stage in ("before-ack", "during-processing", "during-processing-helper-death", "after-complete"):
-                for name in ("case-report.json", "failure-report.json", "observation-timing.json", "cleanup-terminal.json", "parent-ready.json"):
+                for name in ("case-report.json", "failure-report.json", "observation-timing.json", "cleanup-terminal.json", "cleanup-report.json", "parent-ready.json"):
                     original = root / stage / name
                     if original.is_file():
                         shutil.copyfile(original, observation_root / (stage + "-" + name))

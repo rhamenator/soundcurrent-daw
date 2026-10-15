@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Preserve original interruption failures during cleanup (2026-10-15)
+
+[Checkpoint 328](328-interruption-cleanup.md) fixes the Windows observer so a
+parent cleanup failure does not skip helper retirement or mask the original
+failure. Eight fault-injection tests, collector and timing checks pass. These
+are control-flow checks; native qualification remains pending. The original
+partial-boundary failure remains unresolved, with cancellation already present
+in its retained record. Current CI at `8c2e447` is still running and is preserved.
+No VM or installed-preview change. Full goal incomplete.
+
 ## Native Windows scan measurement and original CI failure (2026-10-15)
 
 [Checkpoint 327](327-windows-comp-scan-observation.md) verifies the scan change
