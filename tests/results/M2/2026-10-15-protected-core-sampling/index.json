@@ -1,0 +1,117 @@
+{
+  "format": "sc-protected-core-sampling-index-v1",
+  "sourceHead": "6bf1b4e811fb223bbd20c4d7d80b79ce7f0b4219",
+  "archive": "acceptance.zip",
+  "bytes": 431841,
+  "sha256": "3f7f78833a60b18c247d0eb487adcb65a024a5c54a63239667602a742c3ce7dc",
+  "originalFiles": 50,
+  "uniquePayloads": 43,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "6bf1b4e811fb223bbd20c4d7d80b79ce7f0b4219",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "6bf1b4e811fb223bbd20c4d7d80b79ce7f0b4219",
+        "seconds": 4.435187307070009,
+        "selected": [
+          "protected-core-sampling",
+          "protected-core-sampling-oracle",
+          "exact-processing-grid",
+          "processing-grid-fraction-oracle",
+          "positioned-resampling-kernel"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "result": {
+          "allCreditsReleased": true,
+          "checks": 137142,
+          "fullQualityAdmission": false,
+          "integerBitExactSamples": 14080,
+          "maximumAnalyticError": 3.769772867201482e-07,
+          "peak": 2.499999761581421,
+          "samples": 119394,
+          "workerIntegrated": false
+        },
+        "oracle": {
+          "cases": 240,
+          "exactAssertions": 2232,
+          "fixtureSha256": "d72a602f5b902fd19f4917102408d386ef01f0a29fed97aee1c5ef1a795f6792",
+          "sourceSha256": "093f3a4b4f7e24415095304aa8afadc627175290228f103d28ada35e5b6e7ae3",
+          "exitCode": 0,
+          "workerIntegrated": false,
+          "qualityAdmission": false
+        },
+        "evidenceRoot": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/protected-core-sampling-evidence/run-fjsv8x6s"
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "6bf1b4e811fb223bbd20c4d7d80b79ce7f0b4219",
+        "seconds": 13.263914128066972,
+        "selected": [
+          "protected-core-sampling",
+          "protected-core-sampling-oracle",
+          "exact-processing-grid",
+          "processing-grid-fraction-oracle",
+          "positioned-resampling-kernel"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "result": {
+          "allCreditsReleased": true,
+          "checks": 137142,
+          "fullQualityAdmission": false,
+          "integerBitExactSamples": 14080,
+          "maximumAnalyticError": 3.769772867201482e-07,
+          "peak": 2.499999761581421,
+          "samples": 119394,
+          "workerIntegrated": false
+        },
+        "oracle": {
+          "cases": 240,
+          "exactAssertions": 2232,
+          "fixtureSha256": "462df8f2257f01b4e5e5a4f20989088a80566852d85bc2402ec67f49cc2ac226",
+          "sourceSha256": "093f3a4b4f7e24415095304aa8afadc627175290228f103d28ada35e5b6e7ae3",
+          "exitCode": 0,
+          "workerIntegrated": false,
+          "qualityAdmission": false
+        },
+        "evidenceRoot": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/protected-core-sampling-evidence/run-w3uss2p6"
+      },
+      {
+        "configuration": "Sanitized",
+        "sourceHead": "6bf1b4e811fb223bbd20c4d7d80b79ce7f0b4219",
+        "seconds": 3.58064671093598,
+        "selected": [
+          "protected-core-sampling",
+          "protected-core-sampling-oracle"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "result": {
+          "allCreditsReleased": true,
+          "checks": 137142,
+          "fullQualityAdmission": false,
+          "integerBitExactSamples": 14080,
+          "maximumAnalyticError": 3.769772867201482e-07,
+          "peak": 2.499999761581421,
+          "samples": 119394,
+          "workerIntegrated": false
+        },
+        "oracle": {
+          "cases": 240,
+          "exactAssertions": 2232,
+          "fixtureSha256": "5f06bf82f3e72f9f87f0d99c025d098ef1277c6dcfba696f3f60947cf6549b69",
+          "sourceSha256": "093f3a4b4f7e24415095304aa8afadc627175290228f103d28ada35e5b6e7ae3",
+          "exitCode": 0,
+          "workerIntegrated": false,
+          "qualityAdmission": false
+        },
+        "evidenceRoot": "/home/rich/dev/soundcurrent-daw/.cache/protected-core-sampling/build-sanitized/protected-core-sampling-evidence/run-bf8k8ljz"
+      }
+    ],
+    "allExactOracleResponsesMatch": true,
+    "nativeWindowsRuntime": false,
+    "workerIntegrated": false,
+    "fullQualityAdmission": false
+  },
+  "workerIntegrated": false,
+  "fullQualityAdmission": false
+}

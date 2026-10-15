@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Exact protected-core sampling (2026-10-15)
+
+[Checkpoint 308](308-protected-core-sampling.md) adds an owned, bounded sampler for
+fractional protected anchors, output-clock conversion and crops. Five Release,
+five Debug and two sanitizer suites pass; all three independent 240-case exact
+oracle responses match. Windows cross syntax passes. Full worker integration,
+nonunity gap/halo processing, native qualification and quality admission remain
+required. Existing app admission and installed previews remain unchanged.
+The preceding original run passes all 201 Linux, 118 native core and new protected
+desktop checks. Original desktop tests all pass, but that job exceeds 20 minutes;
+the aggregate fails and whole run is cancelled. All originals are retained.
+Desktop CI is split into 22/6/1 test banks under the same required status, and Linux
+weights now use actual observations. Fresh scheduling/native sampler CI is pending.
+
+
 ## Repeated protected desktop editing (2026-10-15)
 
 [Checkpoint 307](307-protected-repeated-desktop.md) exercises three successive
