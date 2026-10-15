@@ -64,8 +64,10 @@ Json repeatedUiWorkflow(const std::filesystem::path &source,const std::filesyste
             if(mode==1 || mode==2)options.afterPreparation=[&]{entered=true;while(!release)QThread::msleep(1);};
             if(mode==5)options.afterLoad=[&]{if(holdApply){entered=true;while(!release)QThread::msleep(1);}};
             StudioWindow window(nullptr,{},{},{},{},{},{},{},{},{},options);Release unlock{release};
+            memory=window.resourceLedger();
             window.resize(1000,760);window.show();window.openProject(root);
             wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.displayedRevision()==window.snapshot()->modelRevision;});
+            check(memory.usage().reservedBytes>0,"Actual project memory was not observed");
             for(unsigned generation=0;generation<(mode==0?3U:1U);++generation){
                 const bool mixed=generation==2;auto state=*window.snapshot()->session;auto track=state.tracks[0];
                 if(mixed){

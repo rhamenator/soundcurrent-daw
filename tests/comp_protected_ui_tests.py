@@ -39,6 +39,7 @@ for rate,kind in [(44100,'protected'),(48000,'protected'),(96000,'protected'),(4
     report=driver(a.controller,None,root,evidence=str(root.parent/'desktop'),protected=True,pairKind=kind)
     assert originals=={str(p):sha(Path(p)) for p in originals}
     cases=report['cases'];assert len(cases)==(8 if rate==48000 and kind=='protected' else 1)
+    assert all(c['actualProjectCreditsReleased'] for c in cases)
     successful=cases[0]
     assert successful['actualTimelineDialog'] and successful['noAudioBeforeApply'] and successful['undoRedoSaveReopen']
     assert successful['pairFormat']=='sc-comp-pair-selection-protected-v1'

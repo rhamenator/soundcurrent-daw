@@ -45,6 +45,8 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
     for(unsigned mode=0;mode<(expanded?(protectedMode?8U:6U):1U);++mode){
         const auto root=scope/("case-"+std::to_string(mode))/utf8Path("project-é-日本");
         std::filesystem::create_directories(root.parent_path());std::filesystem::copy(source,root,std::filesystem::copy_options::recursive);
+        ResourceLedger memory(512*1024*1024,"Transition test observation");
+        const auto runCase=[&]() -> Json {
         std::atomic<bool> entered=false,release=false;
         CompAssemblyControllerOptions options;
         if((mode>=1 && mode<=3) || mode==7)options.afterPreparation=[&]{entered=true;while(!release)QThread::msleep(1);};
@@ -52,8 +54,10 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         ControllerOptions ownerOptions;
         if(mode==5)ownerOptions.beforeSavePublish=[]{throw ProjectError(ErrorCode::Io,"Injected save failure");};
         StudioWindow window(nullptr,{},{},{},{},ownerOptions,{},{},{},{},options);Release unlock{release};
+        memory=window.resourceLedger();
         window.resize(1000,760);window.show();window.openProject(root);
         wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.displayedRevision()==window.snapshot()->modelRevision;});
+        check(memory.usage().reservedBytes>0,"Actual project memory was not observed");
         const auto opened=window.snapshot();const auto original=*opened->session;
         const auto &track=original.tracks[0];const auto cut=track.clips[1].startFrame;
         const Frame before=protectedMode?3008:26;
@@ -108,7 +112,7 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             wait([&]{return window.compPairSnapshot()->closed && window.compAssemblySnapshot()->closed && window.snapshot()->closed;});
             check(ProjectStore(root).load()==original,"Close during preparation published model changes");
             check(!window.compPairSnapshot()->children[0].pid && !window.compPairSnapshot()->children[1].pid,"Close during preparation launched child");
-            row["closeDuringPreparation"]=true;row["noChildLaunch"]=true;cases.push_back(std::move(row));continue;
+            row["closeDuringPreparation"]=true;row["noChildLaunch"]=true;return row;
         }
         wait([&]{const auto phase=window.compRenderStage();return phase==CompRenderStage::Complete || phase==CompRenderStage::Fault || phase==CompRenderStage::Canceled;});
         wait([&]{return !window.compAssemblySnapshot()->busy && !window.compPairSnapshot()->busy;});
@@ -160,7 +164,10 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             }
             row["noChildLaunch"]=true;
         }
-        window.close();wait([&]{return !window.isVisible();});check(window.compPairSnapshot()->closed && window.compAssemblySnapshot()->closed && window.snapshot()->closed,"Close did not retire all workers");row["asynchronousClose"]=true;cases.push_back(std::move(row));
+        window.close();wait([&]{return !window.isVisible();});check(window.compPairSnapshot()->closed && window.compAssemblySnapshot()->closed && window.snapshot()->closed,"Close did not retire all workers");row["asynchronousClose"]=true;return row;
+        };
+        auto row=runCase();check(memory.usage().reservedBytes==0,"Actual project credits retained after destruction");
+        row["actualProjectCreditsReleased"]=true;cases.push_back(std::move(row));
     }
     Json report{{"checks",checks},{"cases",cases},{"executorSha256",compAssemblyExecutableSha256()},{"actualNewJobCreation",true},{"physicalAudio",false},{"qualityAdmission",false}};
     std::ofstream out(scope/"report.json");out<<report.dump(2)<<'\n';check(bool(out),"Report write failed");std::cout<<report.dump()<<'\n';return 0;
