@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned clocked protected workers (2026-10-15)
+
+[Checkpoint 312](312-comp-clocked-protected-worker.md) adds an explicit versioned
+worker protocol that binds exact original geometry, clock, rates and history.
+Actual media/history admission runs before readiness and completion. Four Release
+and four Debug suites pass, including legacy worker regressions. Eight new worker
+outputs match across builds; 82 refusal cases and 1,385,714 PCM comparisons pass.
+MinGW syntax passes. The real-history fixture uses an actual published physical
+ancestor; new paired adoption and post-SRC history coverage remain required.
+Preceding adapter CI is still running at the recorded checkpoint. New worker native
+execution, editor delivery, quality/localization and full DAW parity remain open.
+
+
 ## Complete original geometry for cropped comp rendering (2026-10-15)
 
 [Checkpoint 311](311-comp-clocked-protected-span.md) owns original protected

@@ -103,9 +103,11 @@ edits in the app. Independent quality admission and installed delivery remain op
 fractional extents through the clocked renderer, with separate legacy admission.
 Release, Debug, sanitizer and independent rational-oracle checks pass.
 [Original-geometry comp rendering](docs/311-comp-clocked-protected-span.md) now
-preserves outside anchors and baked pitch across cropped ancestry. Candidate audio
-and exact-clock checks pass; versioned worker verification and editor integration
-remain required.
+preserves outside anchors and baked pitch across cropped ancestry.
+[Owned clocked workers](docs/312-comp-clocked-protected-worker.md) now bind that
+geometry and timing to verified media/history requests. Release and Debug worker
+checks pass. New paired adoption, native execution and editor integration remain
+required.
 A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
 readiness published after a caller's clock sample, with the original native
 one-frame regression now passing. CI scheduling uses measured Linux weights and

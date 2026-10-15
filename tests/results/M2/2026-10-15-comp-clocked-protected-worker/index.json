@@ -1,0 +1,226 @@
+{
+  "format": "sc-comp-clocked-protected-worker-index-v1",
+  "sourceHead": "9b265efcd5cbb484a0c8a4e4f88d6c14da670633",
+  "archive": "acceptance.zip",
+  "bytes": 25251066,
+  "sha256": "3b7a448297a98cba2296a247298e8abc251f44bfaa04381d80559112d395ece9",
+  "originalFiles": 2496,
+  "uniquePayloads": 778,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "9b265efcd5cbb484a0c8a4e4f88d6c14da670633",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "9b265efcd5cbb484a0c8a4e4f88d6c14da670633",
+        "seconds": 53.6587360779522,
+        "result": ".cache/comp-clocked-protected-worker/qualified-Release-eim_z31n/result.json",
+        "selected": [
+          "comp-clocked-protected-worker",
+          "comp-clocked-protected-history-worker",
+          "comp-owned-protected-worker",
+          "comp-owned-span-worker"
+        ],
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-span-worker-evidence/run-abt_5lbq",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-worker-evidence/run-eca1zgmw",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-history-worker-evidence/run-422lccev"
+        ],
+        "newWorkerSuccesses": 8,
+        "newWorkerRefusals": 82,
+        "completePcmSamples": 1385714,
+        "actualRetainedHistory": true,
+        "lateHistoryChangeRefused": true,
+        "sourceAndBinariesUnchanged": true,
+        "originalProtectedOutputHashesUnchanged": 6,
+        "uniformWorkersPassed": 6,
+        "files": [
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw/case-44100/project-\u00e9-\u65e5\u672c/media/comp-spans/b1d97099-5caf-413e-941d-069404a88ee5/audio.wav",
+            "bytes": 786760,
+            "sha256": "eb349db041b2c6ce96dba2c98d836db391018ab8efcd01118880fa067f0533bf",
+            "samplesSha256": "55db87cdc1b13b6594641e0286bce5ba87cf3079cb23830b11365f509eb92561",
+            "frames": 98332,
+            "channels": 2,
+            "peak": 2.843980312347412
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw/case-44100/project-\u00e9-\u65e5\u672c/media/comp-spans/b78efdf4-89eb-432a-a74a-313dc4bdac0d/audio.wav",
+            "bytes": 786776,
+            "sha256": "51d4b835a8152ce48252e10fc0d7c2078cce3f898690e3e17abee2c8d365b188",
+            "samplesSha256": "e2736b7214b3020560a478b8b817c9a656fae722c805d023f7d325b40bfb2ed0",
+            "frames": 98334,
+            "channels": 2,
+            "peak": 2.843980312347412
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw/case-48000/project-\u00e9-\u65e5\u672c/media/comp-spans/16ed8604-8106-46ee-928f-2e8049969660/audio.wav",
+            "bytes": 786792,
+            "sha256": "fea78f4d05c2c9d8296bc1ade1e6071c5aeca072b13934abc950a92a2875479c",
+            "samplesSha256": "e76dc99481bd85efbd91e3eeea2a9f6e3abe5ee7dc7660c04cc49560a9fb6121",
+            "frames": 98336,
+            "channels": 2,
+            "peak": 2.748178482055664
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw/case-48000/project-\u00e9-\u65e5\u672c/media/comp-spans/e13761a1-cf85-46cf-8f43-d164e09b131a/audio.wav",
+            "bytes": 786792,
+            "sha256": "735598df9b99e5f182ac595016538089364dc340216af6521d7d040693a0d7e7",
+            "samplesSha256": "dea33f374177b55a5a7fe146594371761f6b4bf1faacb1734ab4d82353235d4b",
+            "frames": 98336,
+            "channels": 2,
+            "peak": 2.748178482055664
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw/case-96000/project-\u00e9-\u65e5\u672c/media/comp-spans/020304ae-8633-4bd7-8c0d-f5e563b69935/audio.wav",
+            "bytes": 787048,
+            "sha256": "17016112c2928935a2873445fcfd6cabf0dc494407f1f3a5bdb1e44f34505858",
+            "samplesSha256": "f9c5cb7d04d87fac972032845339e0978c925d6271da0db8d23fc7ddd396e290",
+            "frames": 98368,
+            "channels": 2,
+            "peak": 2.796229839324951
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-worker-evidence/run-k0hi7lzw/case-96000/project-\u00e9-\u65e5\u672c/media/comp-spans/422b0a29-2c7c-47cd-9a2c-8ee7ceab5f79/audio.wav",
+            "bytes": 787040,
+            "sha256": "359792fe6ca7c02a7222855baf336024a91c26d97572c1d25acdb16fba22cf92",
+            "samplesSha256": "c7caedc7f92dd284ef27c3acc2d39217a5a05a13e50226fc748131df19e0e240",
+            "frames": 98367,
+            "channels": 2,
+            "peak": 2.796229839324951
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-history-worker-evidence/run-422lccev/input/run-gjz00l3v/case-48000-protected/project-\u00e9-\u65e5\u672c/media/comp-spans/47895790-3c19-47fb-bc5d-a6a95cacf96d/audio.wav",
+            "bytes": 405096,
+            "sha256": "747c50a54dbf6accdb63093a6960460ad4f048eaecc124f0719b1cafff638ced",
+            "samplesSha256": "ec10a5f10f293c1943dae996f5d7017291f65486a0ea42ba45511b91ee4ff603",
+            "frames": 50624,
+            "channels": 2,
+            "peak": 2.5156989097595215
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-history-worker-evidence/run-422lccev/input/run-gjz00l3v/case-48000-protected/project-\u00e9-\u65e5\u672c/media/comp-spans/d3023925-0b96-4036-a593-e8603529f298/audio.wav",
+            "bytes": 417384,
+            "sha256": "785b91ddfa4a9f479640e6605023cc72bb5e745e77c5313b61cddce4ba793f32",
+            "samplesSha256": "a6b23b9d2664eecf44aa3e5d011a79dc0ce56b6a84e315575b3ec049037e0d2a",
+            "frames": 52160,
+            "channels": 2,
+            "peak": 2.5156989097595215
+          }
+        ],
+        "newPairAdoption": false,
+        "qualityAdmission": false
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "9b265efcd5cbb484a0c8a4e4f88d6c14da670633",
+        "seconds": 184.39469381596427,
+        "result": ".cache/comp-clocked-protected-worker/qualified-Debug-ryohvtyb/result.json",
+        "selected": [
+          "comp-clocked-protected-worker",
+          "comp-clocked-protected-history-worker",
+          "comp-owned-protected-worker",
+          "comp-owned-span-worker"
+        ],
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-span-worker-evidence/run-d5hmwrsy",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-history-worker-evidence/run-xsl9r6ut",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-worker-evidence/run-o7qh0tg2"
+        ],
+        "newWorkerSuccesses": 8,
+        "newWorkerRefusals": 82,
+        "completePcmSamples": 1385714,
+        "actualRetainedHistory": true,
+        "lateHistoryChangeRefused": true,
+        "sourceAndBinariesUnchanged": true,
+        "originalProtectedOutputHashesUnchanged": 6,
+        "uniformWorkersPassed": 6,
+        "files": [
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc/case-44100/project-\u00e9-\u65e5\u672c/media/comp-spans/9c726b08-2184-4928-ba23-ca731242980a/audio.wav",
+            "bytes": 786776,
+            "sha256": "51d4b835a8152ce48252e10fc0d7c2078cce3f898690e3e17abee2c8d365b188",
+            "samplesSha256": "e2736b7214b3020560a478b8b817c9a656fae722c805d023f7d325b40bfb2ed0",
+            "frames": 98334,
+            "channels": 2,
+            "peak": 2.843980312347412
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc/case-44100/project-\u00e9-\u65e5\u672c/media/comp-spans/d4ab88cd-dbee-49db-945c-7e378165c03c/audio.wav",
+            "bytes": 786760,
+            "sha256": "eb349db041b2c6ce96dba2c98d836db391018ab8efcd01118880fa067f0533bf",
+            "samplesSha256": "55db87cdc1b13b6594641e0286bce5ba87cf3079cb23830b11365f509eb92561",
+            "frames": 98332,
+            "channels": 2,
+            "peak": 2.843980312347412
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc/case-48000/project-\u00e9-\u65e5\u672c/media/comp-spans/06b7eafc-9217-4a39-95c4-b7d5464c9e8c/audio.wav",
+            "bytes": 786792,
+            "sha256": "fea78f4d05c2c9d8296bc1ade1e6071c5aeca072b13934abc950a92a2875479c",
+            "samplesSha256": "e76dc99481bd85efbd91e3eeea2a9f6e3abe5ee7dc7660c04cc49560a9fb6121",
+            "frames": 98336,
+            "channels": 2,
+            "peak": 2.748178482055664
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc/case-48000/project-\u00e9-\u65e5\u672c/media/comp-spans/c87bceca-1262-4c57-8a84-8c0baaa3ebcc/audio.wav",
+            "bytes": 786792,
+            "sha256": "735598df9b99e5f182ac595016538089364dc340216af6521d7d040693a0d7e7",
+            "samplesSha256": "dea33f374177b55a5a7fe146594371761f6b4bf1faacb1734ab4d82353235d4b",
+            "frames": 98336,
+            "channels": 2,
+            "peak": 2.748178482055664
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc/case-96000/project-\u00e9-\u65e5\u672c/media/comp-spans/80b5207b-f19f-4cd3-9ac5-0d69762b2aa3/audio.wav",
+            "bytes": 787048,
+            "sha256": "17016112c2928935a2873445fcfd6cabf0dc494407f1f3a5bdb1e44f34505858",
+            "samplesSha256": "f9c5cb7d04d87fac972032845339e0978c925d6271da0db8d23fc7ddd396e290",
+            "frames": 98368,
+            "channels": 2,
+            "peak": 2.796229839324951
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-worker-evidence/run-n7bvtpzc/case-96000/project-\u00e9-\u65e5\u672c/media/comp-spans/d97b3f30-ded7-47dc-bf93-3c0fb5fa9ee6/audio.wav",
+            "bytes": 787040,
+            "sha256": "359792fe6ca7c02a7222855baf336024a91c26d97572c1d25acdb16fba22cf92",
+            "samplesSha256": "c7caedc7f92dd284ef27c3acc2d39217a5a05a13e50226fc748131df19e0e240",
+            "frames": 98367,
+            "channels": 2,
+            "peak": 2.796229839324951
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-history-worker-evidence/run-xsl9r6ut/input/run-c9d6_920/case-48000-protected/project-\u00e9-\u65e5\u672c/media/comp-spans/227066d0-da78-4353-8ee8-04a4bdfd6132/audio.wav",
+            "bytes": 405096,
+            "sha256": "747c50a54dbf6accdb63093a6960460ad4f048eaecc124f0719b1cafff638ced",
+            "samplesSha256": "ec10a5f10f293c1943dae996f5d7017291f65486a0ea42ba45511b91ee4ff603",
+            "frames": 50624,
+            "channels": 2,
+            "peak": 2.5156989097595215
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-history-worker-evidence/run-xsl9r6ut/input/run-c9d6_920/case-48000-protected/project-\u00e9-\u65e5\u672c/media/comp-spans/64cbcfbb-5e8b-4fe1-b42f-c573fb127605/audio.wav",
+            "bytes": 417384,
+            "sha256": "785b91ddfa4a9f479640e6605023cc72bb5e745e77c5313b61cddce4ba793f32",
+            "samplesSha256": "a6b23b9d2664eecf44aa3e5d011a79dc0ce56b6a84e315575b3ec049037e0d2a",
+            "frames": 52160,
+            "channels": 2,
+            "peak": 2.5156989097595215
+          }
+        ],
+        "newPairAdoption": false,
+        "qualityAdmission": false
+      }
+    ],
+    "allEightDebugReleaseFilesEqual": true,
+    "nativeRuntime": false,
+    "workerProcessCeilingsRetained": true,
+    "newPairAdoption": false,
+    "qualityAdmission": false
+  },
+  "workerIntegrated": true,
+  "fullQualityAdmission": false
+}
