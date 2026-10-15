@@ -16,11 +16,13 @@ version. Physical hardware and full DAW parity remain unfinished.
 
 ## Windows candidate
 
-The Windows x64 installer remains at `2580164`, sequence `20261015124133`.
-Its [installation, save/reopen/export and uninstall/reinstall checks](321-windows-installed-comp-preview.md)
-pass in the existing independent clone. It still needs the render-history
-portability correction and installed short-comp editing qualification.
-Neither platform has a published binary release.
+The matching `61bcaa3` Windows x64 installer, sequence `20261015144332`, is
+[prepared locally with verified corresponding source](324-windows-portable-candidate.md).
+It has native helper/startup observations, including an unresolved initial
+protected-warp test failure. It still needs installed editing and reverse-history
+qualification. The independent acceptance clone remains on `2580164`, whose
+[installation, save/reopen/export and uninstall/reinstall checks](321-windows-installed-comp-preview.md)
+passed. Neither platform has a published binary release.
 
 ## Earlier candidates and original qualification scopes
 

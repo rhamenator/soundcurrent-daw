@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows portability candidate and catalog correction (2026-10-15)
+
+[Checkpoint 324](324-windows-portable-candidate.md) prepares the matching `61bcaa3`
+Windows installer and verifies every corresponding-source entry. Native helper
+and desktop startup observations are retained, including an unresolved first
+protected-warp failure followed by a passing diagnostic run. Both second-generation
+requests referencing Linux-made history are prepared; installed Windows execution
+remains next. CI exposed the newer export-label source hash missing from the
+catalog inventory; the real catalog update and all three focused checks pass.
+All VMs are off. Full goal incomplete.
+
 ## Installed Linux portable comp workflow (2026-10-15)
 
 [Checkpoint 323](323-installed-portable-comp.md) installs `61bcaa3` while preserving

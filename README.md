@@ -32,8 +32,10 @@ uninstall/reinstall. Windows installed short-comp editing and sustained hardware
 qualification remain required.
 The refreshed Linux preview now passes the [installed comp-editing workflow](docs/323-installed-portable-comp.md)
 with Windows-created history: Render, Review/Apply, Undo/Redo, save/reopen,
-independently checked WAV export and normal Quit. Windows still needs the matching
-portability refresh; sustained hardware qualification remains required.
+independently checked WAV export and normal Quit. The matching [Windows portability installer](docs/324-windows-portable-candidate.md)
+is prepared locally; installed editing and reverse-history qualification remain
+required, along with investigation of an initial protected-warp test failure.
+Sustained hardware qualification remains required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
