@@ -82,16 +82,46 @@ Json protectedBinding(const CompProtectedSpanPlan &p,ResourceLedger ledger){
         {"rawFrames",region.inputFrames},{"outputFrames",region.outputFrames},{"inputRate",p.source().sampleRate},
         {"outputRate",p.source().sampleRate},{"semanticAnchors",g.spans().size()},{"chunkFrames",512}};
 }
+Json clockedBinding(const CompClockedProtectedSpanPlan &p,bool history){
+    const auto &clock=p.sampling().clock();
+    return {{"inputRate",p.source().sampleRate},{"outputRate",p.outputSampleRate()},
+        {"origin",warp_codec::position(scaleSourcePosition(clock.at(0),1,1))},
+        {"step",warp_codec::position(scaleSourcePosition({1,0,1},clock.numerator(),clock.denominator()))},
+        {"bakedPitchScale",warp_codec::position(p.bakedPitchScale())},{"historyRequired",history}};
+}
+Json clockedProtectedBinding(const CompClockedProtectedSpanPlan &p,ResourceLedger ledger){
+    const auto &g=p.geometry();const auto &region=g.map().exactRegion();const auto policy=g.policy();
+    PayloadCharge staging("Clocked protected binding",SIZE_MAX);staging.add(65536);
+    staging.add(g.map().points().size(),2048);staging.add(g.spans().size(),4096);auto credit=ledger.reserve(staging.bytes());
+    Json points=Json::array(),spans=Json::array();
+    for(const auto &point:g.map().points())points.push_back(Json::array({warp_codec::position(point.source),warp_codec::position(point.output)}));
+    for(const auto &span:g.spans())spans.push_back({{"owner",span.owner.str()},
+        {"sourceBegin",warp_codec::position(span.sourceBegin)},{"sourceAnchor",warp_codec::position(span.sourceAnchor)},{"sourceEnd",warp_codec::position(span.sourceEnd)},
+        {"outputBegin",warp_codec::position(span.outputBegin)},{"outputAnchor",warp_codec::position(span.outputAnchor)},{"outputEnd",warp_codec::position(span.outputEnd)}});
+    Json geometry={{"processor",compClockedProtectedSpanProcessorId},{"algorithm",clockedProtectedWarpAlgorithmId},
+        {"resampling",positionedResamplingAlgorithmId},{"map",clipWarpGeometryId},
+        {"sourceId",p.source().id.str()},{"sourceSha256",p.source().sha256},{"sourceFrames",p.source().frames},
+        {"rate",p.source().sampleRate},{"layoutKind",unsigned(p.source().layout.kind)},{"channels",p.source().layout.channels},
+        {"rawOrigin",warp_codec::position(region.rawOrigin)},{"inputExtent",warp_codec::position(region.inputExtent)},
+        {"outputExtent",warp_codec::position(region.outputExtent)},
+        {"before",policy.before},{"after",policy.after},{"halo",policy.halo},{"minimumNonunityGap",policy.minimumNonunityGap},
+        {"chunkFrames",512},{"points",std::move(points)},{"semanticSpans",std::move(spans)}};
+    const auto bytes=geometry.dump();check(bytes.size()<=2*1024*1024,"Clocked protected binding exceeds bound",ErrorCode::ResourceLimit);
+    return {{"geometrySha256",hash(bytes)},{"rawOrigin",warp_codec::position(region.rawOrigin)},
+        {"inputExtent",warp_codec::position(region.inputExtent)},{"outputExtent",warp_codec::position(region.outputExtent)},
+        {"outputFrames",p.sampling().outputFrames()},{"semanticAnchors",g.spans().size()},{"chunkFrames",512}};
+}
 Json intent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){policy(p);
     if(r.isProtected()){
         const auto &a=r.source();check(std::uint64_t(r.outputFrames())<=(p.maximumOutputBytes-std::min<std::uint64_t>(1048576,p.maximumOutputBytes))/(a.layout.channels*4ULL),"Protected span exceeds output grant",ErrorCode::ResourceLimit);
         Json result={{"protocol",r.protocol()},{"processor",r.processor()},{"sourceAlgorithm","soundcurrent.raw-absolute-frames-v1"},
             {"operation",r.operation().str()},{"recipeDigest",r.recipe().digest()},{"requestDigest",r.digest()},{"fragment",r.fragment()},
             {"executorSha256",r.executorSha256()},{"sourceSha256",a.sha256},{"outputFrames",r.outputFrames()},
-            {"rate",r.outputSampleRate()},{"channels",a.layout.channels},{"protected",protectedBinding(r.protectedSpan(),ledger)},
+            {"rate",r.outputSampleRate()},{"channels",a.layout.channels},{"protected",r.isClockedProtected()?clockedProtectedBinding(r.clockedProtectedSpan(),ledger):protectedBinding(r.protectedSpan(),ledger)},
             {"memoryCeilingBytes",p.memoryBytes},{"deadlineMilliseconds",p.deadlineMilliseconds},
             {"maximumSourceBytes",p.maximumSourceBytes},{"maximumOutputBytes",p.maximumOutputBytes}};
-        if(r.requiresHistory())result["clock"]=protectedHistoryBinding(r.recipe(),r.fragment());
+        if(r.isClockedProtected())result["clock"]=clockedBinding(r.clockedProtectedSpan(),r.requiresHistory());
+        else if(r.requiresHistory())result["clock"]=protectedHistoryBinding(r.recipe(),r.fragment());
         return result;
     }
     const auto &s=r.span();const auto &a=s.source();
@@ -113,10 +143,14 @@ const CompSpanPlan &CompSpanRequest::span() const {
 const CompProtectedSpanPlan &CompSpanRequest::protectedSpan() const {
     const auto *p=std::get_if<CompProtectedSpanPlan>(&span_);check(p!=nullptr,"Uniform span is not a protected plan");return *p;
 }
+const CompClockedProtectedSpanPlan &CompSpanRequest::clockedProtectedSpan() const {
+    const auto *p=std::get_if<CompClockedProtectedSpanPlan>(&span_);check(p!=nullptr,"Span is not a clocked protected plan");return *p;
+}
 const Asset &CompSpanRequest::source() const {return std::visit([](const auto &p)->const Asset &{return p.source();},span_);}
-Frame CompSpanRequest::outputFrames() const {return isProtected()?protectedSpan().geometry().map().region().outputFrames:span().outputFrames();}
-std::uint32_t CompSpanRequest::outputSampleRate() const {return isProtected()?source().sampleRate:span().outputSampleRate();}
+Frame CompSpanRequest::outputFrames() const {return isClockedProtected()?clockedProtectedSpan().sampling().outputFrames():isProtected()?protectedSpan().geometry().map().region().outputFrames:span().outputFrames();}
+std::uint32_t CompSpanRequest::outputSampleRate() const {return isClockedProtected()?clockedProtectedSpan().outputSampleRate():isProtected()?source().sampleRate:span().outputSampleRate();}
 CompRequestedSpanReport renderRequestedCompSpan(const CompSpanRequest &r,const CompSpanRead &read,const CompSpanWrite &write,ResourceLedger ledger,const std::function<void()> &poll){
+    if(r.isClockedProtected()){const auto result=renderClockedProtectedCompSpan(r.clockedProtectedSpan(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};}
     if(r.isProtected()){const auto result=renderProtectedCompSpan(r.protectedSpan(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};}
     const auto result=renderCompSpan(r.span(),read,write,ledger,poll);return {result.writtenFrames,result.floatPeak};
 }
@@ -124,19 +158,23 @@ CompSpanRequest decodeCompSpanRequest(std::string_view bytes,std::string_view ex
     check(sha(expectedDigest) && sha(executable),"Invalid trusted span identities");check(bytes.size()<=compSpanRequestMaximum,"Span request too large",ErrorCode::ResourceLimit);
     auto work=ledger.reserve(16*1024*1024);auto retained=ledger.reserve(bytes.size()*2+65536);check(hash(bytes)==expectedDigest,"Span request changed from trusted parent",ErrorCode::MediaMismatch);
     try{const auto j=parse(bytes,compSpanRequestMaximum);check(j.is_object() && j.at("protocol").is_string(),"Unknown comp span schema");
-        const auto &protocol=j.at("protocol").get_ref<const std::string &>();const bool protectedHistory=protocol==compProtectedHistorySpanProtocol,history=protocol==compRegenerationSpanProtocol || protectedHistory,protectedMode=protocol==compProtectedSpanProtocol || protectedHistory;
-        check((protocol==compSpanProtocol || history || protectedMode) && j.size()==8+std::size_t(history)+std::size_t(protectedMode),"Unknown comp span schema");
-        check(warp_codec::exact(j.at("executor"),Json{{"id",protectedMode?(history?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history?compRegenerationSpanProcessorId:compSpanProcessorId)},{"buildSha256",executable}}),"Span executable differs from trusted request");
+        const auto &protocol=j.at("protocol").get_ref<const std::string &>();const bool clocked=protocol==compClockedProtectedSpanProtocol,protectedHistory=protocol==compProtectedHistorySpanProtocol,protectedMode=clocked || protocol==compProtectedSpanProtocol || protectedHistory;
+        bool history=protocol==compRegenerationSpanProtocol || protectedHistory;
+        check((protocol==compSpanProtocol || history || protectedMode) && j.size()==8+std::size_t(history || clocked)+std::size_t(protectedMode),"Unknown comp span schema");
+        check(warp_codec::exact(j.at("executor"),Json{{"id",clocked?compClockedProtectedSpanProcessorId:protectedMode?(history?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId):(history?compRegenerationSpanProcessorId:compSpanProcessorId)},{"buildSha256",executable}}),"Span executable differs from trusted request");
         check(j.at("recipeExecutor").is_object() && j.at("recipeExecutor").size()==2,"Invalid recipe executor");
         const CompRecipeExecutor parent{j.at("recipeExecutor").at("id").get<std::string>(),j.at("recipeExecutor").at("buildSha256").get<std::string>()};
         const auto operation=Id(j.at("operation").get<std::string>()),recipeOperation=Id(j.at("recipeOperation").get<std::string>());check(operation!=recipeOperation,"Span reused parent operation");
         const auto fragment=unsigned(warp_codec::unsignedInteger(j.at("fragment"),1));
         auto recipe=decodeCompProcessingRecipe(j.at("recipe").get_ref<const std::string &>(),recipeOperation,context,parent,j.at("recipeDigest").get<std::string>(),ledger);
+        if(clocked)history=historyRequired(recipe);
         check(history==historyRequired(recipe),"Span protocol does not match original history requirements");
         const auto &handles=recipe.plan().handles();const auto &envelope=fragment?handles.incoming():handles.outgoing();
-        CompSpanPayload span=[&]() -> CompSpanPayload {if(protectedMode)return prepareProtectedCompSpan(envelope,ledger,[]{});return prepareCompSpan(envelope,ledger);}();
-        if(history)check(warp_codec::exact(j.at("clock"),protectedMode?protectedHistoryBinding(recipe,fragment):clockBinding(recipe,std::get<CompSpanPlan>(span),fragment)),"Span clock binding differs from original source history");
-        if(protectedMode)check(warp_codec::exact(j.at("protected"),protectedBinding(std::get<CompProtectedSpanPlan>(span),ledger)),"Protected binding differs from original semantic geometry");
+        CompSpanPayload span=[&]() -> CompSpanPayload {if(clocked)return prepareClockedProtectedCompSpan(envelope,ledger,[]{});if(protectedMode)return prepareProtectedCompSpan(envelope,ledger,[]{});return prepareCompSpan(envelope,ledger);}();
+        if(clocked)check(warp_codec::exact(j.at("clock"),clockedBinding(std::get<CompClockedProtectedSpanPlan>(span),history)),"Clocked protected timing differs from original history");
+        else if(history)check(warp_codec::exact(j.at("clock"),protectedMode?protectedHistoryBinding(recipe,fragment):clockBinding(recipe,std::get<CompSpanPlan>(span),fragment)),"Span clock binding differs from original source history");
+        if(clocked)check(warp_codec::exact(j.at("protected"),clockedProtectedBinding(std::get<CompClockedProtectedSpanPlan>(span),ledger)),"Clocked protected geometry differs from original history");
+        else if(protectedMode)check(warp_codec::exact(j.at("protected"),protectedBinding(std::get<CompProtectedSpanPlan>(span),ledger)),"Protected binding differs from original semantic geometry");
         else if(!history){const auto &uniform=std::get<CompSpanPlan>(span);check(uniform.outputSampleRate()==uniform.source().sampleRate && uniform.backendClockScale()==SourcePosition{1,0,1},"Legacy span has a nonlegacy sample clock");}
         for(const auto *envelope:{&handles.outgoing(),&handles.incoming()}){const auto &e=envelope->data();check(operation!=e.raw.id && operation!=e.base.id && operation!=e.retainedAsset.id && (!e.nominalAsset || operation!=e.nominalAsset->id),"Span reused an input identity");}
         return {std::move(retained),std::move(recipe),std::move(span),operation,fragment,std::string(expectedDigest),std::string(executable),std::string(bytes),history};
@@ -160,6 +198,17 @@ CompSpanRequest encodeProtectedCompSpanRequest(const CompProcessingRecipe &r,con
         {"recipeDigest",r.digest()},{"recipe",r.bytes()},{"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},
         {"executor",{{"id",history?compProtectedHistorySpanProcessorId:compProtectedSpanProcessorId},{"buildSha256",executable}}},{"fragment",fragment},{"protected",protectedBinding(span,ledger)}};
     if(history)document["clock"]=protectedHistoryBinding(r,fragment);
+    const auto bytes=document.dump();const auto context=r.plan().handles().outgoing().data().context;work.resize(0);
+    return decodeCompSpanRequest(bytes,hash(bytes),context,executable,ledger);
+}
+CompSpanRequest encodeClockedProtectedCompSpanRequest(const CompProcessingRecipe &r,const CompRecipeExecutor &parent,unsigned fragment,const Id &op,std::string_view executable,ResourceLedger ledger){
+    auto work=ledger.reserve(16*1024*1024);auto encoded=ledger.reserve(compSpanRequestMaximum*2);
+    check(fragment<=1 && sha(executable),"Invalid clocked protected selection/executor");
+    auto span=prepareClockedProtectedCompSpan(fragment?r.plan().handles().incoming():r.plan().handles().outgoing(),ledger,[]{});
+    Json document={{"protocol",compClockedProtectedSpanProtocol},{"operation",op.str()},{"recipeOperation",r.operation().str()},
+        {"recipeDigest",r.digest()},{"recipe",r.bytes()},{"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},
+        {"executor",{{"id",compClockedProtectedSpanProcessorId},{"buildSha256",executable}}},{"fragment",fragment},
+        {"protected",clockedProtectedBinding(span,ledger)},{"clock",clockedBinding(span,historyRequired(r))}};
     const auto bytes=document.dump();const auto context=r.plan().handles().outgoing().data().context;work.resize(0);
     return decodeCompSpanRequest(bytes,hash(bytes),context,executable,ledger);
 }

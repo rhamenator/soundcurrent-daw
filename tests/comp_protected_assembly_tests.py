@@ -6,7 +6,7 @@ import argparse,hashlib,json,subprocess,tempfile
 from worker_observation import observe,diagnostic
 p=argparse.ArgumentParser()
 for name in ['worker','span_fixture','pair_fixture','assembly_fixture','nominal_worker','job_fixture']:p.add_argument(name,type=Path)
-p.add_argument('--evidence',type=Path,required=True);a=p.parse_args()
+p.add_argument('--case',choices=['44100-protected','48000-protected','96000-protected','48000-uniform','48000-existing']);p.add_argument('--evidence',type=Path,required=True);a=p.parse_args()
 for name in ['worker','span_fixture','pair_fixture','assembly_fixture','nominal_worker','job_fixture']:setattr(a,name,getattr(a,name).resolve())
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();binary=sha(a.worker);nominal_binary=sha(a.nominal_worker);job_binary=sha(a.job_fixture)
 a.evidence.mkdir(parents=True,exist_ok=True);scope=Path(tempfile.mkdtemp(prefix='run-',dir=a.evidence)).resolve();rows=[];reports=[]
@@ -31,6 +31,7 @@ def run(root,body,request=None,side=0):
     rows.append(dict(kind='nominal-worker' if nominal else 'span-worker',pid=result.pid,exitCode=result.returncode,seconds=result.elapsed_seconds,retirementPending=result.retirement_pending,observationTimedOut=result.observation_timed_out,outputLimited=result.output_limited,root=str(root),stdout=prefix+'.stdout',stderr=prefix+'.stderr'))
     assert result.returncode==0 and not result.retirement_pending and not result.observation_timed_out and not result.output_limited,diagnostic(result)
 for rate,kind in [(44100,'protected'),(48000,'protected'),(96000,'protected'),(48000,'uniform'),(48000,'existing')]:
+    if a.case and a.case!=f'{rate}-{kind}':continue
     root=scope/f'case-{rate}-{kind}'/'project-é-日本';root.mkdir(parents=True)
     driver(a.span_fixture,'prepare',root,rate=rate)
     requests=driver(a.assembly_fixture,'nominal-prepare',root,pairKind=kind);(root/'media/derived').mkdir(exist_ok=True)
@@ -62,5 +63,5 @@ for rate,kind in [(44100,'protected'),(48000,'protected'),(96000,'protected'),(4
     assert before=={str(p):sha(p) for p in originals}
     reports.append(dict(rate=rate,pairKind=kind,nominalProcessors=nominal_ids,spanProtocols=protocols,assembly=assembly,publication=publication,crashes=crashes,originalInputsUnchanged=True))
 assert sha(a.worker)==binary and sha(a.nominal_worker)==nominal_binary and sha(a.job_fixture)==job_binary
-(scope/'report.json').write_text(json.dumps(dict(workerSha256=binary,nominalWorkerSha256=nominal_binary,publicationExecutorSha256=job_binary,processes=rows,reports=reports,actualNominalWorkers=True,abruptProcessExits=15,actualPowerLoss=False,desktopEntryEnabled=False,physicalAudio=False,qualityAdmission=False),indent=2)+'\n')
-print(json.dumps(dict(scope=str(scope),pairs=len(reports),abruptProcessExits=15,qualityAdmission=False)))
+(scope/'report.json').write_text(json.dumps(dict(workerSha256=binary,nominalWorkerSha256=nominal_binary,publicationExecutorSha256=job_binary,processes=rows,reports=reports,actualNominalWorkers=True,abruptProcessExits=3*len(reports),actualPowerLoss=False,desktopEntryEnabled=False,physicalAudio=False,qualityAdmission=False),indent=2)+'\n')
+print(json.dumps(dict(scope=str(scope),pairs=len(reports),abruptProcessExits=3*len(reports),qualityAdmission=False)))
