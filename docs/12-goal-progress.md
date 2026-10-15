@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Matching Windows preview installed (2026-10-15)
+
+[Checkpoint 339](339-installed-windows-batched.md) installs frozen `97e9ecd` and
+verifies all 65 payload files, shortcuts and uninstall registration. After an
+initial automation failure while the render dialog was opening, continuation of
+the same live render passes Review/Apply, Undo/Redo, save/reopen/export and normal
+close. All 18,032 stereo export frames match the independent reference exactly;
+202 original history/media and 401 earlier-preview files remain unchanged. The
+app reports 13.6 seconds, but the original independent 30-second timing gate is
+not passed. Original failure and continuation are retained. All VMs are off and
+temporary transport is removed. CI at `cae1cb1` is still live; retain its original
+terminal evidence before PR advancement. Full goal incomplete.
+
 ## Matching Windows candidate prepared (2026-10-15)
 
 [Checkpoint 338](338-windows-batched-preview.md) prepares the Windows installer
