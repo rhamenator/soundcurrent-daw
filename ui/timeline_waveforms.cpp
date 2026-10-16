@@ -17,9 +17,10 @@ void TimelineWaveforms::context(std::shared_ptr<const Session> session, std::fil
     items_.clear(); refused_ = false;
     session_ = std::move(session); root_ = std::move(root); epoch_ = epoch;
 }
-void TimelineWaveforms::update(const std::vector<Id> &assets) {
+void TimelineWaveforms::update(const std::vector<Id> &assets, const std::vector<WaveformWindow> &windows) {
     if (closing_ || !session_ || root_.empty() || !epoch_) return;
     try {
+        if (!windows.empty() && windows.size() != assets.size()) throw ProjectError(ErrorCode::InvalidParameter, "Waveform windows differ from visible sources");
         if (assets.size() > maximumVisibleSources) throw ProjectError(ErrorCode::ResourceLimit, "Visible waveform source count");
         if (!cache_) {
             auto credit = memory_.reserve(65536 + maximumVisibleSources * 4096);
@@ -36,21 +37,23 @@ void TimelineWaveforms::update(const std::vector<Id> &assets) {
         // two source-count buckets avoid changing keys for every added clip.
         const auto slots = std::bit_ceil(std::max<std::size_t>(1, assets.size()));
         const auto channelBins = std::min<std::size_t>(65536, 1048576 / slots);
-        for (const auto &id : assets) {
+        for (std::size_t index = 0; index < assets.size(); ++index) {
+            const auto &id = assets[index];
             const auto a = std::find_if(session_->assets.begin(), session_->assets.end(), [&](const auto &a) { return a.id == id; });
             if (a == session_->assets.end() || !a->relativePath.starts_with("media/"))
                 throw ProjectError(ErrorCode::InvalidState, "Waveform asset missing");
             const auto channels = a->layout.channels;
             if (!channels || a->frames <= 0 || a->sha256.size() != 64)
                 throw ProjectError(ErrorCode::InvalidState, "Invalid waveform source format");
-            // Detail is explicit overview policy, not a fallback after a worker
-            // rejects a requested resolution. Fine-window support remains separate.
+            // Retain only the requested source span. Full-file validation still
+            // precedes publication; cropped neighbors cannot contribute extrema.
+            const auto window = resolveWaveformWindow(std::uint64_t(a->frames), windows.empty() ? WaveformWindow{} : windows[index]);
             std::uint64_t width = 1;
             const auto target = std::max<std::uint64_t>(1, channelBins / channels);
-            while ((a->frames / width + (a->frames % width != 0)) > target) width *= 2;
+            while ((window.frames / width + (window.frames % width != 0)) > target) width *= 2;
             WaveformKey key; std::copy(a->sha256.begin(), a->sha256.end(), key.source.sha256.begin());
             key.source.frames=std::uint64_t(a->frames); key.source.rate=a->sampleRate; key.source.channels=channels;
-            key.relative=a->relativePath.substr(6); key.baseFramesPerBin=width;
+            key.relative=a->relativePath.substr(6); key.baseFramesPerBin=width; key.window=window;
             keys.push_back(key); next.push_back({id, std::move(key), {}});
         }
         cache_->setVisible(root_ / "media", epoch_, std::move(keys));
@@ -100,7 +103,7 @@ std::size_t TimelineWaveforms::readyCount() const {
 }
 void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, const QRectF &viewport) const {
     const auto item = std::find_if(items_.begin(), items_.end(), [&](const auto &i) { return i.asset == clip.assetId; });
-    if (!session_ || item == items_.end() || !item->result.waveform || rect.width() < 2) return;
+    if (!session_ || item == items_.end() || !item->result.waveform || item->result.waveform->levels().empty() || rect.width() < 2) return;
     const auto &wave = *item->result.waveform;
     const auto k = rect.width() / double(clip.lengthFrames);
     const auto area = rect.adjusted(3, 5, -3, -5).intersected(viewport);
@@ -123,6 +126,7 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
         const auto first = std::clamp<Frame>(Frame(std::floor((area.left()-rect.left())/k)), 0, clip.lengthFrames);
         const auto end = std::clamp<Frame>(Frame(std::ceil((area.right()-rect.left())/k)), first, clip.lengthFrames);
         const auto span = waveformCoverage(wave, clip, session_->sampleRate, level, first, end);
+        const auto fine = waveformCoverage(wave, clip, session_->sampleRate, 0, first, end);
         p.save(); saved = true; p.setClipRect(area, Qt::IntersectClip);
         p.fillRect(area, QColor(35,45,55));
         const auto channels = wave.source().channels;
@@ -131,13 +135,14 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
             const auto middle = rect.top() + 5 + (rect.height()-10) * (lane+.5) / lanes;
             const auto height = (rect.height()-10) / (2*lanes);
             p.setPen(QColor(100, 115, 135)); p.drawLine(QPointF(area.left(), middle), QPointF(area.right(), middle));
-            for (auto bin = span.firstFullBin; bin < span.endFullBin; ++bin) {
-                auto peak = wave.peak(level, bin, channel_.value_or(lane));
+            const auto paintBins = [&](std::size_t detail, std::uint64_t begin, std::uint64_t stop) {
+              for (auto bin = begin; bin < stop; ++bin) {
+                auto peak = wave.peak(detail, bin, channel_.value_or(lane));
                 if (!channel_ && channels > 2) for (unsigned c = 1; c < channels; ++c) {
-                    const auto v = wave.peak(level, bin, c);
+                    const auto v = wave.peak(detail, bin, c);
                     peak.minimum = std::min(peak.minimum, v.minimum); peak.maximum = std::max(peak.maximum, v.maximum);
                 }
-                const auto position = waveformBinProjectRange(wave, clip, session_->sampleRate, level, bin);
+                const auto position = waveformBinProjectRange(wave, clip, session_->sampleRate, detail, bin);
                 const auto left = rect.left() + double(position.first)*k;
                 const auto right = rect.left() + double(position.second)*k;
                 const auto over = peak.minimum < -1 || peak.maximum > 1;
@@ -146,14 +151,28 @@ void TimelineWaveforms::draw(QPainter &p, const Clip &clip, const QRectF &rect, 
                 const auto bottom = middle - std::clamp(peak.minimum, -1., 1.)*height;
                 if (right-left <= 2) p.drawLine(QPointF((left+right)/2,top),QPointF((left+right)/2,bottom));
                 else p.fillRect(QRectF(left, top, right-left, std::max(1.,bottom-top)), p.pen().color());
+              }
+            };
+            paintBins(level, span.firstFullBin, span.endFullBin);
+            if (level) {
+                // Refine only the two coarse crop edges with already admitted
+                // base data. Work never exceeds the retained base channel-bins.
+                if (span.firstFullBin == span.endFullBin) paintBins(0, fine.firstFullBin, fine.endFullBin);
+                else {
+                    const auto baseWidth=wave.levels()[0].framesPerBin;
+                    const auto left=wave.sourceRange(level,span.firstFullBin).first-wave.window().first;
+                    const auto right=wave.sourceRange(level,span.endFullBin-1).second-wave.window().first;
+                    paintBins(0,fine.firstFullBin,std::min(fine.endFullBin,left/baseWidth));
+                    paintBins(0,std::max(fine.firstFullBin,right/baseWidth+(right%baseWidth!=0)),fine.endFullBin);
+                }
             }
         }
         // Do not draw extrema from samples outside a trimmed/visible interval.
         const auto shade = [&](double left, double right) { if (right > left) p.fillRect(QRectF(left,area.top(),right-left,area.height()),QBrush(QColor(240,205,120),Qt::BDiagPattern)); };
-        if (span.firstFullBin == span.endFullBin) shade(area.left(),area.right());
+        if (fine.firstFullBin == fine.endFullBin) shade(area.left(),area.right());
         else {
-            if (span.needsFinerLeft) shade(area.left(),rect.left()+double(waveformBinProjectRange(wave,clip,session_->sampleRate,level,span.firstFullBin).first)*k);
-            if (span.needsFinerRight) shade(rect.left()+double(waveformBinProjectRange(wave,clip,session_->sampleRate,level,span.endFullBin-1).second)*k,area.right());
+            if (fine.needsFinerLeft) shade(area.left(),rect.left()+double(waveformBinProjectRange(wave,clip,session_->sampleRate,0,fine.firstFullBin).first)*k);
+            if (fine.needsFinerRight) shade(rect.left()+double(waveformBinProjectRange(wave,clip,session_->sampleRate,0,fine.endFullBin-1).second)*k,area.right());
         }
         p.restore(); saved = false;
     } catch (const ProjectError &) { if (saved) p.restore(); }

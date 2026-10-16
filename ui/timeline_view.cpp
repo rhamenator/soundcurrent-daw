@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "timeline_view.hpp"
+#include <soundcurrent/waveform_projection.hpp>
 #include "gui_resources.hpp"
 #include <QPainter>
 #include <QTimer>
@@ -366,20 +367,41 @@ void TimelineView::pollWaveforms() {
     if (waveformsDirty_) {
         constexpr auto maximum = TimelineWaveforms::maximumVisibleSources;
         std::vector<Id> assets; assets.reserve(maximum + 1);
+        std::vector<WaveformWindow> windows; windows.reserve(maximum + 1);
         const auto k = scale(); const auto horizontal = horizontalScrollBar()->value();
         const auto first = clippedFrame(static_cast<long double>(horizontal)/k, extent_);
-        const auto end = clippedFrame((static_cast<long double>(horizontal)+std::max(1,viewport()->width()-labelWidth))/k,extent_);
+        const auto edge = clippedFrame((static_cast<long double>(horizontal)+std::max(1,viewport()->width()-labelWidth))/k,extent_);
+        const auto end = edge < extent_ ? edge + 1 : edge;
         const auto begin = std::size_t(verticalScrollBar()->value());
         const auto shown = std::size_t(std::max(0,viewport()->height()-header)+rowHeight()-1)/rowHeight();
         for (auto row=begin; row<std::min(session_->tracks.size(),begin+shown) && assets.size()<=maximum; ++row) {
             visibleClips(row,first,end,visible_);
             for (auto n:visible_) {
-                const auto &id=session_->tracks[row].clips[n].assetId;
-                if (std::find(assets.begin(),assets.end(),id)==assets.end()) assets.push_back(id);
+                const auto &clip=session_->tracks[row].clips[n]; const auto &id=clip.assetId;
+                const auto asset=std::find_if(session_->assets.begin(),session_->assets.end(),[&](const auto &a){return a.id==id;});
+                if(asset==session_->assets.end()) {
+                    // Let the adapter refuse the entire invalid view; never hide
+                    // a missing asset by silently preparing the remaining subset.
+                    assets.push_back(id);windows.emplace_back();break;
+                }
+                const auto map=clipSourceMap(clip,asset->sampleRate,session_->sampleRate);
+                const auto sample=[&](Frame frame) {
+                    const auto p=map.at(std::clamp<Frame>(frame-clip.startFrame,0,clip.lengthFrames));
+                    const auto whole=std::uint64_t(p.frame), frames=std::uint64_t(asset->frames);
+                    return whole>=frames ? frames : whole+(p.fraction!=0);
+                };
+                const auto left=sample(first), right=sample(end);
+                const auto found=std::find(assets.begin(),assets.end(),id);
+                if(found==assets.end()) {assets.push_back(id);windows.push_back({left,right-left});}
+                else {
+                    auto &window=windows[std::size_t(found-assets.begin())];
+                    const auto stop=std::max(window.first+window.frames,right);
+                    window.first=std::min(window.first,left);window.frames=stop-window.first;
+                }
                 if (assets.size()>maximum) break;
             }
         }
-        waveforms_.update(assets);
+        waveforms_.update(assets,windows);
     } else waveforms_.poll();
     const auto message=waveforms_.status();
     if (waveformsDirty_ || before!=waveforms_.readyCount() || message!=waveformStatus_) viewport()->update();

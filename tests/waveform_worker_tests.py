@@ -27,7 +27,7 @@ def wave(channels, pcm):
                         channels * 8, 64) + b"data" + struct.pack("<I", len(data)) + data)
 
 
-def run_case(channels, frames, width, change=None, pcm_override=None):
+def run_case(channels, frames, width, change=None, pcm_override=None, window=(0, 2**64-1)):
     pcm = ([((f * channels + c) % 29 - 12) / 2 for f in range(frames) for c in range(channels)]
            if pcm_override is None else pcm_override)
     if pcm and pcm_override is None:
@@ -39,7 +39,8 @@ def run_case(channels, frames, width, change=None, pcm_override=None):
     options = {"root": str(root), "relative": path.name, "sha256": digest, "frames": str(frames),
                "rate": "48000", "channels": str(channels), "base-frames": str(width),
                "operation": operation, "epoch": "9", "generation": "47",
-               "maximum-bytes": str(len(data)), "memory-bytes": str(128 * 1024 * 1024)}
+               "maximum-bytes": str(len(data)), "memory-bytes": str(128 * 1024 * 1024),
+               "window-first": str(window[0]), "window-frames": str(window[1])}
     if change:
         options.update(change)
     args = [worker] + [item for key, value in options.items() for item in ("--" + key, value)]
@@ -57,22 +58,24 @@ def run_case(channels, frames, width, change=None, pcm_override=None):
     assert set(p.name for p in root.iterdir()) == {path.name}, "Worker created a file"
     if change or pcm_override is not None:
         assert child.returncode != 0 and not out, "Failed request published waveform"
-        assert err.startswith(b"sc-waveform-v1:"), err
+        assert err.startswith(b"sc-waveform-v2:"), err
         return
     assert child.returncode == 0 and err == b"", (child.returncode, err)
-    header = (b"SCWAVE01" + operation.encode() + struct.pack("<QQQ", 9, 47, child.pid) +
-              digest.encode() + struct.pack("<QIIQ", frames, 48000, channels, width))
-    assert len(header) == 156 and out[:156] == header, "Wrong protocol identity or byte order"
+    header = (b"SCWAVE02" + operation.encode() + struct.pack("<QQQ", 9, 47, child.pid) +
+              digest.encode() + struct.pack("<QIIQ", frames, 48000, channels, width) + struct.pack("<QQ", *window))
+    assert len(header) == 172 and out[:172] == header, "Wrong protocol identity or byte order"
     expected = bytearray(header)
-    while frames:
-        bins = (frames + width - 1) // width
+    start = window[0]
+    count = frames if window[1] == 2**64-1 else window[1]
+    while count:
+        bins = (count + width - 1) // width
         for b in range(bins):
             for c in range(channels):
-                values = [pcm[f * channels + c] for f in range(b * width, min(frames, (b + 1) * width))]
+                values = [pcm[f * channels + c] for f in range(start + b * width, start + min(count, (b + 1) * width))]
                 expected.extend(struct.pack("<dd", min(values), max(values)))
         if bins == 1:
             break
-        width = min(frames, width * 2)
+        width = min(count, width * 2)
     assert out == expected, "Independent source extrema or exact wire extent differs"
 
 
@@ -81,7 +84,13 @@ try:
         for frames in (0, 1, 19):
             for width in (1, 3, 64):
                 run_case(channels, frames, width)
-    for change in ({"sha256": "0" * 64}, {"frames": "20"}, {"rate": "96000"},
+    for channels in (1, 2, 257, 1024):
+        for window in ((5, 9), (7, 1), (18, 1), (19, 0), (0, 0)):
+            for width in (1, 3, 64):
+                run_case(channels, 19, width, window=window)
+    for change in ({"window-first": "20", "window-frames": "0"},
+                   {"window-first": "18", "window-frames": "2"},
+                   {"window-first": "1"},{"sha256": "0" * 64}, {"frames": "20"}, {"rate": "96000"},
                    {"channels": "1"}, {"base-frames": "0"}, {"epoch": "-1"},
                    {"frames": str(2**64)}, {"memory-bytes": "1"},
                    {"relative": "../audio-été.wav"}, {"relative": "missing.wav"},
@@ -89,6 +98,7 @@ try:
         run_case(2, 19, 3, change)
     for invalid in (math.inf, -math.inf, math.nan):
         run_case(2, 19, 3, pcm_override=[0.25] * 37 + [invalid])
+    run_case(2, 19, 1, pcm_override=[0.25] * 37 + [math.nan], window=(1, 5))
     run_case(1024, 19, 1, {"memory-bytes": str(1024 * 1024)})
     print(json.dumps({"passed": True, "cases": len(reports), "reports": reports}, indent=2))
     shutil.rmtree(root)

@@ -20,15 +20,16 @@ struct Layout {
 };
 Layout plan(const WaveformTicket &t, const WaveformLimits &limits) {
     check(t.operation.str().size() == 36 && limits.baseFramesPerBin && limits.maximumBaseBins && limits.maximumPayloadBytes &&
-        t.baseFramesPerBin == limits.baseFramesPerBin && t.source.rate && t.source.channels &&
+        t.baseFramesPerBin == limits.baseFramesPerBin && t.window == limits.window && t.source.rate && t.source.channels &&
         t.source.channels <= limits.validation.maximumChannels &&
         t.source.frames <= limits.validation.maximumFrames &&
         std::all_of(t.source.sha256.begin(), t.source.sha256.end(), [](char c) {
             return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
         }), "Invalid waveform ticket or trusted policy", ErrorCode::InvalidParameter);
+    const auto window = resolveWaveformWindow(t.source.frames, t.window);
     Layout p;
     auto width = t.baseFramesPerBin;
-    auto bins = t.source.frames / width + (t.source.frames % width != 0);
+    auto bins = window.frames / width + (window.frames % width != 0);
     check(bins <= limits.maximumBaseBins, "Waveform protocol bin limit", ErrorCode::ResourceLimit);
     PayloadCharge charge("Waveform reply model", limits.maximumPayloadBytes);
     charge.add(sizeof(Waveform));
@@ -41,7 +42,7 @@ Layout plan(const WaveformTicket &t, const WaveformLimits &limits) {
         p.samples += n;
         if (bins == 1) break;
         bins = bins / 2 + bins % 2;
-        width = width >= t.source.frames - width ? t.source.frames : width * 2;
+        width = width >= window.frames - width ? window.frames : width * 2;
     }
     p.payload = charge.bytes();
     check(p.samples <= (std::numeric_limits<std::size_t>::max() - waveformReplyHeaderBytes) / 16,
@@ -68,17 +69,18 @@ struct Reader {
     }
 };
 void header(Writer &w, const WaveformTicket &t, std::uint64_t pid) {
-    w.text("SCWAVE01"); w.text(t.operation.str());
+    w.text("SCWAVE02"); w.text(t.operation.str());
     w.number(t.projectEpoch, 8); w.number(t.generation, 8); w.number(pid, 8);
     w.text({t.source.sha256.data(), t.source.sha256.size()}); w.number(t.source.frames, 8);
     w.number(t.source.rate, 4); w.number(t.source.channels, 4); w.number(t.baseFramesPerBin, 8);
+    w.number(t.window.first, 8); w.number(t.window.frames, 8);
 }
 } // namespace
 std::size_t waveformReplySize(const WaveformTicket &t, WaveformLimits limits) { return plan(t, limits).wire; }
 WaveformReply encodeWaveformReply(const Waveform &wave, const WaveformTicket &t,
     std::uint64_t pid, ResourceLedger ledger, WaveformLimits limits, std::stop_token stop) {
     poll(stop); const auto p = plan(t, limits);
-    check(pid && wave.source() == t.source && wave.levels().size() == p.count,
+    check(pid && wave.source() == t.source && wave.window() == resolveWaveformWindow(t.source.frames, t.window) && wave.levels().size() == p.count,
           "Waveform encoder source differs");
     WaveformReply reply;
     reply.lease_ = ledger.reserve(p.wire);
@@ -109,6 +111,7 @@ Waveform decodeWaveformReply(std::span<const char> bytes, const WaveformTicket &
     Reader reader{bytes.data()}; reader.text({expected.data(), expected.size()});
     Waveform wave;
     wave.reservation_ = ledger.reserve(p.payload);
+    wave.window_ = resolveWaveformWindow(t.source.frames, t.window);
     wave.source_ = t.source; wave.levels_ = p.levels; wave.levelCount_ = p.count;
     wave.peaks_ = std::make_unique<WaveformPeak[]>(p.samples);
     for (std::size_t l = 0; l < p.count; ++l) {

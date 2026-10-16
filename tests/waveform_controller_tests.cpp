@@ -58,11 +58,20 @@ int main(int argc, char **argv) {
             check(!held->resultFor(changed), "Borrowed waveform crossed project opening"); changed = selection; ++changed.ticket.generation;
             check(!held->resultFor(changed), "Borrowed waveform crossed view generation"); changed = selection; changed.ticket.source.sha256[0] ^= 1;
             check(!held->resultFor(changed), "Borrowed waveform crossed source identity");
+            changed=selection; changed.ticket.window={1, 3};
+            check(!held->resultFor(changed), "Borrowed waveform crossed source window");
             check(c.clearResult(), "Idle clear refused"); c.requestShutdown(); wait([&] { return c.snapshot()->closed; });
             check(c.submit(selection) == Admission::Closing && !c.clearResult(), "Closed controller admitted work");
         }
         check(held->resultFor(selection)->peak(0, 0, 2).minimum == -9, "Borrowed result lost storage"); held.reset(); retired(memory);
-        for (unsigned scenario = 0; scenario < 6; ++scenario) {
+        {
+            auto selected=selection; selected.ticket.window={2, 3}; current.set(selected);
+            WaveformController c(options()); check(c.submit(selected)==Admission::Accepted,"Window child refused");
+            const auto s=finish(c); check(s->resultFor(selected) && s->waveform->window()==WaveformWindow{2,3},"Window child result differs");
+            check(s->waveform->sourceRange(0,0)==std::pair<std::uint64_t,std::uint64_t>{2,4},"Window child absolute range differs");
+        }
+        retired(memory); current.set(selection);
+        for (unsigned scenario = 0; scenario < 7; ++scenario) {
             current.set(selection); std::atomic<bool> entered = false, release = false, offGui = false;
             auto o = options(); const auto hook = [&] { offGui = QThread::currentThread() != app.thread(); entered = true; while (!release) QThread::msleep(1); };
             if (scenario < 3 || scenario == 5) o.beforeSpawn = hook; else o.afterChild = [&](auto, auto) { hook(); };
@@ -73,10 +82,10 @@ int main(int argc, char **argv) {
                 if (scenario == 0 || scenario == 3) c.requestCancel();
                 else if (scenario == 1) c.requestShutdown();
                 else if (scenario == 5) QTest::qWait(30);
-                else { auto changed = selection; ++changed.ticket.generation; current.set(changed); }
+                else { auto changed = selection; if(scenario==6) changed.ticket.window={1,3}; else ++changed.ticket.generation; current.set(changed); }
                 release = true;
                 const auto s = scenario == 1 ? (wait([&] { return c.snapshot()->closed; }), c.snapshot()) : finish(c);
-                check(!s->waveform && (scenario == 1 ? s->closed : s->phase == (scenario == 5 ? WaveformPhase::Fault : scenario == 2 || scenario == 4 ? WaveformPhase::Stale : WaveformPhase::Canceled)), "Canceled/stale result published");
+                check(!s->waveform && (scenario == 1 ? s->closed : s->phase == (scenario == 5 ? WaveformPhase::Fault : scenario == 2 || scenario == 4 || scenario == 6 ? WaveformPhase::Stale : WaveformPhase::Canceled)), "Canceled/stale result published");
                 check(scenario < 3 || scenario == 5 ? !s->childPid : s->childPid && s->childExit == 0, "Hook boundary child lifetime differs");
                 if (scenario == 5) check(s->timedOut, "Pre-launch work escaped the admission deadline");
             }
@@ -87,7 +96,7 @@ int main(int argc, char **argv) {
           WaveformController c(o); c.submit(missing); const auto s = finish(c);
           check(s->phase == WaveformPhase::Fault && s->error == ErrorCode::MissingMedia && s->childPid && s->childExit == 1 && !s->waveform, "Actual missing source diagnostic lost"); }
         retired(memory); current.set(selection);
-        for (unsigned byte : {0U, 8U, 44U, 52U, 60U, 68U, 132U, 140U, 144U, 148U}) {
+        for (unsigned byte : {0U, 8U, 44U, 52U, 60U, 68U, 132U, 140U, 144U, 148U, 156U, 164U}) {
             auto o = options(); o.afterChild = [byte](std::span<char> bytes, auto) { bytes[byte] ^= 1; };
             { WaveformController c(o); c.submit(selection); const auto s = finish(c);
               check(s->phase == WaveformPhase::Fault && s->error == ErrorCode::InvalidState && s->childPid && s->childExit == 0 && !s->waveform, "Foreign reply identity accepted"); }

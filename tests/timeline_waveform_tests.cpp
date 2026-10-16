@@ -49,13 +49,45 @@ int main(int argc,char **argv) {
             view.retryWaveforms();check(view.waveformReadyCount()==0,"Retry retained displayed source authority");
             wait([&]{return view.waveformReadyCount()==1;});
             view.setZoom(80);view.horizontalScrollBar()->setValue(400);QTest::qWait(100);
-            check(view.waveformReadyCount()==1,"Zoom lost prepared source");
+            wait([&]{return view.waveformReadyCount()==1;});
+            check(view.waveformReadyCount()==1,"Zoom did not prepare window detail");
             view.setSnapshot(std::make_shared<const Session>(session),2,root);
             check(view.waveformReadyCount()==0,"New opening displayed old authority");
             wait([&]{return view.waveformReadyCount()==1;});
             auto invalid=session;invalid.assets[0].sha256=std::string(64,'a');
             view.setSnapshot(std::make_shared<const Session>(invalid),3,root);QTest::qWait(500);
             check(view.waveformReadyCount()==0,"Wrong source digest displayed old waveform");
+            view.shutdownWaveforms();wait([&]{return view.waveformsClosed();});
+        }
+        {
+            constexpr unsigned frames=262144, crop=120001;
+            std::string data="RIFF";put(data,36+frames*8,4);data+="WAVEfmt ";put(data,16,4);put(data,3,2);put(data,1,2);
+            put(data,48000,4);put(data,384000,4);put(data,8,2);put(data,64,2);data+="data";put(data,frames*8,4);
+            for(unsigned n=0;n<frames;++n)put(data,std::bit_cast<std::uint64_t>(n==crop-1?8.:n==crop+500?-.8:.25),8);
+            {std::ofstream out(root/"media/window.wav",std::ios::binary);out<<data;check(bool(out),"Window fixture write failed");}
+            auto cropped=makeOneTrackSession("Cropped fine detail","Mono");
+            Asset source;source.relativePath="media/window.wav";source.frames=frames;source.sampleRate=48000;source.layout={LayoutKind::Mono,1};
+            {ApprovedMediaRoot media(root/"media",memory);auto file=media.open("window.wav",4*1024*1024);const auto hash=file.digest();source.sha256.assign(hash.data(),hash.size());}
+            Clip clip;clip.assetId=source.id;clip.sourceFrame=crop;clip.lengthFrames=1000;
+            cropped.assets={source};cropped.tracks[0].clips={clip};validate(cropped);
+            TimelineView view(nullptr,memory);view.resize(1000,240);view.show();view.setSnapshot(std::make_shared<const Session>(cropped),8,root);view.setZoom(100);
+            wait([&]{return view.waveformReadyCount()==1;});
+            const auto image=view.viewport()->grab().toImage();const auto rect=view.clipRectangle(cropped.tracks[0].id,clip.id).adjusted(3,5,-3,-5).toAlignedRect();
+            unsigned peakPixels=0,shadedPixels=0,overs=0;
+            for(int y=rect.top();y<=rect.bottom();++y)for(int x=rect.left();x<=rect.right();++x) {
+                const auto color=image.pixelColor(QPoint(x,y)*image.devicePixelRatio());
+                peakPixels+=color==QColor(225,245,255);shadedPixels+=color==QColor(240,205,120);overs+=color==QColor(255,80,75);
+            }
+            check(peakPixels>100,"Cropped long source has no fine peaks");
+            check(!shadedPixels && !overs,"Crop used coarse neighboring extrema");
+            const auto bounds=view.clipRectangle(cropped.tracks[0].id,clip.id);
+            const int eventX=int(std::lround(bounds.left()+500.5*bounds.width()/1000));
+            unsigned eventPixels=0;
+            for(int y=int(bounds.center().y())+4;y<rect.bottom();++y)for(int x=eventX-2;x<=eventX+2;++x)
+                eventPixels+=image.pixelColor(QPoint(x,y)*image.devicePixelRatio())==QColor(225,245,255);
+            check(eventPixels>10,"Single-sample event within crop is missing");
+            const auto capture=qEnvironmentVariable("SC_WINDOW_WAVEFORM_CAPTURE");
+            if(!capture.isEmpty())check(view.grab().save(capture),"Fine-window screenshot failed");
             view.shutdownWaveforms();wait([&]{return view.waveformsClosed();});
         }
         // A dense view exceeds the old 32-source ceiling. Use actual independent

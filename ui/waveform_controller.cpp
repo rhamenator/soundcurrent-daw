@@ -63,7 +63,7 @@ struct WaveformController::State : QThread {
         };
         canceled(token); fresh();
         const auto &selected = view.selection->value; const auto &t = selected.ticket;
-        WaveformLimits limits; limits.baseFramesPerBin = t.baseFramesPerBin;
+        WaveformLimits limits; limits.baseFramesPerBin = t.baseFramesPerBin; limits.window = t.window;
         const auto capacity = waveformReplySize(t, limits);
         // This same ledger must admit the decoded model while receive storage
         // still exists. Reserve the child allowance before any process starts.
@@ -81,7 +81,8 @@ struct WaveformController::State : QThread {
             "--channels", QString::number(t.source.channels), "--base-frames", QString::number(t.baseFramesPerBin),
             "--operation", QString::fromStdString(t.operation.str()), "--epoch", QString::number(t.projectEpoch),
             "--generation", QString::number(t.generation), "--maximum-bytes", QString::number(options.maximumSourceBytes),
-            "--memory-bytes", QString::number(qulonglong(options.childMemoryBytes))};
+            "--memory-bytes", QString::number(qulonglong(options.childMemoryBytes)),
+            "--window-first", QString::number(t.window.first), "--window-frames", QString::number(t.window.frames)};
         QProcess child; child.setProcessChannelMode(QProcess::SeparateChannels);
         bool stopping = false, killed = false, overflow = false, stale = false;
         auto stoppingAt = begun;
@@ -138,7 +139,7 @@ struct WaveformController::State : QThread {
             for (const auto code : {ErrorCode::InvalidId, ErrorCode::InvalidState, ErrorCode::UnsupportedSchema,
                     ErrorCode::InvalidParameter, ErrorCode::Io, ErrorCode::MissingMedia,
                     ErrorCode::MediaMismatch, ErrorCode::Canceled, ErrorCode::ResourceLimit}) {
-                const auto known = "sc-waveform-v1:error:" + std::to_string(static_cast<unsigned>(code));
+                const auto known = "sc-waveform-v2:error:" + std::to_string(static_cast<unsigned>(code));
                 if (!used && (diagnostic == known + "\n" || diagnostic == known + "\r\n"))
                     throw ProjectError(code, "Waveform worker refused source");
             }
@@ -188,7 +189,7 @@ Admission WaveformController::submit(WaveformSelection value) {
     const std::string_view rootUtf8(reinterpret_cast<const char *>(rootBytes.data()), rootBytes.size());
     check(rootUtf8.size() <= 4096 && validUtf8(rootUtf8) && rootUtf8.find('\0') == rootUtf8.npos,
           "Invalid waveform root encoding", ErrorCode::InvalidParameter);
-    WaveformLimits limits; limits.baseFramesPerBin = value.ticket.baseFramesPerBin;
+    WaveformLimits limits; limits.baseFramesPerBin = value.ticket.baseFramesPerBin; limits.window = value.ticket.window;
     (void)waveformReplySize(value.ticket, limits);
     auto selection = std::make_shared<const OwnedWaveformSelection>(OwnedWaveformSelection{
         state_->options.memory.reserve(32768), std::move(value), std::chrono::steady_clock::now()});

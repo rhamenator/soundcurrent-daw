@@ -28,9 +28,9 @@ int run(const std::vector<std::string> &args) {
     try {
         // Strict bounded command schema. Only the supervising application chooses
         // these limits; untrusted project fields must not select a larger policy.
-        constexpr std::array<std::string_view, 12> flags{
+        constexpr std::array<std::string_view, 14> flags{
             "--root", "--relative", "--sha256", "--frames", "--rate", "--channels",
-            "--base-frames", "--operation", "--epoch", "--generation", "--maximum-bytes", "--memory-bytes"};
+            "--base-frames", "--operation", "--epoch", "--generation", "--maximum-bytes", "--memory-bytes", "--window-first", "--window-frames"};
         require(args.size() == flags.size() * 2 + 1);
         for (std::size_t i = 0; i < flags.size(); ++i) {
             require(args[1 + 2 * i] == flags[i]);
@@ -50,7 +50,8 @@ int run(const std::vector<std::string> &args) {
         WaveformTicket ticket{Id(value(7)), number(value(8)), number(value(9)),
             {{}, number(value(3)), static_cast<std::uint32_t>(rate), static_cast<std::uint32_t>(channels)}, number(value(6))};
         std::copy(value(2).begin(), value(2).end(), ticket.source.sha256.begin());
-        WaveformLimits limits; limits.baseFramesPerBin = ticket.baseFramesPerBin;
+        ticket.window = {number(value(12)), number(value(13))};
+        WaveformLimits limits; limits.baseFramesPerBin = ticket.baseFramesPerBin; limits.window = ticket.window;
         const auto maximum = number(value(10)), memory = number(value(11));
         require(maximum && maximum <= 8ULL * 1024 * 1024 * 1024 &&
                 memory >= 1024 * 1024 && memory <= 256ULL * 1024 * 1024);
@@ -69,16 +70,16 @@ int run(const std::vector<std::string> &args) {
         std::cout.write(reply.bytes().data(), static_cast<std::streamsize>(reply.bytes().size()));
         std::cout.flush(); return std::cout ? 0 : 1;
     } catch (const ProjectError &e) {
-        std::cerr << "sc-waveform-v1:error:" << static_cast<unsigned>(e.code()) << '\n'; return 1;
+        std::cerr << "sc-waveform-v2:error:" << static_cast<unsigned>(e.code()) << '\n'; return 1;
     } catch (const std::exception &) {
-        std::cerr << "sc-waveform-v1:failed\n"; return 1;
+        std::cerr << "sc-waveform-v2:failed\n"; return 1;
     }
 }
 } // namespace
 #ifdef _WIN32
 int wmain(int argc, wchar_t **argv) {
     if (_setmode(_fileno(stdout), _O_BINARY) == -1) return 1;
-    if (argc != 25) return 1;
+    if (argc != 29) return 1;
     std::vector<std::string> args;
     for (int i = 0; i < argc; ++i) {
         const auto size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, argv[i], -1, nullptr, 0, nullptr, nullptr);
@@ -91,7 +92,7 @@ int wmain(int argc, wchar_t **argv) {
 }
 #else
 int main(int argc, char **argv) {
-    if (argc != 25) return 1;
+    if (argc != 29) return 1;
     for (int i = 0; i < argc; ++i) if (std::string_view(argv[i]).size() > 4096) return 1;
     return run({argv, argv + argc});
 }

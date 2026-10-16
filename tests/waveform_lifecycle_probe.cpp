@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
         for (;;) { out.write(bank.data(), std::streamsize(bank.size())); out.flush(); if (!out) return 1; }
     }
     if (mode == "100004") { std::cout << "SCWAVE01"; return 0; }
-    if (mode == "100005") { std::cerr << "sc-waveform-v1:error:5\r\n"; return 1; }
-    if (mode == "100006") { std::cerr << "untrusted diagnostic sc-waveform-v1:error:5\n"; return 1; }
+    if (mode == "100005") { std::cerr << "sc-waveform-v2:error:5\r\n"; return 1; }
+    if (mode == "100006") { std::cerr << "untrusted diagnostic sc-waveform-v2:error:5\n"; return 1; }
     return 7;
 }

@@ -91,6 +91,29 @@ int main(int argc, char **argv) {
         check(memory.usage().reservedBytes == borrowed->chargedBytes(), "Cache metadata/controller credit leaked"); borrowed.reset();
         check(memory.usage().reservedBytes == 0, "Borrowed cache credit not retired");
         {
+            WaveformCache cache(options()); auto left=a, right=a;
+            left.window={1,5}; right.window={4,5};
+            cache.setVisible(root,1,{left,right});
+            auto l=ready(cache,root,1,left), r=ready(cache,root,1,right);
+            check(l!=r && l->peak(0,0,0)==WaveformPeak{-2,-1} && r->peak(0,0,0)==WaveformPeak{1,2},"Different source windows collided");
+            const auto spawned=launches.load();cache.setVisible(root,1,{left,right});cache.poll();
+            check(launches==spawned,"Identical windows rebuilt");
+            for (const auto &wave : {l,r}) for (Frame first=0;first<=10;++first) for(Frame end=first;end<=10;++end) {
+                Clip clip;clip.lengthFrames=10;
+                for(std::size_t level=0;level<wave->levels().size();++level) {
+                    const auto span=waveformCoverage(*wave,clip,48000,level,first,end);
+                    for(std::uint64_t bin=0;bin<wave->levels()[level].bins;++bin) {
+                        const auto [begin,stop]=wave->sourceRange(level,bin);
+                        check((bin>=span.firstFullBin && bin<span.endFullBin)==(first<end && begin>=std::uint64_t(first) && stop<=std::uint64_t(end)),"Window crop includes neighboring extrema");
+                        check(waveformBinProjectRange(*wave,clip,48000,level,bin)==std::pair<long double,long double>{begin,stop},"Window projection lost absolute source offset");
+                    }
+                }
+            }
+            auto invalid=left;invalid.window={9,2};
+            refused([&]{cache.setVisible(root,1,{invalid});},ErrorCode::InvalidParameter);
+            check(cache.lookup(root,1,left).waveform==l,"Invalid window changed prior cache");
+        }
+        {
             auto o = options(); o.maximumResidentBytes = 1; WaveformCache cache(o);
             refused([&] { cache.setVisible(root, 1, {a}); }, ErrorCode::ResourceLimit);
             check(!cache.entryCount() && !cache.workerSnapshot()->childPid, "Over-budget visible set partially prepared");

@@ -7,6 +7,7 @@ struct WaveformKey {
     WaveformIdentity source;
     std::string relative;
     std::uint64_t baseFramesPerBin = 256;
+    WaveformWindow window{};
     bool operator==(const WaveformKey &) const = default;
 };
 enum class CachedWaveformPhase {Missing, Pending, Loading, Ready, Fault};

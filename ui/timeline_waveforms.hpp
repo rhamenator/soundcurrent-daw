@@ -12,7 +12,7 @@ class TimelineWaveforms {
     static constexpr std::size_t maximumVisibleSources = 512;
     explicit TimelineWaveforms(ResourceLedger);
     void context(std::shared_ptr<const Session>, std::filesystem::path, std::uint64_t);
-    void update(const std::vector<Id> &visibleAssets);
+    void update(const std::vector<Id> &visibleAssets, const std::vector<WaveformWindow> &windows = {});
     void poll();
     void draw(QPainter &, const Clip &, const QRectF &, const QRectF &viewport) const;
     QString status() const;

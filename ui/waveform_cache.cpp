@@ -9,10 +9,10 @@ void require(bool good, const char *message, ErrorCode code = ErrorCode::Invalid
     if (!good) throw ProjectError(code, message);
 }
 WaveformTicket ticket(const WaveformKey &key, std::uint64_t epoch, std::uint64_t generation, Id id) {
-    return {std::move(id), epoch, generation, key.source, key.baseFramesPerBin};
+    return {std::move(id), epoch, generation, key.source, key.baseFramesPerBin, key.window};
 }
 std::size_t charge(const WaveformKey &key) {
-    WaveformLimits limits; limits.baseFramesPerBin = key.baseFramesPerBin;
+    WaveformLimits limits; limits.baseFramesPerBin = key.baseFramesPerBin; limits.window = key.window;
     // Conservative retained-model allowance; the wire adds its header whereas
     // the model adds fixed metadata. Never derive memory from child-provided sizes.
     return waveformReplySize(ticket(key, 1, 1, Id("00000000-0000-0000-0000-000000000001")), limits) + sizeof(Waveform);
@@ -128,7 +128,7 @@ void WaveformCache::poll() {
     if (s.closing || status->busy) return;
     if (s.active) {
         const auto expected = *s.active;
-        const WaveformKey key{expected.ticket.source, expected.relative, expected.ticket.baseFramesPerBin};
+        const WaveformKey key{expected.ticket.source, expected.relative, expected.ticket.baseFramesPerBin, expected.ticket.window};
         const auto found = s.find(key);
         const auto current = s.current->get();
         if (current && *current == expected && found != s.entries.end() && s.wanted(key)) {

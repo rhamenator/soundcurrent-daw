@@ -19,6 +19,12 @@ struct WaveformLevel {
     std::uint64_t framesPerBin = 0, bins = 0;
     std::size_t sampleOffset = 0;
 };
+struct WaveformWindow {
+    std::uint64_t first = 0, frames = UINT64_MAX; // {0, UINT64_MAX}: entire source.
+    bool operator==(const WaveformWindow &) const = default;
+};
+// Resolve the whole-source sentinel and validate without overflowing an endpoint.
+WaveformWindow resolveWaveformWindow(std::uint64_t sourceFrames, WaveformWindow);
 struct WaveformLimits {
     // Trusted worker policy. No adaptive loss of requested resolution on refusal.
     std::uint64_t baseFramesPerBin = 256;
@@ -27,6 +33,7 @@ struct WaveformLimits {
     // Header preflight and full validation each use this policy; their I/O
     // counters are separate. The caller's deadline covers the whole operation.
     WaveValidationLimits validation;
+    WaveformWindow window{};
 };
 // Immutable SOURCE sample extrema, not an image of resampled/processed output.
 // A bin covers [first,end); partial edge bins are never padded with silence.
@@ -41,6 +48,7 @@ class Waveform {
     Waveform(const Waveform &) = delete;
     Waveform &operator=(const Waveform &) = delete;
     const WaveformIdentity &source() const noexcept { return source_; }
+    WaveformWindow window() const noexcept { return window_; }
     std::span<const WaveformLevel> levels() const noexcept { return {levels_.data(), levelCount_}; }
     const WaveformPeak &peak(std::size_t level, std::uint64_t bin, std::uint32_t channel) const;
     std::pair<std::uint64_t, std::uint64_t> sourceRange(std::size_t level, std::uint64_t bin) const;
@@ -53,11 +61,13 @@ class Waveform {
     Waveform() = default;
     ResourceLease reservation_;
     WaveformIdentity source_;
+    WaveformWindow window_{0, 0};
     std::array<WaveformLevel, 64> levels_{};
     std::size_t levelCount_ = 0;
     std::unique_ptr<WaveformPeak[]> peaks_;
 };
-// Full pinned-file decode, finiteness/digest/expected-format check precedes any
+// Only requested-window extrema are retained. Full pinned-file decode and
+// finiteness/digest/expected-format checks (including outside the window) precede any
 // returned result. Exceptions/cancellation discard all partial peaks and credit.
 // Cooperative cancellation surrounds reads and reduction blocks; OS/decoder work
 // is not hard bounded. GUI callers must use an isolated child with a deadline,

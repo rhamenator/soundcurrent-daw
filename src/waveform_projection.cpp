@@ -21,11 +21,15 @@ WaveformCoverage waveformCoverage(const Waveform &wave, const Clip &clip, std::u
     WaveformCoverage result{begin, finish};
     if (begin == finish) return result;
     const auto &layout = wave.levels()[level]; const auto width = layout.framesPerBin;
-    result.firstFullBin = std::min(layout.bins, begin / width + (begin % width != 0));
-    result.endFullBin = finish == wave.source().frames ? layout.bins : finish / width;
+    const auto window = wave.window();
+    const auto windowEnd = window.first + window.frames;
+    const auto localBegin = std::clamp(begin, window.first, windowEnd) - window.first;
+    const auto localEnd = std::clamp(finish, window.first, windowEnd) - window.first;
+    result.firstFullBin = std::min(layout.bins, localBegin / width + (localBegin % width != 0));
+    result.endFullBin = localEnd == window.frames ? layout.bins : localEnd / width;
     result.endFullBin = std::max(result.firstFullBin, result.endFullBin);
-    result.needsFinerLeft = begin % width != 0;
-    result.needsFinerRight = finish != wave.source().frames && finish % width != 0;
+    result.needsFinerLeft = begin < window.first || localBegin % width != 0;
+    result.needsFinerRight = finish > windowEnd || (localEnd != window.frames && localEnd % width != 0);
     return result;
 }
 std::pair<long double, long double> waveformBinProjectRange(const Waveform &wave, const Clip &clip,

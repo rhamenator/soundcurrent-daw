@@ -38,15 +38,17 @@ void sameUsage(const ResourceLedger &ledger, const ResourceUsage &prior) {
     const auto now = ledger.usage();
     check(now.reservedBytes == prior.reservedBytes && now.owners == prior.owners, "Waveform credit leaked");
 }
-void oracle(const Waveform &w, const std::vector<double> &pcm, std::uint64_t base) {
-    const auto frames = pcm.size() / w.source().channels;
+void oracle(const Waveform &w, const std::vector<double> &pcm, std::uint64_t base,
+            std::uint64_t offset = 0, std::uint64_t count = UINT64_MAX) {
+    const auto frames = count == UINT64_MAX ? pcm.size() / w.source().channels : count;
+    check(w.window() == WaveformWindow{offset, frames}, "Prepared source window differs");
     auto expectedWidth = base;
     for (std::size_t level = 0; level < w.levels().size(); ++level) {
         const auto &l = w.levels()[level];
         check(l.framesPerBin == expectedWidth, "Pyramid source coordinates differ");
         check(l.bins == frames / expectedWidth + (frames % expectedWidth != 0), "Pyramid bin count differs");
         for (std::uint64_t b = 0; b < l.bins; ++b) {
-            const auto first = b * expectedWidth, end = std::min<std::uint64_t>(frames, first + expectedWidth);
+            const auto first = offset + b * expectedWidth, end = offset + std::min<std::uint64_t>(frames, b * expectedWidth + expectedWidth);
             check(w.sourceRange(level, b) == std::pair(first, end), "Tail/source interval changed");
             for (unsigned c = 0; c < w.source().channels; ++c) {
                 double lo = std::numeric_limits<double>::infinity(), hi = -lo;
@@ -93,6 +95,18 @@ int main() {
                 }
                 sameUsage(memory, prior);
             }
+            for (auto window : {WaveformWindow{5, 9}, WaveformWindow{7, 1}, WaveformWindow{18, 1}, WaveformWindow{19, 0}, WaveformWindow{0, 0}}) {
+                for (std::uint64_t width : {1ULL, 3ULL, 64ULL}) {
+                    { WaveformLimits limits; limits.window = window; limits.baseFramesPerBin = width; limits.validation.blockFrames = 3;
+                      auto w = buildApprovedWaveform(file, expected, limits);
+                      oracle(w, pcm, width, window.first, window.frames); }
+                    sameUsage(memory, prior);
+                }
+            }
+            for (auto window : {WaveformWindow{20, 0}, WaveformWindow{18, 2}, WaveformWindow{UINT64_MAX, 2}, WaveformWindow{1, UINT64_MAX}}) {
+                WaveformLimits limits; limits.window = window;
+                refused([&]{buildApprovedWaveform(file, expected, limits);}, ErrorCode::InvalidParameter); sameUsage(memory, prior);
+            }
             auto wrong = expected; wrong.sha256[0] = wrong.sha256[0] == '0' ? '1' : '0';
             refused([&]{buildApprovedWaveform(file, wrong);}, ErrorCode::MediaMismatch); sameUsage(memory, prior);
             for (unsigned field = 0; field < 3; ++field) {
@@ -132,6 +146,7 @@ int main() {
             unsigned calls = 0;
             {auto w = buildApprovedWaveform(file, expected, limits, {}, [&]{++calls;}); oracle(w, pcm, 3);}
             sameUsage(memory, prior); check(calls > 50, "No streamed read boundaries observed");
+            limits.window = {1, 5}; // Cancellation after the retained window still cancels full-source validation.
             for (const auto at : {20U, calls}) {
                 unsigned count = 0; std::stop_source stop;
                 refused([&]{buildApprovedWaveform(file, expected, limits, stop.get_token(), [&]{if (++count == at) stop.request_stop();});}, ErrorCode::Canceled);
@@ -153,6 +168,8 @@ int main() {
             ApprovedMediaRoot root(rootPath, memory); auto file = root.open("nonfinite.wav", 1024 * 1024);
             const auto expected = identity(file, pcm.size(), 1); const auto prior = memory.usage();
             refused([&]{buildApprovedWaveform(file, expected);}, ErrorCode::InvalidParameter); sameUsage(memory, prior);
+            WaveformLimits window; window.window = {1, 5};
+            refused([&]{buildApprovedWaveform(file, expected, window);}, ErrorCode::InvalidParameter); sameUsage(memory, prior);
         }
         check(memory.usage().owners == 0 && memory.usage().reservedBytes == 0, "Final resource credit leaked");
         std::filesystem::remove_all(rootPath);
