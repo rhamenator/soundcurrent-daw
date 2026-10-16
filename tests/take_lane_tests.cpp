@@ -299,9 +299,11 @@ void trackVersions() {
     refuses([&]{auto invalid=s; invalid.tracks[0].inactiveVersions[0].identity.id=track; validate(invalid);});
     refuses([&]{auto invalid=s; invalid.tracks[0].inactiveVersions[0].clips[0].lengthFrames=513; validate(invalid);});
     const auto media=d.root/utf8Path(s.assets[0].relativePath);
-    std::filesystem::rename(media,media.string()+".held");
+    // Preserve the native Unicode path; .string() uses the Windows code page.
+    auto held=media; held += ".held";
+    std::filesystem::rename(media,held);
     refuses([&]{store.verifyMedia(s);});
-    std::filesystem::rename(media.string()+".held",media);
+    std::filesystem::rename(held,media);
     check(history.structural({RemoveTrackVersion{track,alternate}}), "Inactive version deletion missing");
     check(history.undo() && s==empty, "Version deletion Undo lost arrangement");
     const auto usage=sessionPayloadBytes(s);
