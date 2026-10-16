@@ -411,6 +411,47 @@ void finiteProtocol(){
             const auto result=m.context.result();check(result && result->status==WasapiMonitorRenderStatus::Complete && result->consumedMonitorFrames==1 && result->finalSlackFrames==frames-1 && result->startupReady->finiteFrames==1,"Finite completion/actual slack receipt wrong");}
     }
 }
+void readinessSnapshot(){
+    for(unsigned mode=0;mode<4;++mode){Model m;m.warm(17);++m.tick;
+        const auto sampled=m.now();const auto clock=m.reading();
+        const std::array<float,1> pcm{2.5F};
+        check(m.output.publish({m.g.processing.buffer.runGeneration,m.g.output.first,1},pcm)==MonitorOutputCode::Accepted,"Snapshot PCM publication failed");
+        if(mode!=2)m.output.finish();
+        MonitorStartupReady ready;ready.admitted=m.g.admission();ready.publishedFrames=1;ready.finiteFrames=1;
+        ready.asOfQpc100ns=sampled.value+(mode==1?100000000:1);
+        auto &stats=ready.original;stats.phase=MonitorStartupPhase::Live;stats.contentReady=true;
+        stats.capacityFrames=1;stats.acceptedFrames=stats.transferredFrames=1;
+        const CaptureBankStamp stamp{m.g.capture.capture.identity,{origin},{sampled.value},1,0};
+        stats.firstTransferred=MonitorStartupSource{stamp,0};stats.lastAccepted=stamp;
+        check(rt([&]{return m.startup.publish(ready);}),"Snapshot ready publication failed");
+        if(mode==3)m.startup.requestCancel();
+        const auto action=rt([&]{return m.cb.beforeLease(m.cb.context,17,clock,sampled);});
+        if(mode>=2)check(action==WasapiPreLeaseAction::Abort,"Deferred readiness hid invalid finite extent or cancellation");
+        else {check(action==WasapiPreLeaseAction::NativeWarmup && !m.context.firstFault(),"Concurrent readiness rejected earlier caller time");
+            check(rt([&]{return m.life.beforeLease(action,17,clock,sampled);}),"Deferred native lease refused");
+            rt([&]{m.life.warmupReleased({clock,sampled,17,0,0});});m.submitted+=17;
+            if(mode==0){++m.tick;const auto fresh=m.reading();const auto next=m.pre(17);
+                check(next==WasapiPreLeaseAction::Content,"Fresh caller time did not admit finite readiness");
+                check(rt([&]{return m.life.beforeLease(next,17,fresh,m.now());}),"Fresh finite lease refused");
+                check(m.fill(17,fresh)==WasapiRenderAction::Finish && m.backing[1]==2.5F,"Finite snapshot handoff changed PCM/extent");
+                rt([&]{m.life.silenceReleased({WasapiSilenceKind::EndGuard,32,2});m.life.padding(0);m.life.queueDrained();});m.end();
+                const auto result=m.context.result();check(result && result->status==WasapiMonitorRenderStatus::Complete && result->startupReady==ready &&
+                    result->readyAcquiredQpc100ns>=ready.asOfQpc100ns && result->consumedMonitorFrames==1,"Snapshot receipt lost provenance");
+            }else{ // Deferred readiness cannot extend the actual SDK wait budget.
+                m.tick=500;const auto expired=m.now();const auto expiredClock=m.reading();const auto expiredAction=m.pre(17);
+                check(expiredAction==WasapiPreLeaseAction::NativeWarmup,"Unreached future readiness authorized native content");
+                check(!rt([&]{return m.life.beforeLease(expiredAction,17,expiredClock,expired);}),"Deferred startup escaped SDK wait deadline");
+                m.end();const auto result=m.context.result();
+                check(result && result->status==WasapiMonitorRenderStatus::Interrupted && result->original->preLeaseStop==WasapiPreLeaseStop::Timeout &&
+                    result->startupReady==ready && !result->readyAcquiredQpc100ns && !result->callbackCalls,"Deferred timeout lost diagnostic receipt or invented admission/PCM");
+            }
+        }
+        if(mode!=0)check(!m.output.deliveredFrames(),"Rejected/deferred snapshot consumed PCM");
+        if(mode>=2){rt([&]{m.life.beforeLease(WasapiPreLeaseAction::Abort,17,clock,sampled);});m.end();}
+        m.settle();
+    }
+    std::cout<<"snapshot handoff WASAPI cases=4 deferred=true finite_pcm=true invalid_eof_refused=true cancel=true original_timeout=true fakeSDK=true\n";
+}
 void terminalAndProtocol(){
     for(unsigned kind=0;kind<9;++kind){
         Model m;const bool live=kind>=4;
@@ -590,7 +631,7 @@ int main(int argc,char **argv){try{rt_audit::reset();
 #endif
     for(unsigned ch:{1u,2u}){for(unsigned rate:{44100u,48000u,96000u})success(ch,rate);}
     success(1,48000,true);for(unsigned rate:{44100u,48000u,96000u})success(1,rate,false,true);success(1,48000,true,true);success(1,48000,false,false,true);
-    finiteProtocol();terminalAndProtocol();nativeFailures();concurrentOwners();admissions();const auto a=rt_audit::counts;
+    readinessSnapshot();finiteProtocol();terminalAndProtocol();nativeFailures();concurrentOwners();admissions();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared native readiness allocated/freed/locked");
     std::cout<<checks<<" composed native monitor startup checks passed; guarded allocate/free/lock=0; simulated SDK only\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

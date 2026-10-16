@@ -3,7 +3,10 @@
 // All rights reserved. Original notice and license: third_party/libsamplerate/COPYING.
 // Modified 2026-10-09: original SoundCurrent immutable absolute-position adapter;
 // FIR halves/interpolation adapted from pinned 0.2.2 src_sinc.c. No ring/state ABI.
+// Modified 2026-10-15: checked 64-bit processing-grid overload; original tap and
+// coefficient arithmetic retained, with the old 32-bit timing fast path.
 #include <soundcurrent/positioned_resampling.hpp>
+#include <soundcurrent/stretch.hpp>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -33,9 +36,14 @@ PreparedPositionedResampling::PreparedPositionedResampling(std::uint32_t source,
         std::uint32_t project,std::uint32_t channels)
     :PreparedPositionedResampling(SourceFrameMap(source,project),channels) {}
 PreparedPositionedResampling::PreparedPositionedResampling(const SourceFrameMap &map,
-        std::uint32_t channels):numerator_(map.numerator()),denominator_(map.denominator()),channels_(channels) {
+        std::uint32_t channels):PreparedPositionedResampling(map.numerator(),map.denominator(),channels,RatioTag{}) {}
+PreparedPositionedResampling::PreparedPositionedResampling(const ExactProcessingGrid &map,
+        std::uint32_t channels):PreparedPositionedResampling(map.numerator(),map.denominator(),channels,RatioTag{}) {}
+PreparedPositionedResampling::PreparedPositionedResampling(std::uint64_t numerator,
+        std::uint64_t denominator,std::uint32_t channels,RatioTag)
+    :numerator_(numerator),denominator_(denominator),channels_(channels) {
     require(channels && channels<=256,"Invalid positioned channel layout");
-    scale_=std::min(1.,double(denominator_)/numerator_);
+    scale_=std::min(1.,double(denominator_)/double(numerator_));
     floatIncrement_=slow_high_qual_coeffs.increment*scale_;
     increment_=nearestEven(floatIncrement_*fixedOne);
 }
@@ -44,7 +52,12 @@ std::uint32_t PreparedPositionedResampling::sourceContextFrames() const noexcept
 }
 std::size_t PreparedPositionedResampling::maximumSourceWindowFrames(std::uint32_t frames) const {
     require(frames && frames<=65536,"Invalid positioned output block");
-    const auto extent=(std::uint64_t(frames-1)*numerator_+denominator_-1)/denominator_;
+    // Preserve the original bounded fast path. Wide processing ratios use the
+    // same checked quotient/remainder arithmetic as semantic coordinates.
+    std::uint64_t extent;
+    if(numerator_<=UINT32_MAX && denominator_<=UINT32_MAX)
+        extent=(std::uint64_t(frames-1)*numerator_+denominator_-1)/denominator_;
+    else {const auto span=scaleSourcePosition({Frame(frames-1),0,1},numerator_,denominator_);extent=std::uint64_t(span.frame)+(span.fraction?1:0);}
     return std::size_t(extent+2*sourceContextFrames()+2);
 }
 bool PreparedPositionedResampling::exactCopy(const SourceFrameMap &map) const {
@@ -52,7 +65,8 @@ bool PreparedPositionedResampling::exactCopy(const SourceFrameMap &map) const {
             "Positioned source map differs from prepared ratio");
     return numerator_==denominator_ && map.at(0).fraction==0;
 }
-SourceReadRange PreparedPositionedResampling::sourceRange(const SourceFrameMap &map,
+template<class Map>
+SourceReadRange PreparedPositionedResampling::sourceRangeImpl(const Map &map,
         Frame first,std::uint32_t frames,Frame total) const {
     require(first>=0 && frames && frames<=65536 && total>0 && first<=INT64_MAX-Frame(frames-1),
             "Invalid positioned source range");
@@ -63,7 +77,8 @@ SourceReadRange PreparedPositionedResampling::sourceRange(const SourceFrameMap &
     const Frame high=end.frame>=total-1-context ? total : end.frame+context+1;
     return {low,std::size_t(high-low)};
 }
-void PreparedPositionedResampling::process(const SourceFrameMap &map,Frame first,Frame total,
+template<class Map>
+void PreparedPositionedResampling::processImpl(const Map &map,Frame first,Frame total,
         Frame sourceFirst,std::span<const float> input,std::span<float> output) const {
     require(!output.empty() && output.size()%channels_==0 && output.size()/channels_<=65536 &&
             input.size()%channels_==0 && sourceFirst>=0 && sourceFirst<=total &&
@@ -117,4 +132,12 @@ void PreparedPositionedResampling::process(const SourceFrameMap &map,Frame first
         }
     }
 }
+bool PreparedPositionedResampling::exactCopy(const ExactProcessingGrid &map) const {
+    require(map.numerator()==numerator_ && map.denominator()==denominator_,"Exact grid differs from prepared ratio");
+    return numerator_==denominator_ && map.at(0).fraction==0;
+}
+SourceReadRange PreparedPositionedResampling::sourceRange(const SourceFrameMap &m,Frame first,std::uint32_t n,Frame total) const {return sourceRangeImpl(m,first,n,total);}
+SourceReadRange PreparedPositionedResampling::sourceRange(const ExactProcessingGrid &m,Frame first,std::uint32_t n,Frame total) const {return sourceRangeImpl(m,first,n,total);}
+void PreparedPositionedResampling::process(const SourceFrameMap &m,Frame first,Frame total,Frame sourceFirst,std::span<const float> input,std::span<float> output) const {processImpl(m,first,total,sourceFirst,input,output);}
+void PreparedPositionedResampling::process(const ExactProcessingGrid &m,Frame first,Frame total,Frame sourceFirst,std::span<const float> input,std::span<float> output) const {processImpl(m,first,total,sourceFirst,input,output);}
 } // namespace soundcurrent::daw

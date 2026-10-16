@@ -1,0 +1,19 @@
+{
+  "format": "sc-owned-protected-comp-index-v1",
+  "sourceCommit": "8e99cbec20a269fa36ce9c678c8ca7926d13e592",
+  "archive": "acceptance.zip",
+  "bytes": 9427626,
+  "sha256": "afa5a5aeba7116c3e3d05ca8944eaa08ac9befefd30ec3c9047714dacf943b84",
+  "originalFiles": 62,
+  "uniquePayloads": 37,
+  "allPayloadsAndCrcVerified": true,
+  "rendersPerConfiguration": 18,
+  "exactMapChecksPerConfiguration": 264,
+  "protectedSamplesPerConfiguration": 34560,
+  "debugReleaseOutputHashesMatching": 18,
+  "refusalsPerConfiguration": 12,
+  "nativeWindowsRuntime": false,
+  "workerProtocolIntegrated": false,
+  "qualityAdmission": false,
+  "fullDawParity": false
+}

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include <array>
 #include <cstdint>
 #include <deque>
 #include <optional>
@@ -11,6 +12,7 @@
 #include <utility>
 #include <unordered_map>
 #include <limits>
+#include <memory>
 
 namespace soundcurrent::daw {
 using Frame = std::int64_t;
@@ -180,6 +182,11 @@ struct SourcePosition {
     std::uint64_t fraction = 0, denominator = 1;
     bool operator==(const SourcePosition &) const = default;
 };
+struct CompHandlePoint {
+    SourcePosition raw, output;
+    bool operator==(const CompHandlePoint &) const = default;
+};
+enum class CompProcessingDomain { ExistingMedia=0, PhysicalArtifact=1, ProjectAfterSrc=2 };
 // Exact physical-frame offsets from the retained nominal raw origin.
 struct WarpAnchor {
     Id id = Id::generate();
@@ -241,6 +248,12 @@ struct ClipTakeOrigin {
     Id trackId, laneId, clipId; // Retained source; survives moves between tracks.
     bool operator==(const ClipTakeOrigin &) const = default;
 };
+struct ClipCompHandleWindow {
+    Id baseAssetId = Id::generate(); // Original nominal artifact, retained unchanged.
+    std::string baseSha256, renderKey;
+    Frame prefixFrames=0, suffixFrames=0; // At the artifact's physical rate.
+    bool operator==(const ClipCompHandleWindow &) const = default;
+};
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
@@ -252,6 +265,7 @@ struct Clip {
     ClipPlaybackRate playbackRate;
     std::optional<ClipStretchAnchor> stretch = {};
     std::optional<ClipTakeOrigin> takeOrigin = {};
+    std::optional<ClipCompHandleWindow> compHandles = {};
     bool operator==(const Clip &) const = default;
 };
 struct TakeLane {
@@ -263,6 +277,19 @@ struct TakeLane {
     Frame captureStartFrame = 0, captureEndFrame = 0;
     std::vector<Clip> clips; // Inactive. Only explicit comp copies are audible.
     bool operator==(const TakeLane &) const = default;
+};
+// Only Track::clips is audible. Retained takes and processor/routing state are
+// shared by every arrangement. Inactive versions own distinct clip identities.
+struct TrackVersionIdentity {
+    Id id = Id::generate();
+    std::string name;
+    std::optional<Id> groupId; // Shared across tracks, at most once per track.
+    bool operator==(const TrackVersionIdentity &) const = default;
+};
+struct TrackVersion {
+    TrackVersionIdentity identity;
+    std::vector<Clip> clips;
+    bool operator==(const TrackVersion &) const = default;
 };
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
 constexpr bool validRecordingMonitor(RecordingMonitor mode) noexcept {
@@ -281,6 +308,8 @@ struct Track {
     EqSettings eq;
     std::vector<Clip> clips;
     std::vector<TakeLane> takeLanes;
+    std::optional<TrackVersionIdentity> activeVersion;
+    std::vector<TrackVersion> inactiveVersions;
     bool operator==(const Track &) const = default;
 };
 // Portable evidence only. These paths never grant access to original sources.
@@ -323,6 +352,42 @@ struct ImportedProjectSource {
     std::vector<ImportedMediaOrigin> media;
     bool operator==(const ImportedProjectSource &) const = default;
 };
+// Trusted project-owned reference to immutable comp selection sidecars. The
+// digest is never learned from the sidecar on recovery. No playback activation.
+struct CompPairSelectionReference {
+    Id operation;
+    std::string selectionSha256;
+    bool operator==(const CompPairSelectionReference &) const = default;
+};
+// Reserved candidate identities and trusted immutable request bytes. These do
+// not activate audio. Adoption must consume reservations in the same edit.
+struct CompAssemblyReference {
+    Id operation, selectionOperation;
+    std::string requestSha256;
+    std::array<std::optional<Id>, 2> outputs;
+    bool operator==(const CompAssemblyReference &) const = default;
+};
+// Immutable provenance of an assembled artifact. The two clip values are
+// historical snapshots, not additional active timeline objects/identities.
+struct CompPlaybackSourceData {
+    Clip original, playback;
+    Asset raw, base, rendered;
+    std::optional<Asset> nominal;
+    CompProcessingDomain domain=CompProcessingDomain::ExistingMedia;
+    std::uint32_t projectRate=0;
+    Frame prefixFrames=0, suffixFrames=0;
+    SourcePosition expandedOrigin;
+    std::uint32_t expandedNumerator=1, expandedDenominator=1;
+    std::vector<CompHandlePoint> rawMap;
+    bool operator==(const CompPlaybackSourceData &) const = default;
+};
+struct CompPlaybackSourceState {
+    CompAssemblyReference assembly; // Historical intent, not a reservation.
+    unsigned side=0;
+    std::string selectionSha256;
+    CompPlaybackSourceData source;
+    bool operator==(const CompPlaybackSourceState &) const = default;
+};
 struct Session {
     Id id = Id::generate();
     std::string name;
@@ -336,6 +401,9 @@ struct Session {
     PunchSettings punch;
     LoopSettings loop;
     std::vector<ImportedProjectSource> imports;
+    std::vector<CompPairSelectionReference> compPairSelections;
+    std::vector<CompAssemblyReference> compAssemblies;
+    std::vector<CompPlaybackSourceState> compPlaybackSources;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
@@ -368,6 +436,10 @@ Session makeOneTrackSession(std::string name, std::string trackName,
                            std::uint32_t sampleRate = 48000);
 Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);
 // Control-thread edits, addressed by stable identity. A batch is all-or-nothing.
+struct AddCompPairSelection { CompPairSelectionReference value; };
+struct RemoveCompPairSelection { Id operation; };
+struct AddCompAssembly { CompAssemblyReference value; };
+struct RemoveCompAssembly { Id operation; };
 struct InsertTrack {
     Track track;
     std::optional<Id> before;
@@ -432,6 +504,32 @@ struct ApplyClipStretch {
     Asset source, rendered;
     ClipStretchAnchor value;
 };
+struct CompHandleReplacement {
+    Clip expected;
+    Asset current, raw, nominal, rendered;
+    ClipCompHandleWindow window;
+};
+// Artifacts must be independently verified before submitting this model edit.
+struct ApplyCompHandlePair {
+    PrepareCompTransition transition;
+    std::optional<CompHandleReplacement> outgoing, incoming;
+};
+// Caller verifies owned files and current workspace/epoch before submission.
+// Consumes one request and adopts both fragments atomically; no file deletion.
+struct CompAssemblySourceIdentity {
+    Clip clip, retained;
+    Asset raw, base, retainedAsset;
+    std::optional<Asset> nominal;
+};
+class CompAssemblyDependencies;
+struct ApplyCompAssembly {
+    PrepareCompTransition transition;
+    CompAssemblyReference expectedReference;
+    CompPairSelectionReference expectedSelection;
+    std::array<CompAssemblySourceIdentity,2> expected;
+    std::array<std::optional<CompPlaybackSourceData>,2> sources;
+    std::shared_ptr<const CompAssemblyDependencies> dependencies;
+};
 struct MoveClip {
     Id from, to, clip;
     Frame start;
@@ -466,10 +564,30 @@ struct SelectTakeRegion {
     Id track, lane;
     Frame startFrame = 0, endFrame = 0; // Fully covered project region [start,end).
 };
+// First creation names the previously implicit arrangement with previousName.
+// Creation activates the new arrangement; duplicate=false starts with no clips.
+struct CreateTrackVersion { Id track; std::string name, previousName; bool duplicate = true; };
+struct SwitchTrackVersion { Id track, version; };
+struct RenameTrackVersion { Id track, version; std::string name; };
+// Active deletion is refused: switch to a retained version explicitly first.
+struct RemoveTrackVersion { Id track, version; };
+struct CreateTrackVersions {
+    std::vector<Id> tracks;
+    std::string name, previousName;
+    bool duplicate = true;
+};
+struct LinkActiveTrackVersions { std::vector<Id> tracks; std::string previousName; };
+enum class TrackVersionGroupAction { Activate, Rename, Remove };
+struct EditTrackVersionGroup {
+    std::vector<Id> tracks;
+    Id group;
+    TrackVersionGroupAction action = TrackVersionGroupAction::Activate;
+    std::string name;
+};
 using SessionEdit =
-    std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
-                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
+    std::variant<AddCompAssembly, RemoveCompAssembly, AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
+                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, ApplyCompAssembly, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
+                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion, CreateTrackVersion, SwitchTrackVersion, RenameTrackVersion, RemoveTrackVersion, CreateTrackVersions, LinkActiveTrackVersions, EditTrackVersionGroup>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {
@@ -578,6 +696,9 @@ class EditHistory {
         std::optional<std::pair<std::optional<MasterBus>, std::optional<MasterBus>>> master;
         std::optional<std::pair<PunchSettings, PunchSettings>> punch;
         std::optional<std::pair<LoopSettings, LoopSettings>> loop;
+        std::optional<std::pair<std::vector<CompPairSelectionReference>, std::vector<CompPairSelectionReference>>> compPairSelections;
+        std::optional<std::pair<std::vector<CompAssemblyReference>, std::vector<CompAssemblyReference>>> compAssemblies;
+        std::optional<std::pair<std::vector<CompPlaybackSourceState>, std::vector<CompPlaybackSourceState>>> compPlaybackSources;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     struct Entry {

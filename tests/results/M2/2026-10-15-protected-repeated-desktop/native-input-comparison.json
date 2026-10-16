@@ -1,0 +1,83 @@
+[
+  {
+    "rate": 44100,
+    "assets": [
+      {
+        "nativePath": "media/raw.wav",
+        "localPath": "media/raw.wav",
+        "sameBytes": true,
+        "nativeSha256": "68c9313c38df9886be823cc550bba900d1d39c232860afedbfa1bdb41a54be51",
+        "localSha256": "68c9313c38df9886be823cc550bba900d1d39c232860afedbfa1bdb41a54be51",
+        "samples": 196608,
+        "differentSamples": 0,
+        "maximumAbsoluteDifference": 0.0,
+        "rmsDifference": 0.0
+      },
+      {
+        "nativePath": "media/current.wav",
+        "localPath": "media/current.wav",
+        "sameBytes": false,
+        "nativeSha256": "b984c0891ba4a91f88004baa07311dc6bfeb12c21aafdc5a10614f7a8e5f4d88",
+        "localSha256": "ce5b3e5e7e9b0229af419898a9b28367b190b9fc1bd9f309d7b87d4d00ac1fd1",
+        "samples": 98304,
+        "differentSamples": 177,
+        "maximumAbsoluteDifference": 1.1920928955078125e-07,
+        "rmsDifference": 8.09496268958902e-10
+      }
+    ]
+  },
+  {
+    "rate": 48000,
+    "assets": [
+      {
+        "nativePath": "media/raw.wav",
+        "localPath": "media/raw.wav",
+        "sameBytes": true,
+        "nativeSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e",
+        "localSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e",
+        "samples": 196608,
+        "differentSamples": 0,
+        "maximumAbsoluteDifference": 0.0,
+        "rmsDifference": 0.0
+      },
+      {
+        "nativePath": "media/current.wav",
+        "localPath": "media/current.wav",
+        "sameBytes": true,
+        "nativeSha256": "4401bc11dd263944b6bd839889870357b949b896c1c4634e541d08da9794727b",
+        "localSha256": "4401bc11dd263944b6bd839889870357b949b896c1c4634e541d08da9794727b",
+        "samples": 98304,
+        "differentSamples": 0,
+        "maximumAbsoluteDifference": 0.0,
+        "rmsDifference": 0.0
+      }
+    ]
+  },
+  {
+    "rate": 96000,
+    "assets": [
+      {
+        "nativePath": "media/raw.wav",
+        "localPath": "media/raw.wav",
+        "sameBytes": true,
+        "nativeSha256": "6c02b9ca6956bf10416f347333f2a061842d85da213c35a0f2281824f850a3cb",
+        "localSha256": "6c02b9ca6956bf10416f347333f2a061842d85da213c35a0f2281824f850a3cb",
+        "samples": 196608,
+        "differentSamples": 0,
+        "maximumAbsoluteDifference": 0.0,
+        "rmsDifference": 0.0
+      },
+      {
+        "nativePath": "media/current.wav",
+        "localPath": "media/current.wav",
+        "sameBytes": true,
+        "nativeSha256": "0f25e9a70911e7fd73abc2e004be9e3fb16d895af38a6a71d36213bace8380c6",
+        "localSha256": "0f25e9a70911e7fd73abc2e004be9e3fb16d895af38a6a71d36213bace8380c6",
+        "samples": 98304,
+        "differentSamples": 0,
+        "maximumAbsoluteDifference": 0.0,
+        "rmsDifference": 0.0
+      }
+    ]
+  }
+]

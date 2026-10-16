@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
 #include <soundcurrent/native_take_admission.hpp>
+#include <soundcurrent/comp_assembly_adoption.hpp>
+#include <soundcurrent/comp_transition_preparation.hpp>
 #include <soundcurrent/warp.hpp>
 #include <soundcurrent/stretch_render_protocol.hpp>
 #include <QMutex>
@@ -478,15 +480,34 @@ struct ProjectController::State : QThread {
                 if(g.projectEpoch!=view.projectEpoch || g.project!=model->id || g.root!=view.root)
                     throw ProjectError(ErrorCode::InvalidState,"Background edit belongs to a replaced project");
             }
-            if(command.stretchResult && (!command.structuralGuard || !command.edits.empty() || !command.stretchResult->ownedBy(memory)))
+            if(command.stretchResult && (!command.structuralGuard || command.compAssemblyResult || command.compPreparation || !command.edits.empty() || !command.stretchResult->ownedBy(memory)))
                 throw ProjectError(ErrorCode::InvalidState,"Unbound or unadmitted stretch result");
-            if(command.nativeTake && (!command.structuralGuard || command.stretchResult || !command.edits.empty() ||
+            if(command.nativeTake && (!command.structuralGuard || command.stretchResult || command.compAssemblyResult || command.compPreparation || !command.edits.empty() ||
                 !command.nativeTake->ownedBy(memory) || command.nativeTake->project()!=model->id || command.nativeTake->root()!=view.root))
                 throw ProjectError(ErrorCode::InvalidState,"Native take adoption requires verified current project evidence");
             if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<InsertNativeTake>(e);}))
                 throw ProjectError(ErrorCode::InvalidState,"Desktop native take adoption requires a verified result");
             if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyClipStretch>(e);}))
                 throw ProjectError(ErrorCode::InvalidState,"Desktop stretch adoption requires a verified result");
+            if(command.compAssemblyResult){const auto &r=*command.compAssemblyResult;
+                const auto bytes=view.root.generic_u8string();
+                const std::string rootIdentity(reinterpret_cast<const char *>(bytes.data()),bytes.size());
+                if(!command.structuralGuard || command.stretchResult || command.nativeTake || command.compPreparation || !command.edits.empty() ||
+                    !r.ownedBy(memory) || r.project()!=model->id || r.root()!=view.root ||
+                    r.context()!=CompHandlePlanContext{view.projectEpoch,rootIdentity})
+                    throw ProjectError(ErrorCode::InvalidState,"Comp adoption requires verified current owner evidence");
+            }
+            if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyCompAssembly>(e);}))
+                throw ProjectError(ErrorCode::InvalidState,"Desktop comp adoption requires a verified result");
+            if(command.compPreparation){const auto &r=*command.compPreparation;
+                const auto bytes=view.root.generic_u8string();
+                const std::string identity(reinterpret_cast<const char *>(bytes.data()),bytes.size());
+                if(!command.structuralGuard || command.compAssemblyResult || command.stretchResult || command.nativeTake ||
+                    !command.edits.empty() || !r.ownedBy(memory) || r.project()!=model->id || r.root()!=view.root ||
+                    r.context()!=CompHandlePlanContext{view.projectEpoch,identity})
+                    throw ProjectError(ErrorCode::InvalidState,"Comp preparation belongs to a different project owner");
+                verifyCompProcessingCurrent(*model,r.context(),r.selection().recipe().plan());
+            }
             PayloadCharge stretchStaging("Verified stretch candidate staging",SIZE_MAX);
             stretchStaging.add(stagingBytes());
             if(command.stretchResult){
@@ -498,7 +519,10 @@ struct ProjectController::State : QThread {
             std::vector<SessionEdit> verified;
             if(command.stretchResult)verified.push_back(command.stretchResult->edit());
             if(command.nativeTake)verified.push_back(command.nativeTake->edit());
-            applySessionEdits(proposed, (command.stretchResult || command.nativeTake)?verified:command.edits,
+            if(command.compAssemblyResult)verified.push_back(command.compAssemblyResult->edit());
+            if(command.compPreparation){verified.push_back(AddCompPairSelection{command.compPreparation->pairReference()});
+                verified.push_back(AddCompAssembly{command.compPreparation->assemblyReference()});}
+            applySessionEdits(proposed, (command.stretchResult || command.nativeTake || command.compAssemblyResult || command.compPreparation)?verified:command.edits,
                               admission.state); // Reject before committing a gesture.
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())

@@ -1,0 +1,1121 @@
+{
+  "sourceHead": "a5fc7d6d3446d8fa70175738aa92af3bd6868414",
+  "productionSourceHead": "26367a8a3a6cee56483658a010e612f25102ae2e",
+  "archive": "acceptance.zip",
+  "bytes": 21249939,
+  "sha256": "35901d5152fec4d99188c5b83d099055c7da12800c46a1857bb2cabd275a1a04",
+  "originalFiles": 4783,
+  "uniquePayloads": 1213,
+  "allArchivePayloadsAndCrcVerified": true,
+  "qualification": {
+    "sourceHead": "a5fc7d6d3446d8fa70175738aa92af3bd6868414",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "a5fc7d6d3446d8fa70175738aa92af3bd6868414",
+        "commands": [
+          [
+            "cmake",
+            "--build",
+            ".cache/comp-pair-recovery/build",
+            "--parallel",
+            "1",
+            "--target",
+            "sc-comp-repeat-fixture",
+            "sc-comp-transition-ui-tests"
+          ],
+          [
+            "ctest",
+            "--test-dir",
+            ".cache/comp-pair-recovery/build",
+            "-R",
+            "^comp-original-context-paired-production$",
+            "--output-on-failure",
+            "--parallel",
+            "1"
+          ]
+        ],
+        "sourceHashes": {
+          "CMakeLists.txt": "6d2a046e609ba0b01c70a88e8c204ccd29e455cbf0f73664a02dd288f49846db",
+          ".github/workflows/ci.yml": "a21b914d18e14cff87fcdf9f82320a63685c27075e8f839801471e512fe12edc",
+          "include/soundcurrent/comp_pair_recovery.hpp": "16e35fb39e3819c91bff39bf37346a9b5c2e894bd780e79b31de379fbd8e1926",
+          "src/comp_pair_recovery.cpp": "5fd7e02148a16cdf454c6b58b5d89efa2084b30fe65df27063a228af8edb3f00",
+          "src/comp_transition_preparation.cpp": "bc70229454f17fc94d7521b593045f01b35c7836837a799a4bc2f608dd9d6f5f",
+          "tests/comp_repeat_fixture.cpp": "649ecff2e9f7e616ef648e1b7596e73d21b177d5ae0e444d7a246a8b304fae60",
+          "tests/comp_clocked_protected_pair_tests.py": "ce3e5485dab0b78d99ac82ba13c32a86aa631dce6c4421132c0308c2d165e2bb",
+          "tests/comp_repeat_ui_workflow.hpp": "1e87c4289fad10cd45fec4275333ed1dfaf4497bfb8ff2c8f25220a2345437c1",
+          "tests/comp_clocked_repeat_ui_tests.py": "6427a26ab53f083fc653aef025f3d528932ce74fa5efec04978772b362b3eabb"
+        },
+        "binaryHashes": {
+          ".cache/comp-pair-recovery/build/sc-comp-span-worker": "236bd82ac8155e0df9226eb6a4852184f3f4075ce00832ebe6200e9e49a4be24",
+          ".cache/comp-pair-recovery/build/sc-comp-repeat-fixture": "cd88512e4df7c66d8bb3a228789457e15bd378ad34f957967a536028cdb0e6b0",
+          ".cache/comp-pair-recovery/build/sc-comp-transition-ui-tests": "29e982bb028fd7d2cd527d8688b5b3a5c8e5246afb4faf3aa2a478c93d5af088",
+          ".cache/comp-pair-recovery/build/sc-comp-protected-worker-fixture": "5e933d9f0cd7be2c4d898ea26933c6dd46ef7478c80c3d8c7a2e77b4f9c89109",
+          ".cache/comp-pair-recovery/build/sc-comp-span-worker-fixture": "b68ebcee17fca409514036496801e05d76337139bd3e5070fc45f3b7c139f14a",
+          ".cache/comp-pair-recovery/build/sc-comp-pair-recovery-fixture": "63f900a9282ddf3a07fd57a22c4db12c4b54784e2fbe66bd2b04556c9b90f81c",
+          ".cache/comp-pair-recovery/build/sc-comp-pair-assembly-tests": "446e5f824476d28dc3e25b197633a3ad75f714457e0ed17eb5e71f2528b83b36",
+          ".cache/comp-pair-recovery/build/sc-stretch-render-worker": "1d1122b720f097f732145041db7c4d86843d7f560bc718184b00bbadf2c627f9",
+          ".cache/comp-pair-recovery/build/sc-comp-assembly-job-tests": "932761cb71772de1114972ad0d6bd706c2acf0c9d0a80289166816ab9c9b7788"
+        },
+        "exitCode": 0,
+        "seconds": 35.3162781719584,
+        "sourceAndBinariesUnchanged": true,
+        "newRuns": [
+          ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws"
+        ]
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "a5fc7d6d3446d8fa70175738aa92af3bd6868414",
+        "commands": [
+          [
+            "cmake",
+            "--build",
+            ".cache/comp-history-sharing/build-debug",
+            "--parallel",
+            "1",
+            "--target",
+            "sc-comp-repeat-fixture",
+            "sc-comp-transition-ui-tests"
+          ],
+          [
+            "ctest",
+            "--test-dir",
+            ".cache/comp-history-sharing/build-debug",
+            "-R",
+            "^(comp-original-context-paired-production|desktop-comp-clocked-uniform-repeated-transition)$",
+            "--output-on-failure",
+            "--parallel",
+            "1"
+          ]
+        ],
+        "sourceHashes": {
+          "CMakeLists.txt": "6d2a046e609ba0b01c70a88e8c204ccd29e455cbf0f73664a02dd288f49846db",
+          ".github/workflows/ci.yml": "a21b914d18e14cff87fcdf9f82320a63685c27075e8f839801471e512fe12edc",
+          "include/soundcurrent/comp_pair_recovery.hpp": "16e35fb39e3819c91bff39bf37346a9b5c2e894bd780e79b31de379fbd8e1926",
+          "src/comp_pair_recovery.cpp": "5fd7e02148a16cdf454c6b58b5d89efa2084b30fe65df27063a228af8edb3f00",
+          "src/comp_transition_preparation.cpp": "bc70229454f17fc94d7521b593045f01b35c7836837a799a4bc2f608dd9d6f5f",
+          "tests/comp_repeat_fixture.cpp": "649ecff2e9f7e616ef648e1b7596e73d21b177d5ae0e444d7a246a8b304fae60",
+          "tests/comp_clocked_protected_pair_tests.py": "ce3e5485dab0b78d99ac82ba13c32a86aa631dce6c4421132c0308c2d165e2bb",
+          "tests/comp_repeat_ui_workflow.hpp": "1e87c4289fad10cd45fec4275333ed1dfaf4497bfb8ff2c8f25220a2345437c1",
+          "tests/comp_clocked_repeat_ui_tests.py": "6427a26ab53f083fc653aef025f3d528932ce74fa5efec04978772b362b3eabb"
+        },
+        "binaryHashes": {
+          ".cache/comp-history-sharing/build-debug/sc-comp-span-worker": "78f7ca31cc84a2ce08dd9fcbd6def61abb9256085d27ea8a8721792dfd1a73bd",
+          ".cache/comp-history-sharing/build-debug/sc-comp-repeat-fixture": "c8c12c36ebc27d00788bd7f7c73d384931a4a391b145d209fbb6c95670eebd96",
+          ".cache/comp-history-sharing/build-debug/sc-comp-transition-ui-tests": "ca8f575138b68a6d301edf521de845810c128d6b78436542d909c1c1b063a16d",
+          ".cache/comp-history-sharing/build-debug/sc-comp-protected-worker-fixture": "f61caefb728eb9afed2d3462e0fbb9bce43b8fb5d903ddc9edf6c7ae4e521932",
+          ".cache/comp-history-sharing/build-debug/sc-comp-span-worker-fixture": "31e2e7e4ca6e2ca89dddf769ba3d955082c39b1b23ab6448363b6387db94538c",
+          ".cache/comp-history-sharing/build-debug/sc-comp-pair-recovery-fixture": "6d11a824d31343968b1ad2863c81c3b596cd1dd1e8aa6124c6cab23a72949d7f",
+          ".cache/comp-history-sharing/build-debug/sc-comp-pair-assembly-tests": "da12762e3d1d2221ea01478fda7443f3b27f037c8061837c1f3d6953c1a62a63",
+          ".cache/comp-history-sharing/build-debug/sc-stretch-render-worker": "a0120f7ba33840a08d1be71b4b61a8a21bcf79d01888d50b57b4d18dcbc29912",
+          ".cache/comp-history-sharing/build-debug/sc-comp-assembly-job-tests": "586948504b7e71fe2d69037ceff09062dbfba5f93e625b7af9c1893fc6b47f7a"
+        },
+        "exitCode": 0,
+        "seconds": 190.86753534991294,
+        "sourceAndBinariesUnchanged": true,
+        "newRuns": [
+          ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n",
+          ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm"
+        ]
+      }
+    ],
+    "mingwCommand": [
+      "x86_64-w64-mingw32-g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-fno-fast-math",
+      "-fsyntax-only",
+      "-Iinclude",
+      "-Isrc",
+      "-isystem",
+      "third_party",
+      "-isystem",
+      "third_party/libsndfile",
+      "src/comp_pair_recovery.cpp",
+      "src/comp_transition_preparation.cpp",
+      "tests/comp_repeat_fixture.cpp"
+    ],
+    "mingwExitCode": 0,
+    "nativeRuntime": false
+  },
+  "audit": {
+    "sourceHead": "a5fc7d6d3446d8fa70175738aa92af3bd6868414",
+    "productionSourceHead": "26367a8a3a6cee56483658a010e612f25102ae2e",
+    "initialAttemptExitCode": 8,
+    "initialFailedTest": "comp-original-context-paired-production",
+    "fixtureOnlyCorrection": true,
+    "compiledReleaseBinariesUnchanged": true,
+    "otherReleaseTestsPassed": [
+      "comp-clocked-protected-mixed-production",
+      "desktop-comp-transition-create",
+      "desktop-comp-repeated-transition",
+      "desktop-comp-clocked-uniform-repeated-transition"
+    ],
+    "legacyThreeExportsUnchanged": true,
+    "rows": [
+      {
+        "configuration": "Release",
+        "kind": "pair",
+        "root": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws",
+        "adoptions": 3,
+        "workers": 5,
+        "mixedRetained": 1,
+        "workerPcm": 320340,
+        "unchangedSamples": 121168,
+        "liveExportSamples": 130576,
+        "exports": [
+          {
+            "generation": 0,
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/exports/3386d049-b6d2-422d-8e9d-7cbbc0152b0b.wav",
+            "sha256": "af1840b9b5302687f29e7a471f2017ce6266b4658210930260028e7105bcd952",
+            "pcmSha256": "2e720d492c0d6e46d43cb0dd87dfcf42ba8922843378f2a0947c17744e7dd1f1",
+            "samples": 15488,
+            "peak": 5.5167012214660645
+          },
+          {
+            "generation": 1,
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/exports/5c7e2d94-878b-412d-a762-d90e783b578e.wav",
+            "sha256": "eba8abc6cd36075c317a01c0d06f97f59b7cd15fbf63c767dd121c81cb94e30d",
+            "pcmSha256": "e2733e7f1ea62bf055f97e2d9c7f57bd42782243643c11b42c11a72a189ff420",
+            "samples": 11488,
+            "peak": 5.590811729431152
+          },
+          {
+            "generation": 2,
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/exports/f38a23ce-c8dd-430f-afeb-9f702ef129c2.wav",
+            "sha256": "3129fe1fe5b98211279a28564564bf514b92300c9ce69f1fd49baa89b3aaf5a6",
+            "pcmSha256": "9bf175ce67650e65c8016c82b8c7043257b9c438acb1fe4b01c6049229c39308",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          }
+        ],
+        "markers": [
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/d459c7ca-620c-4a8e-9d77-fa694b90c42e/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 50671,
+            "channels": 2,
+            "peak": 2.5156989097595215,
+            "audioSha256": "22a91f67f73fbf1c52a31ab328db0ebe3d2830c09aabfb8dd259704ac159b4a5",
+            "sampleSha256": "bead78bc6cdda61f6554b7020855d3b74a03bd9cd1885519db54da894b33fec3",
+            "uniformContext": null
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/040134f9-70ac-40d4-9d43-95e9e69dc594/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 49184,
+            "channels": 2,
+            "peak": 2.697770595550537,
+            "audioSha256": "57be4b9e63e6b0d2fb77303acdacb3a3a5c893579eb20cabffd8d1f44705b462",
+            "sampleSha256": "b9655b68f2efdaf8ab241194931ffe9e453e420b4f1413dd38f8edbb3ecf49b8",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 32790,
+              "inputRate": 48000,
+              "inputStep": [
+                49184,
+                49185
+              ],
+              "intrinsicExtent": [
+                49184,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 49184,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                32789,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                16362,
+                2,
+                3
+              ],
+              "renderFrames": 49184,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "891ec463-6ccb-4f09-8899-ae8b8ca17b4b",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/907baa4b-2017-4747-9ae9-ae9e8e4f764f/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 4054,
+            "channels": 2,
+            "peak": 0.07068132609128952,
+            "audioSha256": "065d16935749c9f9e10166b088d55f8875e4662f8b4249a6498c66c41c2a2fc7",
+            "sampleSha256": "a51e4544fd2a4e19c3afec0e8d533ba1975f579ecb02e93bf24e9cb755e5f315",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                1,
+                2
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1097061,
+                731372
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34828,
+              "inputRate": 48000,
+              "inputStep": [
+                182843,
+                182847
+              ],
+              "intrinsicExtent": [
+                52240,
+                6,
+                7
+              ],
+              "layoutKind": 1,
+              "outputFrames": 4054,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34827,
+                5,
+                21
+              ],
+              "rawOrigin": [
+                14324,
+                16,
+                21
+              ],
+              "renderFrames": 52241,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "891ec463-6ccb-4f09-8899-ae8b8ca17b4b",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/1d8b66d3-8099-4fd7-be90-4629591a2e40/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 4053,
+            "channels": 2,
+            "peak": 0.08256026357412338,
+            "audioSha256": "6436eb7c351b8ce7bd7055e3e9e414d17402551065798ec29f6767791b9c7f84",
+            "sampleSha256": "932c2e8595f6fd3ed2c8e69d0490146cb4122dfd224dce6acf8c3f795383b8a8",
+            "uniformContext": null
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-original-context-pair-evidence/run-c4bpm1ws/inputs-uniform/run-6bjclttu/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/202658de-cbfa-4c40-acba-b62e57ea6b4f/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 52208,
+            "channels": 2,
+            "peak": 2.7774367332458496,
+            "audioSha256": "15ded9074ccf01206842ea8919dac5f2ab28004f8c5224597d4dd4b8326b7736",
+            "sampleSha256": "a1c01fcb9a99ba25bedbbad22006a38603cd157ea9b3f805fd4156ec602c0f21",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34806,
+              "inputRate": 48000,
+              "inputStep": [
+                52208,
+                52209
+              ],
+              "intrinsicExtent": [
+                52208,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 52208,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34805,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                14346,
+                2,
+                3
+              ],
+              "renderFrames": 52208,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "891ec463-6ccb-4f09-8899-ae8b8ca17b4b",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          }
+        ],
+        "pngs": 0,
+        "observations": 0,
+        "maximumStageMilliseconds": 0
+      },
+      {
+        "configuration": "Debug",
+        "kind": "desktop",
+        "root": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n",
+        "adoptions": 3,
+        "workers": 5,
+        "mixedRetained": 1,
+        "workerPcm": 320340,
+        "unchangedSamples": 122682,
+        "liveExportSamples": 130576,
+        "exports": [
+          {
+            "generation": 0,
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/generation-0-reopened.wav",
+            "sha256": "af1840b9b5302687f29e7a471f2017ce6266b4658210930260028e7105bcd952",
+            "pcmSha256": "2e720d492c0d6e46d43cb0dd87dfcf42ba8922843378f2a0947c17744e7dd1f1",
+            "samples": 15488,
+            "peak": 5.5167012214660645
+          },
+          {
+            "generation": 1,
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/generation-1-reopened.wav",
+            "sha256": "eba8abc6cd36075c317a01c0d06f97f59b7cd15fbf63c767dd121c81cb94e30d",
+            "pcmSha256": "e2733e7f1ea62bf055f97e2d9c7f57bd42782243643c11b42c11a72a189ff420",
+            "samples": 11488,
+            "peak": 5.590811729431152
+          },
+          {
+            "generation": 2,
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/generation-2-reopened.wav",
+            "sha256": "3129fe1fe5b98211279a28564564bf514b92300c9ce69f1fd49baa89b3aaf5a6",
+            "pcmSha256": "9bf175ce67650e65c8016c82b8c7043257b9c438acb1fe4b01c6049229c39308",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          }
+        ],
+        "markers": [
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/ceddbff5-8ebb-489e-9048-c7e1d72a3f6c/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 4054,
+            "channels": 2,
+            "peak": 0.07068132609128952,
+            "audioSha256": "065d16935749c9f9e10166b088d55f8875e4662f8b4249a6498c66c41c2a2fc7",
+            "sampleSha256": "a51e4544fd2a4e19c3afec0e8d533ba1975f579ecb02e93bf24e9cb755e5f315",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                1,
+                2
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1097061,
+                731372
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34828,
+              "inputRate": 48000,
+              "inputStep": [
+                182843,
+                182847
+              ],
+              "intrinsicExtent": [
+                52240,
+                6,
+                7
+              ],
+              "layoutKind": 1,
+              "outputFrames": 4054,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34827,
+                5,
+                21
+              ],
+              "rawOrigin": [
+                14324,
+                16,
+                21
+              ],
+              "renderFrames": 52241,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "d1131ed8-4916-4ffd-8a01-24868a0151e3",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/c8224188-307f-4283-a29c-e6e1b057c93c/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 4053,
+            "channels": 2,
+            "peak": 0.08256026357412338,
+            "audioSha256": "6436eb7c351b8ce7bd7055e3e9e414d17402551065798ec29f6767791b9c7f84",
+            "sampleSha256": "932c2e8595f6fd3ed2c8e69d0490146cb4122dfd224dce6acf8c3f795383b8a8",
+            "uniformContext": null
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/3ba5a2be-a920-45ba-a4f0-cd0749c47cd8/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 49184,
+            "channels": 2,
+            "peak": 2.697770595550537,
+            "audioSha256": "57be4b9e63e6b0d2fb77303acdacb3a3a5c893579eb20cabffd8d1f44705b462",
+            "sampleSha256": "b9655b68f2efdaf8ab241194931ffe9e453e420b4f1413dd38f8edbb3ecf49b8",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 32790,
+              "inputRate": 48000,
+              "inputStep": [
+                49184,
+                49185
+              ],
+              "intrinsicExtent": [
+                49184,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 49184,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                32789,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                16362,
+                2,
+                3
+              ],
+              "renderFrames": 49184,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "d1131ed8-4916-4ffd-8a01-24868a0151e3",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/ea213e7f-7e7c-440a-bd63-4266f640636a/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 52208,
+            "channels": 2,
+            "peak": 2.7774367332458496,
+            "audioSha256": "15ded9074ccf01206842ea8919dac5f2ab28004f8c5224597d4dd4b8326b7736",
+            "sampleSha256": "a1c01fcb9a99ba25bedbbad22006a38603cd157ea9b3f805fd4156ec602c0f21",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34806,
+              "inputRate": 48000,
+              "inputStep": [
+                52208,
+                52209
+              ],
+              "intrinsicExtent": [
+                52208,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 52208,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34805,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                14346,
+                2,
+                3
+              ],
+              "renderFrames": 52208,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "d1131ed8-4916-4ffd-8a01-24868a0151e3",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-pp71yy5n/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/b073f8d7-9775-4a94-a059-5ddb7ffbd59c/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 50671,
+            "channels": 2,
+            "peak": 2.5156989097595215,
+            "audioSha256": "22a91f67f73fbf1c52a31ab328db0ebe3d2830c09aabfb8dd259704ac159b4a5",
+            "sampleSha256": "bead78bc6cdda61f6554b7020855d3b74a03bd9cd1885519db54da894b33fec3",
+            "uniformContext": null
+          }
+        ],
+        "pngs": 9,
+        "observations": 3,
+        "maximumStageMilliseconds": 19538
+      },
+      {
+        "configuration": "Debug",
+        "kind": "pair",
+        "root": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm",
+        "adoptions": 3,
+        "workers": 5,
+        "mixedRetained": 1,
+        "workerPcm": 320340,
+        "unchangedSamples": 121168,
+        "liveExportSamples": 130576,
+        "exports": [
+          {
+            "generation": 0,
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/exports/cd5970cd-8363-43ce-b063-2a854291c474.wav",
+            "sha256": "af1840b9b5302687f29e7a471f2017ce6266b4658210930260028e7105bcd952",
+            "pcmSha256": "2e720d492c0d6e46d43cb0dd87dfcf42ba8922843378f2a0947c17744e7dd1f1",
+            "samples": 15488,
+            "peak": 5.5167012214660645
+          },
+          {
+            "generation": 1,
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/exports/e06a8ab5-7e35-43e3-946f-3b6dca3df203.wav",
+            "sha256": "eba8abc6cd36075c317a01c0d06f97f59b7cd15fbf63c767dd121c81cb94e30d",
+            "pcmSha256": "e2733e7f1ea62bf055f97e2d9c7f57bd42782243643c11b42c11a72a189ff420",
+            "samples": 11488,
+            "peak": 5.590811729431152
+          },
+          {
+            "generation": 2,
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/exports/7360d6ed-4358-4dfe-84a6-40352f49b533.wav",
+            "sha256": "3129fe1fe5b98211279a28564564bf514b92300c9ce69f1fd49baa89b3aaf5a6",
+            "pcmSha256": "9bf175ce67650e65c8016c82b8c7043257b9c438acb1fe4b01c6049229c39308",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          }
+        ],
+        "markers": [
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/724efd4b-4eac-4f70-8fdb-41178eb81d47/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 49184,
+            "channels": 2,
+            "peak": 2.697770595550537,
+            "audioSha256": "57be4b9e63e6b0d2fb77303acdacb3a3a5c893579eb20cabffd8d1f44705b462",
+            "sampleSha256": "b9655b68f2efdaf8ab241194931ffe9e453e420b4f1413dd38f8edbb3ecf49b8",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 32790,
+              "inputRate": 48000,
+              "inputStep": [
+                49184,
+                49185
+              ],
+              "intrinsicExtent": [
+                49184,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 49184,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                32789,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                16362,
+                2,
+                3
+              ],
+              "renderFrames": 49184,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "0f24d538-b5c5-44dd-80e4-e27027f713d3",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/32987d6f-2725-405b-9dbf-e4cdee957c3f/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 4053,
+            "channels": 2,
+            "peak": 0.08256026357412338,
+            "audioSha256": "6436eb7c351b8ce7bd7055e3e9e414d17402551065798ec29f6767791b9c7f84",
+            "sampleSha256": "932c2e8595f6fd3ed2c8e69d0490146cb4122dfd224dce6acf8c3f795383b8a8",
+            "uniformContext": null
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/0e5472c9-56d0-483f-877a-d84e8698a02e/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 52208,
+            "channels": 2,
+            "peak": 2.7774367332458496,
+            "audioSha256": "15ded9074ccf01206842ea8919dac5f2ab28004f8c5224597d4dd4b8326b7736",
+            "sampleSha256": "a1c01fcb9a99ba25bedbbad22006a38603cd157ea9b3f805fd4156ec602c0f21",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34806,
+              "inputRate": 48000,
+              "inputStep": [
+                52208,
+                52209
+              ],
+              "intrinsicExtent": [
+                52208,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 52208,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34805,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                14346,
+                2,
+                3
+              ],
+              "renderFrames": 52208,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "0f24d538-b5c5-44dd-80e4-e27027f713d3",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/26a525a9-2ef1-4c8b-94c8-846e76d1e4f3/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 4054,
+            "channels": 2,
+            "peak": 0.07068132609128952,
+            "audioSha256": "065d16935749c9f9e10166b088d55f8875e4662f8b4249a6498c66c41c2a2fc7",
+            "sampleSha256": "a51e4544fd2a4e19c3afec0e8d533ba1975f579ecb02e93bf24e9cb755e5f315",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                1,
+                2
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1097061,
+                731372
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34828,
+              "inputRate": 48000,
+              "inputStep": [
+                182843,
+                182847
+              ],
+              "intrinsicExtent": [
+                52240,
+                6,
+                7
+              ],
+              "layoutKind": 1,
+              "outputFrames": 4054,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34827,
+                5,
+                21
+              ],
+              "rawOrigin": [
+                14324,
+                16,
+                21
+              ],
+              "renderFrames": 52241,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "0f24d538-b5c5-44dd-80e4-e27027f713d3",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-original-context-pair-evidence/run-uo27n3wm/inputs-uniform/run-jft5jwfv/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/a20feaae-5a16-4e24-a387-1f27d292bd9e/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 50671,
+            "channels": 2,
+            "peak": 2.5156989097595215,
+            "audioSha256": "22a91f67f73fbf1c52a31ab328db0ebe3d2830c09aabfb8dd259704ac159b4a5",
+            "sampleSha256": "bead78bc6cdda61f6554b7020855d3b74a03bd9cd1885519db54da894b33fec3",
+            "uniformContext": null
+          }
+        ],
+        "pngs": 0,
+        "observations": 0,
+        "maximumStageMilliseconds": 0
+      },
+      {
+        "configuration": "Release",
+        "kind": "desktop",
+        "root": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6",
+        "adoptions": 3,
+        "workers": 5,
+        "mixedRetained": 1,
+        "workerPcm": 320340,
+        "unchangedSamples": 122682,
+        "liveExportSamples": 130576,
+        "exports": [
+          {
+            "generation": 0,
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/generation-0-reopened.wav",
+            "sha256": "af1840b9b5302687f29e7a471f2017ce6266b4658210930260028e7105bcd952",
+            "pcmSha256": "2e720d492c0d6e46d43cb0dd87dfcf42ba8922843378f2a0947c17744e7dd1f1",
+            "samples": 15488,
+            "peak": 5.5167012214660645
+          },
+          {
+            "generation": 1,
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/generation-1-reopened.wav",
+            "sha256": "eba8abc6cd36075c317a01c0d06f97f59b7cd15fbf63c767dd121c81cb94e30d",
+            "pcmSha256": "e2733e7f1ea62bf055f97e2d9c7f57bd42782243643c11b42c11a72a189ff420",
+            "samples": 11488,
+            "peak": 5.590811729431152
+          },
+          {
+            "generation": 2,
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/generation-2-reopened.wav",
+            "sha256": "3129fe1fe5b98211279a28564564bf514b92300c9ce69f1fd49baa89b3aaf5a6",
+            "pcmSha256": "9bf175ce67650e65c8016c82b8c7043257b9c438acb1fe4b01c6049229c39308",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          }
+        ],
+        "markers": [
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/2e470079-6e0e-4fe0-b53b-a25f5f79a68a/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 52208,
+            "channels": 2,
+            "peak": 2.7774367332458496,
+            "audioSha256": "15ded9074ccf01206842ea8919dac5f2ab28004f8c5224597d4dd4b8326b7736",
+            "sampleSha256": "a1c01fcb9a99ba25bedbbad22006a38603cd157ea9b3f805fd4156ec602c0f21",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34806,
+              "inputRate": 48000,
+              "inputStep": [
+                52208,
+                52209
+              ],
+              "intrinsicExtent": [
+                52208,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 52208,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34805,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                14346,
+                2,
+                3
+              ],
+              "renderFrames": 52208,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "97695369-ee19-4cdd-bd6e-d81c7c7df01f",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/7ee0c3b5-2f4f-4708-815d-81c76f839dbf/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 4054,
+            "channels": 2,
+            "peak": 0.07068132609128952,
+            "audioSha256": "065d16935749c9f9e10166b088d55f8875e4662f8b4249a6498c66c41c2a2fc7",
+            "sampleSha256": "a51e4544fd2a4e19c3afec0e8d533ba1975f579ecb02e93bf24e9cb755e5f315",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                1,
+                2
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1097061,
+                731372
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 34828,
+              "inputRate": 48000,
+              "inputStep": [
+                182843,
+                182847
+              ],
+              "intrinsicExtent": [
+                52240,
+                6,
+                7
+              ],
+              "layoutKind": 1,
+              "outputFrames": 4054,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                34827,
+                5,
+                21
+              ],
+              "rawOrigin": [
+                14324,
+                16,
+                21
+              ],
+              "renderFrames": 52241,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "97695369-ee19-4cdd-bd6e-d81c7c7df01f",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/32c605f5-a2b2-4c08-a3e3-d1d8d7096b3e/complete.json",
+            "protocol": "sc-comp-span-uniform-context-v1",
+            "frames": 49184,
+            "channels": 2,
+            "peak": 2.697770595550537,
+            "audioSha256": "57be4b9e63e6b0d2fb77303acdacb3a3a5c893579eb20cabffd8d1f44705b462",
+            "sampleSha256": "b9655b68f2efdaf8ab241194931ffe9e453e420b4f1413dd38f8edbb3ecf49b8",
+            "uniformContext": {
+              "bakedPitchScale": [
+                1,
+                0,
+                1
+              ],
+              "candidateOrigin": [
+                0,
+                0,
+                1
+              ],
+              "candidateStep": [
+                1,
+                1
+              ],
+              "channels": 2,
+              "chunkFrames": 512,
+              "formantPreserved": true,
+              "historyRequired": true,
+              "inputFrames": 32790,
+              "inputRate": 48000,
+              "inputStep": [
+                49184,
+                49185
+              ],
+              "intrinsicExtent": [
+                49184,
+                0,
+                1
+              ],
+              "layoutKind": 1,
+              "outputFrames": 49184,
+              "outputRate": 48000,
+              "pitchMilliCents": 0,
+              "rawExtent": [
+                32789,
+                1,
+                3
+              ],
+              "rawOrigin": [
+                16362,
+                2,
+                3
+              ],
+              "renderFrames": 49184,
+              "resampling": "soundcurrent.src-positioned-best-v1",
+              "sourceFrames": 98304,
+              "sourceId": "97695369-ee19-4cdd-bd6e-d81c7c7df01f",
+              "sourceSha256": "c1929b6a6b1d892dcebeeb6c35ea1fe9d008c28443fb8761be67ed58d72f0c1e"
+            }
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/44b52683-5bf3-4f33-a434-fdc497d476da/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 4053,
+            "channels": 2,
+            "peak": 0.08256026357412338,
+            "audioSha256": "6436eb7c351b8ce7bd7055e3e9e414d17402551065798ec29f6767791b9c7f84",
+            "sampleSha256": "932c2e8595f6fd3ed2c8e69d0490146cb4122dfd224dce6acf8c3f795383b8a8",
+            "uniformContext": null
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-4elk33x6/case-48000-uniform/case-0/project-\u00e9-\u65e5\u672c/media/comp-spans/9ca63d1d-76e3-4f8f-8d07-f86282a9eff6/complete.json",
+            "protocol": "sc-comp-span-protected-clocked-v1",
+            "frames": 50671,
+            "channels": 2,
+            "peak": 2.5156989097595215,
+            "audioSha256": "22a91f67f73fbf1c52a31ab328db0ebe3d2830c09aabfb8dd259704ac159b4a5",
+            "sampleSha256": "bead78bc6cdda61f6554b7020855d3b74a03bd9cd1885519db54da894b33fec3",
+            "uniformContext": null
+          }
+        ],
+        "pngs": 9,
+        "observations": 3,
+        "maximumStageMilliseconds": 8414
+      }
+    ],
+    "allSixPairAndDesktopExportsEqualAcrossBuilds": true,
+    "nativeRuntime": false,
+    "installedAudio": false,
+    "qualityAdmission": false
+  }
+}

@@ -1,0 +1,17 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build
+    Start 41: comp-regeneration-history
+1/1 Test #41: comp-regeneration-history ........***Failed   30.66 sec
+Traceback (most recent call last):
+  File "/home/rich/dev/soundcurrent-daw/tests/comp_regeneration_history_tests.py", line 21, in <module>
+    processes.append(dict(pid=proc.pid,exitCode=proc.returncode));assert proc.returncode==0,(root,err);reports.append(json.loads(out))
+                                                                         ^^^^^^^^^^^^^^^^^^
+AssertionError: (PosixPath('/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-regeneration-history-evidence/run-0y5v9pyt/inputs/run-xxo9rtb0/inputs/run-bpsxv_x3/case-44100/project-é-日本'), 'Accepted invalid history: original writer still active\n')
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =  30.66 sec
+
+The following tests FAILED:
+	 41 - comp-regeneration-history (Failed)
+Errors while running CTest

@@ -1,0 +1,38 @@
+{
+  "command": [
+    "nice",
+    "-n",
+    "15",
+    "ionice",
+    "-c",
+    "2",
+    "-n",
+    "7",
+    "x86_64-w64-mingw32-g++",
+    "-std=c++20",
+    "-Iinclude",
+    "-Isrc",
+    "-Ithird_party",
+    "-Ithird_party/libsndfile",
+    "-fsyntax-only",
+    "src/comp_regeneration_history.cpp",
+    "src/comp_span_history.cpp",
+    "src/comp_assembly_adoption.cpp",
+    "src/comp_assembly_job.cpp",
+    "src/wave_validation.cpp",
+    "tests/comp_regeneration_history_tests.cpp",
+    "tests/comp_assembly_job_tests.cpp"
+  ],
+  "exitCode": 0,
+  "seconds": 17.240622246987186,
+  "sources": {
+    "src/comp_regeneration_history.cpp": "942721c6e9e2e120bad368371575e01b43ce8c0e6168e2e23da82357457df9c1",
+    "src/comp_span_history.cpp": "93bdb008a305e68e700d1467d3612ead3749c7dd810e3b71f21ea2e9fd80e215",
+    "src/comp_assembly_adoption.cpp": "e28bc64a0fbdaccd94273415993f737f4bbc888baac690ea9ff4f8079364ca20",
+    "src/comp_assembly_job.cpp": "29b5ca3cb424bced425bc5f2c81bfde78e9e0201cb9c33c0ad166bd5dce21811",
+    "src/wave_validation.cpp": "d1c6f45ad2c4eb579ae7438afbb1452e2eb7fc07df494314352a73d5bd0e50e6",
+    "tests/comp_regeneration_history_tests.cpp": "d84aa40bf774ead0915519a9be60cfab17b4320e45d4da637d19583b7b60ac95",
+    "tests/comp_assembly_job_tests.cpp": "484bdbdd4dd6720960db917aedbc93b9c340200bfbeaf011704463531d9b0277"
+  },
+  "nativeRuntimeQualified": false
+}

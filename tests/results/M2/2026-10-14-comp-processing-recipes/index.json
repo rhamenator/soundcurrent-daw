@@ -1,0 +1,60 @@
+{
+  "checkpoint": 271,
+  "sourceHead": "2749c06204ff7929762031e586275903e903f3b7",
+  "sourceTree": "7028c2ad29c9a73801ef8ffdc81c41f71368ce37",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-processing-recipes/build",
+    "--output-on-failure",
+    "--no-tests=error",
+    "-R",
+    "^(comp-processing-recipe-recovery|comp-transition-processing-permissions|comp-handle-explicit-blend|comp-handle-pcm-assembly)$"
+  ],
+  "pid": 3763208,
+  "exitCode": 0,
+  "seconds": 2.0465123259928077,
+  "sourceAndBinariesUnchanged": true,
+  "projectOutsidePcmBitExact": true,
+  "processingDomains": [
+    "physical-artifact",
+    "project-after-src"
+  ],
+  "actualRenderer": false,
+  "recipePersistence": true,
+  "sourceMediaVerified": false,
+  "trustedDigestRequired": true,
+  "modelAdoptionChanged": false,
+  "qualityAdmission": false,
+  "nativeWindowsQualified": false,
+  "fullDawParity": false,
+  "recipeChecks": 618,
+  "recipeCases": 11,
+  "recipeDomains": {
+    "physical": 9,
+    "projectAfterSrc": 10,
+    "existing": 3
+  },
+  "archive": {
+    "bytes": 22939,
+    "sha256": "4f884b962899f24baa36094c84b5a2f135d545636bc24b7de93d45474cd4c3ad",
+    "entries": {
+      "LastTest.log": {
+        "bytes": 3478,
+        "sha256": "86495906d560273a5563e648dbcbea87cf094578527cdf50c5601a87f12ac5d3"
+      },
+      "qualification.json": {
+        "bytes": 52037,
+        "sha256": "584b2114571dfcb6da7a670fa0e02ec8a0f6b801e161ce66e105a4a9aab4ab19"
+      },
+      "tests.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tests.stdout": {
+        "bytes": 654,
+        "sha256": "94fc5d428b2c256cf1648f2cc2543946e05ed4d246c3a402cb7d898808c3cc6f"
+      }
+    }
+  }
+}
