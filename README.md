@@ -17,16 +17,21 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
-The [current installed Ubuntu preview](docs/337-installed-batched-preview.md)
+The [current installed Ubuntu preview](docs/360-installed-track-version-preview.md)
 is available locally as **SoundCurrent DAW Preview** in Applications, with a
-**before batched verification** entry for rollback. Its Release DEB and matching GPL source are
-prepared; retained-take preparation, handle crossfades, Undo/Redo, native owned
-recording/playback and packaged save/reopen/export have scoped evidence.
-The [matching Windows preview](docs/340-installed-windows-timing.md) now passes
-installation and the installed editing/export workflow in the independent test VM,
-with bit-exact independent export verification. The repaired observer qualifies
-the original 30-second render check on the retained fixture; earlier failures remain
-documented and broader performance qualification is still required.
+**before track versions** entry for rollback. Waveform recovery, grouped audio
+versions, rendered crossfade editing, Undo/Redo, save/reopen and bit-exact
+independent WAV export pass in the installed app. Its Release DEB and matching
+GPL source are prepared locally; no public binary release was uploaded.
+The [existing Windows waveform preview](docs/355-windows-waveform-timing.md)
+remains installed and qualified for its earlier scope. The new grouped-version
+Windows preview is pending: current CI exposed a Unicode path conversion in a
+test fixture, now corrected locally and awaiting native verification. Linux and
+Windows feature parity and sustained hardware qualification remain required.
+
+Earlier preview evidence follows; these dated checkpoints retain their original
+scope and failures.
+
 New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
 are now prepared locally with matching source. Native helper checks and actual
 packaged/deployed startup pass. The refreshed Linux Applications entry also passes

@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Linux track-version preview (2026-10-16)
+
+[Checkpoint 360](360-installed-track-version-preview.md) promotes the qualified
+Linux candidate to the Applications launcher, preserving the prior preview.
+All 35 selected tests pass; the installed app verifies waveform recovery,
+render/edit/Undo/Redo/save/reopen, bit-exact independent WAV export, and grouped
+track-version alternatives across two tracks. All five normal launches quit
+cleanly. Original CI passed Linux but exposed a Windows Unicode conversion in a
+new test fixture; original logs/artifacts are retained and the test-only repair
+awaits fresh Windows CI. The Windows preview has not changed. Feature development
+stays frozen for Windows delivery; full M0–M11/F/Q/C/N/X004/X005 and all-Europe
+scope remains active and incomplete.
+
 ## Grouped audio track versions (2026-10-15)
 
 [Checkpoint 359](359-grouped-track-versions.md) adds shared version identities and
