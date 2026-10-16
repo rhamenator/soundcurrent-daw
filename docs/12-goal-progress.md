@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Grouped audio track versions (2026-10-15)
+
+[Checkpoint 359](359-grouped-track-versions.md) adds shared version identities and
+multi-track create, link, activate, rename and removal through one Undo/Redo
+transaction. The desktop selects explicit tracks or finds peers by shared group;
+missing peers reject the entire change. State and selected-track staging remain
+resource-admitted, and tests cover groups larger than 64 tracks. Schema 1.25
+preserves group links. The prior CI failure was stale localization inventory;
+strict catalog checks pass after regeneration, with original CI evidence retained.
+New native qualification and matching preview delivery remain required. Full
+M0–M11/F/Q/C/N/X004/X005 and all-Europe scope remains active and incomplete.
+
 ## Audio track versions (2026-10-15)
 
 [Checkpoint 358](358-track-versions.md) adds persistent audio arrangements with a
