@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Waveform coverage reuse (2026-10-15)
+
+[Checkpoint 357](357-waveform-coverage-reuse.md) reuses ready or in-flight coverage
+for nearby pans and zooms when source identity, opening, resolution and resource
+bounds match. New requests use spare bin capacity for a bounded margin without
+coarsening detail. Covered movement avoids another decode; uncovered movement
+still prepares data. Five Release integration suites and three ASan/UBSan suites
+pass. The preceding hosted run passed, with all 15 terminal logs and 12 original
+artifacts retained before PR advancement. New native Windows evidence and preview
+delivery remain next; P010 track versions and all other suite milestones remain
+open. Installed previews are unchanged, and full parity remains incomplete.
+
 ## Cropped and zoomed source waveforms (2026-10-15)
 
 [Checkpoint 356](356-waveform-source-windows.md) connects bounded source-frame
