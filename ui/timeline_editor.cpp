@@ -196,6 +196,9 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
                                            : std::optional<Id>((it + 2)->id)}});
     });
     body->addLayout(trackRow);
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Track versions…"), "editTrackVersions", [this] {
+        editTrackVersions();
+    });
     auto *takeFields = new QFormLayout;
     takes_ = new FocusCombo;
     takes_->setObjectName("timelineTakes");

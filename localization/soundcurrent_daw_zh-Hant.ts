@@ -4127,6 +4127,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Track versions…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Retained take lanes in selected track</source>
       <translation type="unfinished" />
     </message>
@@ -4480,6 +4484,50 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track versions</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Active version: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Version name</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>New empty</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Duplicate active</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Activate selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rename selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Remove selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project changed while track versions were open. Please reopen the dialog.</source>
       <translation type="unfinished" />
     </message>
   </context>

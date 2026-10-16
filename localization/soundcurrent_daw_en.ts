@@ -4144,6 +4144,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Down</translation>
     </message>
     <message>
+      <source>Track versions…</source>
+      <translation>Track versions…</translation>
+    </message>
+    <message>
       <source>Retained take lanes in selected track</source>
       <translation>Retained take lanes in selected track</translation>
     </message>
@@ -4498,6 +4502,50 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</source>
       <translation>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</translation>
+    </message>
+    <message>
+      <source>Track versions</source>
+      <translation>Track versions</translation>
+    </message>
+    <message>
+      <source>Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.</source>
+      <translation>Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.</translation>
+    </message>
+    <message>
+      <source>Active version: %1</source>
+      <translation>Active version: %1</translation>
+    </message>
+    <message>
+      <source>Original</source>
+      <translation>Original</translation>
+    </message>
+    <message>
+      <source>Version name</source>
+      <translation>Version name</translation>
+    </message>
+    <message>
+      <source>New empty</source>
+      <translation>New empty</translation>
+    </message>
+    <message>
+      <source>Duplicate active</source>
+      <translation>Duplicate active</translation>
+    </message>
+    <message>
+      <source>Activate selected</source>
+      <translation>Activate selected</translation>
+    </message>
+    <message>
+      <source>Rename selected</source>
+      <translation>Rename selected</translation>
+    </message>
+    <message>
+      <source>Remove selected</source>
+      <translation>Remove selected</translation>
+    </message>
+    <message>
+      <source>The project changed while track versions were open. Please reopen the dialog.</source>
+      <translation>The project changed while track versions were open. Please reopen the dialog.</translation>
     </message>
   </context>
   <context>

@@ -278,6 +278,18 @@ struct TakeLane {
     std::vector<Clip> clips; // Inactive. Only explicit comp copies are audible.
     bool operator==(const TakeLane &) const = default;
 };
+// Only Track::clips is audible. Retained takes and processor/routing state are
+// shared by every arrangement. Inactive versions own distinct clip identities.
+struct TrackVersionIdentity {
+    Id id = Id::generate();
+    std::string name;
+    bool operator==(const TrackVersionIdentity &) const = default;
+};
+struct TrackVersion {
+    TrackVersionIdentity identity;
+    std::vector<Clip> clips;
+    bool operator==(const TrackVersion &) const = default;
+};
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
 constexpr bool validRecordingMonitor(RecordingMonitor mode) noexcept {
     return mode == RecordingMonitor::Off || mode == RecordingMonitor::PostEq ||
@@ -295,6 +307,8 @@ struct Track {
     EqSettings eq;
     std::vector<Clip> clips;
     std::vector<TakeLane> takeLanes;
+    std::optional<TrackVersionIdentity> activeVersion;
+    std::vector<TrackVersion> inactiveVersions;
     bool operator==(const Track &) const = default;
 };
 // Portable evidence only. These paths never grant access to original sources.
@@ -549,10 +563,17 @@ struct SelectTakeRegion {
     Id track, lane;
     Frame startFrame = 0, endFrame = 0; // Fully covered project region [start,end).
 };
+// First creation names the previously implicit arrangement with previousName.
+// Creation activates the new arrangement; duplicate=false starts with no clips.
+struct CreateTrackVersion { Id track; std::string name, previousName; bool duplicate = true; };
+struct SwitchTrackVersion { Id track, version; };
+struct RenameTrackVersion { Id track, version; std::string name; };
+// Active deletion is refused: switch to a retained version explicitly first.
+struct RemoveTrackVersion { Id track, version; };
 using SessionEdit =
     std::variant<AddCompAssembly, RemoveCompAssembly, AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
                  SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, ApplyCompAssembly, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
-                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
+                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion, CreateTrackVersion, SwitchTrackVersion, RenameTrackVersion, RemoveTrackVersion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

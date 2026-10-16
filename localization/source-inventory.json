@@ -53,19 +53,20 @@
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "fe8c88d0a0d8373333b8530a9efe6891300fd30baa19c2933e1bcd868a9af2b0",
     "ui/studio_window.hpp": "3907db316be960a0a5c7eaa9b44e9b61138feb087d67a26bb4c71690e4b975d9",
-    "ui/timeline_editor.cpp": "62b9663aff733deaf66eb04fc61182ed9beaf6376707c09e4c0df3b704cf9f71",
-    "ui/timeline_editor.hpp": "fde0dd94e440cbe14aa41e16abc9d1bf48be6d1aaa31c743a186991e6491689d",
-    "ui/timeline_view.cpp": "59f2255d01a2cdf533242bbebab1a4fbc417fc3a079b7c23de806af15315a9ba",
+    "ui/timeline_editor.cpp": "725886852b030afdd7e427056941afdcf3070aae698cdf26341a9da4976fca94",
+    "ui/timeline_editor.hpp": "6d1b8d6a9a9503b9cc7ac68766dfafae79939cf0f1eb8657f210725659ed64a0",
+    "ui/timeline_view.cpp": "d3df8afa145fc3cad88dce58ada53d83cbb2d9b7c0234d80dc94362240ca739f",
     "ui/timeline_view.hpp": "1981c0cf9a33aaaac99fedeb5da5e85cad4eae7ad2695c089a45c6b67d8a3612",
-    "ui/timeline_waveforms.cpp": "69b73210373a181719515eb5064d1e7958eb0f1f37767198f737d29e6e10c721",
-    "ui/timeline_waveforms.hpp": "eaac5429264d6a103f1cd054408463661705e5f6527841374f391140e53330da",
+    "ui/timeline_waveforms.cpp": "ae6d59b4d93217bf8f415deebf57cc7fc08a364edb0d39dfc674a82f2a7692b0",
+    "ui/timeline_waveforms.hpp": "d0a9df7157fc1e49dbc9065c83b45325239fc41fb3629e3dbd242c6f6bb10a90",
+    "ui/track_versions_dialog.cpp": "0af2899a9680de79d565cb604acbb61e0f331ea33a21ae46fbd24a3b8e00fc60",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
     "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
     "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9",
-    "ui/waveform_cache.cpp": "6f9a8b77e8740e09fb47bf463dd055982d783c12aaf2493e8f811112320d94b5",
-    "ui/waveform_cache.hpp": "70e9a87090a7baef9c2acb1bd2c2d8d8c60ac6ec07d2ac47d757d27a45091998",
-    "ui/waveform_controller.cpp": "ad90d6adba7a79adbe75e94d0fcb8e8ff7a6dbfb289f028b13f38f6789226711",
+    "ui/waveform_cache.cpp": "3013f3a51905886aed3b31a639986ceb78ed90fd5208d606f3a2867f0d3671af",
+    "ui/waveform_cache.hpp": "d5cc80687ce85513c0a697994ccb3345af35b954336dd4baff4d79ab1afc6278",
+    "ui/waveform_controller.cpp": "2899e01a209fc808897a1dc044c1e39e399eab0494844918b5cba16853eb1f3a",
     "ui/waveform_controller.hpp": "7222ca3dce1f833ad1c4bf057939125b6fc4f7209c9e719112ca1a0195babc0b"
   },
   "seed_sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6",
@@ -6150,6 +6151,12 @@
     ],
     [
       "TimelineEditor",
+      "Track versions…",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "Retained take lanes in selected track",
       "",
       false
@@ -6679,6 +6686,72 @@
     [
       "TimelineEditor",
       "Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Track versions",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Active version: %1",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Original",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Version name",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "New empty",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Duplicate active",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Activate selected",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Rename selected",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Remove selected",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "The project changed while track versions were open. Please reopen the dialog.",
       "",
       false
     ],

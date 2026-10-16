@@ -69,6 +69,7 @@ class TimelineEditor : public QGroupBox {
     const TakeLane *takeLane() const;
     void refreshTake(bool force);
     void editCrossfade();
+    void editTrackVersions();
     QLineEdit *name_, *start_, *source_, *length_, *split_, *consumed_;
     QLabel *sourceTiming_;
     QComboBox *layout_, *destination_, *asset_, *clips_;

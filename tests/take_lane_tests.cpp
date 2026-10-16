@@ -244,6 +244,77 @@ void groupedTransitionOffsets() {
     }
     check(h.undo() && s==original && h.redo() && s==selected,"Linked transition Undo not atomic");
 }
+void trackVersions() {
+    Directory d; auto s=makeOneTrackSession("Versioned arrangements", "Voice");
+    s.tracks[0].eq.enabled=false;
+    ProjectStore store(d.root); store.save(s);
+    auto lane=record(s,d.root,0); const auto track=s.tracks[0].id;
+    EditHistory history(s);
+    check(history.structural({InsertTakeLane{track,lane,{}},SelectTakeRegion{track,lane.id,0,512}}), "Version source comp missing");
+    const auto initial=s;
+    MixPlan plan{{LayoutKind::Mono,1},{{track,{{0,0,1}}}}};
+    const auto originalAudio=live(d.root,s,plan,37);
+    const auto rawHash=hashMediaFile(d.root/utf8Path(s.assets[0].relativePath));
+    check(history.structural({CreateTrackVersion{track,"Alternative — Україна","Original — Ελληνικά",true}}), "Duplicate version missing");
+    const auto duplicated=s;
+    const auto original=s.tracks[0].inactiveVersions[0].identity.id;
+    const auto alternate=s.tracks[0].activeVersion->id;
+    check(s.tracks[0].clips[0].id!=initial.tracks[0].clips[0].id &&
+          s.tracks[0].clips[0].takeOrigin==initial.tracks[0].clips[0].takeOrigin &&
+          s.tracks[0].takeLanes==initial.tracks[0].takeLanes, "Version duplicated raw take or lost origin");
+    check(live(d.root,s,plan,127)==originalAudio, "Duplicate changed active audio or summed inactive audio");
+    check(history.undo() && s==initial && history.redo() && s==duplicated, "Duplicate Undo/Redo differs");
+    auto processing=s.tracks[0].clips[0].processing; processing.muted=true;
+    check(history.structural({SetClipProcessing{track,s.tracks[0].clips[0].id,processing}}), "Alternate edit missing");
+    const auto muted=s;
+    const auto silence=live(d.root,s,plan,37);
+    check(std::all_of(silence.begin(),silence.end(),[](float v){return v==0;}), "Inactive arrangement entered playback");
+    check(exported(d.root,s,plan)==silence, "Inactive arrangement entered export");
+    check(history.structural({SwitchTrackVersion{track,original}}), "Switch missing");
+    check(live(d.root,s,plan,127)==originalAudio && exported(d.root,s,plan)==originalAudio,
+          "Switched playback/export differ from original");
+    check(s.tracks[0].clips==initial.tracks[0].clips && s.tracks[0].eq==initial.tracks[0].eq,
+          "Switch changed original clips or processor");
+    const auto switched=s;
+    check(history.undo() && s==muted && history.redo() && s==switched, "Switch Undo/Redo differs");
+    check(!history.structural({SwitchTrackVersion{track,original}}), "Current switch should be no-op");
+    check(history.structural({RenameTrackVersion{track,original,"Main"},RenameTrackVersion{track,alternate,"Muted"}}), "Version rename missing");
+    store.save(s); check(store.load()==s && decodeProject(encodeProject(s))==s, "Versions lost on reopen");
+    check(Json::parse(encodeProject(s)).at("schemaMinor")==24, "Version schema not negotiated");
+    auto bad=Json::parse(encodeProject(s)); bad["schemaMinor"]=23;
+    refuses([&]{decodeProject(bad.dump());});
+    const auto protectedState=s;
+    refuses([&]{history.structural({RemoveTakeLane{track,lane.id}});});
+    refuses([&]{history.structural({RemoveTrackVersion{track,original}});});
+    refuses([&]{history.structural({RenameTrackVersion{track,alternate,""}});});
+    refuses([&]{history.structural({SwitchTrackVersion{track,Id::generate()}});});
+    check(s==protectedState, "Rejected version edit changed project");
+    check(history.structural({CreateTrackVersion{track,"Blank","unused",false}}), "Empty version creation missing");
+    const auto empty=s;
+    check(s.tracks[0].clips.empty() && live(d.root,s,plan,37)==silence, "New empty version not empty/silent");
+    // Inactive comp origins and media remain required, even with no active clips.
+    refuses([&]{auto invalid=s; invalid.tracks[0].takeLanes.clear(); validate(invalid);});
+    refuses([&]{auto invalid=s; invalid.assets.clear(); validate(invalid);});
+    refuses([&]{auto invalid=s; invalid.tracks[0].activeVersion.reset(); validate(invalid);});
+    refuses([&]{auto invalid=s; invalid.tracks[0].inactiveVersions[0].identity.id=track; validate(invalid);});
+    refuses([&]{auto invalid=s; invalid.tracks[0].inactiveVersions[0].clips[0].lengthFrames=513; validate(invalid);});
+    const auto media=d.root/utf8Path(s.assets[0].relativePath);
+    std::filesystem::rename(media,media.string()+".held");
+    refuses([&]{store.verifyMedia(s);});
+    std::filesystem::rename(media.string()+".held",media);
+    check(history.structural({RemoveTrackVersion{track,alternate}}), "Inactive version deletion missing");
+    check(history.undo() && s==empty, "Version deletion Undo lost arrangement");
+    const auto usage=sessionPayloadBytes(s);
+    refuses([&]{validate(s,StateBudget{usage-1});});
+    refuses([&]{applySessionEdits(s,{CreateTrackVersion{track,"Too much","unused",true}},StateBudget{usage});});
+    check(s==empty, "Resource refusal changed versions");
+    auto invalid=Json::parse(encodeProject(s));
+    invalid["tracks"][0]["inactiveVersions"][0]["clips"][0]["unknown"]=1;
+    refuses([&]{decodeProject(invalid.dump());});
+    store.save(s); check(store.load()==s, "Empty active version lost inactive edits on disk");
+    check(hashMediaFile(media)==rawHash, "Version operation modified raw recording");
+    check(encodeProject(initial)==encodeProject(decodeProject(encodeProject(initial))), "Unversioned compatibility changed");
+}
 void groupsAndTiming() {
     Directory d; auto s=makeOneTrackSession("Linked comp","Mic"); s.tracks[0].eq.enabled=false;
     ProjectStore(d.root).save(s); auto a=record(s,d.root,0), b=record(s,d.root,1);
@@ -288,13 +359,33 @@ void groupsAndTiming() {
         auto lane=a; lane.id=Id::generate(); lane.groupId=Id::generate(); lane.clips[0].id=Id::generate();
         many.tracks[0].takeLanes.push_back(lane);
     }
+    std::vector<SessionEdit> createVersions, switchVersions;
+    for (const auto &linked : selected.tracks)
+        createVersions.push_back(CreateTrackVersion{linked.id,"Alternate","Original",true});
+    auto versioned=selected; EditHistory versionHistory(versioned);
+    check(versionHistory.structural(createVersions), "Grouped version creation missing");
+    for (const auto &linked : versioned.tracks) {
+        switchVersions.push_back(SwitchTrackVersion{linked.id,linked.inactiveVersions[0].identity.id});
+        check(linked.takeLanes==std::find_if(selected.tracks.begin(),selected.tracks.end(),
+            [&](const auto &old){return old.id==linked.id;})->takeLanes, "Version creation changed recorded group membership");
+    }
+    const auto alternatives=versioned;
+    check(versionHistory.structural(switchVersions), "Grouped version switch missing");
+    check(live(d.root,versioned,plan,127)==output, "Grouped version switch changed offsets");
+    const auto originals=versioned;
+    check(versionHistory.undo() && versioned==alternatives && versionHistory.redo() && versioned==originals,
+          "Grouped version switch Undo was not atomic");
+    auto budgeted=makeOneTrackSession("Many versions","Track");
+    for (unsigned n=0;n<65;++n)
+        applySessionEdits(budgeted,{CreateTrackVersion{budgeted.tracks[0].id,"Version "+std::to_string(n),"Original",false}});
+    check(decodeProject(encodeProject(budgeted))==budgeted, "Version count acquired a fixed small cap");
     check(decodeProject(encodeProject(many))==many,"Take count acquired a fixed small cap");
     const auto admitted=sessionPayloadBytes(many);
     refuses([&]{validate(many,StateBudget{admitted-1});});
 }
 }
 int main() {
-    try { workflow(); groupsAndTiming(); fiveTakeTransitions(); groupedTransitionOffsets(); recordedTakeAudition(); check((rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)==0,"Comp callback allocated/freed/locked");
+    try { trackVersions(); workflow(); groupsAndTiming(); fiveTakeTransitions(); groupedTransitionOffsets(); recordedTakeAudition(); check((rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)==0,"Comp callback allocated/freed/locked");
         std::cout<<"retained_take_comp_checks="<<checks<<" callback_audit="<<(rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)<<" raw_unchanged=true save_reopen=true grouped_offsets=true\n";
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }
 }

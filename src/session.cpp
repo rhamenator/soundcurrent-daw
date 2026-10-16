@@ -350,6 +350,13 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
         };
         bytes.add(t.clips.capacity(), sizeof(Clip));
         for (const auto &c : t.clips) clipPayload(c);
+        if (t.activeVersion) { id(t.activeVersion->id); string(t.activeVersion->name); }
+        bytes.add(t.inactiveVersions.capacity(), sizeof(TrackVersion));
+        for (const auto &version : t.inactiveVersions) {
+            id(version.identity.id); string(version.identity.name);
+            bytes.add(version.clips.capacity(), sizeof(Clip));
+            for (const auto &c : version.clips) clipPayload(c);
+        }
         bytes.add(t.takeLanes.capacity(), sizeof(TakeLane));
         for (const auto &lane : t.takeLanes) {
             id(lane.id); id(lane.groupId); string(lane.name);
@@ -571,6 +578,16 @@ void validate(const Session &s, StateBudget budget) {
                 check(ranges[n-1].second <= ranges[n].first, "Retained take clips overlap");
         }
         for (const auto &c : t.clips) validateClip(c);
+        check(t.activeVersion || t.inactiveVersions.empty(), "Inactive versions have no active version");
+        const auto versionIdentity = [&](const TrackVersionIdentity &v) {
+            unique(v.id); text(v.name);
+            check(!v.name.empty(), "Track version name is empty");
+        };
+        if (t.activeVersion) versionIdentity(*t.activeVersion);
+        for (const auto &version : t.inactiveVersions) {
+            versionIdentity(version.identity);
+            for (const auto &c : version.clips) validateClip(c);
+        }
     }
     for (const auto &reference : s.compAssemblies) {
         check(!takeGroups.contains(reference.operation.str()), "Assembly operation reuses a take group UUID");
@@ -618,7 +635,11 @@ void validate(const Session &s, StateBudget budget) {
                 }
             }
     };
-    for(const auto &t:s.tracks)for(const auto &c:t.clips)validateTakeOrigin(c,s.sampleRate);
+    for (const auto &t : s.tracks) {
+        for (const auto &c : t.clips) validateTakeOrigin(c, s.sampleRate);
+        for (const auto &version : t.inactiveVersions)
+            for (const auto &c : version.clips) validateTakeOrigin(c, s.sampleRate);
+    }
     for(const auto &source:s.compPlaybackSources){validateTakeOrigin(source.source.original,source.source.projectRate);validateTakeOrigin(source.source.playback,source.source.projectRate);}
     for (const auto &[group, extent] : takeGroups) {
         (void)extent;

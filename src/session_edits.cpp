@@ -171,6 +171,17 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
     for (const auto &b : t.eq.bands)
         stringWeight(charge, b.id.str());
     for (const auto &c : t.clips) dynamicWeight(charge, c);
+    if (t.activeVersion) {
+        stringWeight(charge, t.activeVersion->id.str());
+        stringWeight(charge, t.activeVersion->name);
+    }
+    charge.add(t.inactiveVersions.capacity(), sizeof(TrackVersion));
+    for (const auto &version : t.inactiveVersions) {
+        stringWeight(charge, version.identity.id.str());
+        stringWeight(charge, version.identity.name);
+        charge.add(version.clips.capacity(), sizeof(Clip));
+        for (const auto &c : version.clips) dynamicWeight(charge, c);
+    }
     charge.add(t.takeLanes.capacity(), sizeof(TakeLane));
     for (const auto &lane : t.takeLanes) {
         stringWeight(charge, lane.id.str()); stringWeight(charge, lane.groupId.str());
@@ -521,6 +532,51 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     proposed.loop = e.value;
                 } else if constexpr (std::is_same_v<E, SetInputLatency>) {
                     track(proposed, e.track).inputLatencyFrames = e.frames;
+                } else if constexpr (std::is_same_v<E, CreateTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    PayloadCharge staging("Track version creation", budget.memoryBudgetBytes);
+                    staging.add(sessionPayloadBytes(proposed, budget));
+                    staging.add(t.inactiveVersions.size()+1, 2*sizeof(TrackVersion));
+                    staging.add(e.name.size()); staging.add(e.previousName.size());
+                    staging.add(1024); // New identities and validation entries.
+                    if (e.duplicate) {
+                        staging.add(t.clips.size(), sizeof(Clip)+256);
+                        for (const auto &c : t.clips) dynamicWeight(staging, c);
+                    }
+                    std::vector<Clip> next;
+                    if (e.duplicate) {
+                        next = t.clips;
+                        for (auto &c : next) c.id = Id::generate();
+                    }
+                    if (!t.activeVersion) t.activeVersion = TrackVersionIdentity{Id::generate(), e.previousName};
+                    t.inactiveVersions.push_back({std::move(*t.activeVersion), std::move(t.clips)});
+                    t.activeVersion = TrackVersionIdentity{Id::generate(), e.name};
+                    t.clips = std::move(next);
+                } else if constexpr (std::is_same_v<E, SwitchTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    require(t.activeVersion.has_value(), "Track has no named versions", ErrorCode::InvalidId);
+                    if (t.activeVersion->id == e.version) return;
+                    auto it = std::find_if(t.inactiveVersions.begin(), t.inactiveVersions.end(),
+                        [&](const auto &v) { return v.identity.id == e.version; });
+                    require(it != t.inactiveVersions.end(), "Track version missing", ErrorCode::InvalidId);
+                    std::swap(*t.activeVersion, it->identity);
+                    t.clips.swap(it->clips);
+                } else if constexpr (std::is_same_v<E, RenameTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    require(t.activeVersion.has_value(), "Track has no named versions", ErrorCode::InvalidId);
+                    if (t.activeVersion->id == e.version) t.activeVersion->name = e.name;
+                    else {
+                        auto it = std::find_if(t.inactiveVersions.begin(), t.inactiveVersions.end(),
+                            [&](const auto &v) { return v.identity.id == e.version; });
+                        require(it != t.inactiveVersions.end(), "Track version missing", ErrorCode::InvalidId);
+                        it->identity.name = e.name;
+                    }
+                } else if constexpr (std::is_same_v<E, RemoveTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    auto it = std::find_if(t.inactiveVersions.begin(), t.inactiveVersions.end(),
+                        [&](const auto &v) { return v.identity.id == e.version; });
+                    require(it != t.inactiveVersions.end(), "Only an inactive track version can be removed", ErrorCode::InvalidId);
+                    t.inactiveVersions.erase(it);
                 } else if constexpr (std::is_same_v<E, InsertTakeLane>) {
                     auto &lanes = track(proposed, e.track).takeLanes;
                     lanes.insert(position(lanes, e.before), e.lane);

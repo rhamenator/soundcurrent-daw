@@ -299,6 +299,8 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                 {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
                 {"formantPreserved",p.settings.formantPreserved}}},{"renderKey",p.renderKey}};
     };
+    const bool hasVersions = std::any_of(s.tracks.begin(), s.tracks.end(),
+        [](const auto &t) { return t.activeVersion.has_value(); });
     bool hasCompHandles=false;
     for(const auto &track:s.tracks) {
         for(const auto &c:track.clips)hasCompHandles=hasCompHandles || c.compHandles.has_value();
@@ -325,7 +327,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                  {"polarityInverted",c.processing.polarityInverted},
                                  {"fadeIn",fade(c.processing.fadeIn)},
                                  {"fadeOut",fade(c.processing.fadeOut)}}}};
-        if(hasCompHandles || !s.compPairSelections.empty() || !s.compPlaybackSources.empty())result["compHandles"]=c.compHandles?Json{
+        if(hasVersions || hasCompHandles || !s.compPairSelections.empty() || !s.compPlaybackSources.empty())result["compHandles"]=c.compHandles?Json{
             {"processor","soundcurrent.comp-handles-window-v1"},{"version",1},
             {"baseAssetId",c.compHandles->baseAssetId.str()},{"baseSha256",c.compHandles->baseSha256},
             {"prefixFrames",c.compHandles->prefixFrames},{"suffixFrames",c.compHandles->suffixFrames},
@@ -366,6 +368,18 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
              {"inputLatencyFrames", t.inputLatencyFrames},
              {"processors", Json::array({processor})},
              {"clips", clips}, {"takeLanes",takeLanes}});
+        if (hasVersions) {
+            auto &encoded = tracks.back();
+            encoded["activeVersion"] = t.activeVersion ? Json{{"id",t.activeVersion->id.str()},
+                {"name",t.activeVersion->name}} : Json(nullptr);
+            encoded["inactiveVersions"] = Json::array();
+            for (const auto &v : t.inactiveVersions) {
+                Json retained = Json::array();
+                for (const auto &c : v.clips) retained.push_back(encodeClip(c));
+                encoded["inactiveVersions"].push_back({{"id",v.identity.id.str()},
+                    {"name",v.identity.name},{"clips",retained}});
+            }
+        }
     }
     for (const auto &a : s.assets) {
         Json native=Json::array();for(const auto &f:a.nativeEvidence)native.push_back({{"path",f.relativePath},{"sha256",f.sha256},{"bytes",f.bytes}});
@@ -375,7 +389,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", !s.compPlaybackSources.empty()?23:!s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", hasVersions?24:!s.compPlaybackSources.empty()?23:!s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -389,13 +403,13 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
           {"endFrame", s.punch.endFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
-    if (!s.compPairSelections.empty() || !s.compPlaybackSources.empty()) {
+    if (hasVersions || !s.compPairSelections.empty() || !s.compPlaybackSources.empty()) {
         root["compPairSelections"] = Json::array();
         for (const auto &reference : s.compPairSelections)
             root["compPairSelections"].push_back({{"operation",reference.operation.str()},
                 {"selectionSha256",reference.selectionSha256}});
     }
-    if (!s.compAssemblies.empty() || !s.compPlaybackSources.empty()) {
+    if (hasVersions || !s.compAssemblies.empty() || !s.compPlaybackSources.empty()) {
         root["compAssemblies"] = Json::array();
         for (const auto &reference : s.compAssemblies) {
             Json outputs=Json::array();
@@ -405,7 +419,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                 {"requestSha256",reference.requestSha256},{"outputs",outputs}});
         }
     }
-    if(!s.compPlaybackSources.empty()) {
+    if(hasVersions || !s.compPlaybackSources.empty()) {
         root["compPlaybackSources"]=Json::array();
         const auto position=[](SourcePosition p){return Json{{"frame",p.frame},{"fraction",p.fraction},{"denominator",p.denominator}};};
         const auto asset=[](const Asset &a){return Json{{"id",a.id.str()},{"sha256",a.sha256}};};
@@ -554,7 +568,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 23),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 24),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -801,9 +815,13 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             else if (minor < 16)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "inputLatencyFrames", "processors", "clips"});
-            else
+            else if (minor < 24)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "inputLatencyFrames", "processors", "clips", "takeLanes"});
+            else
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
+                         "monitoringMode", "inputLatencyFrames", "processors", "clips", "takeLanes",
+                         "activeVersion", "inactiveVersions"});
             Track track;
             track.id = Id(string(t.at("id")));
             track.name = string(t.at("name"));
@@ -860,6 +878,24 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     lane.clips.reserve(value.at("clips").size());
                     for (const auto &c : value.at("clips")) lane.clips.push_back(readClip(c));
                     track.takeLanes.push_back(std::move(lane));
+                }
+            }
+            if (minor >= 24) {
+                const auto &active = t.at("activeVersion");
+                if (!active.is_null()) {
+                    keys(active, {"id", "name"});
+                    track.activeVersion = TrackVersionIdentity{Id(string(active.at("id"))), string(active.at("name"))};
+                }
+                array(t.at("inactiveVersions"), budget.state.memoryBudgetBytes / sizeof(TrackVersion));
+                track.inactiveVersions.reserve(t.at("inactiveVersions").size());
+                for (const auto &v : t.at("inactiveVersions")) {
+                    keys(v, {"id", "name", "clips"});
+                    TrackVersion version;
+                    version.identity = {Id(string(v.at("id"))), string(v.at("name"))};
+                    array(v.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
+                    version.clips.reserve(v.at("clips").size());
+                    for (const auto &c : v.at("clips")) version.clips.push_back(readClip(c));
+                    track.inactiveVersions.push_back(std::move(version));
                 }
             }
             s.tracks.push_back(std::move(track));
