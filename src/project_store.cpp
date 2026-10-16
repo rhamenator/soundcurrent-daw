@@ -301,6 +301,15 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     };
     const bool hasVersions = std::any_of(s.tracks.begin(), s.tracks.end(),
         [](const auto &t) { return t.activeVersion.has_value(); });
+    const bool hasVersionGroups=std::any_of(s.tracks.begin(),s.tracks.end(),[](const auto &t){
+        return (t.activeVersion && t.activeVersion->groupId) ||
+            std::any_of(t.inactiveVersions.begin(),t.inactiveVersions.end(),[](const auto &v){return v.identity.groupId.has_value();});
+    });
+    const auto encodeVersion=[&](const TrackVersionIdentity &v) {
+        Json identity={{"id",v.id.str()},{"name",v.name}};
+        if(hasVersionGroups)identity["groupId"]=v.groupId?Json(v.groupId->str()):Json(nullptr);
+        return identity;
+    };
     bool hasCompHandles=false;
     for(const auto &track:s.tracks) {
         for(const auto &c:track.clips)hasCompHandles=hasCompHandles || c.compHandles.has_value();
@@ -370,14 +379,13 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
              {"clips", clips}, {"takeLanes",takeLanes}});
         if (hasVersions) {
             auto &encoded = tracks.back();
-            encoded["activeVersion"] = t.activeVersion ? Json{{"id",t.activeVersion->id.str()},
-                {"name",t.activeVersion->name}} : Json(nullptr);
+            encoded["activeVersion"] = t.activeVersion ? encodeVersion(*t.activeVersion) : Json(nullptr);
             encoded["inactiveVersions"] = Json::array();
             for (const auto &v : t.inactiveVersions) {
                 Json retained = Json::array();
                 for (const auto &c : v.clips) retained.push_back(encodeClip(c));
-                encoded["inactiveVersions"].push_back({{"id",v.identity.id.str()},
-                    {"name",v.identity.name},{"clips",retained}});
+                auto identity=encodeVersion(v.identity);identity["clips"]=std::move(retained);
+                encoded["inactiveVersions"].push_back(std::move(identity));
             }
         }
     }
@@ -389,7 +397,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", hasVersions?24:!s.compPlaybackSources.empty()?23:!s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", hasVersionGroups?25:hasVersions?24:!s.compPlaybackSources.empty()?23:!s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -568,7 +576,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 24),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 25),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -883,15 +891,17 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             if (minor >= 24) {
                 const auto &active = t.at("activeVersion");
                 if (!active.is_null()) {
-                    keys(active, {"id", "name"});
-                    track.activeVersion = TrackVersionIdentity{Id(string(active.at("id"))), string(active.at("name"))};
+                    if(minor>=25)keys(active,{"id","name","groupId"});else keys(active,{"id","name"});
+                    track.activeVersion = TrackVersionIdentity{Id(string(active.at("id"))), string(active.at("name")),{}};
+                    if(minor>=25 && !active.at("groupId").is_null())track.activeVersion->groupId=Id(string(active.at("groupId")));
                 }
                 array(t.at("inactiveVersions"), budget.state.memoryBudgetBytes / sizeof(TrackVersion));
                 track.inactiveVersions.reserve(t.at("inactiveVersions").size());
                 for (const auto &v : t.at("inactiveVersions")) {
-                    keys(v, {"id", "name", "clips"});
+                    if(minor>=25)keys(v,{"id","name","groupId","clips"});else keys(v,{"id","name","clips"});
                     TrackVersion version;
-                    version.identity = {Id(string(v.at("id"))), string(v.at("name"))};
+                    version.identity = {Id(string(v.at("id"))), string(v.at("name")),{}};
+                    if(minor>=25 && !v.at("groupId").is_null())version.identity.groupId=Id(string(v.at("groupId")));
                     array(v.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
                     version.clips.reserve(v.at("clips").size());
                     for (const auto &c : v.at("clips")) version.clips.push_back(readClip(c));

@@ -4520,6 +4520,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Original</translation>
     </message>
     <message>
+      <source>Tracks to change</source>
+      <translation>Tracks to change</translation>
+    </message>
+    <message>
+      <source>Versions on the current track</source>
+      <translation>Versions on the current track</translation>
+    </message>
+    <message>
       <source>Version name</source>
       <translation>Version name</translation>
     </message>
@@ -4544,6 +4552,22 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Remove selected</translation>
     </message>
     <message>
+      <source>Link active versions</source>
+      <translation>Link active versions</translation>
+    </message>
+    <message>
+      <source>Select matching tracks</source>
+      <translation>Select matching tracks</translation>
+    </message>
+    <message>
+      <source>Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.</source>
+      <translation>Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.</translation>
+    </message>
+    <message>
+      <source>Selected tracks: %L1. The current track stays selected.</source>
+      <translation>Selected tracks: %L1. The current track stays selected.</translation>
+    </message>
+    <message>
       <source>The project changed while track versions were open. Please reopen the dialog.</source>
       <translation>The project changed while track versions were open. Please reopen the dialog.</translation>
     </message>
@@ -4561,6 +4585,17 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Start %1 · source %2 + %3/%4 · length %5 project frames</source>
       <translation>Start %1 · source %2 + %3/%4 · length %5 project frames</translation>
+    </message>
+  </context>
+  <context>
+    <name>VersionTrackList</name>
+    <message>
+      <source>%1 — active: %2</source>
+      <translation>%1 — active: %2</translation>
+    </message>
+    <message>
+      <source>Original</source>
+      <translation>Original</translation>
     </message>
   </context>
   <context>

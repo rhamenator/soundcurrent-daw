@@ -375,6 +375,79 @@ void groupsAndTiming() {
     const auto originals=versioned;
     check(versionHistory.undo() && versioned==alternatives && versionHistory.redo() && versioned==originals,
           "Grouped version switch Undo was not atomic");
+    auto linkedVersions=selected; EditHistory linkedHistory(linkedVersions);
+    std::vector<Id> trackIds;for(const auto &t:selected.tracks)trackIds.push_back(t.id);
+    check(linkedHistory.structural({CreateTrackVersions{trackIds,"Alt — Ελληνικά","Original",true}}), "Shared version creation missing");
+    const auto group=*linkedVersions.tracks[0].activeVersion->groupId;
+    const auto originalGroup=*linkedVersions.tracks[0].inactiveVersions[0].identity.groupId;
+    for(const auto &t:linkedVersions.tracks) {
+        check(t.activeVersion->groupId==group && t.inactiveVersions[0].identity.groupId==originalGroup,
+              "Versions created together did not share identities");
+        check(t.takeLanes==selected.tracks[&t-linkedVersions.tracks.data()].takeLanes, "Version group changed take groups");
+    }
+    const auto linked=linkedVersions;
+    check(linkedHistory.undo() && linkedVersions==selected && linkedHistory.redo() && linkedVersions==linked,"Shared creation Undo/Redo differs");
+    check(live(d.root,linkedVersions,plan,127)==output,"Grouped duplicate changed audible samples");
+    std::vector<SessionEdit> mute;
+    for(const auto &t:linkedVersions.tracks)for(const auto &c:t.clips) {
+        auto p=c.processing;p.muted=true;mute.push_back(SetClipProcessing{t.id,c.id,p});
+    }
+    check(linkedHistory.structural(mute),"Grouped alternate edits missing");
+    const auto mutedVersions=linkedVersions;
+    check(linkedHistory.structural({EditTrackVersionGroup{trackIds,originalGroup,TrackVersionGroupAction::Activate,{}}}),"Grouped activation missing");
+    check(live(d.root,linkedVersions,plan,127)==output && exported(d.root,linkedVersions,plan)==output,
+          "Shared group did not activate original audio on every track");
+    const auto activated=linkedVersions;
+    check(linkedHistory.undo() && linkedVersions==mutedVersions && linkedHistory.redo() && linkedVersions==activated,
+          "Shared activation Undo/Redo was not atomic");
+    check(linkedHistory.structural({EditTrackVersionGroup{trackIds,group,TrackVersionGroupAction::Rename,"Muted — Україна"}}),"Shared rename missing");
+    for(const auto &t:linkedVersions.tracks)check(t.inactiveVersions[0].identity.name=="Muted — Україна","Shared rename skipped a track");
+    ProjectStore(d.root).save(linkedVersions);check(ProjectStore(d.root).load()==linkedVersions,"Grouped versions lost on disk");
+    auto document=Json::parse(encodeProject(linkedVersions));check(document.at("schemaMinor")==25,"Grouped schema not negotiated");
+    document["schemaMinor"]=24;refuses([&]{decodeProject(document.dump());});
+    const auto beforeRefusal=linkedVersions;
+    auto missing=trackIds;missing.push_back(Id::generate());
+    refuses([&]{linkedHistory.structural({EditTrackVersionGroup{missing,group,TrackVersionGroupAction::Activate,{}}});});
+    auto repeated=trackIds;repeated.push_back(trackIds[0]);
+    refuses([&]{linkedHistory.structural({CreateTrackVersions{repeated,"Bad","Bad",true}});});
+    refuses([&]{linkedHistory.structural({EditTrackVersionGroup{trackIds,originalGroup,TrackVersionGroupAction::Remove,{}}});});
+    refuses([&]{linkedHistory.structural({EditTrackVersionGroup{trackIds,group,TrackVersionGroupAction(99),{}}});});
+    check(linkedVersions==beforeRefusal,"Refused grouped edit partially changed tracks");
+    auto invalid=linkedVersions;invalid.tracks[0].activeVersion->groupId=group;
+    refuses([&]{validate(invalid);}); // Same group cannot select two versions of a track.
+    invalid=linkedVersions;invalid.tracks[0].activeVersion->groupId=invalid.tracks[0].id;
+    refuses([&]{validate(invalid);});
+    invalid=linkedVersions;invalid.tracks[0].activeVersion->groupId=invalid.tracks[0].takeLanes[0].groupId;
+    refuses([&]{validate(invalid);});
+    check(linkedHistory.structural({EditTrackVersionGroup{trackIds,group,TrackVersionGroupAction::Remove,{}}}),"Grouped inactive deletion missing");
+    check(linkedHistory.undo() && linkedVersions==beforeRefusal,"Grouped deletion Undo lost edits");
+    std::vector<Id> subset{trackIds[5],trackIds[6],trackIds[7]};
+    check(linkedHistory.structural({LinkActiveTrackVersions{subset,"Original"}}),"Linking active arrangements missing");
+    const auto relinked=linkedVersions;const auto newGroup=*linkedVersions.tracks[5].activeVersion->groupId;
+    check(newGroup!=originalGroup && linkedVersions.tracks[6].activeVersion->groupId==newGroup &&
+          linkedVersions.tracks[3].activeVersion->groupId==originalGroup,"Linking changed unselected tracks");
+    refuses([&]{linkedHistory.structural({EditTrackVersionGroup{trackIds,originalGroup,TrackVersionGroupAction::Activate,{}}});});
+    refuses([&]{linkedHistory.structural({EditTrackVersionGroup{trackIds,originalGroup,TrackVersionGroupAction::Rename,"Must roll back earlier peers"}});});
+    check(linkedVersions==relinked && linkedHistory.undo() && linkedVersions==beforeRefusal,"Missing peer refusal or relink Undo was partial");
+    check(live(d.root,linkedVersions,plan,127)==output,"Linking version metadata changed audio");
+    auto wide=makeOneTrackSession("Large group","Track");std::vector<Id> wideIds{wide.tracks[0].id};
+    for(unsigned i=1;i<129;++i){wide.tracks.push_back(makeAudioTrack("Track",{},48000));wideIds.push_back(wide.tracks.back().id);}
+    const auto wideOriginal=wide;EditHistory wideHistory(wide);
+    check(wideHistory.structural({CreateTrackVersions{wideIds,"Alternate","Original",false}}),"Version group inherited edit batch track cap");
+    const auto wideAlternate=wide;const auto wideGroup=wide.tracks[0].activeVersion->groupId;
+    const auto wideOriginalGroup=*wide.tracks[0].inactiveVersions[0].identity.groupId;
+    for(const auto &t:wide.tracks)check(t.activeVersion && t.activeVersion->groupId==wideGroup &&
+        t.inactiveVersions.size()==1 && t.inactiveVersions[0].identity.groupId==wideOriginalGroup,
+        "Large group skipped a selected track");
+    check(decodeProject(encodeProject(wide))==wide,"Large group persistence differs");
+    check(wideHistory.structural({EditTrackVersionGroup{wideIds,wideOriginalGroup,TrackVersionGroupAction::Activate,{}}}),
+        "Large group activation missing");
+    for(const auto &t:wide.tracks)check(t.activeVersion->groupId==wideOriginalGroup,"Large activation skipped a track");
+    check(wideHistory.undo() && wide==wideAlternate && wideHistory.undo() && wide==wideOriginal,
+        "Large group creation/switch Undo was not atomic");
+    const auto admittedGroup=sessionPayloadBytes(wide);
+    refuses([&]{applySessionEdits(wide,{CreateTrackVersions{wideIds,"No budget","Original",true}},StateBudget{admittedGroup});});
+    check(wide==wideOriginal,"Group budget refusal changed project");
     auto budgeted=makeOneTrackSession("Many versions","Track");
     for (unsigned n=0;n<65;++n)
         applySessionEdits(budgeted,{CreateTrackVersion{budgeted.tracks[0].id,"Version "+std::to_string(n),"Original",false}});

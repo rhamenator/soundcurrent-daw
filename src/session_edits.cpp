@@ -7,6 +7,7 @@
 #include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/warp.hpp>
 #include <numeric>
+#include <unordered_set>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -174,11 +175,13 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
     if (t.activeVersion) {
         stringWeight(charge, t.activeVersion->id.str());
         stringWeight(charge, t.activeVersion->name);
+        if(t.activeVersion->groupId)stringWeight(charge,t.activeVersion->groupId->str());
     }
     charge.add(t.inactiveVersions.capacity(), sizeof(TrackVersion));
     for (const auto &version : t.inactiveVersions) {
         stringWeight(charge, version.identity.id.str());
         stringWeight(charge, version.identity.name);
+        if(version.identity.groupId)stringWeight(charge,version.identity.groupId->str());
         charge.add(version.clips.capacity(), sizeof(Clip));
         for (const auto &c : version.clips) dynamicWeight(charge, c);
     }
@@ -489,6 +492,49 @@ Session makeTakeAudition(const Session &source,const TakeAudition &selection,Sta
     target.clips=std::move(clips);
     validate(result,budget);return result;
 }
+namespace {
+std::vector<Track *> versionTargets(Session &s,const std::vector<Id> &ids,StateBudget budget) {
+    require(!ids.empty(),"Select at least one track for version operations");
+    PayloadCharge staging("Version track selection",budget.memoryBudgetBytes);
+    staging.add(sessionPayloadBytes(s,budget));staging.add(ids.size(),sizeof(Track *)+256);
+    std::unordered_set<std::string_view> wanted;
+    wanted.reserve(ids.size());
+    for(const auto &id:ids)require(wanted.insert(id.str()).second,"Duplicate selected track",ErrorCode::InvalidId);
+    std::vector<Track *> result;result.reserve(ids.size());
+    for(auto &t:s.tracks)if(wanted.erase(t.id.str()))result.push_back(&t);
+    require(wanted.empty(),"Selected version track missing",ErrorCode::InvalidId);
+    return result;
+}
+void prepareVersionCreation(const Session &s,std::span<Track *const> tracks,
+    const std::string &name,const std::string &previousName,bool duplicate,StateBudget budget) {
+    PayloadCharge staging("Track version creation",budget.memoryBudgetBytes);
+    staging.add(sessionPayloadBytes(s,budget));staging.add(tracks.size(),sizeof(Track *)+256);
+    for(const auto *t:tracks) {
+        staging.add(t->inactiveVersions.size()+1,2*sizeof(TrackVersion));
+        staging.add(name.size());staging.add(previousName.size());staging.add(2048);
+        if(duplicate) {
+            staging.add(t->clips.size(),sizeof(Clip)+256);
+            for(const auto &c:t->clips)dynamicWeight(staging,c);
+        }
+    }
+}
+void createVersion(Track &t,const std::string &name,const std::string &previousName,
+    bool duplicate,std::optional<Id> group,std::optional<Id> originalGroup) {
+    std::vector<Clip> next;
+    if(duplicate){next=t.clips;for(auto &c:next)c.id=Id::generate();}
+    if(!t.activeVersion)t.activeVersion=TrackVersionIdentity{Id::generate(),previousName,originalGroup};
+    t.inactiveVersions.push_back({std::move(*t.activeVersion),std::move(t.clips)});
+    t.activeVersion=TrackVersionIdentity{Id::generate(),name,group};t.clips=std::move(next);
+}
+void activateVersion(Track &t,const Id &version) {
+    require(t.activeVersion.has_value(),"Track has no named versions",ErrorCode::InvalidId);
+    if(t.activeVersion->id==version)return;
+    auto it=std::find_if(t.inactiveVersions.begin(),t.inactiveVersions.end(),
+        [&](const auto &v){return v.identity.id==version;});
+    require(it!=t.inactiveVersions.end(),"Track version missing",ErrorCode::InvalidId);
+    std::swap(*t.activeVersion,it->identity);t.clips.swap(it->clips);
+}
+}
 void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateBudget budget) {
     require(!edits.empty() && edits.size() <= 64, "Edit batch must contain 1 to 64 operations");
     validate(s, budget);
@@ -534,33 +580,44 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     track(proposed, e.track).inputLatencyFrames = e.frames;
                 } else if constexpr (std::is_same_v<E, CreateTrackVersion>) {
                     auto &t = track(proposed, e.track);
-                    PayloadCharge staging("Track version creation", budget.memoryBudgetBytes);
-                    staging.add(sessionPayloadBytes(proposed, budget));
-                    staging.add(t.inactiveVersions.size()+1, 2*sizeof(TrackVersion));
-                    staging.add(e.name.size()); staging.add(e.previousName.size());
-                    staging.add(1024); // New identities and validation entries.
-                    if (e.duplicate) {
-                        staging.add(t.clips.size(), sizeof(Clip)+256);
-                        for (const auto &c : t.clips) dynamicWeight(staging, c);
-                    }
-                    std::vector<Clip> next;
-                    if (e.duplicate) {
-                        next = t.clips;
-                        for (auto &c : next) c.id = Id::generate();
-                    }
-                    if (!t.activeVersion) t.activeVersion = TrackVersionIdentity{Id::generate(), e.previousName};
-                    t.inactiveVersions.push_back({std::move(*t.activeVersion), std::move(t.clips)});
-                    t.activeVersion = TrackVersionIdentity{Id::generate(), e.name};
-                    t.clips = std::move(next);
+                    const std::array<Track *,1> targets{&t};
+                    prepareVersionCreation(proposed,targets,e.name,e.previousName,e.duplicate,budget);
+                    createVersion(t,e.name,e.previousName,e.duplicate,{},{});
                 } else if constexpr (std::is_same_v<E, SwitchTrackVersion>) {
-                    auto &t = track(proposed, e.track);
-                    require(t.activeVersion.has_value(), "Track has no named versions", ErrorCode::InvalidId);
-                    if (t.activeVersion->id == e.version) return;
-                    auto it = std::find_if(t.inactiveVersions.begin(), t.inactiveVersions.end(),
-                        [&](const auto &v) { return v.identity.id == e.version; });
-                    require(it != t.inactiveVersions.end(), "Track version missing", ErrorCode::InvalidId);
-                    std::swap(*t.activeVersion, it->identity);
-                    t.clips.swap(it->clips);
+                    activateVersion(track(proposed,e.track),e.version);
+                } else if constexpr (std::is_same_v<E, CreateTrackVersions>) {
+                    auto targets=versionTargets(proposed,e.tracks,budget);
+                    prepareVersionCreation(proposed,targets,e.name,e.previousName,e.duplicate,budget);
+                    const auto group=Id::generate(), originalGroup=Id::generate();
+                    for(auto *t:targets)createVersion(*t,e.name,e.previousName,e.duplicate,group,originalGroup);
+                } else if constexpr (std::is_same_v<E, LinkActiveTrackVersions>) {
+                    auto targets=versionTargets(proposed,e.tracks,budget);
+                    PayloadCharge staging("Version group linking",budget.memoryBudgetBytes);
+                    staging.add(sessionPayloadBytes(proposed,budget));
+                    staging.add(targets.size(),1024);staging.add(targets.size(),e.previousName.size());
+                    const auto group=Id::generate();
+                    for(auto *t:targets) {
+                        if(!t->activeVersion)t->activeVersion=TrackVersionIdentity{Id::generate(),e.previousName,{}};
+                        t->activeVersion->groupId=group;
+                    }
+                } else if constexpr (std::is_same_v<E, EditTrackVersionGroup>) {
+                    auto targets=versionTargets(proposed,e.tracks,budget);
+                    PayloadCharge staging("Version group edit",budget.memoryBudgetBytes);
+                    staging.add(sessionPayloadBytes(proposed,budget));staging.add(targets.size(),sizeof(Track *));
+                    if(e.action==TrackVersionGroupAction::Rename)staging.add(targets.size(),e.name.size());
+                    for(auto *t:targets) {
+                        TrackVersionIdentity *version=nullptr;
+                        if(t->activeVersion && t->activeVersion->groupId==e.group)version=&*t->activeVersion;
+                        else for(auto &v:t->inactiveVersions)if(v.identity.groupId==e.group)version=&v.identity;
+                        require(version,"Selected track has no matching version group",ErrorCode::InvalidId);
+                        if(e.action==TrackVersionGroupAction::Activate)activateVersion(*t,version->id);
+                        else if(e.action==TrackVersionGroupAction::Rename)version->name=e.name;
+                        else if(e.action==TrackVersionGroupAction::Remove) {
+                            require(!t->activeVersion || t->activeVersion->groupId!=e.group,
+                                    "Switch every selected track before removing its version group");
+                            std::erase_if(t->inactiveVersions,[&](const auto &v){return v.identity.groupId==e.group;});
+                        } else require(false,"Unknown track version group action");
+                    }
                 } else if constexpr (std::is_same_v<E, RenameTrackVersion>) {
                     auto &t = track(proposed, e.track);
                     require(t.activeVersion.has_value(), "Track has no named versions", ErrorCode::InvalidId);

@@ -283,6 +283,7 @@ struct TakeLane {
 struct TrackVersionIdentity {
     Id id = Id::generate();
     std::string name;
+    std::optional<Id> groupId; // Shared across tracks, at most once per track.
     bool operator==(const TrackVersionIdentity &) const = default;
 };
 struct TrackVersion {
@@ -570,10 +571,23 @@ struct SwitchTrackVersion { Id track, version; };
 struct RenameTrackVersion { Id track, version; std::string name; };
 // Active deletion is refused: switch to a retained version explicitly first.
 struct RemoveTrackVersion { Id track, version; };
+struct CreateTrackVersions {
+    std::vector<Id> tracks;
+    std::string name, previousName;
+    bool duplicate = true;
+};
+struct LinkActiveTrackVersions { std::vector<Id> tracks; std::string previousName; };
+enum class TrackVersionGroupAction { Activate, Rename, Remove };
+struct EditTrackVersionGroup {
+    std::vector<Id> tracks;
+    Id group;
+    TrackVersionGroupAction action = TrackVersionGroupAction::Activate;
+    std::string name;
+};
 using SessionEdit =
     std::variant<AddCompAssembly, RemoveCompAssembly, AddCompPairSelection, RemoveCompPairSelection, InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
                  SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, PrepareCompTransition, SetClipPlaybackRate, ApplyClipStretch, ApplyCompHandlePair, ApplyCompAssembly, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
-                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion, CreateTrackVersion, SwitchTrackVersion, RenameTrackVersion, RemoveTrackVersion>;
+                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion, CreateTrackVersion, SwitchTrackVersion, RenameTrackVersion, RemoveTrackVersion, CreateTrackVersions, LinkActiveTrackVersions, EditTrackVersionGroup>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

@@ -350,10 +350,11 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
         };
         bytes.add(t.clips.capacity(), sizeof(Clip));
         for (const auto &c : t.clips) clipPayload(c);
-        if (t.activeVersion) { id(t.activeVersion->id); string(t.activeVersion->name); }
+        if (t.activeVersion) { id(t.activeVersion->id); string(t.activeVersion->name); if(t.activeVersion->groupId)id(*t.activeVersion->groupId); }
         bytes.add(t.inactiveVersions.capacity(), sizeof(TrackVersion));
         for (const auto &version : t.inactiveVersions) {
             id(version.identity.id); string(version.identity.name);
+            if(version.identity.groupId)id(*version.identity.groupId);
             bytes.add(version.clips.capacity(), sizeof(Clip));
             for (const auto &c : version.clips) clipPayload(c);
         }
@@ -388,7 +389,7 @@ void validate(const Session &s, StateBudget budget) {
     check(s.loop.startFrame >= 0 && s.loop.endFrame >= s.loop.startFrame &&
               (!s.loop.enabled || s.loop.endFrame > s.loop.startFrame),
           "Invalid loop playback locators");
-    std::unordered_set<std::string_view> ids;
+    std::unordered_set<std::string_view> ids, versionGroups;
     std::unordered_map<std::string_view, std::pair<Frame, Frame>> takeGroups;
     struct RetainedClip { const Track *track; const TakeLane *lane; const Clip *clip; };
     std::unordered_map<std::string_view, RetainedClip> retained;
@@ -579,7 +580,12 @@ void validate(const Session &s, StateBudget budget) {
         }
         for (const auto &c : t.clips) validateClip(c);
         check(t.activeVersion || t.inactiveVersions.empty(), "Inactive versions have no active version");
+        std::unordered_set<std::string_view> trackVersionGroups;
         const auto versionIdentity = [&](const TrackVersionIdentity &v) {
+            if(v.groupId) {
+                check(trackVersionGroups.insert(v.groupId->str()).second, "Track has duplicate version group");
+                versionGroups.insert(v.groupId->str());
+            }
             unique(v.id); text(v.name);
             check(!v.name.empty(), "Track version name is empty");
         };
@@ -641,6 +647,8 @@ void validate(const Session &s, StateBudget budget) {
             for (const auto &c : version.clips) validateTakeOrigin(c, s.sampleRate);
     }
     for(const auto &source:s.compPlaybackSources){validateTakeOrigin(source.source.original,source.source.projectRate);validateTakeOrigin(source.source.playback,source.source.projectRate);}
+    for (const auto &group : versionGroups)
+        check(ids.insert(group).second, "Version group UUID conflicts with an object");
     for (const auto &[group, extent] : takeGroups) {
         (void)extent;
         check(ids.insert(group).second, "Take group UUID conflicts with an object");

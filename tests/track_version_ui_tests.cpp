@@ -19,6 +19,61 @@ template<class T>T *widget(QObject &parent,const char *name){
     auto *v=dynamic_cast<T *>(parent.findChild<QObject *>(name));
     check(v!=nullptr,"Version dialog widget missing");return v;
 }
+void groupedWorkflow() {
+    auto s=makeOneTrackSession("Grouped versions","Mic A");
+    s.tracks.push_back(makeAudioTrack("Mic B",{},48000));s.tracks.push_back(makeAudioTrack("Unrelated",{},48000));
+    const auto initial=s;EditHistory history(s);TimelineEditor editor;
+    const auto publish=[&]{editor.updateModel(std::make_shared<const Session>(s),1,true);};
+    editor.submit=[&](std::vector<SessionEdit> edits){const auto result=history.structural(edits);publish();return result;};
+    publish();editor.show();auto *open=widget<QPushButton>(editor,"editTrackVersions");
+    const auto act=[&](const char *action,int row,std::vector<int> tracks,const QString &name,bool matching=false,bool enabled=true) {
+        std::exception_ptr failure;
+        QTimer::singleShot(0,[&]{
+            auto *dialog=dynamic_cast<QDialog *>(QApplication::activeModalWidget());
+            try {
+                check(dialog,"Grouped version dialog missing");
+                auto *versions=widget<QListView>(*dialog,"trackVersionList");
+                versions->setCurrentIndex(versions->model()->index(row,0));
+                auto *peers=widget<QListView>(*dialog,"versionTrackSelection");
+                QItemSelection selection;for(int n:tracks)selection.select(peers->model()->index(n,0),peers->model()->index(n,0));
+                peers->selectionModel()->select(selection,QItemSelectionModel::ClearAndSelect);
+                if(matching)widget<QPushButton>(*dialog,"selectMatchingVersionTracks")->click();
+                widget<QLineEdit>(*dialog,"trackVersionName")->setText(name);
+                auto *button=widget<QPushButton>(*dialog,action);
+                check(button->isEnabled()==enabled,"Grouped version action admission differs");
+                const auto screenshot=qEnvironmentVariable("SC_GROUP_VERSION_SCREENSHOT");
+                if(!screenshot.isEmpty() && matching){QTest::qWait(20);check(dialog->grab().save(screenshot),"Grouped dialog screenshot failed");}
+                if(enabled)button->click();else dialog->reject();
+            }catch(...){failure=std::current_exception();if(dialog)dialog->reject();}
+        });
+        open->click();if(failure)std::rethrow_exception(failure);
+    };
+    act("duplicateTrackVersion",0,{0,1},QString::fromUtf8("Alternative — Ελληνικά"));
+    const auto created=s;
+    check(s.tracks[0].activeVersion->groupId==s.tracks[1].activeVersion->groupId &&
+          s.tracks[0].activeVersion->groupId && s.tracks[2]==initial.tracks[2],"Grouped UI did not preserve selected scope");
+    check(history.undo() && s==initial && history.redo() && s==created,"Grouped UI creation Undo differs");publish();
+    act("renameTrackVersion",0,{0,1},QString::fromUtf8("Версія"));
+    check(s.tracks[0].activeVersion->name=="Версія" && s.tracks[1].activeVersion->name=="Версія","Grouped UI rename missed peer");
+    const auto originalGroup=s.tracks[0].inactiveVersions[0].identity.groupId;
+    const auto beforeMissing=s;
+    act("switchTrackVersion",1,{0,1,2},QString(),false,false);
+    check(s==beforeMissing,"Unmatched UI selection partially switched versions");
+    act("switchTrackVersion",1,{0},QString(),true);
+    check(s.tracks[0].activeVersion->groupId==originalGroup && s.tracks[1].activeVersion->groupId==originalGroup,
+          "Select matching tracks did not switch both peers");
+    const auto beforeDelete=s;
+    act("removeTrackVersion",1,{0,1},QString());
+    check(s.tracks[0].inactiveVersions.empty() && s.tracks[1].inactiveVersions.empty(),"Grouped removal missed peer");
+    check(history.undo() && s==beforeDelete,"Grouped removal Undo differs");publish();
+    const auto beforeLink=s;act("linkActiveVersions",0,{0,2},QString());
+    check(s.tracks[0].activeVersion->groupId==s.tracks[2].activeVersion->groupId &&
+          s.tracks[0].activeVersion->groupId!=originalGroup && s.tracks[1]==beforeLink.tracks[1],"Link active UI changed unselected peer");
+    QTemporaryDir temp;check(temp.isValid(),"Grouped temp directory failed");
+    ProjectStore store(utf8Path(temp.path().toUtf8().toStdString()));store.save(s);check(store.load()==s,"Grouped UI reopening lost identities");
+    const auto linked=s;check(history.undo() && s==beforeLink && history.redo() && s==linked,"Link Undo/Redo differs");
+    editor.shutdownWaveforms();editor.close();
+}
 void workflow() {
     auto session=makeOneTrackSession("Versions","Voice");
     EditHistory history(session);TimelineEditor editor;
@@ -84,5 +139,5 @@ void workflow() {
     editor.shutdownWaveforms();editor.close();
 }
 }
-int main(int argc,char **argv){QApplication app(argc,argv);try{workflow();std::cout<<checks<<" track version UI checks passed\n";}
+int main(int argc,char **argv){QApplication app(argc,argv);try{workflow();groupedWorkflow();std::cout<<checks<<" track version UI checks passed\n";}
 catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

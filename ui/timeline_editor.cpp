@@ -79,7 +79,7 @@ void field(QLineEdit *w, Frame f, bool force) {
 }
 } // namespace
 TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
-    : QGroupBox(tr("Tracks and timeline"), parent) {
+    : QGroupBox(tr("Tracks and timeline"), parent), versionMemory_(memory) {
     setObjectName("timelineEditor");
     auto *body = new QVBoxLayout(this);
     auto *splitter = new QSplitter(this);

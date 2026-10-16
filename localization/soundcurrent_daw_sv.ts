@@ -4503,6 +4503,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Tracks to change</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Versions on the current track</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Version name</source>
       <translation type="unfinished" />
     </message>
@@ -4527,6 +4535,22 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Link active versions</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Select matching tracks</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected tracks: %L1. The current track stays selected.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>The project changed while track versions were open. Please reopen the dialog.</source>
       <translation type="unfinished" />
     </message>
@@ -4543,6 +4567,17 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Start %1 · source %2 + %3/%4 · length %5 project frames</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>VersionTrackList</name>
+    <message>
+      <source>%1 — active: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original</source>
       <translation type="unfinished" />
     </message>
   </context>

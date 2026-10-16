@@ -53,6 +53,7 @@ class TimelineEditor : public QGroupBox {
     std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>, std::uint64_t, bool,
                                       std::optional<Id>, std::optional<Id>, bool, std::filesystem::path) const;
     bool select(std::optional<Id>, std::optional<Id>);
+    ResourceLedger versionMemory_;
     std::shared_ptr<const Session> model_;
     std::uint64_t epoch_ = 0;
     std::filesystem::path root_;
