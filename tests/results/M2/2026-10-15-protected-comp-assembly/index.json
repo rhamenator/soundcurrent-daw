@@ -1,0 +1,98 @@
+{
+  "format": "sc-protected-comp-assembly-index-v1",
+  "sourceCommit": "2dd1b089c1c68db69883c15fb235653d7775f44a",
+  "archive": "acceptance.zip",
+  "bytes": 19590237,
+  "sha256": "00d452f4b3712281d0c8f062db86972b5ab509c179834f7822f872d886931d40",
+  "originalFiles": 3382,
+  "uniquePayloads": 869,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceCommit": "2dd1b089c1c68db69883c15fb235653d7775f44a",
+    "rows": [
+      {
+        "configuration": "Debug",
+        "sourceHead": "2dd1b089c1c68db69883c15fb235653d7775f44a",
+        "seconds": 94.71155378501862,
+        "selected": [
+          "comp-protected-assembly-publication",
+          "comp-paired-selection-recovery"
+        ],
+        "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-assembly-evidence/run-iohlcufh",
+        "processes": 110,
+        "nominalWorkers": 9,
+        "spanWorkers": 9,
+        "adoptedPairs": 5,
+        "abruptExits": 15,
+        "verifiedFullAssemblySamples": 929664,
+        "independentExactSamples": 929520,
+        "independentBlendedSamples": 144,
+        "liveExportSamples": 983040,
+        "hashes": [
+          "5c3cb2619d48a3b06445c48d9a13c3c37154c33c6b4c12d7cee5ea8d06a86476",
+          "3ecbded5beb0ed301494a026144a0038d331f32e2850e84530bf3c78bf151554",
+          "f4d675d965800dac2575777207b35aca385130911099ef340dc3952ca1bc7868",
+          "0a40a213ef2809b4679ae729cfcc918848caf9629dca3800ee337119087d2a61",
+          "9c5fc2894c8061779a8c0198092e035101126ddb001e67d5c919a29fd8edd1d6",
+          "946046a8c8dc69bef36a001e1118965d55a3205bfa407827d6ede532d0a28f9c",
+          "a91400c08c8358da1a0ad69658fb5049a89a9d8eeeca407e4c4fe7ef0b83f9e9",
+          "39dc5ba70f99b2b9ef33060b75f82eaa166639291d766a9e9ca29ea27e4dbea2",
+          "0ad25dc6c6d7ef748e1b09dbc3639ab25019585dc0f55046fa02cbd17798bdd2",
+          "0a40a213ef2809b4679ae729cfcc918848caf9629dca3800ee337119087d2a61",
+          "6c30b6d732368aa6cae507116ab3d6dfb21568a30d445b87bbebf999fa13a4b5",
+          "e54ac909af592f68baf4cb8164207380755da7e997ceff691ee300a05b2e0b5f",
+          "0a40a213ef2809b4679ae729cfcc918848caf9629dca3800ee337119087d2a61",
+          "95c738e58283c192669c3422007ae1d52def90e1abaa243f45d8292a6d65d588"
+        ],
+        "allChildrenRetired": true,
+        "sourceAndBinariesUnchanged": true
+      },
+      {
+        "configuration": "Release",
+        "sourceHead": "2dd1b089c1c68db69883c15fb235653d7775f44a",
+        "seconds": 63.14765563595574,
+        "selected": [
+          "comp-protected-assembly-publication",
+          "comp-paired-selection-recovery",
+          "comp-owned-assembly-publication",
+          "comp-protected-pair-recovery"
+        ],
+        "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-assembly-evidence/run-435vv1r2",
+        "processes": 110,
+        "nominalWorkers": 9,
+        "spanWorkers": 9,
+        "adoptedPairs": 5,
+        "abruptExits": 15,
+        "verifiedFullAssemblySamples": 929664,
+        "independentExactSamples": 929520,
+        "independentBlendedSamples": 144,
+        "liveExportSamples": 983040,
+        "hashes": [
+          "5c3cb2619d48a3b06445c48d9a13c3c37154c33c6b4c12d7cee5ea8d06a86476",
+          "3ecbded5beb0ed301494a026144a0038d331f32e2850e84530bf3c78bf151554",
+          "f4d675d965800dac2575777207b35aca385130911099ef340dc3952ca1bc7868",
+          "0a40a213ef2809b4679ae729cfcc918848caf9629dca3800ee337119087d2a61",
+          "9c5fc2894c8061779a8c0198092e035101126ddb001e67d5c919a29fd8edd1d6",
+          "946046a8c8dc69bef36a001e1118965d55a3205bfa407827d6ede532d0a28f9c",
+          "a91400c08c8358da1a0ad69658fb5049a89a9d8eeeca407e4c4fe7ef0b83f9e9",
+          "39dc5ba70f99b2b9ef33060b75f82eaa166639291d766a9e9ca29ea27e4dbea2",
+          "0ad25dc6c6d7ef748e1b09dbc3639ab25019585dc0f55046fa02cbd17798bdd2",
+          "0a40a213ef2809b4679ae729cfcc918848caf9629dca3800ee337119087d2a61",
+          "6c30b6d732368aa6cae507116ab3d6dfb21568a30d445b87bbebf999fa13a4b5",
+          "e54ac909af592f68baf4cb8164207380755da7e997ceff691ee300a05b2e0b5f",
+          "0a40a213ef2809b4679ae729cfcc918848caf9629dca3800ee337119087d2a61",
+          "95c738e58283c192669c3422007ae1d52def90e1abaa243f45d8292a6d65d588"
+        ],
+        "allChildrenRetired": true,
+        "sourceAndBinariesUnchanged": true,
+        "legacyAssemblyHashesUnchanged": 6
+      }
+    ],
+    "allFourteenAssemblyAndExportHashesMatch": true,
+    "protectedAssemblyModelAdoptionQualified": true,
+    "desktopEntryEnabled": false,
+    "nativeWindowsRuntime": false,
+    "qualityAdmission": false,
+    "actualPowerLoss": false
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "format": "sc-exact-warp-extents-index-v1",
+  "sourceHead": "1ef0ac89635b0200fdc21bdb0e7ca487380874ae",
+  "archive": "acceptance.zip",
+  "bytes": 9746560,
+  "sha256": "4f6c0bb1f58cd1cadbc0745f1159d8bf981732565dbbc74896434ffed36692ff",
+  "originalFiles": 136,
+  "uniquePayloads": 96,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "1ef0ac89635b0200fdc21bdb0e7ca487380874ae",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "1ef0ac89635b0200fdc21bdb0e7ca487380874ae",
+        "result": ".cache/exact-warp-extents/qualified-Release-4rnuvnr9/result.json",
+        "seconds": 34.80536395299714,
+        "configureCommand": null,
+        "selected": [
+          "exact-warp-extents",
+          "exact-warp-extents-oracle",
+          "clocked-protected-warp",
+          "protected-core-sampling",
+          "protected-core-sampling-oracle",
+          "comp-protected-span-render",
+          "editable-stretch-state"
+        ],
+        "environment": {},
+        "exact": {
+          "allCreditsReleased": true,
+          "checks": 31686,
+          "coreSamples": 2688,
+          "cropSamples": 1412,
+          "fractionalOuterExtentsPreserved": true,
+          "legacyAdaptersRefused": true,
+          "workerIntegrated": false
+        },
+        "priorClockedAndCoreResultsUnchanged": true,
+        "legacy": {
+          "renders": 18,
+          "protectedSamples": 34560,
+          "exactMapQueries": 264,
+          "all18OriginalOutputHashesUnchanged": true
+        },
+        "oracle": {
+          "cases": 48,
+          "exactAssertions": 1368,
+          "exitCode": 0,
+          "inputSha256": "e537391f78ceecf84c9746dec5b5844aebd6211cf06d1ae729dec6834e323953",
+          "sourceSha256": "89eadb5e0dce48b483a02494aca252bc2f592a105e3ccceb5ada2f0fe5c53ae5",
+          "binarySha256": "15c78d45e322028f97c4b4e23057c02bdf357c957730bc152a7575518ee149f2",
+          "allResponsesMatch": true
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/exact-warp-extents-evidence/run-qxunf777",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/protected-core-sampling-evidence/run-9zkt1wmw",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-span-evidence/run-flb5hmm8"
+        ]
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "1ef0ac89635b0200fdc21bdb0e7ca487380874ae",
+        "result": ".cache/exact-warp-extents/qualified-Debug-qw5vmkqk/result.json",
+        "seconds": 138.22533061006106,
+        "configureCommand": null,
+        "selected": [
+          "exact-warp-extents",
+          "exact-warp-extents-oracle",
+          "clocked-protected-warp",
+          "protected-core-sampling",
+          "protected-core-sampling-oracle",
+          "comp-protected-span-render",
+          "editable-stretch-state"
+        ],
+        "environment": {},
+        "exact": {
+          "allCreditsReleased": true,
+          "checks": 31686,
+          "coreSamples": 2688,
+          "cropSamples": 1412,
+          "fractionalOuterExtentsPreserved": true,
+          "legacyAdaptersRefused": true,
+          "workerIntegrated": false
+        },
+        "priorClockedAndCoreResultsUnchanged": true,
+        "legacy": {
+          "renders": 18,
+          "protectedSamples": 34560,
+          "exactMapQueries": 264,
+          "all18OriginalOutputHashesUnchanged": true
+        },
+        "oracle": {
+          "cases": 48,
+          "exactAssertions": 1368,
+          "exitCode": 0,
+          "inputSha256": "e537391f78ceecf84c9746dec5b5844aebd6211cf06d1ae729dec6834e323953",
+          "sourceSha256": "89eadb5e0dce48b483a02494aca252bc2f592a105e3ccceb5ada2f0fe5c53ae5",
+          "binarySha256": "6fa71a5541e20158bf7bede8f15774382fea652c3841863109bae0d79bea38c2",
+          "allResponsesMatch": true
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/protected-core-sampling-evidence/run-z4z4jby7",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-span-evidence/run-n_m8owm0",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/exact-warp-extents-evidence/run-7serjcdn"
+        ]
+      },
+      {
+        "configuration": "Sanitized",
+        "sourceHead": "1ef0ac89635b0200fdc21bdb0e7ca487380874ae",
+        "result": ".cache/exact-warp-extents/qualified-Sanitized-jllcd01i/result.json",
+        "seconds": 165.58892845001537,
+        "configureCommand": [
+          "cmake",
+          "-S",
+          "/home/rich/dev/soundcurrent-daw",
+          "-B",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DSC_BUILD_MEDIA=ON",
+          "-DSC_BUILD_DESKTOP=OFF",
+          "-DCMAKE_CXX_FLAGS=-O1 -fsanitize=address,undefined -fno-omit-frame-pointer",
+          "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
+        ],
+        "selected": [
+          "exact-warp-extents",
+          "exact-warp-extents-oracle",
+          "clocked-protected-warp",
+          "protected-core-sampling",
+          "protected-core-sampling-oracle"
+        ],
+        "environment": {
+          "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+          "UBSAN_OPTIONS": "halt_on_error=1"
+        },
+        "exact": {
+          "allCreditsReleased": true,
+          "checks": 31686,
+          "coreSamples": 2688,
+          "cropSamples": 1412,
+          "fractionalOuterExtentsPreserved": true,
+          "legacyAdaptersRefused": true,
+          "workerIntegrated": false
+        },
+        "priorClockedAndCoreResultsUnchanged": true,
+        "legacy": null,
+        "oracle": {
+          "cases": 48,
+          "exactAssertions": 1368,
+          "exitCode": 0,
+          "inputSha256": "e537391f78ceecf84c9746dec5b5844aebd6211cf06d1ae729dec6834e323953",
+          "sourceSha256": "89eadb5e0dce48b483a02494aca252bc2f592a105e3ccceb5ada2f0fe5c53ae5",
+          "binarySha256": "b88a7d100f97bf98e18f7f2a19207ea6007bb8b3badc43070706b93113b0cf71",
+          "allResponsesMatch": true
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/exact-warp-extents-evidence/run-p6cj8s36",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/protected-core-sampling-evidence/run-82fv54y9"
+        ]
+      }
+    ],
+    "allExactOracleResponsesMatch": true,
+    "workerIntegrated": false,
+    "nativeRuntime": false,
+    "qualityAdmission": false
+  },
+  "workerIntegrated": false,
+  "fullQualityAdmission": false
+}

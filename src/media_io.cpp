@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "media_io.hpp"
+#include "windows_file_path.hpp"
 #include <array>
 #include <bit>
 #include <fstream>
@@ -30,19 +31,19 @@ void require(bool ok, const char *message) {
         throw ProjectError(ErrorCode::Io, message);
 }
 void plainDirectory(const std::filesystem::path &p) {
-    require(std::filesystem::is_directory(std::filesystem::symlink_status(p)),
+    require(std::filesystem::is_directory(std::filesystem::symlink_status(fileSystemApiPath(p))),
             "Media directory missing or linked");
 #ifdef _WIN32
-    const auto a = GetFileAttributesW(p.c_str());
+    const auto a = GetFileAttributesW(windowsFileApiPath(p).c_str());
     require(a != INVALID_FILE_ATTRIBUTES && !(a & FILE_ATTRIBUTE_REPARSE_POINT),
             "Media directory reparse point refused");
 #endif
 }
 void plainFile(const std::filesystem::path &p) {
-    require(std::filesystem::is_regular_file(std::filesystem::symlink_status(p)),
+    require(std::filesystem::is_regular_file(std::filesystem::symlink_status(fileSystemApiPath(p))),
             "Media file missing or linked");
 #ifdef _WIN32
-    const auto a = GetFileAttributesW(p.c_str());
+    const auto a = GetFileAttributesW(windowsFileApiPath(p).c_str());
     require(a != INVALID_FILE_ATTRIBUTES && !(a & FILE_ATTRIBUTE_REPARSE_POINT),
             "Media reparse point refused");
 #endif
@@ -51,7 +52,7 @@ File::File(const std::filesystem::path &p, bool create, bool inspectActiveWriter
     if (!create)
         plainFile(p);
 #ifdef _WIN32
-    const auto h = CreateFileW(p.c_str(), create ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
+    const auto h = CreateFileW(windowsFileApiPath(p).c_str(), create ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
                                FILE_SHARE_READ | (!create && inspectActiveWriter ? FILE_SHARE_WRITE : 0),
                                nullptr, create ? CREATE_NEW : OPEN_EXISTING,
                                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
@@ -170,7 +171,7 @@ void publishMedia(const std::filesystem::path &source, const std::filesystem::pa
     plainFile(source);
     require(source.parent_path() == destination.parent_path(), "Cross-directory media publication");
 #ifdef _WIN32
-    require(MoveFileExW(source.c_str(), destination.c_str(), MOVEFILE_WRITE_THROUGH) != 0,
+    require(MoveFileExW(windowsFileApiPath(source).c_str(), windowsFileApiPath(destination).c_str(), MOVEFILE_WRITE_THROUGH) != 0,
             "Cannot publish media without overwriting");
 #else
     require(link(source.c_str(), destination.c_str()) == 0,
@@ -181,7 +182,7 @@ void publishMedia(const std::filesystem::path &source, const std::filesystem::pa
 }
 Durability publishJournal(const std::filesystem::path &destination, std::string_view bytes) {
     require(bytes.size() <= 16384, "Journal size limit exceeded");
-    if (std::filesystem::exists(std::filesystem::symlink_status(destination)))
+    if (std::filesystem::exists(std::filesystem::symlink_status(fileSystemApiPath(destination))))
         plainFile(destination);
     const auto temp = destination.parent_path() / ("journal-" + Id::generate().str() + ".partial");
     bool owned = false;
@@ -192,7 +193,7 @@ Durability publishJournal(const std::filesystem::path &destination, std::string_
         file.flush();
         file.close();
 #ifdef _WIN32
-        require(MoveFileExW(temp.c_str(), destination.c_str(),
+        require(MoveFileExW(windowsFileApiPath(temp).c_str(), windowsFileApiPath(destination).c_str(),
                             MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0,
                 "Cannot publish recording journal");
 #else
@@ -203,15 +204,19 @@ Durability publishJournal(const std::filesystem::path &destination, std::string_
     } catch (...) {
         if (owned) {
             std::error_code error;
-            std::filesystem::remove(temp, error);
+            std::filesystem::remove(fileSystemApiPath(temp), error);
         }
         throw;
     }
 }
 std::string readJournal(const std::filesystem::path &p) {
     plainFile(p);
-    require(std::filesystem::file_size(p) <= 16384, "Journal size limit exceeded");
+    require(std::filesystem::file_size(fileSystemApiPath(p)) <= 16384, "Journal size limit exceeded");
+#ifdef _WIN32
+    std::ifstream stream(std::filesystem::path(windowsFileApiPath(p)), std::ios::binary);
+#else
     std::ifstream stream(p, std::ios::binary);
+#endif
     require(bool(stream), "Cannot read recording journal");
     std::string result;
     std::array<char, 1024> bytes{};
@@ -244,14 +249,14 @@ JobLease::JobLease(const std::filesystem::path &job, bool writer, bool exclusive
     plainDirectory(job);
     require(kind==JobLeaseKind::Raw || kind==JobLeaseKind::PipeWireReceipts || kind==JobLeaseKind::PipeWireState,"Unknown native job lease kind");
     const auto path = job / (kind==JobLeaseKind::Raw?"writer.lock":kind==JobLeaseKind::PipeWireReceipts?"pipewire-writer.lock":"pipewire-state.lock");
-    if (!writer && !std::filesystem::exists(std::filesystem::symlink_status(path)))
+    if (!writer && !std::filesystem::exists(std::filesystem::symlink_status(fileSystemApiPath(path))))
         return;
     if (!writer)
         plainFile(path);
 #ifdef _WIN32
     auto &s = *state_;
     s.handle =
-        CreateFileW(path.c_str(), writer ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
+        CreateFileW(windowsFileApiPath(path).c_str(), writer ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
                     writer || exclusiveExisting ? 0 : FILE_SHARE_READ, nullptr,
                     writer ? CREATE_NEW : OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
@@ -394,5 +399,18 @@ std::string SampleHash::digest() const {
         result[i * 2 + 1] = hex[bytes[i] & 15];
     }
     return result;
+}
+std::string executingImageSha256(const std::function<void()> &beforeRead) {
+#ifdef _WIN32
+    std::wstring path(32768,L'\0');const auto count=GetModuleFileNameW(nullptr,path.data(),DWORD(path.size()));
+    require(count>0 && count<path.size(),"Cannot inspect running executable");path.resize(count);
+    return hashMediaFile(path,beforeRead);
+#else
+    std::ifstream image("/proc/self/exe",std::ios::binary);require(bool(image),"Cannot open running executable");
+    SampleHash digest;std::array<char,65536> buffer{};
+    while(image){if(beforeRead)beforeRead();image.read(buffer.data(),std::streamsize(buffer.size()));const auto count=image.gcount();
+        if(count>0)digest.updateBytes({reinterpret_cast<const std::byte *>(buffer.data()),std::size_t(count)});}
+    require(image.eof(),"Cannot read running executable");return digest.digest();
+#endif
 }
 } // namespace soundcurrent::daw::media_io

@@ -19,6 +19,12 @@ Frame stretchOutputFrames(Frame inputFrames, const StretchSettings &);
 // Never use floating timing or silently round a fractional source anchor.
 SourcePosition scaleSourcePosition(SourcePosition, std::uint64_t numerator,
                                    std::uint64_t denominator);
+struct SourceIntervalRatio {
+    std::uint64_t numerator, denominator;
+};
+// Exact positive interval ratio shared by warp maps and comp handle plans.
+// Canonical equal intervals avoid overflowing an unnecessary improper fraction.
+SourceIntervalRatio sourceIntervalRatio(SourcePosition output, SourcePosition input);
 Frame scaleStretchFrame(Frame, std::uint64_t numerator, std::uint64_t denominator,
                         bool ceiling);
 struct StretchGeometry {
@@ -32,8 +38,11 @@ struct StretchGeometry {
 StretchGeometry stretchGeometry(const ClipStretchAnchor &,Frame availableSourceFrames);
 bool sourcePositionLess(SourcePosition,SourcePosition);
 SourcePosition subtractSourcePosition(SourcePosition,SourcePosition);
+SourcePosition addSourcePosition(SourcePosition,SourcePosition);
 SourcePosition stretchSourceToOutput(const ClipStretchAnchor &,SourcePosition);
 SourcePosition stretchOutputToSource(const ClipStretchAnchor &,SourcePosition);
+// Absolute physical source coordinate, including the retained fractional origin.
+SourcePosition stretchOutputToRaw(const ClipStretchAnchor &,SourcePosition);
 void validateClipStretch(const ClipStretchAnchor &, const Asset &source, const Asset &rendered);
 void validateStretchClipWindow(const Clip &,const Asset &source,const Asset &rendered,std::uint32_t projectRate);
 struct ClipStretchPlan {

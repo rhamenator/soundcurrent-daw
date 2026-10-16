@@ -82,7 +82,9 @@ ExportDialog::ExportDialog(std::filesystem::path root, std::shared_ptr<const Ses
     auto *browse = new QPushButton(tr("Browse…"));
     browse->setObjectName("exportBrowse");
     browseRow->addWidget(browse);
-    form->addRow(tr("WAV destination"), browseRow);
+    auto *destinationLabel = new QLabel(tr("WAV destination"));
+    destinationLabel->setBuddy(destination_);
+    form->addRow(destinationLabel, browseRow);
     tail_ = new QCheckBox(tr("Include the EQ tail"));
     tail_->setObjectName("exportIncludeTail");
     tailLimit_ = new Spin;

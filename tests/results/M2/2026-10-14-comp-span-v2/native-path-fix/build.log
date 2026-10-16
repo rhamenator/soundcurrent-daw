@@ -1,0 +1,6 @@
+[1/6] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[2/6] Linking CXX static library libsc-approved-media.a
+[3/6] Building CXX object CMakeFiles/sc-media.dir/src/media_io.cpp.o
+[4/6] Linking CXX static library libsc-media.a
+[5/6] Building CXX object CMakeFiles/sc-native-media-path-tests.dir/tests/native_media_path_tests.cpp.o
+[6/6] Linking CXX executable sc-native-media-path-tests

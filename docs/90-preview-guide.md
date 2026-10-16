@@ -1,14 +1,28 @@
-# Linux preview candidates
+# Preview candidates
 
-## Current local Ubuntu preview (2026-10-13)
+## Current local Ubuntu preview (2026-10-15)
 
-**SoundCurrent DAW Preview** is installed in this workstation's Applications menu.
-Version `0.1.0~preview.20261013064632.5a2046905c77` is a Release build with the
-[recording recovery controls and current-source workflow evidence](250-recovery-preview-delivery.md).
-It has a dedicated per-user version directory; no system-wide package was installed.
-Its 4,262,266-byte DEB and exact GPL source archive are local under
-`.cache/p250-package-20261013064632/`. Windows installer refresh remains separate.
-This is a usable preview, with full DAW parity and hardware qualification unfinished.
+**SoundCurrent DAW Preview** in Applications now opens
+`0.1.0~preview.20261015144332.61bcaa3439ac`. The installed workflow passes speed
+edits, Render, Review/Apply, Undo/Redo, save/reopen, independently checked WAV export
+and normal Quit with Windows-created render history. See
+[the current acceptance evidence](323-installed-portable-comp.md).
+
+This is a per-user Ubuntu 26.04 amd64 installation. Its DEB and corresponding GPL
+source are local under `.cache/p323-package-20261015144332/`. The **before portability
+fix** entry preserves the preceding `2580164` version; earlier rollback entries
+are also unchanged. Close a preview before opening the same project in another
+version. Physical hardware and full DAW parity remain unfinished.
+
+## Windows candidate
+
+The matching `61bcaa3` Windows x64 installer, sequence `20261015144332`, is
+[installed in the independent acceptance clone](325-installed-windows-portable-comp.md),
+with verified corresponding source. Render, Review/Apply, Undo/Redo,
+save/reopen/export and normal Quit pass using Linux-created history. Exported
+samples match an independent calculation exactly. The earlier `2580164` and
+`4fb8` previews remain preserved. Render responsiveness and the initial
+protected-warp failure remain unresolved. Neither platform has a published binary release.
 
 ## Earlier candidates and original qualification scopes
 

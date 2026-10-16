@@ -3,6 +3,7 @@
 #include "export_fixture.hpp"
 #include "fake_playback_endpoint.hpp"
 #include <QAction>
+#include <QAccessible>
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -111,6 +112,11 @@ void dialog(const std::filesystem::path &root, Session s) {
     check(d.height() <= d.screen()->availableGeometry().height() &&
               d.width() <= d.screen()->availableGeometry().width(),
           "Export dialog exceeds display");
+    auto *destinationInterface = QAccessible::queryAccessibleInterface(
+        find<QLineEdit>(d, "exportDestination"));
+    check(destinationInterface &&
+              destinationInterface->text(QAccessible::Name) == ExportDialog::tr("WAV destination"),
+          "Export destination has no localized accessible label");
     auto *begin = find<QLineEdit>(d, "exportStartFrame");
     auto *end = find<QLineEdit>(d, "exportEndFrame");
     auto *go = find<QPushButton>(d, "startExportJob");

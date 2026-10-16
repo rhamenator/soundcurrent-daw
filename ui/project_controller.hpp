@@ -8,7 +8,7 @@
 #include <memory>
 #include <optional>
 
-namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;}
+namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;class VerifiedCompAssemblyAdoption;class PreparedCompTransition;}
 namespace soundcurrent::daw::ui {
 enum class CommandKind {
     Create,
@@ -57,6 +57,8 @@ struct ProjectCommand {
     std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
     std::shared_ptr<const VerifiedNativeTake> nativeTake;
     std::shared_ptr<const VerifiedClipStretch> stretchResult; // Retains admitted result credit through queue/adoption.
+    std::shared_ptr<const VerifiedCompAssemblyAdoption> compAssemblyResult;
+    std::shared_ptr<const PreparedCompTransition> compPreparation;
     std::optional<StructuralGuard> structuralGuard;
     std::uint64_t structuralRequest=0;
     std::optional<RouteAddress> routeAddress;

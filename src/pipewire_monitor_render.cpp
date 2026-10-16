@@ -85,7 +85,6 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
     if(clocks_.publishMonotonic(RenderClockReading{clocks_.config().renderIdentity,{clock.position},
         {clock.monotonicNs/100},cfg.sampleRate,ClockReliability::Accurate,false})!=MonitorClockCode::Accepted)
         return fail(PipeWireRenderCause::ClockRejected,clock);
-    const auto accepted=bank_.acceptedFrames(),consumed=bank_.deliveredFrames();
     bool startupPending=false;
     if(options_.startup){
         if(!monotonicNow || !monotonicNow->value)return fail(PipeWireRenderCause::Startup,clock);
@@ -95,16 +94,25 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
             return fail(PipeWireRenderCause::Startup,clock);
         if(!acquiredReady_){const auto ready=options_.startup->ready();
             if(ready){
+                // Acquire readiness before reading the bank: publication happens
+                // after its PCM/EOF, and an earlier counter snapshot may be stale.
+                const auto accepted=bank_.acceptedFrames(),consumed=bank_.deliveredFrames();
                 if(ready->admitted!=options_.startup->admission() || !options_.startup->claimed() ||
-                   ready->asOfQpc100ns>monotonicNow->value || (ready->finiteFrames?(!bank_.producerDone() || *ready->finiteFrames!=ready->publishedFrames || accepted!=ready->publishedFrames):ready->publishedFrames<ready->admitted.nativeCapacityFrames) ||
+                   (ready->finiteFrames?(!bank_.producerDone() || *ready->finiteFrames!=ready->publishedFrames || accepted!=ready->publishedFrames):ready->publishedFrames<ready->admitted.nativeCapacityFrames) ||
                    accepted<ready->publishedFrames || consumed || bank_.discardedFrames())return fail(PipeWireRenderCause::Startup,clock);
                 const auto current=options_.startup->phase();
                 if(current==MonitorStartupHandoffPhase::Cancelled)return PipeWireRenderCode::Stopped;
                 if(current!=MonitorStartupHandoffPhase::Ready)return fail(PipeWireRenderCause::Startup,clock);
-                acquiredReady_=ready;
+                // The caller sampled now before entering this callback; another
+                // owner may have published since then. Keep the original receipt
+                // pending until a fresh callback clock can admit it. Existing
+                // frame/time warmup bounds still apply, including bad future time.
+                if(ready->asOfQpc100ns>monotonicNow->value)startupPending=true;
+                else acquiredReady_=ready;
             }else startupPending=true;
         }
     }
+    const auto accepted=bank_.acceptedFrames(),consumed=bank_.deliveredFrames();
     if(startupPending || (!live_ && !bank_.producerDone() && (accepted<consumed || accepted-consumed<clock.duration))) {
         pending_.warmup=true;
         if(!warmupStartNs_)warmupStartNs_=clock.monotonicNs;

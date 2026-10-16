@@ -6,7 +6,9 @@
 #include <nlohmann/json.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include "warp_codec.hpp"
+#include "windows_file_path.hpp"
 #include <soundcurrent/positioned_resampling.hpp>
 #include <unordered_set>
 #ifdef SC_STORE_IMPORT_STATE
@@ -125,21 +127,21 @@ RouteIntent readRoute(const Json &j, bool legacy) {
     return r;
 }
 bool plainFile(const std::filesystem::path &p) {
-    const auto s = std::filesystem::symlink_status(p);
+    const auto s = std::filesystem::symlink_status(fileSystemApiPath(p));
     if (!std::filesystem::is_regular_file(s))
         return false;
 #ifdef _WIN32
-    auto attributes = GetFileAttributesW(p.c_str());
+    auto attributes = GetFileAttributesW(windowsFileApiPath(p).c_str());
     if (attributes == INVALID_FILE_ATTRIBUTES || (attributes & FILE_ATTRIBUTE_REPARSE_POINT))
         return false;
 #endif
     return true;
 }
 void noLink(const std::filesystem::path &p) {
-    require(!std::filesystem::is_symlink(std::filesystem::symlink_status(p)),
+    require(!std::filesystem::is_symlink(std::filesystem::symlink_status(fileSystemApiPath(p))),
             "Linked project path refused", ErrorCode::Io);
 #ifdef _WIN32
-    auto a = GetFileAttributesW(p.c_str());
+    auto a = GetFileAttributesW(windowsFileApiPath(p).c_str());
     require(a == INVALID_FILE_ATTRIBUTES || !(a & FILE_ATTRIBUTE_REPARSE_POINT),
             "Reparse point refused", ErrorCode::Io);
 #endif
@@ -147,8 +149,8 @@ void noLink(const std::filesystem::path &p) {
 std::string readFile(const std::filesystem::path &p, ProjectBudget budget) {
     require(plainFile(p), "Project file missing or not a regular file", ErrorCode::Io);
     PayloadCharge bytes("Encoded project", budget.encodedBytes);
-    bytes.add(std::filesystem::file_size(p));
-    std::ifstream f(p, std::ios::binary);
+    bytes.add(std::filesystem::file_size(fileSystemApiPath(p)));
+    std::ifstream f(fileSystemApiPath(p), std::ios::binary);
     require(bool(f), "Cannot read project", ErrorCode::Io);
     std::string out;
     std::array<char, 8192> buffer{};
@@ -167,7 +169,7 @@ class WriterLock {
         const auto p = root / ".save.lock";
         noLink(p);
 #ifdef _WIN32
-        handle_ = CreateFileW(p.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS,
+        handle_ = CreateFileW(windowsFileApiPath(p).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS,
                               FILE_ATTRIBUTE_NORMAL, nullptr);
         require(handle_ != INVALID_HANDLE_VALUE, "Project is locked or unavailable", ErrorCode::Io);
 #else
@@ -202,7 +204,7 @@ class WriterLock {
 Durability publish(const std::filesystem::path &destination, std::string_view bytes,
                    const SaveOptions &options = {}) {
     noLink(destination);
-    if (std::filesystem::exists(destination))
+    if (std::filesystem::exists(fileSystemApiPath(destination)))
         require(plainFile(destination), "Cannot replace nonregular project file", ErrorCode::Io);
     const auto tmp = destination.parent_path() / utf8Path("." + destination.filename().string() +
                                                           "." + Id::generate().str() + ".partial");
@@ -212,12 +214,12 @@ Durability publish(const std::filesystem::path &destination, std::string_view by
         ~Cleanup() {
             if (owned) {
                 std::error_code e;
-                std::filesystem::remove(path, e);
+                std::filesystem::remove(fileSystemApiPath(path), e);
             }
         }
     } cleanup{tmp};
 #ifdef _WIN32
-    HANDLE h = CreateFileW(tmp.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW,
+    HANDLE h = CreateFileW(windowsFileApiPath(tmp).c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW,
                            FILE_ATTRIBUTE_NORMAL, nullptr);
     require(h != INVALID_HANDLE_VALUE, "Cannot create temporary project", ErrorCode::Io);
     cleanup.owned = true;
@@ -237,7 +239,7 @@ Durability publish(const std::filesystem::path &destination, std::string_view by
     require(ok && closed, "Cannot flush temporary project", ErrorCode::Io);
     if (options.beforePublish)
         options.beforePublish();
-    require(MoveFileExW(tmp.c_str(), destination.c_str(),
+    require(MoveFileExW(windowsFileApiPath(tmp).c_str(), windowsFileApiPath(destination).c_str(),
                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0,
             "Cannot publish project", ErrorCode::Io);
     return Durability::FileFlushed;
@@ -297,8 +299,25 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                 {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
                 {"formantPreserved",p.settings.formantPreserved}}},{"renderKey",p.renderKey}};
     };
+    const bool hasVersions = std::any_of(s.tracks.begin(), s.tracks.end(),
+        [](const auto &t) { return t.activeVersion.has_value(); });
+    const bool hasVersionGroups=std::any_of(s.tracks.begin(),s.tracks.end(),[](const auto &t){
+        return (t.activeVersion && t.activeVersion->groupId) ||
+            std::any_of(t.inactiveVersions.begin(),t.inactiveVersions.end(),[](const auto &v){return v.identity.groupId.has_value();});
+    });
+    const auto encodeVersion=[&](const TrackVersionIdentity &v) {
+        Json identity={{"id",v.id.str()},{"name",v.name}};
+        if(hasVersionGroups)identity["groupId"]=v.groupId?Json(v.groupId->str()):Json(nullptr);
+        return identity;
+    };
+    bool hasCompHandles=false;
+    for(const auto &track:s.tracks) {
+        for(const auto &c:track.clips)hasCompHandles=hasCompHandles || c.compHandles.has_value();
+        for(const auto &lane:track.takeLanes)for(const auto &c:lane.clips)
+            hasCompHandles=hasCompHandles || c.compHandles.has_value();
+    }
     const auto encodeClip = [&](const Clip &c) -> Json {
-        return {{"id", c.id.str()},
+        Json result={{"id", c.id.str()},
                              {"assetId", c.assetId.str()},
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
@@ -317,6 +336,12 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                  {"polarityInverted",c.processing.polarityInverted},
                                  {"fadeIn",fade(c.processing.fadeIn)},
                                  {"fadeOut",fade(c.processing.fadeOut)}}}};
+        if(hasVersions || hasCompHandles || !s.compPairSelections.empty() || !s.compPlaybackSources.empty())result["compHandles"]=c.compHandles?Json{
+            {"processor","soundcurrent.comp-handles-window-v1"},{"version",1},
+            {"baseAssetId",c.compHandles->baseAssetId.str()},{"baseSha256",c.compHandles->baseSha256},
+            {"prefixFrames",c.compHandles->prefixFrames},{"suffixFrames",c.compHandles->suffixFrames},
+            {"renderKey",c.compHandles->renderKey}}:Json(nullptr);
+        return result;
     };
     for (const auto &t : s.tracks) {
         Json bands = Json::array(), clips = Json::array();
@@ -352,6 +377,17 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
              {"inputLatencyFrames", t.inputLatencyFrames},
              {"processors", Json::array({processor})},
              {"clips", clips}, {"takeLanes",takeLanes}});
+        if (hasVersions) {
+            auto &encoded = tracks.back();
+            encoded["activeVersion"] = t.activeVersion ? encodeVersion(*t.activeVersion) : Json(nullptr);
+            encoded["inactiveVersions"] = Json::array();
+            for (const auto &v : t.inactiveVersions) {
+                Json retained = Json::array();
+                for (const auto &c : v.clips) retained.push_back(encodeClip(c));
+                auto identity=encodeVersion(v.identity);identity["clips"]=std::move(retained);
+                encoded["inactiveVersions"].push_back(std::move(identity));
+            }
+        }
     }
     for (const auto &a : s.assets) {
         Json native=Json::array();for(const auto &f:a.nativeEvidence)native.push_back({{"path",f.relativePath},{"sha256",f.sha256},{"bytes",f.bytes}});
@@ -361,7 +397,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
+        {"schemaMinor", hasVersionGroups?25:hasVersions?24:!s.compPlaybackSources.empty()?23:!s.compAssemblies.empty()?22:!s.compPairSelections.empty()?21:hasCompHandles?20:std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -375,6 +411,41 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
           {"endFrame", s.punch.endFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
+    if (hasVersions || !s.compPairSelections.empty() || !s.compPlaybackSources.empty()) {
+        root["compPairSelections"] = Json::array();
+        for (const auto &reference : s.compPairSelections)
+            root["compPairSelections"].push_back({{"operation",reference.operation.str()},
+                {"selectionSha256",reference.selectionSha256}});
+    }
+    if (hasVersions || !s.compAssemblies.empty() || !s.compPlaybackSources.empty()) {
+        root["compAssemblies"] = Json::array();
+        for (const auto &reference : s.compAssemblies) {
+            Json outputs=Json::array();
+            for(const auto &output:reference.outputs)outputs.push_back(output?Json(output->str()):Json(nullptr));
+            root["compAssemblies"].push_back({{"operation",reference.operation.str()},
+                {"selectionOperation",reference.selectionOperation.str()},
+                {"requestSha256",reference.requestSha256},{"outputs",outputs}});
+        }
+    }
+    if(hasVersions || !s.compPlaybackSources.empty()) {
+        root["compPlaybackSources"]=Json::array();
+        const auto position=[](SourcePosition p){return Json{{"frame",p.frame},{"fraction",p.fraction},{"denominator",p.denominator}};};
+        const auto asset=[](const Asset &a){return Json{{"id",a.id.str()},{"sha256",a.sha256}};};
+        for(const auto &r:s.compPlaybackSources){const auto &d=r.source;
+            Json outputs=Json::array();for(const auto &o:r.assembly.outputs)outputs.push_back(o?Json(o->str()):Json(nullptr));
+            Json map=Json::array();for(const auto &k:d.rawMap)map.push_back({{"raw",position(k.raw)},{"output",position(k.output)}});
+            root["compPlaybackSources"].push_back({{"protocol","sc-comp-playback-source-v1"},{"side",r.side},{"selectionSha256",r.selectionSha256},
+                {"assembly",{{"operation",r.assembly.operation.str()},{"selectionOperation",r.assembly.selectionOperation.str()},
+                    {"requestSha256",r.assembly.requestSha256},{"outputs",outputs}}},
+                {"original",encodeClip(d.original)},{"playback",encodeClip(d.playback)},
+                {"rawAsset",asset(d.raw)},{"baseAsset",asset(d.base)},{"renderedAsset",asset(d.rendered)},
+                {"nominalAsset",d.nominal?asset(*d.nominal):Json(nullptr)},
+                {"domain",d.domain==CompProcessingDomain::PhysicalArtifact?"physical-artifact":"project-after-src"},
+                {"projectRate",d.projectRate},{"prefixFrames",d.prefixFrames},{"suffixFrames",d.suffixFrames},
+                {"expandedOrigin",position(d.expandedOrigin)},{"expandedNumerator",d.expandedNumerator},
+                {"expandedDenominator",d.expandedDenominator},{"rawMap",map}});
+        }
+    }
     root["imports"] = Json::array();
     const auto file = [](const ProjectEvidenceFile &f) {
         return Json{{"path", f.relativePath}, {"sha256", f.sha256}, {"bytes", f.bytes}};
@@ -505,7 +576,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 19),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 25),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -521,16 +592,50 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports"});
-        else
+        else if (minor < 21)
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback"});
+        else if (minor == 21)
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections"});
+        else if(minor==22)
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback", "compPairSelections", "compAssemblies"});
+        else
+            keys(j,{"format","schemaMajor","schemaMinor","projectId","name","sampleRate","playheadFrame","exportRange","tracks","assets","master","punchRecording","imports","loopPlayback","compPairSelections","compAssemblies","compPlaybackSources"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
         canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
         Session s;
         s.id = Id(string(j.at("projectId")));
         s.name = string(j.at("name"));
+        if (minor >= 21) {
+            const auto &references=j.at("compPairSelections");
+            array(references,budget.state.memoryBudgetBytes/sizeof(CompPairSelectionReference));
+            s.compPairSelections.reserve(references.size());
+            for (const auto &reference : references) {
+                keys(reference,{"operation","selectionSha256"});
+                s.compPairSelections.push_back({Id(string(reference.at("operation"))),
+                    string(reference.at("selectionSha256"))});
+            }
+        }
+        if (minor >= 22) {
+            const auto &references=j.at("compAssemblies");
+            array(references,budget.state.memoryBudgetBytes/sizeof(CompAssemblyReference));
+            s.compAssemblies.reserve(references.size());
+            for (const auto &reference : references) {
+                keys(reference,{"operation","selectionOperation","requestSha256","outputs"});
+                const auto &outputs=reference.at("outputs");array(outputs,2);
+                require(outputs.size()==2,"Invalid comp assembly output count");
+                CompAssemblyReference value{Id(string(reference.at("operation"))),
+                    Id(string(reference.at("selectionOperation"))),string(reference.at("requestSha256")),{}};
+                for(unsigned side=0;side<2;++side)if(!outputs[side].is_null())value.outputs[side]=Id(string(outputs[side]));
+                s.compAssemblies.push_back(std::move(value));
+            }
+        }
         s.sampleRate = u32(j.at("sampleRate"));
         s.playheadFrame = integer(j.at("playheadFrame"));
         const auto &range = j.at("exportRange");
@@ -579,8 +684,10 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate"});
             else if (minor < 16)
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch"});
-            else
+            else if(minor<20)
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch", "takeOrigin"});
+            else
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch", "takeOrigin", "compHandles"});
             Clip clip;
             clip.id = Id(string(c.at("id")));
             clip.assetId = Id(string(c.at("assetId")));
@@ -613,6 +720,16 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     std::int32_t(pitch),boolean(settings.at("formantPreserved"))};
                 if(minor>=15 && !p.at("warp").is_null())v.warp=warp_codec::decode(p.at("warp"),v.sourceFrames,stretchOutputFrames(v.sourceFrames,v.settings),budget.state.memoryBudgetBytes);
                 clip.stretch=std::move(v);
+            }
+            if(minor>=20 && !c.at("compHandles").is_null()) {
+                const auto &w=c.at("compHandles");
+                keys(w,{"processor","version","baseAssetId","baseSha256","prefixFrames","suffixFrames","renderKey"});
+                require(string(w.at("processor"))=="soundcurrent.comp-handles-window-v1" && integer(w.at("version"))==1,
+                    "Unsupported processed handle window",ErrorCode::UnsupportedSchema);
+                ClipCompHandleWindow window;
+                window.baseAssetId=Id(string(w.at("baseAssetId")));window.baseSha256=string(w.at("baseSha256"));
+                window.prefixFrames=integer(w.at("prefixFrames"));window.suffixFrames=integer(w.at("suffixFrames"));
+                window.renderKey=string(w.at("renderKey"));clip.compHandles=std::move(window);
             }
             if(minor>=11) {
                 const auto &rate=c.at("playbackRate");keys(rate,{"numerator","denominator","mode"});
@@ -661,6 +778,38 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             }
             return clip;
         };
+        if(minor>=23){
+            const auto &records=j.at("compPlaybackSources");array(records,budget.state.memoryBudgetBytes/sizeof(CompPlaybackSourceState));
+            canonical.add(records.size(),sizeof(CompPlaybackSourceState));
+            s.compPlaybackSources.reserve(records.size());
+            const auto position=[&](const Json &p){keys(p,{"frame","fraction","denominator"});return SourcePosition{integer(p.at("frame")),u64(p.at("fraction")),u64(p.at("denominator"))};};
+            const auto asset=[&](const Json &a){keys(a,{"id","sha256"});const Id id(string(a.at("id")));
+                const auto it=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &v){return v.id==id;});
+                require(it!=s.assets.end() && it->sha256==string(a.at("sha256")),"Comp provenance asset reference mismatch");
+                canonical.add(sizeof(Asset)+it->relativePath.size()+it->sha256.size()+it->id.str().size());
+                canonical.add(it->nativeEvidence.size(),sizeof(ProjectEvidenceFile));
+                for(const auto &f:it->nativeEvidence)canonical.add(f.relativePath.size()+f.sha256.size());
+                return *it;};
+            for(const auto &r:records){
+                keys(r,{"protocol","side","selectionSha256","assembly","original","playback","rawAsset","baseAsset","renderedAsset","nominalAsset","domain","projectRate","prefixFrames","suffixFrames","expandedOrigin","expandedNumerator","expandedDenominator","rawMap"});
+                require(string(r.at("protocol"))=="sc-comp-playback-source-v1","Unsupported comp playback provenance",ErrorCode::UnsupportedSchema);
+                const auto &a=r.at("assembly");
+                keys(a,{"operation","selectionOperation","requestSha256","outputs"});
+                CompPlaybackSourceState value{{Id(string(a.at("operation"))),Id(string(a.at("selectionOperation"))),string(a.at("requestSha256")),{}},u32(r.at("side")),string(r.at("selectionSha256")),{}};
+                const auto &outputs=a.at("outputs");array(outputs,2);require(outputs.size()==2,"Invalid historical comp output count");
+                for(unsigned side=0;side<2;++side)if(!outputs[side].is_null())value.assembly.outputs[side]=Id(string(outputs[side]));
+                auto &d=value.source;d.original=readClip(r.at("original"));d.playback=readClip(r.at("playback"));
+                d.raw=asset(r.at("rawAsset"));d.base=asset(r.at("baseAsset"));d.rendered=asset(r.at("renderedAsset"));
+                if(!r.at("nominalAsset").is_null())d.nominal=asset(r.at("nominalAsset"));
+                const auto domain=string(r.at("domain"));require(domain=="physical-artifact" || domain=="project-after-src","Unsupported comp playback domain",ErrorCode::UnsupportedSchema);
+                d.domain=domain=="physical-artifact"?CompProcessingDomain::PhysicalArtifact:CompProcessingDomain::ProjectAfterSrc;
+                d.projectRate=u32(r.at("projectRate"));d.prefixFrames=integer(r.at("prefixFrames"));d.suffixFrames=integer(r.at("suffixFrames"));
+                d.expandedOrigin=position(r.at("expandedOrigin"));d.expandedNumerator=u32(r.at("expandedNumerator"));d.expandedDenominator=u32(r.at("expandedDenominator"));
+                const auto &map=r.at("rawMap");array(map,16388);canonical.add(map.size()+4,sizeof(CompHandlePoint)*3);d.rawMap.reserve(map.size());
+                for(const auto &k:map){keys(k,{"raw","output"});d.rawMap.push_back({position(k.at("raw")),position(k.at("output"))});}
+                s.compPlaybackSources.push_back(std::move(value));
+            }
+        }
         for (const auto &t : j.at("tracks")) {
             if (minor == 0)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors",
@@ -674,9 +823,13 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             else if (minor < 16)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "inputLatencyFrames", "processors", "clips"});
-            else
+            else if (minor < 24)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "inputLatencyFrames", "processors", "clips", "takeLanes"});
+            else
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
+                         "monitoringMode", "inputLatencyFrames", "processors", "clips", "takeLanes",
+                         "activeVersion", "inactiveVersions"});
             Track track;
             track.id = Id(string(t.at("id")));
             track.name = string(t.at("name"));
@@ -733,6 +886,26 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     lane.clips.reserve(value.at("clips").size());
                     for (const auto &c : value.at("clips")) lane.clips.push_back(readClip(c));
                     track.takeLanes.push_back(std::move(lane));
+                }
+            }
+            if (minor >= 24) {
+                const auto &active = t.at("activeVersion");
+                if (!active.is_null()) {
+                    if(minor>=25)keys(active,{"id","name","groupId"});else keys(active,{"id","name"});
+                    track.activeVersion = TrackVersionIdentity{Id(string(active.at("id"))), string(active.at("name")),{}};
+                    if(minor>=25 && !active.at("groupId").is_null())track.activeVersion->groupId=Id(string(active.at("groupId")));
+                }
+                array(t.at("inactiveVersions"), budget.state.memoryBudgetBytes / sizeof(TrackVersion));
+                track.inactiveVersions.reserve(t.at("inactiveVersions").size());
+                for (const auto &v : t.at("inactiveVersions")) {
+                    if(minor>=25)keys(v,{"id","name","groupId","clips"});else keys(v,{"id","name","clips"});
+                    TrackVersion version;
+                    version.identity = {Id(string(v.at("id"))), string(v.at("name")),{}};
+                    if(minor>=25 && !v.at("groupId").is_null())version.identity.groupId=Id(string(v.at("groupId")));
+                    array(v.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
+                    version.clips.reserve(v.at("clips").size());
+                    for (const auto &c : v.at("clips")) version.clips.push_back(readClip(c));
+                    track.inactiveVersions.push_back(std::move(version));
                 }
             }
             s.tracks.push_back(std::move(track));
@@ -804,7 +977,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
 }
 std::string hashMediaFile(const std::filesystem::path &p, const std::function<void()> &beforeRead) {
     require(plainFile(p), "Media missing or not a regular file", ErrorCode::MissingMedia);
-    std::ifstream f(p, std::ios::binary);
+    std::ifstream f(fileSystemApiPath(p), std::ios::binary);
     require(bool(f), "Cannot read media", ErrorCode::Io);
     std::array<unsigned char, 32> digest{};
     std::array<char, 65536> buffer{};
@@ -871,7 +1044,7 @@ std::string hashMediaFile(const std::filesystem::path &p, const std::function<vo
 void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &beforeRead) const {
     const ValidatedSession checked(s, budget_.state);
     noLink(root_);
-    require(std::filesystem::is_directory(root_), "Project directory unavailable", ErrorCode::Io);
+    require(std::filesystem::is_directory(fileSystemApiPath(root_)), "Project directory unavailable", ErrorCode::Io);
     for (const auto &a : s.assets) {
         auto p = root_;
         const auto relative = utf8Path(a.relativePath);
@@ -886,7 +1059,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
         auto path = root_;
         for (const auto &part : utf8Path(f.relativePath)) { path /= part; noLink(path); }
         require(plainFile(path), "Imported evidence missing or not a plain file", ErrorCode::MissingMedia);
-        require(std::filesystem::file_size(path) == f.bytes, "Imported evidence size differs",
+        require(std::filesystem::file_size(fileSystemApiPath(path)) == f.bytes, "Imported evidence size differs",
                 ErrorCode::MediaMismatch);
         std::uint64_t reads = 0;
         const auto maximumReads = f.bytes / 65536 + 1;
@@ -895,7 +1068,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
                     ErrorCode::MediaMismatch);
             if (beforeRead) beforeRead();
         });
-        require(digest == f.sha256 && std::filesystem::file_size(path) == f.bytes,
+        require(digest == f.sha256 && std::filesystem::file_size(fileSystemApiPath(path)) == f.bytes,
                 "Imported evidence checksum differs", ErrorCode::MediaMismatch);
     };
     for(const auto &asset:s.assets)for(const auto &f:asset.nativeEvidence)evidence(f);
@@ -919,13 +1092,13 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
 SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) const {
     const auto encoded = encodeProject(s, budget_);
     noLink(root_);
-    std::filesystem::create_directories(root_);
+    std::filesystem::create_directories(fileSystemApiPath(root_));
     WriterLock lock(root_);
     verifyMedia(s);
     const auto current = root_ / "project.json";
     bool previous = false;
     noLink(current);
-    if (std::filesystem::exists(current)) {
+    if (std::filesystem::exists(fileSystemApiPath(current))) {
         auto old = readFile(current, budget_);
         const auto prior = decodeProject(old, budget_);
         require(prior.id == s.id, "Refusing to overwrite another project");
