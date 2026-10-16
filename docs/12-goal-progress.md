@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Cropped and zoomed source waveforms (2026-10-15)
+
+[Checkpoint 356](356-waveform-source-windows.md) connects bounded source-frame
+windows through decoding, IPC, cache identity and timeline rendering. Crop edges
+use prepared fine data without including adjacent samples. The rendered long-source
+fixture, window/cancellation/freshness oracles and existing dense-source workflow
+pass. All nine Release integration suites and six focused ASan/UBSan suites pass.
+Full-file validation still occurs for every uncached window; efficient reuse,
+larger-source policy, native Windows qualification and updated installed previews
+remain open. Earlier installed previews are unchanged. Full-suite parity remains
+incomplete.
+
 ## Windows waveform timing qualification (2026-10-15)
 
 [Checkpoint 355](355-windows-waveform-timing.md) completes a fresh installed

@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Source-window waveforms for cropped and zoomed views](356-waveform-source-windows.md)
 - [Installed Windows waveform timing qualification](355-windows-waveform-timing.md)
 - [Installed Windows waveforms and retained observer failures](354-installed-windows-waveforms.md)
 - [Matching Windows waveform preview and resource-test correction](353-windows-waveform-preview.md)
