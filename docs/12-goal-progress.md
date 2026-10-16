@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Audio track versions (2026-10-15)
+
+[Checkpoint 358](358-track-versions.md) adds persistent audio arrangements with a
+scrollable version dialog: empty creation, duplicate, switch, rename and inactive
+removal, all through structural Undo/Redo. Only active clips enter playback and
+export; inactive edits retain media and comp origins. Schema 1.24 preserves all
+versions, with resource accounting and strict validation. Local acceptance and
+its exact source/evidence binding are recorded in the checkpoint. Grouped desktop
+version selection, automation interaction, other track types, native Windows
+qualification and preview delivery remain open. No installed preview changed;
+full M0–M11/F/Q/C/N/X004/X005 and all-Europe parity remains incomplete.
+
 ## Waveform coverage reuse (2026-10-15)
 
 [Checkpoint 357](357-waveform-coverage-reuse.md) reuses ready or in-flight coverage

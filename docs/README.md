@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Audio track versions](358-track-versions.md)
 - [Reusing prepared waveform coverage](357-waveform-coverage-reuse.md)
 - [Source-window waveforms for cropped and zoomed views](356-waveform-source-windows.md)
 - [Installed Windows waveform timing qualification](355-windows-waveform-timing.md)
