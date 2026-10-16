@@ -114,6 +114,39 @@ int main(int argc, char **argv) {
             check(cache.lookup(root,1,left).waveform==l,"Invalid window changed prior cache");
         }
         {
+            WaveformCache cache(options()); auto prepared=a;prepared.window={1,8};prepared.baseFramesPerBin=1;
+            cache.setVisible(root,1,{prepared});auto requested=prepared;requested.window={2,4};
+            check(cache.reusableKey(root,1,requested,8)==prepared && !cache.workerSnapshot()->childPid,"Pending coverage query launched work");
+            auto model=ready(cache,root,1,prepared);const auto before=launches.load();
+            for(auto window:{WaveformWindow{2,4},WaveformWindow{3,5},WaveformWindow{4,1}}) {
+                requested.window=window;auto key=cache.reusableKey(root,1,requested,8);check(key==prepared,"Covered pan/zoom lost prepared data");
+                cache.setVisible(root,1,{*key});cache.poll();
+                check(cache.lookup(root,1,*key).waveform==model && launches==before,"Covered pan/zoom decoded again");
+            }
+            check(!cache.reusableKey(root,2,requested,8) && !cache.reusableKey(root/"different",1,requested,8),"Reuse crossed project opening/root");
+            auto changed=requested;changed.relative=b.relative;check(!cache.reusableKey(root,1,changed,8),"Reuse crossed media path");
+            changed=requested;changed.source.sha256[0]=changed.source.sha256[0]=='0'?'1':'0';check(!cache.reusableKey(root,1,changed,8),"Reuse crossed source digest");
+            requested.window={0,1};check(!cache.reusableKey(root,1,requested,8),"Reuse exposed uncovered source range");
+            requested.window={4,0};check(!cache.reusableKey(root,1,requested,8),"Empty view borrowed nonempty waveform data");
+            requested.window={2,4};check(!cache.reusableKey(root,1,requested,7),"Reuse exceeded new bin budget");
+            requested.window={9,2};refused([&]{cache.reusableKey(root,1,requested,8);},ErrorCode::InvalidParameter);
+            auto coarse=prepared;coarse.baseFramesPerBin=2;cache.setVisible(root,2,{coarse});ready(cache,root,2,coarse);
+            requested=coarse;requested.baseFramesPerBin=1;requested.window={2,2};
+            check(!cache.reusableKey(root,2,requested,8),"Coarse cached peaks satisfied finer detail request");
+            cache.invalidateSources();check(!cache.lookup(root,2,coarse).waveform,"Reuse retained invalidated source authority");
+            cache.requestShutdown();wait([&]{return cache.closed();});check(!cache.reusableKey(root,2,requested,8),"Closed cache supplied reusable key");
+        }
+        {
+            std::atomic<bool> entered=false,release=false;auto o=options();
+            o.controller.beforeSpawn=[&]{++launches;entered=true;while(!release)QThread::msleep(1);};
+            WaveformCache cache(o);Release unlock{release};auto prepared=a;prepared.baseFramesPerBin=1;prepared.window={1,8};
+            cache.setVisible(root,1,{prepared});cache.poll();wait([&]{return entered.load();});
+            const auto before=launches.load();auto requested=prepared;requested.window={3,3};
+            auto key=cache.reusableKey(root,1,requested,8);check(key==prepared,"Loading coverage was not reusable");
+            cache.setVisible(root,1,{*key});release=true;ready(cache,root,1,*key);
+            check(launches==before,"Covered movement restarted an in-flight decode");
+        }
+        {
             auto o = options(); o.maximumResidentBytes = 1; WaveformCache cache(o);
             refused([&] { cache.setVisible(root, 1, {a}); }, ErrorCode::ResourceLimit);
             check(!cache.entryCount() && !cache.workerSnapshot()->childPid, "Over-budget visible set partially prepared");
@@ -123,6 +156,7 @@ int main(int argc, char **argv) {
             cache.setVisible(root, 1, {missing});
             wait([&] { cache.poll(); return cache.lookup(root, 1, missing).phase == CachedWaveformPhase::Fault; });
             check(cache.lookup(root, 1, missing).error == ErrorCode::MissingMedia, "Cache lost media error");
+            check(!cache.reusableKey(root,1,missing,100),"Faulted coverage offered as reusable");
             const auto failed = launches.load(); cache.setVisible(root, 1, {missing}); for (unsigned i = 0; i < 10; ++i) cache.poll();
             check(launches == failed, "Faulted visible key retried without user intent");
             std::filesystem::copy_file(root / utf8Path(a.relative), root / "later.wav"); cache.retryFaults(); ready(cache, root, 1, missing);

@@ -54,6 +54,8 @@ void TimelineWaveforms::update(const std::vector<Id> &assets, const std::vector<
             WaveformKey key; std::copy(a->sha256.begin(), a->sha256.end(), key.source.sha256.begin());
             key.source.frames=std::uint64_t(a->frames); key.source.rate=a->sampleRate; key.source.channels=channels;
             key.relative=a->relativePath.substr(6); key.baseFramesPerBin=width; key.window=window;
+            if (auto reusable = cache_->reusableKey(root_ / "media", epoch_, key, target)) key = std::move(*reusable);
+            else key.window = expandWaveformWindow(key.source.frames, window, width, target);
             keys.push_back(key); next.push_back({id, std::move(key), {}});
         }
         cache_->setVisible(root_ / "media", epoch_, std::move(keys));

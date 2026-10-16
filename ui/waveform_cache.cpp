@@ -157,6 +157,34 @@ CachedWaveform WaveformCache::lookup(const std::filesystem::path &root, std::uin
     const auto found = s.find(key); if (found == s.entries.end()) return {};
     found->age = s.touch(); return found->value;
 }
+std::optional<WaveformKey> WaveformCache::reusableKey(const std::filesystem::path &root,
+    std::uint64_t epoch, const WaveformKey &requested, std::uint64_t maximumBins) const {
+    auto &s = *state_;
+    require(maximumBins != 0, "Invalid reusable waveform budget");
+    (void)charge(requested); // Validate request geometry without trusting a cache match.
+    const auto wanted = resolveWaveformWindow(requested.source.frames, requested.window);
+    if (s.closing || root != s.root || epoch != s.epoch) return {};
+    const WaveformKey *best = nullptr;
+    unsigned bestRank = 3; std::size_t bestCharge = SIZE_MAX;
+    for (const auto &entry : s.entries) {
+        const auto rank = entry.value.phase == CachedWaveformPhase::Ready ? 0U :
+            entry.value.phase == CachedWaveformPhase::Loading ? 1U :
+            entry.value.phase == CachedWaveformPhase::Pending ? 2U : 3U;
+        const auto &key = entry.key;
+        if (rank == 3 || key.source != requested.source || key.relative != requested.relative ||
+            key.baseFramesPerBin > requested.baseFramesPerBin) continue;
+        const auto window = resolveWaveformWindow(key.source.frames, key.window);
+        if ((!wanted.frames && window.frames) || window.first > wanted.first ||
+            window.first + window.frames < wanted.first + wanted.frames) continue;
+        const auto bins = window.frames / key.baseFramesPerBin + (window.frames % key.baseFramesPerBin != 0);
+        if (bins > maximumBins) continue;
+        const auto bytes = charge(key);
+        if (rank < bestRank || (rank == bestRank && bytes < bestCharge)) {
+            best = &key; bestRank = rank; bestCharge = bytes;
+        }
+    }
+    return best ? std::optional<WaveformKey>(*best) : std::nullopt;
+}
 void WaveformCache::requestShutdown() noexcept {
     if (!state_ || state_->closing) return;
     state_->closing = true; state_->current->set(std::nullopt); state_->worker->requestShutdown();

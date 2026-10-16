@@ -25,6 +25,10 @@ struct WaveformWindow {
 };
 // Resolve the whole-source sentinel and validate without overflowing an endpoint.
 WaveformWindow resolveWaveformWindow(std::uint64_t sourceFrames, WaveformWindow);
+// Add up to one requested span of nearby coverage using only spare base-bin
+// capacity at the caller's chosen resolution. Never coarsens requested detail.
+WaveformWindow expandWaveformWindow(std::uint64_t sourceFrames, WaveformWindow,
+    std::uint64_t framesPerBin, std::uint64_t maximumBaseBins);
 struct WaveformLimits {
     // Trusted worker policy. No adaptive loss of requested resolution on refusal.
     std::uint64_t baseFramesPerBin = 256;

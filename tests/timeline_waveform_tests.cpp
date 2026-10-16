@@ -90,6 +90,20 @@ int main(int argc,char **argv) {
             if(!capture.isEmpty())check(view.grab().save(capture),"Fine-window screenshot failed");
             view.shutdownWaveforms();wait([&]{return view.waveformsClosed();});
         }
+        {
+            TimelineWaveforms view(memory);view.context(std::make_shared<const Session>(session),root,9);
+            view.update({a.id},{{10000,4000}});wait([&]{view.poll();return view.readyCount()==1;});
+            const auto peak=memory.usage().peakBytes;
+            for(auto window:{WaveformWindow{10100,4000},WaveformWindow{9000,6000},WaveformWindow{12000,500}}) {
+                view.update({a.id},{window});
+                check(view.readyCount()==1 && !view.pending(),"Covered timeline pan/zoom discarded ready peaks");
+                check(memory.usage().peakBytes==peak,"Covered timeline movement acquired another worker reservation");
+            }
+            view.update({a.id},{{22000,4000}});check(view.readyCount()==0 && view.pending(),"Uncovered timeline pan reused old peaks");
+            wait([&]{view.poll();return view.readyCount()==1;});
+            view.update({a.id},{{10100,4000}});check(view.readyCount()==1 && !view.pending(),"Returning pan lost offscreen cached coverage");
+            view.shutdown();wait([&]{return view.closed();});
+        }
         // A dense view exceeds the old 32-source ceiling. Use actual independent
         // source files and the real worker; all 72 visible sources must publish.
         {

@@ -68,6 +68,22 @@ void oracle(const Waveform &w, const std::vector<double> &pcm, std::uint64_t bas
 int main() {
     const auto rootPath = std::filesystem::temp_directory_path() / ("sc-waveform-" + Id::generate().str());
     try {
+        check(expandWaveformWindow(1000,{100,100},1,128)==WaveformWindow{86,128},"Coverage ignored spare bin capacity");
+        check(expandWaveformWindow(1000,{0,100},1,200)==WaveformWindow{0,200},"Coverage crossed source start");
+        check(expandWaveformWindow(1000,{900,100},1,200)==WaveformWindow{800,200},"Coverage crossed source end");
+        check(expandWaveformWindow(1000,{100,100},1,100)==WaveformWindow{100,100},"Coverage coarsened full-budget request");
+        check(expandWaveformWindow(UINT64_MAX,{UINT64_MAX-10,8},4,UINT64_MAX)==WaveformWindow{UINT64_MAX-16,16},"Coverage capacity/end overflow");
+        for(std::uint64_t frames=0;frames<25;++frames) for(std::uint64_t first=0;first<=frames;++first)
+            for(std::uint64_t count=0;count<=frames-first;++count) for(auto width:{1ULL,3ULL,64ULL}) for(auto budget:{1ULL,5ULL,32ULL}) {
+                if(count/width+(count%width!=0)>budget) continue;
+                const auto w=expandWaveformWindow(frames,{first,count},width,budget);
+                check(w.first<=first && w.first+w.frames>=first+count && w.first<=frames && w.frames<=frames-w.first,"Coverage containment/source extent differs");
+                check(w.frames-count<=count && w.frames/width+(w.frames%width!=0)<=budget,"Coverage exceeded growth/detail bound");
+            }
+        refused([&]{expandWaveformWindow(100,{0,20},1,19);},ErrorCode::ResourceLimit);
+        refused([&]{expandWaveformWindow(100,{99,2},1,20);},ErrorCode::InvalidParameter);
+        refused([&]{expandWaveformWindow(100,{0,20},0,20);},ErrorCode::InvalidParameter);
+        refused([&]{expandWaveformWindow(100,{0,20},1,0);},ErrorCode::InvalidParameter);
         std::filesystem::create_directory(rootPath);
         ResourceLedger memory(16 * 1024 * 1024, "Waveform acceptance");
         for (unsigned channels : {1U, 2U, 8U, 257U, 1024U}) {

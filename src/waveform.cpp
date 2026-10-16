@@ -26,6 +26,18 @@ WaveformWindow resolveWaveformWindow(std::uint64_t frames, WaveformWindow window
             "Waveform window exceeds source");
     return window;
 }
+WaveformWindow expandWaveformWindow(std::uint64_t frames, WaveformWindow requested,
+                                    std::uint64_t width, std::uint64_t maximumBins) {
+    require(width && maximumBins, "Invalid waveform coverage policy");
+    const auto window = resolveWaveformWindow(frames, requested);
+    require(binsFor(window.frames, width) <= maximumBins, "Requested waveform detail exceeds coverage budget", ErrorCode::ResourceLimit);
+    const auto capacity = width > frames / maximumBins ? frames : width * maximumBins;
+    const auto extra = std::min(window.frames, capacity - window.frames);
+    auto left = std::min(window.first, extra / 2);
+    const auto right = std::min(frames - window.first - window.frames, extra - left);
+    left += std::min(window.first - left, extra - left - right);
+    return {window.first - left, window.frames + left + right};
+}
 Waveform::Waveform(Waveform &&other) noexcept
     : reservation_(std::move(other.reservation_)), source_(std::exchange(other.source_, {})),
       window_(std::exchange(other.window_, {0, 0})), levels_(other.levels_), levelCount_(std::exchange(other.levelCount_, 0)),

@@ -40,6 +40,12 @@ class WaveformCache {
     void invalidateSources();
     void poll();
     CachedWaveform lookup(const std::filesystem::path &, std::uint64_t epoch, const WaveformKey &) const;
+    // Find already admitted coverage with matching source/path/opening and at
+    // least the requested resolution, within the current per-source bin budget.
+    // Ready entries precede in-flight/planned entries. No I/O, mutation or launch;
+    // caller must admit the returned actual key with setVisible before lookup.
+    std::optional<WaveformKey> reusableKey(const std::filesystem::path &, std::uint64_t epoch,
+        const WaveformKey &requested, std::uint64_t maximumBaseBins) const;
     void requestShutdown() noexcept;
     bool closed() const;
     std::size_t residentBytes() const noexcept;
