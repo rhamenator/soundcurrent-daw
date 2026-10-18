@@ -25,7 +25,8 @@ enum class CommandKind {
     Structural,
     HistoryLimits,
     SnapshotLimits,
-    MemoryLimits
+    MemoryLimits,
+    Autosave
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -81,7 +82,7 @@ struct ProjectCommand {
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -96,6 +97,7 @@ struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
+    std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
     // One retained immutable receipt at the exact accepted-command prefix.

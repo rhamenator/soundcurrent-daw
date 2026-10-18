@@ -172,6 +172,55 @@ void saveWhileEditing(const std::filesystem::path &root) {
     auto undone = await(controller, [](auto &v) { return v.completedCommands == 5; });
     check(!undone->dirty, "Undo to saved content remained dirty");
 }
+void autosaveWhileEditing(const std::filesystem::path &root) {
+    Gate gate;
+    ProjectController controller({{}, [&] { gate.block(); }, {}});
+    ReleaseGate release{gate};
+    auto created=create(controller,root);
+    submit(controller,parameter(*created,3,10));
+    auto edited=await(controller,[](auto &v){return v.completedCommands==2;});
+    gate.armed.store(true,std::memory_order_release);
+    submit(controller,{CommandKind::Autosave});
+    await(controller,[&](auto &v){return v.io==IoOperation::Autosave && gate.entered.load();});
+    submit(controller,parameter(*edited,12,11));
+    auto later=await(controller,[](auto &v){return v.completedCommands==4;});
+    check(later->dirty && later->autosavedRevision==0 && later->savedRevision==created->savedRevision,
+          "Pending autosave changed manual save state");
+    gate.release();
+    auto done=await(controller,[](auto &v){return v.io==IoOperation::None;});
+    check(done->dirty && done->autosavedRevision==edited->modelRevision &&
+          done->savedRevision==created->savedRevision && ProjectStore(root).load()==*created->session &&
+          ProjectStore(root).loadAutosave()==*edited->session,"Autosave lost captured revision or overwrote manual save");
+    submit(controller,{CommandKind::Autosave});
+    auto latest=await(controller,[&](auto &v){return v.io==IoOperation::None && v.autosavedRevision==later->modelRevision;});
+    check(latest->dirty && ProjectStore(root).loadAutosave()==*later->session,"Latest autosave falsely marked clean");
+    submit(controller,{CommandKind::Save});
+    await(controller,[](auto &v){return !v.dirty && v.io==IoOperation::None;});
+    ProjectCommand open{CommandKind::Open};open.path=root;submit(controller,open);
+    auto reopened=await(controller,[&](auto &v){return v.projectEpoch>created->projectEpoch;});
+    check(reopened->autosavedRevision==0,"Reopen retained another epoch's autosave revision");
+}
+void closeDuringAutosave(const std::filesystem::path &root) {
+    Gate gate;
+    ProjectController controller({{}, [&] { gate.block(); }, {}});
+    ReleaseGate release{gate};
+    auto before=create(controller,root);
+    submit(controller,{CommandKind::Autosave});
+    await(controller,[&](auto &v){return v.autosavedRevision==before->modelRevision && v.io==IoOperation::None;});
+    submit(controller,parameter(*before,5,1));
+    await(controller,[](auto &v){return v.completedCommands==3;});
+    gate.armed.store(true,std::memory_order_release);
+    submit(controller,{CommandKind::Autosave});
+    await(controller,[&](auto &v){return v.io==IoOperation::Autosave && gate.entered.load();});
+    controller.requestShutdown();
+    auto waiting=await(controller,[](auto &v){return v.closing;});
+    check(!waiting->closed,"Autosave close skipped worker join");
+    gate.release();
+    auto closed=await(controller,[](auto &v){return v.closed;});
+    check(closed->errorCode==ErrorCode::Canceled && closed->dirty &&
+          closed->autosavedRevision==before->modelRevision && ProjectStore(root).load()==*before->session &&
+          ProjectStore(root).loadAutosave()==*before->session,"Canceled autosave destroyed prior snapshots");
+}
 void closeDuringSave(const std::filesystem::path &root) {
     Gate gate;
     ProjectController controller({{}, [&] { gate.block(); }, {}});
@@ -919,6 +968,8 @@ int main(int argc, char **argv) {
         creationSampleRates(root / "sample-rates");
         saveWhileEditing(root / "concurrent-save");
         closeDuringSave(root / "cancel-save");
+        autosaveWhileEditing(root / "autosave-edits");
+        closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");
         closeDuringAttachment(root / "cancel-attachment");
