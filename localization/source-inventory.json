@@ -1,6 +1,7 @@
 {
   "source_sha256": {
     "ui/accelerating_spinbox.hpp": "cea53fc8be41c2adee53101c6492e22b34d1dbba8fa8dff6aee9cb651bd9265c",
+    "ui/autosave_schedule.hpp": "d293b4aee349466881ea813016b1b8e0373edf007376ed894f6e416849e0324f",
     "ui/comp_assembly_controller.cpp": "426f6f48fc0b5aca2f8e83b121d5f15b297f6ad664955ddd7aef1f0dae224922",
     "ui/comp_assembly_controller.hpp": "98c4570bd12dcfc066a48b30da70f20c26f40d5fde4a6837ad0d6345dff99976",
     "ui/comp_pair_controller.cpp": "7dd934c9d5bcaea813fff27cb5ece45c06c0214b7497c0dac169764d57dce783",
@@ -39,8 +40,8 @@
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "a20591cf2fc9b83995f8432644fb32f35090372cf8fc66be1815d0082df3a7a6",
     "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
-    "ui/project_controller.cpp": "e11f7014574fecd6c6511720664e4d814960c91c06293ba254eeb24274b44759",
-    "ui/project_controller.hpp": "abf804f4174eae72ae6b2c75615bbebe0eec819788b2a2355095a09b9ac8d496",
+    "ui/project_controller.cpp": "328c2df13e74320597de6e9e26a95e97a2df4eefaa6aa9dbbb5cc94f65b39475",
+    "ui/project_controller.hpp": "a67ae1a6a22405bf1432660605872860ea1617b46ca33634f6d33d4d8c786cc3",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",

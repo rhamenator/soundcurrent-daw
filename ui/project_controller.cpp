@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include "autosave_schedule.hpp"
+#include <chrono>
 #include <soundcurrent/native_take_admission.hpp>
 #include <soundcurrent/comp_assembly_adoption.hpp>
 #include <soundcurrent/comp_transition_preparation.hpp>
@@ -226,6 +228,7 @@ struct ProjectController::State : QThread {
     std::optional<ParameterAddress> activeAddress;
     std::shared_ptr<const Session> gestureBefore;
     ControllerSnapshot view;
+    AutosaveSchedule autosaveSchedule;
     explicit State(ControllerOptions options)
         : admission(options.admission), historyBudget(options.historyBudget),
           memory(options.memoryBytes, "Controller project memory"),
@@ -776,6 +779,32 @@ struct ProjectController::State : QThread {
             }
         }
     }
+    void scheduleAutosave() {
+        const auto interval = io.options.autosaveIntervalMilliseconds;
+        if (!interval || closing.load(std::memory_order_acquire)) return;
+        {
+            QMutexLocker lock(&mutex);
+            if (!commands.empty()) return; // Accepted commands get priority.
+        }
+        try {
+            const auto now = io.options.autosaveNowMilliseconds ? io.options.autosaveNowMilliseconds() :
+                std::uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count());
+            if (autosaveSchedule.due(now, interval, view.projectEpoch,
+                    model && view.io == IoOperation::None && !activeGesture,
+                    view.dirty, view.modelRevision, view.autosavedRevision)) {
+                OperationWork work(*this);
+                work.admit(0);
+                io.startJob({IoOperation::Autosave, view.root, view.session, view.modelRevision});
+                view.io = IoOperation::Autosave;
+                publish();
+            }
+        } catch (const ProjectError &e) {
+            error(e.code(), e.what()); publish();
+        } catch (const std::exception &e) {
+            error(ErrorCode::InvalidState, e.what()); publish();
+        }
+    }
     void run() override {
         io.start();
         if (io.options.beforeInitialPublish)
@@ -834,6 +863,7 @@ struct ProjectController::State : QThread {
                 }
                 publish();
             }
+            scheduleAutosave();
         }
         view.closing = true;
         publish();
