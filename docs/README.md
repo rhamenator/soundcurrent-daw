@@ -2,6 +2,7 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Inactive track-version render recovery and qualification](361-track-version-render-recovery.md)
 - [Installed Linux track-version preview and Windows test follow-up](360-installed-track-version-preview.md)
 - [Grouped audio track versions](359-grouped-track-versions.md)
 - [Audio track versions](358-track-versions.md)
