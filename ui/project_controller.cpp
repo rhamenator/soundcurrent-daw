@@ -178,13 +178,17 @@ class IoWorker : public QThread {
                     if (next.operation == IoOperation::Create &&
                         !std::filesystem::create_directory(next.root))
                         throw ProjectError(ErrorCode::Io, "New project folder already exists");
-                    store.save(*next.session, {[&] {
+                    SaveOptions saveOptions{[&] {
                         if (options.beforeSavePublish)
                             options.beforeSavePublish();
                         if (closing.load(std::memory_order_acquire))
                             throw ProjectError(ErrorCode::Canceled,
                                                "Project save canceled before publication");
-                    }});
+                    }};
+                    if (next.operation == IoOperation::Autosave)
+                        store.saveAutosave(*next.session, saveOptions);
+                    else
+                        store.save(*next.session, saveOptions);
                 }
             } catch (const ProjectError &e) {
                 finished.error = e.code();
@@ -382,6 +386,17 @@ struct ProjectController::State : QThread {
             commitGesture();
             io.startJob(std::move(job));
             view.io = command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
+            break;
+        }
+        case CommandKind::Autosave: {
+            requireModel();
+            if (view.io != IoOperation::None || activeGesture)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "Finish project I/O and the active gesture before autosave");
+            OperationWork work(*this);
+            work.admit(0);
+            io.startJob({IoOperation::Autosave, view.root, view.session, view.modelRevision});
+            view.io = IoOperation::Autosave;
             break;
         }
         case CommandKind::Save: {
@@ -717,6 +732,8 @@ struct ProjectController::State : QThread {
                                                 ErrorCode::InvalidState, e.what()};
                 error(ErrorCode::InvalidState, e.what());
             }
+        } else if (result.job.operation == IoOperation::Autosave) {
+            view.autosavedRevision = result.job.revision;
         } else if (result.job.operation == IoOperation::Save) {
             // Edits continue during disk I/O. Only the captured revision was saved.
             view.savedRevision = result.job.revision;
@@ -747,6 +764,7 @@ struct ProjectController::State : QThread {
                 view.lastAttachedAsset.reset();
                 view.lastAttachedAssets.clear();
                 view.root = std::move(result.job.root);
+                view.autosavedRevision = 0;
                 ++view.projectEpoch;
                 revised();
                 view.savedRevision = view.modelRevision;
