@@ -1107,6 +1107,24 @@ SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) cons
     }
     return {previous, publish(current, encoded, options)};
 }
+Durability ProjectStore::saveAutosave(const Session &s, const SaveOptions &options) const {
+    const auto encoded = encodeProject(s, budget_);
+    noLink(root_);
+    WriterLock lock(root_);
+    const auto canonical = decodeProject(readFile(root_ / "project.json", budget_), budget_);
+    require(canonical.id == s.id, "Autosave belongs to another project");
+    verifyMedia(s);
+    return publish(root_ / "project.autosave.json", encoded, options);
+}
+Session ProjectStore::loadAutosave() const {
+    noLink(root_);
+    WriterLock lock(root_);
+    const auto canonical = decodeProject(readFile(root_ / "project.json", budget_), budget_);
+    auto recovered = decodeProject(readFile(root_ / "project.autosave.json", budget_), budget_);
+    require(recovered.id == canonical.id, "Autosave belongs to another project");
+    verifyMedia(recovered);
+    return recovered;
+}
 Session ProjectStore::loadFile(const std::filesystem::path &p) const {
     auto s = decodeProject(readFile(p, budget_), budget_);
     verifyMedia(s);
