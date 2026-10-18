@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <fstream>
 #include <limits>
 #include <cmath>
 #include <numbers>
@@ -316,6 +317,33 @@ void trackVersions() {
     store.save(s); check(store.load()==s, "Empty active version lost inactive edits on disk");
     check(hashMediaFile(media)==rawHash, "Version operation modified raw recording");
     check(encodeProject(initial)==encodeProject(decodeProject(encodeProject(initial))), "Unversioned compatibility changed");
+    // Recovery must preserve inactive arrangements, not just the empty active one.
+    auto unpublished=s;unpublished.name="Canceled version snapshot";
+    refuses([&]{store.save(unpublished,{[]{throw ProjectError(ErrorCode::Canceled,"Owned save cancellation");}});});
+    check(store.load()==s && store.loadPrevious()==s,"Canceled save lost retained versions");
+    for(const auto &entry:std::filesystem::directory_iterator(d.root))
+        check(entry.path().extension()!=".partial","Canceled version save leaked temporary file");
+    auto moved=d.root;moved+="-relocated";std::filesystem::rename(d.root,moved);d.root=moved;
+    ProjectStore relocated(d.root);
+    check(relocated.load()==s && relocated.loadPrevious()==s,"Relocation lost inactive versions or previous snapshot");
+    {
+        std::ofstream damaged(d.root/"project.json",std::ios::binary|std::ios::trunc);
+        damaged<<"{broken";damaged.close();check(bool(damaged),"Could not corrupt owned project fixture");
+    }
+    refuses([&]{relocated.load();});
+    const auto raw=d.root/utf8Path(s.assets[0].relativePath);auto missing=raw;missing+=".held";
+    std::filesystem::rename(raw,missing);
+    refuses([&]{relocated.loadPrevious();});
+    std::filesystem::rename(missing,raw);
+    auto recovered=relocated.loadPrevious();
+    check(recovered==s && recovered.tracks[0].clips.empty(),"Explicit recovery changed empty active or inactive versions");
+    EditHistory recoveredHistory(recovered);
+    check(recoveredHistory.structural({SwitchTrackVersion{track,original}}),"Recovered original version cannot activate");
+    check(live(d.root,recovered,plan,37)==originalAudio && exported(d.root,recovered,plan)==originalAudio,
+          "Recovered inactive arrangement changed original samples");
+    check(recoveredHistory.undo() && recovered==s,"Recovered version switch Undo lost snapshot");
+    check(hashMediaFile(raw)==rawHash,"Snapshot recovery modified original media");
+
 }
 void groupsAndTiming() {
     Directory d; auto s=makeOneTrackSession("Linked comp","Mic"); s.tracks[0].eq.enabled=false;
