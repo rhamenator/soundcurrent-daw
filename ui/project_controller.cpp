@@ -401,6 +401,8 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition cannot be acquired");
             view.autosaveInhibitionToken = command.autosaveInhibitionToken;
             lastAutosaveInhibitionToken = command.autosaveInhibitionToken;
+            view.autosaveInhibitionCompleted = {command.autosaveInhibitionToken,
+                                               command.autosaveInhibitionEpoch, true, {}};
             break;
         }
         case CommandKind::ReleaseAutosaveInhibition: {
@@ -410,6 +412,8 @@ struct ProjectController::State : QThread {
                 command.autosaveInhibitionToken != view.autosaveInhibitionToken)
                 throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition owner does not match");
             view.autosaveInhibitionToken = 0;
+            view.autosaveInhibitionCompleted = {command.autosaveInhibitionToken,
+                                               command.autosaveInhibitionEpoch, false, {}};
             break;
         }
         case CommandKind::Autosave: {
@@ -856,6 +860,11 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if (command->kind == CommandKind::AcquireAutosaveInhibition ||
+                        command->kind == CommandKind::ReleaseAutosaveInhibition)
+                        view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
+                            command->autosaveInhibitionEpoch,
+                            command->kind == CommandKind::AcquireAutosaveInhibition, e.code()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
                         view.structuralRejected={command->structuralRequest,e.code(),e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
@@ -868,6 +877,11 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if (command->kind == CommandKind::AcquireAutosaveInhibition ||
+                        command->kind == CommandKind::ReleaseAutosaveInhibition)
+                        view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
+                            command->autosaveInhibitionEpoch,
+                            command->kind == CommandKind::AcquireAutosaveInhibition, ErrorCode::InvalidState};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
                         view.structuralRejected={command->structuralRequest,ErrorCode::InvalidState,e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)

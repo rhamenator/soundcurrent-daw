@@ -241,6 +241,36 @@ void autosaveInhibition(const std::filesystem::path &root) {
     c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
     check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
 }
+void autosaveInhibitionReceipts(const std::filesystem::path &root) {
+    std::atomic<bool> throwOnce{false};
+    ControllerOptions options;
+    options.beforeCommand=[&]{if(throwOnce.exchange(false))throw std::runtime_error("Injected admission failure");};
+    ProjectController c(options);auto initial=create(c,root);const auto epoch=initial->projectEpoch;
+    auto request=[&](CommandKind kind,std::uint64_t token,std::uint64_t requestedEpoch) {
+        const auto prior=c.snapshot();submit(c,inhibition(kind,requestedEpoch,token));
+        return await(c,[&](auto &v){return v.completedCommands>prior->completedCommands || v.errorSerial>prior->errorSerial;});
+    };
+    auto acquired=request(CommandKind::AcquireAutosaveInhibition,1,epoch);
+    const auto &a=acquired->autosaveInhibitionCompleted;
+    check(a.token==1 && a.projectEpoch==epoch && a.acquisition && !a.error,"Acquire receipt lost identity");
+    auto denied=request(CommandKind::ReleaseAutosaveInhibition,2,epoch+1);
+    const auto &r=denied->autosaveInhibitionRejected;
+    check(r.token==2 && r.projectEpoch==epoch+1 && !r.acquisition && r.error==ErrorCode::InvalidState &&
+          denied->autosaveInhibitionCompleted.token==1 && denied->autosaveInhibitionToken==1,"Refusal erased owner or successful receipt");
+    auto errors=denied->errorSerial;submit(c,{CommandKind::Autosave});
+    auto unrelated=await(c,[&](auto &v){return v.errorSerial>errors;});
+    check(unrelated->autosaveInhibitionRejected.token==2 && unrelated->autosaveInhibitionCompleted.token==1,"Unrelated error erased inhibition receipts");
+    auto released=request(CommandKind::ReleaseAutosaveInhibition,1,epoch);
+    check(released->autosaveInhibitionCompleted.token==1 && !released->autosaveInhibitionCompleted.acquisition &&
+          !released->autosaveInhibitionCompleted.error && !released->autosaveInhibitionToken,"Release receipt differs");
+    throwOnce=true;auto failed=request(CommandKind::AcquireAutosaveInhibition,3,epoch);
+    check(failed->autosaveInhibitionRejected.token==3 && failed->autosaveInhibitionRejected.acquisition &&
+          failed->autosaveInhibitionRejected.projectEpoch==epoch && failed->autosaveInhibitionRejected.error==ErrorCode::InvalidState &&
+          !failed->autosaveInhibitionToken,"Standard exception did not publish correlated refusal");
+    auto retried=request(CommandKind::AcquireAutosaveInhibition,3,epoch);
+    check(retried->autosaveInhibitionCompleted.token==3 && retried->autosaveInhibitionCompleted.acquisition &&
+          !retried->autosaveInhibitionCompleted.error,"Refused token could not be retried");
+}
 void autosaveInhibitionDuringIo(const std::filesystem::path &root) {
     Gate gate;ProjectController c({{},[&]{gate.block();},{}});ReleaseGate release{gate};
     auto initial=create(c,root);gate.armed.store(true,std::memory_order_release);
@@ -1065,6 +1095,7 @@ int main(int argc, char **argv) {
         autosaveScheduling(root / "autosave-schedule");
         autosaveInhibition(root / "autosave-inhibition");
         autosaveInhibitionDuringIo(root / "autosave-inhibition-io");
+        autosaveInhibitionReceipts(root / "autosave-inhibition-receipts");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");
