@@ -245,6 +245,10 @@ class StudioWindow : public QMainWindow {
     std::uint64_t takeShown_ = 0, attachingTake_ = 0, attachmentRequest_ = 0, closeDrainToken_ = 0;
     bool attachmentFailed_ = false, recordCommandPending_ = false;
     std::uint64_t recordPrepareBarrier_ = 0;
+    std::uint64_t recordAutosaveToken_ = 0, recordAutosaveEpoch_ = 0;
+    bool recordAutosaveAcquiring_ = false, recordAutosaveReleasing_ = false;
+    bool recordBarrierQueued_ = false;
+    std::uint64_t recordBarrierError_ = 0;
     std::optional<RecordingMonitor> monitoringShown_;
     std::uint64_t recordCommandCompleted_ = 0, recordCommandError_ = 0, recordCommandStop_ = 0;
     bool submitRecording(RecordingCommand);

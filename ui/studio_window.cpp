@@ -2119,7 +2119,7 @@ void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSna
 }
 bool StudioWindow::recordingBusy() const {
     const auto r = recording_.snapshot();
-    return (nativeRecording_ && nativeRecording_->busy()) || (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
+    return recordAutosaveToken_ || (nativeRecording_ && nativeRecording_->busy()) || (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
            r->take ||
            (r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Unsupported &&
             r->phase != RecordingPhase::Fault && r->phase != RecordingPhase::Closed);
@@ -2208,7 +2208,7 @@ void StudioWindow::pollLoopTakes() {
 }
 bool StudioWindow::prepareRecording() {
     poll();
-    if(nativeRecording_ && nativeRecording_->busy())return false;
+    if((nativeRecording_ && nativeRecording_->busy()) || recordAutosaveAcquiring_ || recordAutosaveReleasing_)return false;
     const auto m = inspectorSnapshot();
     const auto p = playback_.snapshot();
     const auto r = recording_.snapshot();
@@ -2221,12 +2221,6 @@ bool StudioWindow::prepareRecording() {
         (p->phase != PlaybackPhase::Idle && p->phase != PlaybackPhase::Fault &&
          p->phase != PlaybackPhase::Unsupported))
         return false;
-    ProjectCommand capture{CommandKind::Barrier};
-    capture.barrier = nextGesture_++;
-    const auto token = capture.barrier;
-    if (!submitEdit(std::move(capture)))
-        return false;
-    recordPrepareBarrier_ = token;
     recordPreparationTrack_ = selectedTrack();
     recordPreparationReserveMilliseconds_ = recordReserve_->currentData().toUInt();
     recordPreparationMode_=RecordingMode(recordMode_->currentData().toInt());
@@ -2257,6 +2251,17 @@ bool StudioWindow::prepareRecording() {
             recordRangeOverride_ ? recordRangeOverride_
                                  : Frame(recordSeconds_->value()) * canonical->session->sampleRate;
     }
+    const auto token = nextGesture_++;
+    if (!recordAutosaveToken_) {
+        ProjectCommand acquire{CommandKind::AcquireAutosaveInhibition};
+        acquire.autosaveInhibitionToken = token;
+        acquire.autosaveInhibitionEpoch = m->projectEpoch;
+        if (controller_.submit(std::move(acquire)) != Admission::Accepted) return false;
+        recordAutosaveToken_ = token; recordAutosaveEpoch_ = m->projectEpoch;
+        recordAutosaveAcquiring_ = true;
+    }
+    recordPrepareBarrier_ = token;
+    recordBarrierQueued_ = false;
     return true;
 }
 bool StudioWindow::configureArmedRecording(const std::vector<Id> &ids, Frame frames) {
@@ -2859,7 +2864,41 @@ void StudioWindow::pollRecording() {
         recordCommandPending_ = false;
     if (recordPrepareBarrier_ && (closing_ || closeRequested_))
         recordPrepareBarrier_ = 0;
-    if (recordPrepareBarrier_ && m->lastBarrier == recordPrepareBarrier_) {
+    // Admission is acknowledged by the control owner, never inferred from a GUI busy snapshot.
+    const auto canonical = controller_.snapshot();
+    if (recordAutosaveAcquiring_) {
+        const auto &failed = canonical->autosaveInhibitionRejected;
+        if (failed.token == recordAutosaveToken_ && failed.projectEpoch == recordAutosaveEpoch_ && failed.acquisition) {
+            recordAutosaveAcquiring_ = false; recordAutosaveToken_ = 0; recordPrepareBarrier_ = 0;
+            notice_->setText(tr("Recording preparation could not pause autosave. Finish project operations and retry."));
+        } else if (canonical->autosaveInhibitionToken == recordAutosaveToken_ &&
+                   canonical->projectEpoch == recordAutosaveEpoch_) {
+            recordAutosaveAcquiring_ = false;
+        }
+    }
+    if (recordAutosaveReleasing_ && !canonical->autosaveInhibitionToken) {
+        recordAutosaveReleasing_ = false; recordAutosaveToken_ = 0;
+    }
+    if (recordPrepareBarrier_ && recordAutosaveToken_ && !recordAutosaveAcquiring_ &&
+        !recordAutosaveReleasing_ && !recordBarrierQueued_) {
+        ProjectCommand capture{CommandKind::Barrier}; capture.barrier = recordPrepareBarrier_;
+        recordBarrierError_ = canonical->errorSerial;
+        recordBarrierQueued_ = controller_.submit(std::move(capture)) == Admission::Accepted;
+    }
+    if (recordPrepareBarrier_ && recordBarrierQueued_ && canonical->errorSerial != recordBarrierError_) {
+        recordPrepareBarrier_ = 0; // Fail closed if the session barrier was not safely admitted.
+        notice_->setText(tr("Recording preparation was interrupted by a project error. Please retry."));
+    }
+    const bool captureIdle = r->phase == RecordingPhase::Idle || r->phase == RecordingPhase::Fault ||
+                            r->phase == RecordingPhase::Unsupported || r->phase == RecordingPhase::Closed;
+    if (recordAutosaveToken_ && !recordAutosaveAcquiring_ && !recordAutosaveReleasing_ &&
+        !recordPrepareBarrier_ && !recordCommandPending_ && captureIdle && !r->take && !attachingTake_) {
+        ProjectCommand release{CommandKind::ReleaseAutosaveInhibition};
+        release.autosaveInhibitionToken = recordAutosaveToken_;
+        release.autosaveInhibitionEpoch = recordAutosaveEpoch_;
+        recordAutosaveReleasing_ = controller_.submit(std::move(release)) == Admission::Accepted;
+    }
+    if (recordPrepareBarrier_ && recordBarrierQueued_ && m->lastBarrier == recordPrepareBarrier_) {
         recordPrepareBarrier_ = 0;
         if (m->barrierSession && !m->barrierSession->tracks.empty()) {
             RecordingCommand c;
@@ -2979,7 +3018,7 @@ void StudioWindow::pollRecording() {
                       r->phase == RecordingPhase::Unsupported;
     const bool ready = r->phase == RecordingPhase::Ready;
     const bool prepare = allow && !recordPrepareBarrier_ && !recordCommandPending_ &&
-                         r->supported && (idle || ready) && !r->take && !attachingTake_ &&
+                         !recordAutosaveAcquiring_ && !recordAutosaveReleasing_ && r->supported && (idle || ready) && !r->take && !attachingTake_ &&
                          playbackIdle && m->session && m->io == IoOperation::None;
     prepareRecordButton_->setEnabled(prepare);
     prepareRecordAction_->setEnabled(prepare);
