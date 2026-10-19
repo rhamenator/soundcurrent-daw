@@ -97,12 +97,19 @@ struct HistoryPolicyCompletion {
     std::optional<ErrorCode> error;
     std::string diagnostic;
 };
+struct AutosaveInhibitionCompletion {
+    std::uint64_t token = 0, projectEpoch = 0;
+    bool acquisition = false;
+    std::optional<ErrorCode> error;
+};
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
     // Nonzero acknowledges exclusive autosave inhibition; acquire refuses active I/O.
     std::uint64_t autosaveInhibitionToken = 0;
+    // Separate success/refusal receipts survive unrelated errors and stale requests.
+    AutosaveInhibitionCompletion autosaveInhibitionCompleted, autosaveInhibitionRejected;
     std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
