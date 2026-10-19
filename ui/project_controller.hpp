@@ -26,7 +26,9 @@ enum class CommandKind {
     HistoryLimits,
     SnapshotLimits,
     MemoryLimits,
-    Autosave
+    Autosave,
+    AcquireAutosaveInhibition,
+    ReleaseAutosaveInhibition
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -79,6 +81,8 @@ struct ProjectCommand {
     std::uint64_t snapshotRequest = 0;
     std::optional<std::size_t> memoryBytes;
     std::uint64_t memoryRequest = 0;
+    // Caller tokens must increase across acquisitions, including project epochs.
+    std::uint64_t autosaveInhibitionToken = 0, autosaveInhibitionEpoch = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
@@ -97,6 +101,8 @@ struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
+    // Nonzero acknowledges exclusive autosave inhibition; acquire refuses active I/O.
+    std::uint64_t autosaveInhibitionToken = 0;
     std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
