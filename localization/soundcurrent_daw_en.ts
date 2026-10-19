@@ -3648,6 +3648,14 @@ The complete file was published with a warning: %1</translation>
       <translation>%1 — input %2</translation>
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation>Recording preparation could not pause autosave. Finish project operations and retry.</translation>
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation>Recording preparation was interrupted by a project error. Please retry.</translation>
+    </message>
+    <message>
       <source>Selected recording track no longer exists.</source>
       <translation>Selected recording track no longer exists.</translation>
     </message>

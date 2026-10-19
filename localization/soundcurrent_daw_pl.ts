@@ -3633,6 +3633,14 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Selected recording track no longer exists.</source>
       <translation type="unfinished" />
     </message>
