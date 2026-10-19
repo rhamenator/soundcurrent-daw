@@ -790,6 +790,7 @@ void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     await([&] { return !window.recordingSnapshot()->take; });
     check(inspectRecording(original) == initial, "Keep-for-recovery modified/deleted take");
     PromptChoice recover(QMessageBox::Yes);
+    await([&] { return window.findChild<QAction *>("recoverRecordingAction")->isEnabled(); });
     check(window.inspectTake(original), "Recovery inspection not admitted");
     await([&] {
         return recover.prompts == 1 && window.snapshot()->session->assets.size() == 1 &&

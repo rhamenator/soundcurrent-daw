@@ -257,6 +257,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         if (!selected.isEmpty())
             inspectTake(path(selected));
     });
+    recoverAction_->setObjectName("recoverRecordingAction");
     scanRecoveryAction_ =
         file->addAction(tr("Find recoverable recordings…"), this, [this] { scanRecordings(); });
     scanRecoveryAction_->setObjectName("scanRecordingsAction");
@@ -3051,7 +3052,7 @@ void StudioWindow::pollRecording() {
     recordButton_->setToolTip(routeProblem);
     recordAction_->setEnabled(recordButton_->isEnabled());
     recordStopButton_->setEnabled(allow && (recordPrepareBarrier_ || !idle) && !r->closed);
-    recoverAction_->setEnabled(allow && !recordCommandPending_ && idle && !r->take &&
+    recoverAction_->setEnabled(allow && !recordingBusy() && !recordCommandPending_ && idle && !r->take &&
                                !attachingTake_ && m->session && m->io == IoOperation::None);
     refreshArms();
     QString status;
