@@ -241,6 +241,22 @@ void autosaveInhibition(const std::filesystem::path &root) {
     c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
     check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
 }
+void autosaveInhibitionGesture(const std::filesystem::path &root) {
+    ProjectController c;auto initial=create(c,root);
+    submit(c,parameter(*initial,7,801,false));
+    auto edited=await(c,[](auto &v){return v.completedCommands==2;});
+    auto acquire=inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1);
+    submit(c,acquire);await(c,[](auto &v){return v.autosaveInhibitionRejected.token==1;});
+    check(!c.snapshot()->autosaveInhibitionToken,"Ordinary acquisition committed gesture");
+    acquire.commitGestureForAutosaveInhibition=true;submit(c,acquire);
+    auto owned=await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    check(*owned->session==*edited->session,"Recording acquisition changed edited state");
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    submit(c,{CommandKind::Undo});
+    auto undone=await(c,[](auto &v){return !v.dirty;});
+    check(*undone->session==*initial->session,"Recording acquisition lost gesture undo boundary");
+}
 void autosaveInhibitionReceipts(const std::filesystem::path &root) {
     std::atomic<bool> throwOnce{false};
     ControllerOptions options;
@@ -1096,6 +1112,7 @@ int main(int argc, char **argv) {
         autosaveInhibition(root / "autosave-inhibition");
         autosaveInhibitionDuringIo(root / "autosave-inhibition-io");
         autosaveInhibitionReceipts(root / "autosave-inhibition-receipts");
+        autosaveInhibitionGesture(root / "autosave-inhibition-gesture");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");

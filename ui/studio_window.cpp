@@ -2254,6 +2254,7 @@ bool StudioWindow::prepareRecording() {
     const auto token = nextGesture_++;
     if (!recordAutosaveToken_) {
         ProjectCommand acquire{CommandKind::AcquireAutosaveInhibition};
+        acquire.commitGestureForAutosaveInhibition = true;
         acquire.autosaveInhibitionToken = token;
         acquire.autosaveInhibitionEpoch = m->projectEpoch;
         if (controller_.submit(std::move(acquire)) != Admission::Accepted) return false;
