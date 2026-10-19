@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include "autosave_schedule.hpp"
 #include <QCoreApplication>
 #include <QMutex>
 #include <QTemporaryDir>
@@ -171,6 +172,36 @@ void saveWhileEditing(const std::filesystem::path &root) {
     submit(controller, {CommandKind::Undo});
     auto undone = await(controller, [](auto &v) { return v.completedCommands == 5; });
     check(!undone->dirty, "Undo to saved content remained dirty");
+}
+void autosaveScheduling(const std::filesystem::path &root) {
+    AutosaveSchedule schedule;
+    check(!schedule.due(0,100,1,true,true,2,0),"Scheduler skipped initial interval");
+    check(!schedule.due(99,100,1,true,true,2,0),"Scheduler ran early");
+    check(!schedule.due(100,100,1,false,true,2,0),"Busy scheduler ran");
+    check(schedule.due(150,100,1,true,true,9,0),"Scheduler lost latest eligible revision");
+    check(!schedule.due(249,100,1,true,true,10,0),"Failure retry skipped interval");
+    check(schedule.due(250,100,1,true,true,10,0),"Retry interval not honored");
+    check(!schedule.due(400,100,1,true,true,10,10),"Already autosaved revision repeated");
+    check(!schedule.due(400,100,1,true,false,11,10),"Clean project autosaved");
+    check(!schedule.due(400,100,2,true,true,12,0),"New epoch inherited due time");
+    check(!schedule.due(1,100,2,true,true,12,0),"Clock rollback underflowed");
+    check(schedule.due(101,100,2,true,true,12,0),"Rollback did not restart interval");
+    check(!schedule.due(1000,0,2,true,true,13,0),"Disabled scheduler ran");
+    std::atomic<std::uint64_t> now{0}, calls{0};
+    ControllerOptions options;options.autosaveIntervalMilliseconds=100;
+    options.autosaveNowMilliseconds=[&]{auto value=now.load();++calls;return value;};
+    ProjectController controller(options);auto created=create(controller,root);
+    submit(controller,parameter(*created,3,1,false));
+    auto active=await(controller,[](auto &v){return v.completedCommands==2;});
+    const auto count=calls.load();await(controller,[&](auto &){return calls.load()>count+2;});
+    now=100;
+    const auto after=calls.load();await(controller,[&](auto &){return calls.load()>after+2;});
+    check(!std::filesystem::exists(root/"project.autosave.json"),"Timer committed active gesture");
+    submit(controller,parameter(*active,9,1));
+    auto saved=await(controller,[](auto &v){return v.autosavedRevision==v.modelRevision && v.autosavedRevision>0 && v.io==IoOperation::None;});
+    check(saved->completedCommands==3 && saved->dirty && saved->savedRevision==created->savedRevision &&
+          ProjectStore(root).loadAutosave()==*saved->session && ProjectStore(root).load()==*created->session,
+          "Timed autosave did not preserve manual state/latest revision");
 }
 void autosaveWhileEditing(const std::filesystem::path &root) {
     Gate gate;
@@ -969,6 +1000,7 @@ int main(int argc, char **argv) {
         saveWhileEditing(root / "concurrent-save");
         closeDuringSave(root / "cancel-save");
         autosaveWhileEditing(root / "autosave-edits");
+        autosaveScheduling(root / "autosave-schedule");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");

@@ -133,6 +133,10 @@ struct ControllerOptions {
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
     std::size_t memoryBytes = 1024 * 1024 * 1024;
+    // Trusted opt-in until recording policy/recovery UI is wired. Zero disables.
+    std::uint64_t autosaveIntervalMilliseconds = 0;
+    // Control-worker clock seam; production uses steady_clock. Never audio.
+    std::function<std::uint64_t()> autosaveNowMilliseconds;
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
 // to the control worker; blocking filesystem operations to a separate I/O worker.
