@@ -203,6 +203,68 @@ void autosaveScheduling(const std::filesystem::path &root) {
           ProjectStore(root).loadAutosave()==*saved->session && ProjectStore(root).load()==*created->session,
           "Timed autosave did not preserve manual state/latest revision");
 }
+ProjectCommand inhibition(CommandKind kind, std::uint64_t epoch, std::uint64_t token) {
+    ProjectCommand c{kind};c.autosaveInhibitionEpoch=epoch;c.autosaveInhibitionToken=token;return c;
+}
+void autosaveInhibition(const std::filesystem::path &root) {
+    std::atomic<std::uint64_t> now{0},calls{0};
+    ControllerOptions options;options.autosaveIntervalMilliseconds=100;
+    options.autosaveNowMilliseconds=[&]{auto n=now.load();++calls;return n;};
+    ProjectController c(options);auto initial=create(c,root);
+    const auto epoch=initial->projectEpoch;
+    auto reject=[&](ProjectCommand command) {
+        const auto errors=c.snapshot()->errorSerial;submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.errorSerial>errors;});
+    };
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch,0));
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch+1,1));
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,epoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch,2));
+    reject(inhibition(CommandKind::ReleaseAutosaveInhibition,epoch,2));
+    reject(inhibition(CommandKind::ReleaseAutosaveInhibition,epoch+1,1));
+    ProjectCommand open{CommandKind::Open};open.path=root;
+    reject(open); // Even a clean replacement must not invalidate a live owner.
+    submit(c,parameter(*initial,6,91));
+    await(c,[](auto &v){return v.dirty;});
+    auto count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    now=1000;count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    reject({CommandKind::Autosave});
+    check(c.snapshot()->autosaveInhibitionToken==1 && !std::filesystem::exists(root/"project.autosave.json"),"Inhibited autosave ran or stale release removed owner");
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,epoch,1));
+    auto saved=await(c,[](auto &v){return !v.autosaveInhibitionToken && v.autosavedRevision==v.modelRevision && v.io==IoOperation::None;});
+    check(ProjectStore(root).loadAutosave()==*saved->session && saved->dirty,"Release did not autosave latest dirty revision");
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch,1));
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,epoch,2));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==2;});
+    reject(inhibition(CommandKind::ReleaseAutosaveInhibition,epoch,1));
+    c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
+    check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
+}
+void autosaveInhibitionDuringIo(const std::filesystem::path &root) {
+    Gate gate;ProjectController c({{},[&]{gate.block();},{}});ReleaseGate release{gate};
+    auto initial=create(c,root);gate.armed.store(true,std::memory_order_release);
+    submit(c,{CommandKind::Autosave});
+    await(c,[&](auto &v){return v.io==IoOperation::Autosave && gate.entered.load();});
+    const auto errors=c.snapshot()->errorSerial;
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    auto rejected=await(c,[&](auto &v){return v.errorSerial>errors;});
+    check(!rejected->autosaveInhibitionToken && rejected->io==IoOperation::Autosave,"In-flight save acknowledged inhibition");
+    gate.release();await(c,[](auto &v){return v.io==IoOperation::None;});
+    // A refused acquisition did not consume the token.
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    ProjectCommand open{CommandKind::Open};open.path=root;submit(c,open);
+    auto reopened=await(c,[&](auto &v){return v.projectEpoch!=initial->projectEpoch && v.io==IoOperation::None;});
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,reopened->projectEpoch,2));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==2;});
+    auto before=c.snapshot()->errorSerial;
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,2));
+    auto stale=await(c,[&](auto &v){return v.errorSerial>before;});
+    check(stale->autosaveInhibitionToken==2,"Old epoch released new owner");
+}
 void autosaveWhileEditing(const std::filesystem::path &root) {
     Gate gate;
     ProjectController controller({{}, [&] { gate.block(); }, {}});
@@ -1001,6 +1063,8 @@ int main(int argc, char **argv) {
         closeDuringSave(root / "cancel-save");
         autosaveWhileEditing(root / "autosave-edits");
         autosaveScheduling(root / "autosave-schedule");
+        autosaveInhibition(root / "autosave-inhibition");
+        autosaveInhibitionDuringIo(root / "autosave-inhibition-io");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");

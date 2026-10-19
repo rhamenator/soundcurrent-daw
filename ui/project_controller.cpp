@@ -229,6 +229,7 @@ struct ProjectController::State : QThread {
     std::shared_ptr<const Session> gestureBefore;
     ControllerSnapshot view;
     AutosaveSchedule autosaveSchedule;
+    std::uint64_t lastAutosaveInhibitionToken = 0;
     explicit State(ControllerOptions options)
         : admission(options.admission), historyBudget(options.historyBudget),
           memory(options.memoryBytes, "Controller project memory"),
@@ -359,7 +360,7 @@ struct ProjectController::State : QThread {
         case CommandKind::HistoryLimits:
             if (!command.historyBudget || !command.historyRequest)
                 throw ProjectError(ErrorCode::InvalidParameter, "Undo resource request is missing");
-            if (view.io != IoOperation::None || activeGesture)
+            if (view.io != IoOperation::None || activeGesture || view.autosaveInhibitionToken)
                 throw ProjectError(
                     ErrorCode::InvalidState,
                     "Finish project I/O and the active gesture before changing Undo limits");
@@ -391,9 +392,29 @@ struct ProjectController::State : QThread {
             view.io = command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
             break;
         }
+        case CommandKind::AcquireAutosaveInhibition: {
+            requireModel();
+            if (command.autosaveInhibitionEpoch != view.projectEpoch ||
+                !command.autosaveInhibitionToken ||
+                command.autosaveInhibitionToken <= lastAutosaveInhibitionToken ||
+                view.autosaveInhibitionToken || view.io != IoOperation::None || activeGesture)
+                throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition cannot be acquired");
+            view.autosaveInhibitionToken = command.autosaveInhibitionToken;
+            lastAutosaveInhibitionToken = command.autosaveInhibitionToken;
+            break;
+        }
+        case CommandKind::ReleaseAutosaveInhibition: {
+            requireModel();
+            if (command.autosaveInhibitionEpoch != view.projectEpoch ||
+                !command.autosaveInhibitionToken ||
+                command.autosaveInhibitionToken != view.autosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition owner does not match");
+            view.autosaveInhibitionToken = 0;
+            break;
+        }
         case CommandKind::Autosave: {
             requireModel();
-            if (view.io != IoOperation::None || activeGesture)
+            if (view.io != IoOperation::None || activeGesture || view.autosaveInhibitionToken)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Finish project I/O and the active gesture before autosave");
             OperationWork work(*this);
@@ -670,6 +691,8 @@ struct ProjectController::State : QThread {
         ++view.completedCommands;
     }
     void requireCleanReplacement() const {
+        if (view.autosaveInhibitionToken)
+            throw ProjectError(ErrorCode::InvalidState, "Release autosave inhibition before replacing the project");
         if (model && (!savedModel || *model != *savedModel))
             throw ProjectError(ErrorCode::InvalidState,
                                "Save the current project before replacing it");
@@ -791,7 +814,7 @@ struct ProjectController::State : QThread {
                 std::uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count());
             if (autosaveSchedule.due(now, interval, view.projectEpoch,
-                    model && view.io == IoOperation::None && !activeGesture,
+                    model && view.io == IoOperation::None && !activeGesture && !view.autosaveInhibitionToken,
                     view.dirty, view.modelRevision, view.autosavedRevision)) {
                 OperationWork work(*this);
                 work.admit(0);
@@ -871,6 +894,7 @@ struct ProjectController::State : QThread {
         // An already-published save still needs to be reported honestly on close.
         if (auto result = io.takeResult())
             finishIo(std::move(*result));
+        view.autosaveInhibitionToken = 0;
         view.closed = true;
         publish();
     }
