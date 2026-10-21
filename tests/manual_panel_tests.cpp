@@ -49,6 +49,8 @@ struct Fixture {
     Session initial = makeOneTrackSession("Studio — Ελληνικά", "Vocal α");
     std::shared_ptr<manual_fixture::Counters> counts = std::make_shared<manual_fixture::Counters>();
     std::atomic<bool> holdProjectIo{false}, projectIoEntered{false};
+    std::atomic<std::uint64_t> autosaveNow{0}, autosaveClockCalls{0};
+    std::atomic<bool> refuseProjectCommand{false};
     std::unique_ptr<StudioWindow> window;
     bool success = false;
     Fixture() {
@@ -61,15 +63,22 @@ struct Fixture {
         window = std::make_unique<StudioWindow>(
             nullptr, PlaybackControllerOptions{}, RecordingControllerOptions{},
             ExportControllerOptions{}, manual_fixture::options(counts),
-            ControllerOptions{[this] {
-                                  if (holdProjectIo) {
-                                      projectIoEntered = true;
-                                      while (holdProjectIo)
-                                          std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                                  }
-                              },
-                              {},
-                              {}});
+            [this] {
+                ControllerOptions options;
+                options.beforeIo = [this] {
+                    if (holdProjectIo) {
+                        projectIoEntered = true;
+                        while (holdProjectIo)
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    }
+                };
+                options.beforeCommand = [this] {
+                    if (refuseProjectCommand.exchange(false)) throw std::runtime_error("Injected manual acquisition refusal");
+                };
+                options.autosaveIntervalMilliseconds = 100;
+                options.autosaveNowMilliseconds = [this] {auto n=autosaveNow.load();++autosaveClockCalls;return n;};
+                return options;
+            }());
         window->resize(900, 700);
         window->show();
         child<QTabWidget>("recordingModes")->setCurrentIndex(1);
@@ -98,6 +107,7 @@ struct Fixture {
             return window->manualRecordingSnapshot()->phase == ManualControlPhase::Ready &&
                    child<QComboBox>("manualInput0")->isEnabled();
         });
+        check(window->snapshot()->autosaveInhibitionToken != 0,"Manual preparation has no autosave owner");
         check(!child<QPushButton>("manualPlay")->isEnabled() && !counts->activated,
               "Manual panel silently selected/activated hardware");
     }
@@ -212,6 +222,35 @@ struct Fixture {
         }
     }
 };
+void autosaveGuard() {
+    Fixture f;
+    f.refuseProjectCommand=true;f.click("manualPrepare");
+    await([&]{return f.window->snapshot()->autosaveInhibitionRejected.acquisition;});
+    await([&]{return f.child<QPushButton>("manualPrepare")->isEnabled();});
+    check(!f.counts->constructed && !f.window->snapshot()->autosaveInhibitionToken,"Failed manual acquisition started endpoint or leaked owner");
+    f.prepare();
+    auto model=f.window->snapshot();const auto &t=model->session->tracks.front();
+    ProjectCommand edit{CommandKind::Parameter};
+    edit.address=ParameterAddress{t.id,t.eq.id,t.eq.bands.front().id,BandParameter::GainDb};
+    edit.value=6;edit.gesture=12345;
+    check(f.window->submitEdit(edit),"Manual autosave edit not admitted");
+    await([&]{return f.window->snapshot()->dirty;});
+    auto calls=f.autosaveClockCalls.load();await([&]{return f.autosaveClockCalls.load()>calls+2;});
+    f.autosaveNow=1000;calls=f.autosaveClockCalls.load();await([&]{return f.autosaveClockCalls.load()>calls+2;});
+    check(!std::filesystem::exists(f.root/"project.autosave.json"),"Autosave ran during manual Ready");
+    f.stop();
+    await([&]{auto v=f.window->snapshot();return !v->autosaveInhibitionToken && v->io==IoOperation::None && v->autosavedRevision==v->modelRevision;});
+    check(ProjectStore(f.root).loadAutosave()==*f.window->snapshot()->session && f.window->snapshot()->dirty,"Manual stop lost latest autosave or marked clean");
+    f.close();f.success=true;
+}
+void cancelPendingAutosaveGuard() {
+    Fixture f;f.click("manualPrepare");
+    // Stop is submitted before GUI polling can turn the acquisition into an endpoint preparation.
+    f.child<QPushButton>("manualStop")->click();
+    await([&]{return !f.window->snapshot()->autosaveInhibitionToken && f.child<QPushButton>("manualPrepare")->isEnabled();});
+    check(!f.counts->constructed,"Stop during manual acquisition constructed endpoint");
+    f.close();f.success=true;
+}
 void workflow() {
     Fixture f;
     f.counts->holdFactory = true;
@@ -667,6 +706,8 @@ int main(int argc, char **argv) {
             unrelatedAttachmentError();
             return 0;
         }
+        autosaveGuard();
+        cancelPendingAutosaveGuard();
         retainedWorkflow();
         workflow();
         closePreview(false);

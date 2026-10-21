@@ -148,7 +148,7 @@ std::shared_ptr<const ManualControlSnapshot> ManualRecordingPanel::snapshot() co
 }
 bool ManualRecordingPanel::busy() const {
     const auto s = snapshot();
-    return barrier_ || pending_ || attaching_ || transport(*s) || !s->groups.empty();
+    return autosaveToken_ || barrier_ || pending_ || attaching_ || transport(*s) || !s->groups.empty();
 }
 bool ManualRecordingPanel::send(ManualControlCommand c) {
     if (pending_ || closingIntent_)
@@ -186,10 +186,14 @@ void ManualRecordingPanel::prepare() {
         receipt_->setText(tr("Arm at least one track before preparing."));
         return;
     }
-    ProjectCommand b{CommandKind::Barrier};
-    b.barrier = barrierSequence_++;
+    ProjectCommand b{CommandKind::AcquireAutosaveInhibition};
+    b.autosaveInhibitionToken = barrierSequence_++;
+    b.autosaveInhibitionEpoch = p->projectEpoch;
+    b.commitGestureForAutosaveInhibition = true;
     if (project_.submit(b) == Admission::Accepted) {
-        barrier_ = b.barrier;
+        autosaveToken_ = b.autosaveInhibitionToken; autosaveEpoch_ = p->projectEpoch;
+        autosaveAcquiring_ = true; barrierQueued_ = false;
+        barrier_ = autosaveToken_;
         barrierSeconds_ = seconds_->value();
         barrierReserve_ = reserve_->value();
         prepare_->setEnabled(false);
@@ -251,7 +255,7 @@ int ManualRecordingPanel::closeReadiness() {
     if (s->stopAcknowledged < stopToken_ || transport(*s) || pending_ || attaching_ || prompting_)
         return 0;
     if (s->groups.empty())
-        return 1;
+        return autosaveToken_ ? 0 : 1;
     if (std::all_of(s->groups.begin(), s->groups.end(), [&](const auto &g) {
             return consumed_.contains({g.generation, g.group->take});
         }))
@@ -549,7 +553,28 @@ void ManualRecordingPanel::poll() {
             }
         }
     }
-    if (barrier_ && p->lastBarrier == barrier_) {
+    if (autosaveAcquiring_) {
+        const auto &failed = p->autosaveInhibitionRejected;
+        if (failed.token == autosaveToken_ && failed.projectEpoch == autosaveEpoch_ && failed.acquisition) {
+            autosaveAcquiring_ = false; autosaveToken_ = 0; barrier_ = 0;
+            receipt_->setText(tr("Recording preparation could not pause autosave. Finish project operations and retry."));
+        } else if (p->autosaveInhibitionToken == autosaveToken_ && p->projectEpoch == autosaveEpoch_) {
+            autosaveAcquiring_ = false;
+        }
+    }
+    if (autosaveReleasing_ && !p->autosaveInhibitionToken) {
+        autosaveReleasing_ = false; autosaveToken_ = 0;
+    }
+    if (barrier_ && autosaveToken_ && !autosaveAcquiring_ && !autosaveReleasing_ && !barrierQueued_) {
+        ProjectCommand b{CommandKind::Barrier}; b.barrier = barrier_;
+        barrierError_ = p->errorSerial;
+        barrierQueued_ = project_.submit(std::move(b)) == Admission::Accepted;
+    }
+    if (barrier_ && barrierQueued_ && p->errorSerial != barrierError_) {
+        barrier_ = 0;
+        receipt_->setText(tr("Recording preparation was interrupted by a project error. Please retry."));
+    }
+    if (barrier_ && barrierQueued_ && p->lastBarrier == barrier_) {
         barrier_ = 0;
         try {
             if (!p->barrierSession || p->barrierSession->tracks.empty() ||
@@ -690,6 +715,14 @@ void ManualRecordingPanel::poll() {
         errorSeen_ = s->errorSerial;
         receipt_->setText(
             tr("Recording failed: %1. Available files are retained.").arg(text(s->diagnostic)));
+    }
+    if (autosaveToken_ && !autosaveAcquiring_ && !autosaveReleasing_ && !barrier_ &&
+        !pending_ && !attaching_ && !transport(*s) && s->groups.empty() &&
+        s->stopAcknowledged >= stopToken_) {
+        ProjectCommand release{CommandKind::ReleaseAutosaveInhibition};
+        release.autosaveInhibitionToken = autosaveToken_;
+        release.autosaveInhibitionEpoch = autosaveEpoch_;
+        autosaveReleasing_ = project_.submit(std::move(release)) == Admission::Accepted;
     }
     refreshRoutes(*p, *s);
     refreshGroups(*s);
