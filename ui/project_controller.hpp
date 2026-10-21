@@ -83,6 +83,8 @@ struct ProjectCommand {
     std::uint64_t memoryRequest = 0;
     // Caller tokens must increase across acquisitions, including project epochs.
     std::uint64_t autosaveInhibitionToken = 0, autosaveInhibitionEpoch = 0;
+    // Recording preparation may close its current edit gesture atomically with inhibition.
+    bool commitGestureForAutosaveInhibition = false;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };

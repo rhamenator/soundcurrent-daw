@@ -790,6 +790,7 @@ void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     await([&] { return !window.recordingSnapshot()->take; });
     check(inspectRecording(original) == initial, "Keep-for-recovery modified/deleted take");
     PromptChoice recover(QMessageBox::Yes);
+    await([&] { return window.findChild<QAction *>("recoverRecordingAction")->isEnabled(); });
     check(window.inspectTake(original), "Recovery inspection not admitted");
     await([&] {
         return recover.prompts == 1 && window.snapshot()->session->assets.size() == 1 &&
@@ -924,6 +925,34 @@ void monitoringPreferences(const std::filesystem::path &root, RecordingMonitor s
     discard.timer.stop();
     check(discard.prompts == 1 && ProjectStore(root).load().tracks.front().monitoring == selected,
           "Discard overwrote saved monitoring preference");
+}
+void recordingAutosaveGuard(const std::filesystem::path &root) {
+    ProjectStore(root).save(makeOneTrackSession("Autosave recording guard", "Mic"));
+    auto counters=std::make_shared<recording_fixture::Counters>();
+    std::atomic<std::uint64_t> now{0},clockCalls{0};std::atomic<bool> refuse{false};
+    ControllerOptions options;options.autosaveIntervalMilliseconds=100;
+    options.autosaveNowMilliseconds=[&]{auto n=now.load();++clockCalls;return n;};
+    options.beforeCommand=[&]{if(refuse.exchange(false))throw std::runtime_error("Injected preparation refusal");};
+    StudioWindow w(nullptr,{},recording_fixture::options(counters),{},{},options);
+    w.show();w.openProject(root);
+    await([&]{return w.snapshot()->session && w.snapshot()->io==IoOperation::None;});
+    refuse=true;check(w.prepareRecording(),"Guard acquisition was not queued");
+    await([&]{return w.snapshot()->autosaveInhibitionRejected.acquisition;});
+    await([&]{return w.findChild<QPushButton *>("prepareRecordingButton")->isEnabled();});
+    check(!counters->constructed && !w.snapshot()->autosaveInhibitionToken,"Refused inhibition started capture or leaked ownership");
+    check(w.prepareRecording(),"Guarded preparation refused retry");
+    await([&]{return w.recordingSnapshot()->phase==RecordingPhase::Ready;});
+    check(w.snapshot()->autosaveInhibitionToken && counters->constructed==1,"Recording prepared without autosave inhibition");
+    auto model=w.snapshot();const auto &t=model->session->tracks.front();
+    ProjectCommand edit{CommandKind::Parameter};edit.address=ParameterAddress{t.id,t.eq.id,t.eq.bands.front().id,BandParameter::GainDb};edit.value=6;edit.gesture=999;
+    check(w.submitEdit(edit),"Guard test edit refused");await([&]{return w.snapshot()->dirty;});
+    auto calls=clockCalls.load();await([&]{return clockCalls.load()>calls+2;});
+    now=1000;calls=clockCalls.load();await([&]{return clockCalls.load()>calls+2;});
+    check(!std::filesystem::exists(root/"project.autosave.json"),"Autosave ran while recording was ready");
+    w.findChild<QPushButton *>("recordStopButton")->click();
+    await([&]{return w.recordingSnapshot()->phase==RecordingPhase::Idle && !w.snapshot()->autosaveInhibitionToken && w.snapshot()->autosavedRevision==w.snapshot()->modelRevision;});
+    check(ProjectStore(root).loadAutosave()==*w.snapshot()->session && w.snapshot()->dirty,"Stop did not release latest autosave without marking clean");
+    PromptChoice discard(QMessageBox::Discard);w.close();await([&]{return w.snapshot()->closed;});
 }
 void rejectedMonitoringFeedback(const std::filesystem::path &root, RecordingMonitor canonical,
                                 RecordingMonitor rejected) {
@@ -1779,6 +1808,7 @@ int main(int argc, char **argv) {
                          "\"native_format_recording\":true,\"physical_devices\":false}\n";
             return 0;
         }
+        recordingAutosaveGuard(closeRoot / "recording-autosave-guard");
         rejectedMonitoringFeedback(closeRoot / "rejected-monitor-off", RecordingMonitor::Off,
                                    RecordingMonitor::PostEq);
         rejectedMonitoringFeedback(closeRoot / "rejected-monitor-eq", RecordingMonitor::PostEq,

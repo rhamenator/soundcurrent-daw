@@ -397,8 +397,12 @@ struct ProjectController::State : QThread {
             if (command.autosaveInhibitionEpoch != view.projectEpoch ||
                 !command.autosaveInhibitionToken ||
                 command.autosaveInhibitionToken <= lastAutosaveInhibitionToken ||
-                view.autosaveInhibitionToken || view.io != IoOperation::None || activeGesture)
+                view.autosaveInhibitionToken || view.io != IoOperation::None ||
+                (activeGesture && !command.commitGestureForAutosaveInhibition))
                 throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition cannot be acquired");
+            OperationWork work(*this);
+            work.admit(0);
+            if (command.commitGestureForAutosaveInhibition) commitGesture();
             view.autosaveInhibitionToken = command.autosaveInhibitionToken;
             lastAutosaveInhibitionToken = command.autosaveInhibitionToken;
             view.autosaveInhibitionCompleted = {command.autosaveInhibitionToken,
