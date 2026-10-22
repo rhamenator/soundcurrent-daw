@@ -268,6 +268,7 @@ void deviceSelection(const std::filesystem::path &root){
     mapping->setCurrentIndex(1);removed=true;
     QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->errorSerial>0;});
     check(factories==1 && !preparedStreams && !spy->captureActive,"Stale selected input reached prepared/active streams without fresh validation");panel->poll();
+    await([&]{return control<QPushButton>(*panel,"nativeRefreshDevices")->isEnabled();});
     QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==1;});
     check(input->currentIndex()==0 && output->currentIndex()==1 && !control<QPushButton>(*panel,"nativePrepare")->isEnabled(),"Removed input silently rerouted or lost unaffected output selection");
     removed=false;QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==2;});
