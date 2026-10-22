@@ -176,6 +176,12 @@ void NativeMonitorPanel::queuePreparation(NativeMonitorCommand c) {
 void NativeMonitorPanel::pollAutosaveGuard(const NativeMonitorSnapshot &s) {
     if(!projectController_ || !autosaveToken_)return;
     const auto p=projectController_->snapshot();
+    // Project shutdown clears inhibition only after its disk worker joins. Native
+    // shutdown may finish later; there is then no live owner to send Release to.
+    if(p->closed && s.phase==NativeMonitorPhase::Closed) {
+        guardedPreparation_.reset();preparePending_=false;
+        autosaveAcquiring_=autosaveReleasing_=false;autosaveToken_=0;return;
+    }
     if(autosaveAcquiring_) {
         const auto &r=p->autosaveInhibitionRejected;
         if(r.token==autosaveToken_ && r.projectEpoch==autosaveEpoch_ && r.acquisition) {
