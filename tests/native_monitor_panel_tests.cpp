@@ -77,7 +77,10 @@ void guardedPanel(const std::filesystem::path &root,bool cancelImmediately) {
     check(project.submit(edit)==Admission::Accepted,"Guard test edit refused");await([&]{return project.snapshot()->dirty;});
     auto count=calls.load();await([&]{return calls.load()>count+2;});now=1000;count=calls.load();await([&]{return calls.load()>count+2;});
     check(project.snapshot()->autosaveInhibitionToken && !std::filesystem::exists(root/"project.autosave.json"),"Autosave ran while native recording Ready");
-    panel.cancel();await([&]{auto p=project.snapshot();return !panel.busy() && p->autosavedRevision==p->modelRevision && p->io==IoOperation::None;});
+    panel.cancel();await([&]{return panel.snapshot()->hasOriginal();});
+    check(project.snapshot()->autosaveInhibitionToken && !std::filesystem::exists(root/"project.autosave.json"),"Canceled original lost autosave ownership before review");
+    panel.releaseOriginal();
+    await([&]{auto p=project.snapshot();return !panel.busy() && p->autosavedRevision==p->modelRevision && p->io==IoOperation::None;});
     check(ProjectStore(root).loadAutosave()==*project.snapshot()->session && project.snapshot()->dirty,"Native cancel failed latest autosave/manual-save preservation");
 }
 void recoveredPanel(const std::filesystem::path &root) {
