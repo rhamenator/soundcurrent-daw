@@ -1512,6 +1512,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Files kept in the project for later recovery.</translation>
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation>Recording preparation could not pause autosave. Finish project operations and retry.</translation>
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation>Recording preparation was interrupted by a project error. Please retry.</translation>
+    </message>
+    <message>
       <source>Could not prepare recording: %1</source>
       <translation>Could not prepare recording: %1</translation>
     </message>

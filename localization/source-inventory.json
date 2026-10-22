@@ -28,8 +28,8 @@
     "ui/main.cpp": "c4bd95db587640148db3d69c2aa386777b0eb875878d7d3def3690d282d4551a",
     "ui/manual_recording_controller.cpp": "e44ff8293af64cf5cd6ffa5d29ef6519a421c4a909352145aa0e12ea573bc587",
     "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
-    "ui/manual_recording_panel.cpp": "5f066fb8fd3c8744319ad1e2a2b19a73925faaf3a0d4bc1afe6022ab6d92fe1c",
-    "ui/manual_recording_panel.hpp": "147ab63cda54d6c61a160d0d94233d0789e1f3adedcacf5eeb9c57d495278868",
+    "ui/manual_recording_panel.cpp": "99338e2e03e0358ddf8eab5a115ef66ac71ad9437bc9b8c756e1686ae5369afe",
+    "ui/manual_recording_panel.hpp": "ebce4a4ee68ac5a07cdf6655296107247b990bf50abc509dd26c1e3b92606db1",
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
@@ -2271,6 +2271,18 @@
     [
       "ManualRecordingPanel",
       "Files kept in the project for later recovery.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording preparation could not pause autosave. Finish project operations and retry.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording preparation was interrupted by a project error. Please retry.",
       "",
       false
     ],
