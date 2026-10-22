@@ -412,7 +412,7 @@ void pipewirePanel(const std::filesystem::path &root){
     check(control<QPushButton>(panel,"nativeAddTake")->isEnabled(),"Verified PipeWire timeline admission control disabled");
     control<QLineEdit>(panel,"nativePlacement")->setText(QLocale().toString(qlonglong(211)));
     QTest::mouseClick(control<QPushButton>(panel,"nativeAddTake"),Qt::LeftButton);
-    await([&]{return window.snapshot()->session->assets.size()==1 && !panel.snapshot()->hasOriginal();});
+    await([&]{return window.snapshot()->session->assets.size()==1 && !panel.busy();});
     const auto placed=*window.snapshot()->session;check(placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==211,"Main-window Add lost evidence/explicit position");
     check(window.submitEdit(ProjectCommand{CommandKind::Save}),"PipeWire main-window Save refused");await([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
     ProjectStore(root).verifyMedia(placed);check(ProjectStore(root).load()==placed,"Main-window PipeWire project did not reopen");
