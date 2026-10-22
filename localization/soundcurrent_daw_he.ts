@@ -1850,15 +1850,19 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording controls are busy. Try again.</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Recording is closing.</source>
+      <source>Recording settings are invalid.</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Recording settings are invalid.</source>
+      <source>Recording is closing.</source>
       <translation type="unfinished" />
     </message>
     <message>

@@ -735,6 +735,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
             std::move(nativeOptions), body, controller_.resourceLedger());
         nativeRecording_->addRequested=[this](Frame start){admitNativeTake(start);};
         nativeRecording_->preparationGuard([this](const auto &p){return configureNativeRecording(p);});
+        nativeRecording_->bindAutosaveGuard(controller_, nextGesture_);
         nativeRecording_->reopenGuard([this]{
             const auto model=controller_.snapshot();const auto play=playback_.snapshot()->phase;
             return model->session && model->io==IoOperation::None && !closing_ && !closeRequested_ && !recordingBusy() && !attachingTake_ && !exportWorkflowBusy() && !playbackPrepareBarrier_ &&
