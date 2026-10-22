@@ -193,7 +193,9 @@ struct Fixture {
         });
     }
     void save() {
-        window->findChild<QAction *>("saveAction")->trigger();
+        auto *action = window->findChild<QAction *>("saveAction");
+        await([&] { return action->isEnabled() && window->snapshot()->io == IoOperation::None; });
+        action->trigger();
         await([&] {
             return !window->snapshot()->dirty && window->snapshot()->io == IoOperation::None;
         });
