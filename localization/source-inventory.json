@@ -1,13 +1,18 @@
 {
   "source_sha256": {
     "ui/accelerating_spinbox.hpp": "cea53fc8be41c2adee53101c6492e22b34d1dbba8fa8dff6aee9cb651bd9265c",
+    "ui/autosave_schedule.hpp": "d293b4aee349466881ea813016b1b8e0373edf007376ed894f6e416849e0324f",
+    "ui/comp_assembly_controller.cpp": "426f6f48fc0b5aca2f8e83b121d5f15b297f6ad664955ddd7aef1f0dae224922",
+    "ui/comp_assembly_controller.hpp": "98c4570bd12dcfc066a48b30da70f20c26f40d5fde4a6837ad0d6345dff99976",
+    "ui/comp_pair_controller.cpp": "7dd934c9d5bcaea813fff27cb5ece45c06c0214b7497c0dac169764d57dce783",
+    "ui/comp_pair_controller.hpp": "25f9cf7dd394a3f6ca58f5d41e61e9125f163f69edd24cf5f12a86d7f082ba4f",
     "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
     "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
     "ui/equipment_profiles.cpp": "4f8d1dfae571a43a2726591bf28d0323496e4e47fde88c9f463b4ff277a49b9a",
     "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
     "ui/export_controller.cpp": "4fa071da04f93555333df4b9f7b740f015d81e4b3b6f151167d49da5605bb61f",
     "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
-    "ui/export_dialog.cpp": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b",
+    "ui/export_dialog.cpp": "f74674461425eb3b24e02662efcace332d34e48655efb75674601cfca416bcfe",
     "ui/export_dialog.hpp": "1e9f5e4a14323fb7db691491b3c26a78b760c29ec9ed4b7f2e7d9254faa61bfa",
     "ui/gui_resources.hpp": "6f1e4b9a8988bb79969c45eeaecda226d3319c3adc0b44938fa287c967f707c4",
     "ui/history_resources_dialog.cpp": "b8e4a2b0303b5bededad4b5b85a46307a3c0cf869da437b025f50c1f088dcdfb",
@@ -23,20 +28,20 @@
     "ui/main.cpp": "c4bd95db587640148db3d69c2aa386777b0eb875878d7d3def3690d282d4551a",
     "ui/manual_recording_controller.cpp": "e44ff8293af64cf5cd6ffa5d29ef6519a421c4a909352145aa0e12ea573bc587",
     "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
-    "ui/manual_recording_panel.cpp": "5f066fb8fd3c8744319ad1e2a2b19a73925faaf3a0d4bc1afe6022ab6d92fe1c",
-    "ui/manual_recording_panel.hpp": "147ab63cda54d6c61a160d0d94233d0789e1f3adedcacf5eeb9c57d495278868",
+    "ui/manual_recording_panel.cpp": "99338e2e03e0358ddf8eab5a115ef66ac71ad9437bc9b8c756e1686ae5369afe",
+    "ui/manual_recording_panel.hpp": "ebce4a4ee68ac5a07cdf6655296107247b990bf50abc509dd26c1e3b92606db1",
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "6b119b5e7936695432459569ebb5fd0c59c16547a0b42f162c926cc5559cc297",
-    "ui/native_monitor_controller.hpp": "6776e80438d2d8044bc2743dfc2f3ab1997811817990044402e8c84a73a1a06c",
-    "ui/native_monitor_panel.cpp": "da8d23efa5ff1c1238812b3e7ee658d61755468a9a81f8b0e9ec6ec950a15e06",
-    "ui/native_monitor_panel.hpp": "7a06f1953e4dc523b2449c4bd23d1c3cdbd4adc6490e88405bb24452515efc5d",
+    "ui/native_monitor_controller.cpp": "c98146b97c8f737f57cddb4beede67e49ab4cb0472ecf1123774fffda488fda6",
+    "ui/native_monitor_controller.hpp": "f273c89b819f3093c75022cc26856b6b19078f60665a9ba97d3afdf718d94c1b",
+    "ui/native_monitor_panel.cpp": "7b3162786035a891361f5ca7329535375d0e32b5a3956e644235d30a2280a9f4",
+    "ui/native_monitor_panel.hpp": "edad611fc956ac85e31785fca82cbc47f5222fada8ae81321ee85e2b92d4d68f",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "a20591cf2fc9b83995f8432644fb32f35090372cf8fc66be1815d0082df3a7a6",
     "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
-    "ui/project_controller.cpp": "3b9f6fa0a8f42e0110c65382712525b121c97a7d3ce2d7f709bd00470a5479d3",
-    "ui/project_controller.hpp": "767fc6e34debf4b147f62b40b5e7c4447f40945a8c03dd076252535ad8057306",
+    "ui/project_controller.cpp": "9a52dc3f8cfeffdc701e0a5da6e24679d45375c33c9b8b778e622b1a61590004",
+    "ui/project_controller.hpp": "8284f93c5e14f68c100a0089b55b903466d4cb2be1afb52eac84be21a7ca8bdb",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
@@ -47,16 +52,23 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "ac6a8fa2dd460e37371ed08d6188267782eeee3f174637dffdc9d261692d58f9",
-    "ui/studio_window.hpp": "df967731134563089204bc98dcf70573ae7327a64bf6b42523a56e123489394e",
-    "ui/timeline_editor.cpp": "f0810747676a0cfed93426ca716d74f38e42759fd8f1e6129a1fffc062f2bf44",
-    "ui/timeline_editor.hpp": "545189c9208872db402001567e6a4a7fc537e6810a96d4b32aa46c9e9aa4bb89",
-    "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
-    "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
+    "ui/studio_window.cpp": "c0708aa95866f08754577cc06e17838048f9501e64020e8f00440e9a9f1868c8",
+    "ui/studio_window.hpp": "39d01ae2ebe25e539dc3bc74a8cc4ced14e3dff11b67c1d9d9876862d8626592",
+    "ui/timeline_editor.cpp": "1164177bfe0a5d858cd9cd6150ec29905203851d0e2cac3a8358663df5464f6e",
+    "ui/timeline_editor.hpp": "1fb4b04f14171b2bb5489b99fea063efe46a8b2348c0932cc7fb2f31f7d962a8",
+    "ui/timeline_view.cpp": "d3df8afa145fc3cad88dce58ada53d83cbb2d9b7c0234d80dc94362240ca739f",
+    "ui/timeline_view.hpp": "1981c0cf9a33aaaac99fedeb5da5e85cad4eae7ad2695c089a45c6b67d8a3612",
+    "ui/timeline_waveforms.cpp": "ae6d59b4d93217bf8f415deebf57cc7fc08a364edb0d39dfc674a82f2a7692b0",
+    "ui/timeline_waveforms.hpp": "d0a9df7157fc1e49dbc9065c83b45325239fc41fb3629e3dbd242c6f6bb10a90",
+    "ui/track_versions_dialog.cpp": "6fcc19ee8034bffbb14eaf03b0bd062e2d690c6979b3f3f085579bcba1b1e91e",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
     "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
-    "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
+    "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9",
+    "ui/waveform_cache.cpp": "3013f3a51905886aed3b31a639986ceb78ed90fd5208d606f3a2867f0d3671af",
+    "ui/waveform_cache.hpp": "d5cc80687ce85513c0a697994ccb3345af35b954336dd4baff4d79ab1afc6278",
+    "ui/waveform_controller.cpp": "2899e01a209fc808897a1dc044c1e39e399eab0494844918b5cba16853eb1f3a",
+    "ui/waveform_controller.hpp": "7222ca3dce1f833ad1c4bf057939125b6fc4f7209c9e719112ca1a0195babc0b"
   },
   "seed_sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6",
   "translator_notes_sha256": "7bd09dee3f5a9a02e0438410be9265e3d82fdb05c243837723edaf5320c8b9bb",
@@ -2264,6 +2276,18 @@
     ],
     [
       "ManualRecordingPanel",
+      "Recording preparation could not pause autosave. Finish project operations and retry.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording preparation was interrupted by a project error. Please retry.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
       "Could not prepare recording: %1",
       "",
       false
@@ -2762,19 +2786,25 @@
     ],
     [
       "NativeMonitorPanel",
+      "Recording preparation could not pause autosave. Finish project operations and retry.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Recording controls are busy. Try again.",
       "",
       false
     ],
     [
       "NativeMonitorPanel",
-      "Recording is closing.",
+      "Recording settings are invalid.",
       "",
       false
     ],
     [
       "NativeMonitorPanel",
-      "Recording settings are invalid.",
+      "Recording is closing.",
       "",
       false
     ],
@@ -3686,6 +3716,12 @@
     ],
     [
       "StudioWindow",
+      "Review rendered transitions…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Retry project display",
       "",
       false
@@ -4190,6 +4226,312 @@
     ],
     [
       "StudioWindow",
+      "Transition preparation could not start. Check Project resources and the installed render helper.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project was reopened or replaced. Rendering stopped; owned job files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering canceled. Already accepted project changes and saves may have completed; retained jobs remain available for review.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition could not be prepared. Check source handles, processing settings, Project resources and the installed helper. No audio was applied.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The edit queue is unavailable. The prepared job files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition sources changed before registration. No render started; prepared files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project could not be queued for saving. Save it before rendering the retained job.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project could not be saved. Rendering did not start; check the save error and retained job references.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The source render queue is unavailable. Saved references were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Source rendering did not finish successfully. No audio was applied; inspect the retained job before retrying.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The assembly queue is unavailable. Rendered source spans were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition could not be assembled or verified. No audio was applied; retained files remain available for review.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Transition rendered and verified. Review it, then choose Apply. The timeline audio has not changed.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Render transition",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Cancel rendering",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review rendered transition",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Canceling rendering and waiting for active work to retire…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Preparing transition sources and owned job files…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Registering the transition against the current project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saving the project and render references…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Checking source audio and previous render history…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying rendered source audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering the two source spans…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loading the saved transition and source history…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying transition audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Assembling and verifying transition audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Elapsed: %1 s",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Transition review could not start. Check Project resources and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Transition verification could not start. Check Project resources and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The edit queue is unavailable. Review the transition and retry Apply.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The transition was not applied because the project or sources changed. Retained files are available for review.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Transition applied. Undo restores both original clips; save to retain the change.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Transition review needs more Project resources. Close unused previews and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendered transitions — preview",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Previous page",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Next page",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review selected transition",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Apply reviewed audio",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Cancel operation",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "This review belongs to a previous project opening. Close it and review the current project.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saved transition %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 · frames %2–%3",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Checking audio before Apply…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Reviewing transition audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Applying both clips…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Audio verified. Apply will check it again before changing the project.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Select a saved transition to review its audio.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Retained render review needs more Project resources. Close unused previews and retry.",
       "",
       false
@@ -4209,12 +4551,6 @@
     [
       "StudioWindow",
       "Scan again",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "Next page",
       "",
       false
     ],
@@ -5102,6 +5438,18 @@
     ],
     [
       "StudioWindow",
+      "Recording preparation could not pause autosave. Finish project operations and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording preparation was interrupted by a project error. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Selected recording track no longer exists.",
       "",
       false
@@ -5708,6 +6056,60 @@
     ],
     [
       "TimelineEditor",
+      "Retry waveforms",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Recheck source files and retry waveform preparation without changing audio or project edits.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Waveform display",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Overview",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Single channel",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Source channel number",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Source channel number; does not change routing or audio.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Channel",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "Selected track name",
       "",
       false
@@ -5775,6 +6177,12 @@
     [
       "TimelineEditor",
       "Down",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Track versions…",
       "",
       false
     ],
@@ -6218,7 +6626,37 @@
     ],
     [
       "TimelineEditor",
+      "Render extended processed handles (preview)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Inner blend limit (project frames)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Save and render",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "OK",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental.",
       "",
       false
     ],
@@ -6231,6 +6669,12 @@
     [
       "TimelineEditor",
       "Crossfade selection changed; reopen the editor.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Transition rendering could not start. Stop playback or recording and retry.",
       "",
       false
     ],
@@ -6277,6 +6721,108 @@
       false
     ],
     [
+      "TimelineEditor",
+      "Track versions",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Active version: %1",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Original",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Tracks to change",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Versions on the current track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Version name",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "New empty",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Duplicate active",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Activate selected",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Rename selected",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Remove selected",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Link active versions",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Select matching tracks",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Selected tracks: %L1. The current track stays selected.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "The project changed while track versions were open. Please reopen the dialog.",
+      "",
+      false
+    ],
+    [
       "TimelineView",
       "Audio clip timeline",
       "",
@@ -6291,6 +6837,60 @@
     [
       "TimelineView",
       "Start %1 · source %2 + %3/%4 · length %5 project frames",
+      "",
+      false
+    ],
+    [
+      "VersionTrackList",
+      "%1 — active: %2",
+      "",
+      false
+    ],
+    [
+      "VersionTrackList",
+      "Original",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Waveforms unavailable: visible source/resource limit",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Some source waveforms are unavailable; use Retry waveforms",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Preparing source waveforms…",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Source PCM · channel %1 absent from some sources",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Source PCM · channel %1 · shaded edges need finer detail",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "Source PCM · shaded edges need finer detail · >2 channels combined",
+      "",
+      false
+    ],
+    [
+      "soundcurrent::daw::ui::TimelineWaveforms",
+      "No channel %1",
       "",
       false
     ]

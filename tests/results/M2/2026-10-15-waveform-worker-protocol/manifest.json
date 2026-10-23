@@ -1,0 +1,53 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 156385,
+  "sha256": "89ca834b52b69bd44ee7215cb14da02dbc1b4c1ef3ad14f48bb963158eb03a6e",
+  "entries": 31,
+  "baseHead": "68050e67bf5fe82f2c33d7f96ab4e4e2ed05a515",
+  "testedWorkingTreeSource": {
+    "include/soundcurrent/waveform.hpp": {
+      "bytes": 3318,
+      "sha256": "c1b2b1631c121fa2e29d2b608ebb30893e1b060b01043e2c1a279aa00cab8414"
+    },
+    "include/soundcurrent/waveform_protocol.hpp": {
+      "bytes": 2084,
+      "sha256": "02be94591ed4020dcb7066e4e30e28b3bf99b2b62537f80c90cdc777fb56b3e6"
+    },
+    "src/waveform_protocol.cpp": {
+      "bytes": 6927,
+      "sha256": "09de9dcad578cd157c5df73c3e9798461bf1e915fab8c83d7977a48da66279cb"
+    },
+    "tools/waveform_worker.cpp": {
+      "bytes": 4825,
+      "sha256": "18a59e3370ec92a75b783e79a24d1fcd27dd8af27bde9fd3bb13eca3f16a8a4e"
+    },
+    "tests/waveform_protocol_tests.cpp": {
+      "bytes": 9139,
+      "sha256": "a7910f63d885e13e1655b8a0304c4ff98062fc1c3fc394af391ee0e0823b9eb5"
+    },
+    "tests/waveform_worker_tests.py": {
+      "bytes": 4602,
+      "sha256": "8b745550c45a3a89018ffa12eef6f9d5a57a666ea7f43ffcec31adf8d70ecb58"
+    },
+    "CMakeLists.txt": {
+      "bytes": 164687,
+      "sha256": "3a8628e9329be7b447a3c9c615704dc7f6c8989852d2f4682a203c452cadb76a"
+    },
+    ".github/workflows/ci.yml": {
+      "bytes": 37397,
+      "sha256": "389975bda5717ce7f597c2f3539eb38d643bf3bae7f78b9e6e93dc17d89d3f3a"
+    }
+  },
+  "protocolChecks": 21060,
+  "workerCases": 53,
+  "sourceChecks": 164507,
+  "existingWaveChecks": 20956,
+  "releasePassed": true,
+  "asanUbsanPassed": true,
+  "nativeWindowsQualified": false,
+  "uiIntegrated": false,
+  "binariesIncluded": false,
+  "precedingCiRun": 38801059137,
+  "precedingCiTerminal": false,
+  "precedingFailure": "desktop-comp-assembly-apply: Old opening applied into new owner"
+}

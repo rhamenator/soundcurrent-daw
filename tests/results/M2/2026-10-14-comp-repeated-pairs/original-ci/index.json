@@ -1,0 +1,30 @@
+{
+  "run": 38655828613,
+  "head": "ff65c8ece792bb3dd355cd1ab9377cc484e8efc3",
+  "conclusion": "failure",
+  "originalArchivesRetained": 6,
+  "fullJobLogs": 6,
+  "pngs": 26,
+  "allOriginalArchivesAudited": true,
+  "linuxTestsPassed": 190,
+  "linuxTestsTotal": 191,
+  "linuxTimeouts": 1,
+  "windowsNativePassed": 16,
+  "windowsNativeTotal": 18,
+  "windowsDesktopPassed": 26,
+  "windowsCoreCrossBuildPassed": true,
+  "windowsDeploymentPayloadsAudited": 15,
+  "windowsCorrespondingSourceFilesAudited": 1693,
+  "representativeImagesViewed": [
+    "Windows 48000 applied",
+    "Linux 48000 applied"
+  ],
+  "archive": {
+    "path": "review.zip",
+    "bytes": 1117192,
+    "entries": 55,
+    "sha256": "481482d47c4a6dbc564a0ecf81f5869e3857276eb9d249927711bbc4024c698f"
+  },
+  "largeOriginalArchivesLocation": "/home/rich/dev/soundcurrent-daw/.cache/comp-adoption-dependencies/pr194-dependency-review",
+  "nativeRuntimeCorrectionConfirmed": false
+}

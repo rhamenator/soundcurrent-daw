@@ -1504,6 +1504,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Could not prepare recording: %1</source>
       <translation type="unfinished" />
     </message>
@@ -1842,15 +1850,19 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording controls are busy. Try again.</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Recording is closing.</source>
+      <source>Recording settings are invalid.</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Recording settings are invalid.</source>
+      <source>Recording is closing.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2478,6 +2490,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Review rendered transitions…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Retry project display</source>
       <translation type="unfinished" />
     </message>
@@ -2814,6 +2830,210 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Transition preparation could not start. Check Project resources and the installed render helper.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project was reopened or replaced. Rendering stopped; owned job files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendering canceled. Already accepted project changes and saves may have completed; retained jobs remain available for review.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition could not be prepared. Check source handles, processing settings, Project resources and the installed helper. No audio was applied.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The edit queue is unavailable. The prepared job files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition sources changed before registration. No render started; prepared files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project could not be queued for saving. Save it before rendering the retained job.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project could not be saved. Rendering did not start; check the save error and retained job references.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The source render queue is unavailable. Saved references were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source rendering did not finish successfully. No audio was applied; inspect the retained job before retrying.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The assembly queue is unavailable. Rendered source spans were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition could not be assembled or verified. No audio was applied; retained files remain available for review.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition rendered and verified. Review it, then choose Apply. The timeline audio has not changed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Render transition</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel rendering</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Review rendered transition</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Canceling rendering and waiting for active work to retire…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preparing transition sources and owned job files…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Registering the transition against the current project…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saving the project and render references…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Checking source audio and previous render history…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verifying rendered source audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendering the two source spans…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loading the saved transition and source history…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verifying transition audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Assembling and verifying transition audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Elapsed: %1 s</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition review could not start. Check Project resources and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition verification could not start. Check Project resources and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The edit queue is unavailable. Review the transition and retry Apply.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The transition was not applied because the project or sources changed. Retained files are available for review.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition applied. Undo restores both original clips; save to retain the change.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition review needs more Project resources. Close unused previews and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendered transitions — preview</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Previous page</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Next page</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Review selected transition</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Apply reviewed audio</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel operation</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This review belongs to a previous project opening. Close it and review the current project.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saved transition %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>%1 · frames %2–%3</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Checking audio before Apply…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Reviewing transition audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Applying both clips…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Audio verified. Apply will check it again before changing the project.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Select a saved transition to review its audio.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Retained render review needs more Project resources. Close unused previews and retry.</source>
       <translation type="unfinished" />
     </message>
@@ -2827,10 +3047,6 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Scan again</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Next page</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -3429,6 +3645,14 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Selected recording track no longer exists.</source>
       <translation type="unfinished" />
     </message>
@@ -3839,6 +4063,42 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Retry waveforms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recheck source files and retry waveform preparation without changing audio or project edits.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Waveform display</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Overview</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Single channel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source channel number</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source channel number; does not change routing or audio.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Channel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Selected track name</source>
       <translation type="unfinished" />
     </message>
@@ -3884,6 +4144,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Down</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track versions…</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -4179,7 +4443,27 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Render extended processed handles (preview)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inner blend limit (project frames)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save and render</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>OK</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -4188,6 +4472,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Crossfade selection changed; reopen the editor.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Transition rendering could not start. Stop playback or recording and retry.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -4218,6 +4506,74 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <source>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</source>
       <translation type="unfinished" />
     </message>
+    <message>
+      <source>Track versions</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Active version: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Tracks to change</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Versions on the current track</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Version name</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>New empty</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Duplicate active</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Activate selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rename selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Remove selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Link active versions</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Select matching tracks</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected tracks: %L1. The current track stays selected.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project changed while track versions were open. Please reopen the dialog.</source>
+      <translation type="unfinished" />
+    </message>
   </context>
   <context>
     <name>TimelineView</name>
@@ -4231,6 +4587,48 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Start %1 · source %2 + %3/%4 · length %5 project frames</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>VersionTrackList</name>
+    <message>
+      <source>%1 — active: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>soundcurrent::daw::ui::TimelineWaveforms</name>
+    <message>
+      <source>Waveforms unavailable: visible source/resource limit</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Some source waveforms are unavailable; use Retry waveforms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preparing source waveforms…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source PCM · channel %1 absent from some sources</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source PCM · channel %1 · shaded edges need finer detail</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No channel %1</source>
       <translation type="unfinished" />
     </message>
   </context>

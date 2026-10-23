@@ -29,10 +29,16 @@ Id scratchId(std::size_t index){
 }
 }
 ProtectedWarpPlan::ProtectedWarpPlan(ClipWarpRegion region,std::span<const WarpAnchor> markers,WarpProtection policy,ResourceLedger ledger,ClipWarpLimits limits):policy_(policy){
+ ClipWarpMap original(region,markers,ledger,limits);prepare(original,markers,ledger,limits);
+}
+ProtectedWarpPlan::ProtectedWarpPlan(ExactWarpDomain,ExactClipWarpRegion region,std::span<const WarpAnchor> markers,WarpProtection policy,ResourceLedger ledger,ClipWarpLimits limits):policy_(policy){
+ ClipWarpMap original(exactWarpDomain,region,markers,ledger,limits);prepare(original,markers,ledger,limits);
+}
+void ProtectedWarpPlan::prepare(const ClipWarpMap &original,std::span<const WarpAnchor> markers,ResourceLedger ledger,ClipWarpLimits limits){
+ const auto &region=original.exactRegion();const auto policy=policy_;
  require(policy.before>policy.halo&&policy.after>policy.halo&&policy.halo>=0&&policy.minimumNonunityGap>0,"Invalid protected core/halo policy");
  require(markers.size()<=limits.maximumMarkers/3&&markers.size()<SIZE_MAX/1024,"Protected marker bank exceeds admission");
  const auto charge=1024+markers.size()*1024;require(charge<=limits.maximumPayloadBytes,"Protected payload exceeds admission");lease_=ledger.reserve(charge);
- std::vector<WarpAnchor> input(markers.begin(),markers.end());ClipWarpMap original(region,input,ledger,limits);
  require(!markers.empty(),"Protected mode needs a user anchor");
  std::vector<WarpAnchor> derived;derived.reserve(markers.size()*3);spans_.reserve(markers.size());gaps_.reserve(markers.size()+1);
  SourcePosition previousSource{0,0,1},previousOutput{0,0,1};
@@ -41,7 +47,7 @@ ProtectedWarpPlan::ProtectedWarpPlan(ClipWarpRegion region,std::span<const WarpA
   const bool sourceEmpty=sourceEnd==previousSource,outputEmpty=outputEnd==previousOutput;
   require(sourceEmpty==outputEmpty,"Protected gap collapses only one domain");
   if(!sourceEmpty){
-   // Integer-only first renderer; exact planner still retains rational boundaries.
+   // All gap boundaries and minimum-span comparisons remain exact.
    const auto sourceDuration=difference(sourceEnd,previousSource),outputDuration=difference(outputEnd,previousOutput);
    const bool unity=sourceDuration==outputDuration;
    if(!unity)require(!sourcePositionLess(sourceDuration,{policy.minimumNonunityGap,0,1})&&!sourcePositionLess(outputDuration,{policy.minimumNonunityGap,0,1}),"Nonunity protected gap is too short");
@@ -50,17 +56,20 @@ ProtectedWarpPlan::ProtectedWarpPlan(ClipWarpRegion region,std::span<const WarpA
  };
  for(const auto &p:original.points())if(p.id){
   ProtectedWarpSpan span{*p.id,p.source,p.output,shifted(p.source,-policy.before),shifted(p.source,policy.after),shifted(p.output,-policy.before),shifted(p.output,policy.after)};
-  require(!sourcePositionLess({region.inputFrames,0,1},span.sourceEnd)&&!sourcePositionLess({region.outputFrames,0,1},span.outputEnd),"Protected span exceeds source/output extent");
+  require(!sourcePositionLess(region.inputExtent,span.sourceEnd)&&!sourcePositionLess(region.outputExtent,span.outputEnd),"Protected span exceeds source/output extent");
   gap(span.sourceBegin,span.outputBegin);
   for(const auto &[source,output]:{std::pair{span.sourceBegin,span.outputBegin},std::pair{span.sourceAnchor,span.outputAnchor},std::pair{span.sourceEnd,span.outputEnd}}){
-   if(source==SourcePosition{0,0,1}||source==SourcePosition{region.inputFrames,0,1})continue;
+   if(source==SourcePosition{0,0,1}||source==region.inputExtent)continue;
    if(!derived.empty()&&derived.back().source==source&&derived.back().output==output)continue;
    derived.push_back({scratchId(derived.size()),source,output});
   }
   spans_.push_back(span);previousSource=span.sourceEnd;previousOutput=span.outputEnd;
  }
- gap({region.inputFrames,0,1},{region.outputFrames,0,1});
- map_=std::make_unique<ClipWarpMap>(region,derived,ledger,limits);
+ gap(region.inputExtent,region.outputExtent);
+ // Preserve the constructor's domain identity; integer consumers cannot use
+ // exact geometry merely because a particular endpoint is integral.
+ if(original.hasLegacyRegion())map_=std::make_unique<ClipWarpMap>(original.region(),derived,ledger,limits);
+ else map_=std::make_unique<ClipWarpMap>(exactWarpDomain,region,derived,ledger,limits);
  // Scratch map UUIDs are evaluation-only. Persisted identity is owner+start/anchor/end role.
 }
 std::size_t warpPayloadBytes(const WarpSettings &w) {

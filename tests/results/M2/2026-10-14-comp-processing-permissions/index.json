@@ -1,0 +1,50 @@
+{
+  "checkpoint": 270,
+  "sourceHead": "247bdaa4b9c951f21b37d27464638bff530647d2",
+  "sourceTree": "40aeefeba4358fc9d185e305fda3fbbd802bec75",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-processing-permissions/build",
+    "--output-on-failure",
+    "--no-tests=error",
+    "-R",
+    "^(comp-transition-processing-permissions|comp-handle-explicit-blend|comp-handle-pcm-assembly)$"
+  ],
+  "pid": 3741695,
+  "exitCode": 0,
+  "seconds": 1.8310731570236385,
+  "sourceAndBinariesUnchanged": true,
+  "projectOutsidePcmBitExact": true,
+  "processingDomains": [
+    "physical-artifact",
+    "project-after-src"
+  ],
+  "actualRenderer": false,
+  "modelAdoptionChanged": false,
+  "qualityAdmission": false,
+  "nativeWindowsQualified": false,
+  "fullDawParity": false,
+  "archive": {
+    "bytes": 21562,
+    "sha256": "d0eb1172a10c7d01f94e5b3ce5a0ebd4e80130384d5046cae075b48ee138afab",
+    "entries": {
+      "LastTest.log": {
+        "bytes": 2528,
+        "sha256": "9c732ed53977fbe04060fa17ed125db4632f4abda864d00106795ee0733a15eb"
+      },
+      "qualification.json": {
+        "bytes": 48303,
+        "sha256": "daa70f350d9f88d7bfa48475593ca2529e62379150209eed31799ab7e5321c2c"
+      },
+      "tests.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tests.stdout": {
+        "bytes": 528,
+        "sha256": "457e50e223fc81173808c9424cd0dedb5075fefc4e56bff52b64c17939ee4bfe"
+      }
+    }
+  }
+}

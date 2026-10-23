@@ -8,7 +8,7 @@
 #include <memory>
 #include <optional>
 
-namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;}
+namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;class VerifiedCompAssemblyAdoption;class PreparedCompTransition;}
 namespace soundcurrent::daw::ui {
 enum class CommandKind {
     Create,
@@ -25,7 +25,10 @@ enum class CommandKind {
     Structural,
     HistoryLimits,
     SnapshotLimits,
-    MemoryLimits
+    MemoryLimits,
+    Autosave,
+    AcquireAutosaveInhibition,
+    ReleaseAutosaveInhibition
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -57,6 +60,8 @@ struct ProjectCommand {
     std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
     std::shared_ptr<const VerifiedNativeTake> nativeTake;
     std::shared_ptr<const VerifiedClipStretch> stretchResult; // Retains admitted result credit through queue/adoption.
+    std::shared_ptr<const VerifiedCompAssemblyAdoption> compAssemblyResult;
+    std::shared_ptr<const PreparedCompTransition> compPreparation;
     std::optional<StructuralGuard> structuralGuard;
     std::uint64_t structuralRequest=0;
     std::optional<RouteAddress> routeAddress;
@@ -76,10 +81,14 @@ struct ProjectCommand {
     std::uint64_t snapshotRequest = 0;
     std::optional<std::size_t> memoryBytes;
     std::uint64_t memoryRequest = 0;
+    // Caller tokens must increase across acquisitions, including project epochs.
+    std::uint64_t autosaveInhibitionToken = 0, autosaveInhibitionEpoch = 0;
+    // Recording preparation may close its current edit gesture atomically with inhibition.
+    bool commitGestureForAutosaveInhibition = false;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -90,10 +99,20 @@ struct HistoryPolicyCompletion {
     std::optional<ErrorCode> error;
     std::string diagnostic;
 };
+struct AutosaveInhibitionCompletion {
+    std::uint64_t token = 0, projectEpoch = 0;
+    bool acquisition = false;
+    std::optional<ErrorCode> error;
+};
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
+    // Nonzero acknowledges exclusive autosave inhibition; acquire refuses active I/O.
+    std::uint64_t autosaveInhibitionToken = 0;
+    // Separate success/refusal receipts survive unrelated errors and stale requests.
+    AutosaveInhibitionCompletion autosaveInhibitionCompleted, autosaveInhibitionRejected;
+    std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
     // One retained immutable receipt at the exact accepted-command prefix.
@@ -129,6 +148,10 @@ struct ControllerOptions {
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
     std::size_t memoryBytes = 1024 * 1024 * 1024;
+    // Trusted opt-in until recording policy/recovery UI is wired. Zero disables.
+    std::uint64_t autosaveIntervalMilliseconds = 0;
+    // Control-worker clock seam; production uses steady_clock. Never audio.
+    std::function<std::uint64_t()> autosaveNowMilliseconds;
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
 // to the control worker; blocking filesystem operations to a separate I/O worker.

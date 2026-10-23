@@ -1,0 +1,15 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 801718,
+  "sha256": "d829f6dbba25b14edcf2c46646a76ac5d5db3bd0fc7d2636f670a07ef34ac0f3",
+  "entries": 754,
+  "baseHead": "2fdeaf956f97eddba54c3fa61c4d86d16bcade3e",
+  "projectFilesUnchanged": 225,
+  "testCount": 4,
+  "testsPassed": true,
+  "generatedCorpusFiles": 1218,
+  "allGeneratedMediaPublished": false,
+  "nativeWindowsPerformanceQualified": false,
+  "sourcePatch": "source.patch",
+  "applicationBinariesIncluded": false
+}

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/clip_timing.hpp>
+#include <soundcurrent/stretch.hpp>
 #include <numeric>
 #include <limits>
 
@@ -63,6 +64,31 @@ SourcePosition SourceFrameMap::at(Frame offset) const {
     require(carry <= std::uint64_t(maximum-p.frame),"Source fraction carry overflow");
     p.frame+=Frame(carry);p.denominator=origin_.denominator;
     return p;
+}
+SourceFrameMap SourceFrameMap::processingGrid(SourcePosition origin,
+        SourcePosition span,Frame frames) {
+    require(frames>0 && frames<=1000000000,"Invalid processing grid frame count");
+    auto ratio=sourceIntervalRatio(span,{frames,0,1});
+    const auto divisor=std::gcd(ratio.numerator,ratio.denominator);
+    ratio.numerator/=divisor;ratio.denominator/=divisor;
+    require(ratio.numerator<=UINT32_MAX && ratio.denominator<=UINT32_MAX,
+            "Processing grid step exceeds exact representation");
+    require(ratio.numerator*192>=ratio.denominator &&
+            ratio.denominator*192>=ratio.numerator,
+            "Processing grid step exceeds positioned kernel range");
+    // Reuse origin validation/canonicalization, without expressing this grid as
+    // a clip playback speed or inventing a physical/project sample rate.
+    auto map=SourceFrameMap(48000,48000,origin);
+    map.numerator_=std::uint32_t(ratio.numerator);
+    map.denominator_=std::uint32_t(ratio.denominator);
+    const auto common=std::gcd(map.origin_.denominator,std::uint64_t(map.denominator_));
+    require(map.origin_.denominator/common<=UINT64_MAX/map.denominator_,
+            "Processing grid source denominator overflow");
+    const auto denominator=map.origin_.denominator/common*map.denominator_;
+    map.origin_.fraction*=denominator/map.origin_.denominator;
+    map.origin_.denominator=denominator;
+    (void)map.at(frames); // Refuse an unrepresentable exclusive endpoint upfront.
+    return map;
 }
 SourceFrameMap SourceFrameMap::advanced(Frame offset) const {
     auto next=*this;next.origin_=at(offset);return next;

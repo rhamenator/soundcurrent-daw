@@ -36,7 +36,9 @@ WaveDataExtent inspectApprovedWaveData(ApprovedMediaFile &, WaveValidationLimits
     const std::function<void()> &beforeRead = {});
 // Serialized control/I/O only. RIFF/RIFX/RF64 uncompressed PCM/IEEE float WAVE;
 // RF64 ds64 extents/tables are bounded and checked against pinned file bytes.
-// WAVEX with the same PCM/float subtype and full container precision.
+// WAVEX PCM permits positive valid precision up to container width, left-aligned
+// with zero low padding bits. Float requires full precision. bitsPerSample in
+// reports remains the container width; no report protocol/schema changes.
 // Other formats/precision/containers return UnsupportedSchema; they remain
 // required follow-up work, not silently interpreted as empty/missing audio.
 // Reads through the pinned object only. Third-party decoder allocations and

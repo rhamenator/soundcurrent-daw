@@ -1,0 +1,32 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 93341,
+  "sha256": "3b230d3513daece40863e97fd50cb4117b4e51b910a707b3f93df01a8fc6ddc3",
+  "entries": 38,
+  "sourceHead": "5c63f9ec0645e04d422cf0504e0c455ce80ba47e",
+  "sourceParent": "36013b79d713c86a1c10da4f765ec337573e0d57",
+  "sourceFiles": 19,
+  "releaseSuites": 9,
+  "sanitizerSuites": 6,
+  "asanUbsanLeakDetection": true,
+  "isolatedWorkerCases": 117,
+  "sourceChannelsTested": [
+    1,
+    2,
+    8,
+    257,
+    1024
+  ],
+  "croppedRenderedWindow": true,
+  "sourceFrames": 262144,
+  "cropFirst": 120001,
+  "cropFrames": 1000,
+  "denseSources": 72,
+  "densePeakReservedBytes": 183701472,
+  "windowWireVersion": 2,
+  "wholeSourceValidationStillRequired": true,
+  "nativeWindowsQualified": false,
+  "installedPreviewsChanged": false,
+  "physicalAudio": false,
+  "fullSuiteParity": false
+}

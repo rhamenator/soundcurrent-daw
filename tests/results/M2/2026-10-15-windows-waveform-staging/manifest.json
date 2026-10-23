@@ -1,0 +1,50 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 108147,
+  "sha256": "21c9c7ec1d8281d21af05f1a5028d8e87eaaaf27235eb87f0929db4fd9921023",
+  "entries": 11,
+  "baseHead": "5fd881838b9aed4f83ecc7bb08db07202dac8646",
+  "source": {
+    ".github/scripts/collect-windows-preview.ps1": {
+      "bytes": 6044,
+      "sha256": "9c94dc1e28eb498c2e8e55e1cb9b8ee7f8e7c220bafcd68d54053a2b8c741e0e"
+    },
+    "tools/windows_preview_bundle.py": {
+      "bytes": 11252,
+      "sha256": "d51e4d03701b99e952fae6758e79d0199aaf104f939b70b1c6839395d9ddd668"
+    },
+    "tests/windows_package_input_tests.py": {
+      "bytes": 19679,
+      "sha256": "4c30401da1c07ab2f6701ae09ee1be654575a09c9e5640a87e2ae77eae6b4016"
+    }
+  },
+  "originalRun": 38814953536,
+  "originalJob": 116697173990,
+  "originalHead": "79aa56dce456ca741702fd961fe01cfb8c699714",
+  "nativeDesktopTestsPassed": 26,
+  "nativeStagingRepairQualified": false,
+  "nativeChannelSelectionQualified": false,
+  "installedPreviewsChanged": false,
+  "originalPayloadAudit": {
+    "originalRun": 38814953536,
+    "job": 116697173990,
+    "artifact": 12009699688,
+    "auditError": "Unexpected or missing deployment file: missing=['sc-waveform-worker.exe']; unexpected=[]",
+    "sourceCommit": "79aa56dce456ca741702fd961fe01cfb8c699714"
+  },
+  "commands": [
+    [
+      "python3",
+      "tests/windows_package_input_tests.py"
+    ],
+    [
+      "ctest",
+      "--test-dir",
+      ".cache/take-preview-linux/build",
+      "-R",
+      "^(windows-package-inputs|protected-warp-package-inputs)$",
+      "--output-on-failure",
+      "-V"
+    ]
+  ]
+}
