@@ -1858,16 +1858,20 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Monitoring range is too large.</translation>
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation>Recording preparation could not pause autosave. Finish project operations and retry.</translation>
+    </message>
+    <message>
       <source>Recording controls are busy. Try again.</source>
       <translation>Recording controls are busy. Try again.</translation>
     </message>
     <message>
-      <source>Recording is closing.</source>
-      <translation>Recording is closing.</translation>
-    </message>
-    <message>
       <source>Recording settings are invalid.</source>
       <translation>Recording settings are invalid.</translation>
+    </message>
+    <message>
+      <source>Recording is closing.</source>
+      <translation>Recording is closing.</translation>
     </message>
     <message>
       <source>Recording settings exceed the control memory limit.</source>

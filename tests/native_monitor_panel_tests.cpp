@@ -46,6 +46,43 @@ struct PanelFixtureRoot {
     PanelFixtureRoot(){std::filesystem::create_directories(root);}
     ~PanelFixtureRoot(){if(std::uncaught_exceptions()){const auto path=root.generic_u8string();std::cerr<<"Retained native panel fixture ";std::cerr.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));std::cerr<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}
 };
+void guardedPanel(const std::filesystem::path &root,bool cancelImmediately) {
+    auto spy=std::make_shared<Spy>();auto prep=preparation(root,spy);
+    std::atomic<std::uint64_t> now{0},calls{0};std::atomic<bool> fail{false};
+    ControllerOptions options;options.autosaveIntervalMilliseconds=100;
+    options.autosaveNowMilliseconds=[&]{auto n=now.load();++calls;return n;};
+    options.beforeCommand=[&]{if(fail.exchange(false))throw std::runtime_error("Injected native guard refusal");};
+    ProjectController project(options);ProjectCommand open{CommandKind::Open};open.path=root;
+    check(project.submit(open)==Admission::Accepted,"Guard fixture Open refused");
+    await([&]{return project.snapshot()->session && project.snapshot()->io==IoOperation::None;});
+    std::atomic<unsigned> constructed{0};
+    NativeMonitorPanel panel({[&](const auto &){
+        check(project.snapshot()->autosaveInhibitionToken!=0,"Native endpoint constructed without autosave inhibition");
+        ++constructed;return std::make_unique<FakeStreams>(spy,48000,1,true);
+    }});std::uint64_t sequence=1;panel.bindAutosaveGuard(project,sequence);CloseOnExit close{panel};panel.show();
+    check(panel.setPreparation(prep),"Guard fixture preparation refused");
+    if(cancelImmediately) {
+        control<QPushButton>(panel,"nativePrepare")->click();panel.cancel();
+        await([&]{return !panel.busy();});
+        check(!constructed && !project.snapshot()->autosaveInhibitionToken,"Cancel during guard acquisition constructed native endpoint or leaked guard");
+        return;
+    }
+    fail=true;control<QPushButton>(panel,"nativePrepare")->click();
+    await([&]{return project.snapshot()->autosaveInhibitionRejected.acquisition && !panel.busy();});
+    check(!constructed,"Refused guard constructed endpoint");panel.poll();
+    control<QPushButton>(panel,"nativePrepare")->click();
+    await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});
+    auto v=project.snapshot();const auto &t=v->session->tracks.front();
+    ProjectCommand edit{CommandKind::Parameter};edit.address=ParameterAddress{t.id,t.eq.id,t.eq.bands.front().id,BandParameter::GainDb};edit.gesture=42;edit.value=6;
+    check(project.submit(edit)==Admission::Accepted,"Guard test edit refused");await([&]{return project.snapshot()->dirty;});
+    auto count=calls.load();await([&]{return calls.load()>count+2;});now=1000;count=calls.load();await([&]{return calls.load()>count+2;});
+    check(project.snapshot()->autosaveInhibitionToken && !std::filesystem::exists(root/"project.autosave.json"),"Autosave ran while native recording Ready");
+    panel.cancel();await([&]{return panel.snapshot()->hasOriginal();});
+    check(project.snapshot()->autosaveInhibitionToken && !std::filesystem::exists(root/"project.autosave.json"),"Canceled original lost autosave ownership before review");
+    panel.releaseOriginal();
+    await([&]{auto p=project.snapshot();return !panel.busy() && p->autosavedRevision==p->modelRevision && p->io==IoOperation::None;});
+    check(ProjectStore(root).loadAutosave()==*project.snapshot()->session && project.snapshot()->dirty,"Native cancel failed latest autosave/manual-save preservation");
+}
 void recoveredPanel(const std::filesystem::path &root) {
     auto session=makeOneTrackSession("Recovery – Ελληνικά","Raw");session.tracks.front().layout={LayoutKind::Mono,1};ProjectStore(root).save(session);
     NativeOriginalRecordingSpec declared;declared.raw.project=session.id;declared.raw.track=session.tracks.front().id;
@@ -231,6 +268,7 @@ void deviceSelection(const std::filesystem::path &root){
     mapping->setCurrentIndex(1);removed=true;
     QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->errorSerial>0;});
     check(factories==1 && !preparedStreams && !spy->captureActive,"Stale selected input reached prepared/active streams without fresh validation");panel->poll();
+    await([&]{return control<QPushButton>(*panel,"nativeRefreshDevices")->isEnabled();});
     QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==1;});
     check(input->currentIndex()==0 && output->currentIndex()==1 && !control<QPushButton>(*panel,"nativePrepare")->isEnabled(),"Removed input silently rerouted or lost unaffected output selection");
     removed=false;QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==2;});
@@ -374,7 +412,7 @@ void pipewirePanel(const std::filesystem::path &root){
     check(control<QPushButton>(panel,"nativeAddTake")->isEnabled(),"Verified PipeWire timeline admission control disabled");
     control<QLineEdit>(panel,"nativePlacement")->setText(QLocale().toString(qlonglong(211)));
     QTest::mouseClick(control<QPushButton>(panel,"nativeAddTake"),Qt::LeftButton);
-    await([&]{return window.snapshot()->session->assets.size()==1 && !panel.snapshot()->hasOriginal();});
+    await([&]{return window.snapshot()->session->assets.size()==1 && !panel.busy();});
     const auto placed=*window.snapshot()->session;check(placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==211,"Main-window Add lost evidence/explicit position");
     check(window.submitEdit(ProjectCommand{CommandKind::Save}),"PipeWire main-window Save refused");await([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
     ProjectStore(root).verifyMedia(placed);check(ProjectStore(root).load()==placed,"Main-window PipeWire project did not reopen");
@@ -396,4 +434,4 @@ void pipewirePanel(const std::filesystem::path &root){
 
 }
 int main(int argc,char **argv){QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);QApplication app(argc,argv);try{{PanelFixtureRoot recovered;recoveredPanel(recovered.root);}
-PanelFixtureRoot dir;const auto &root=dir.root;pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+PanelFixtureRoot dir;const auto &root=dir.root;guardedPanel(root/"guard-native",false);guardedPanel(root/"guard-cancel",true);pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

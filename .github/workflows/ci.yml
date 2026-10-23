@@ -29,7 +29,9 @@ jobs:
       matrix:
         shard: [0, 1, 2, 3, 4]
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # Dependency mirror downloads consumed 19 minutes in run39829226180;
+    # allow setup + compilation + the full shard without changing test deadlines.
+    timeout-minutes: 45
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
