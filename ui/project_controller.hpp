@@ -28,7 +28,8 @@ enum class CommandKind {
     MemoryLimits,
     Autosave,
     AcquireAutosaveInhibition,
-    ReleaseAutosaveInhibition
+    ReleaseAutosaveInhibition,
+    AutosavePolicy
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -85,6 +86,9 @@ struct ProjectCommand {
     std::uint64_t autosaveInhibitionToken = 0, autosaveInhibitionEpoch = 0;
     // Recording preparation may close its current edit gesture atomically with inhibition.
     bool commitGestureForAutosaveInhibition = false;
+    // Application policy only, never loaded from untrusted project metadata.
+    std::optional<std::uint64_t> autosaveIntervalMilliseconds;
+    std::uint64_t autosavePolicyRequest = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
@@ -112,6 +116,8 @@ struct ControllerSnapshot {
     std::uint64_t autosaveInhibitionToken = 0;
     // Separate success/refusal receipts survive unrelated errors and stale requests.
     AutosaveInhibitionCompletion autosaveInhibitionCompleted, autosaveInhibitionRejected;
+    std::uint64_t autosaveIntervalMilliseconds = 0;
+    HistoryPolicyCompletion autosavePolicyCompleted;
     std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;

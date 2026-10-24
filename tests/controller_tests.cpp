@@ -241,6 +241,48 @@ void autosaveInhibition(const std::filesystem::path &root) {
     c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
     check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
 }
+void autosavePolicy(const std::filesystem::path &root) {
+    std::atomic<std::uint64_t> now{0}, calls{0};
+    ControllerOptions options;
+    options.autosaveNowMilliseconds=[&]{++calls;return now.load();};
+    ProjectController c(options);auto initial=create(c,root);
+    check(c.snapshot()->autosaveIntervalMilliseconds==0,"Autosave policy default enabled");
+    auto policy=[&](std::uint64_t interval,std::uint64_t request) {
+        ProjectCommand command{CommandKind::AutosavePolicy};
+        command.autosaveIntervalMilliseconds=interval;command.autosavePolicyRequest=request;
+        submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.autosavePolicyCompleted.request==request;});
+    };
+    auto rejected=policy(999,1);
+    check(rejected->autosavePolicyCompleted.error==ErrorCode::InvalidParameter &&
+          rejected->autosaveIntervalMilliseconds==0,"Invalid autosave policy changed setting");
+    rejected=policy(86400001,2);
+    check(rejected->autosavePolicyCompleted.error.has_value(),"Unbounded autosave interval accepted");
+    submit(c,parameter(*initial,6,91));await(c,[](auto &v){return v.dirty;});
+    auto enabled=policy(1000,3);
+    check(!enabled->autosavePolicyCompleted.error && enabled->autosaveIntervalMilliseconds==1000 &&
+          enabled->savedRevision==initial->savedRevision,"Policy edit altered manual save state");
+    auto count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    now=1000;
+    auto saved=await(c,[](auto &v){return v.autosavedRevision==v.modelRevision && v.io==IoOperation::None;});
+    check(saved->dirty && ProjectStore(root).loadAutosave()==*saved->session &&
+          ProjectStore(root).load()==*initial->session,"Enabled policy did not preserve manual project");
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    auto disabled=policy(0,4);
+    check(disabled->autosaveIntervalMilliseconds==0 && disabled->autosaveInhibitionToken==1,
+          "Disable revoked recording autosave ownership");
+    submit(c,parameter(*saved,9,92));auto dirty=await(c,[&](auto &v){return v.modelRevision>saved->modelRevision;});
+    now=10000;
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    check(ProjectStore(root).loadAutosave()==*saved->session,"Disabled timer wrote a new snapshot");
+    policy(1000,5);count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    check(c.snapshot()->autosavedRevision==saved->autosavedRevision,"Re-enable used old overdue deadline");
+    now=11000;
+    auto latest=await(c,[&](auto &v){return v.autosavedRevision==dirty->modelRevision && v.io==IoOperation::None;});
+    check(ProjectStore(root).loadAutosave()==*latest->session && latest->dirty,"Re-enabled timer missed latest edits");
+}
 void autosaveInhibitionGesture(const std::filesystem::path &root) {
     ProjectController c;auto initial=create(c,root);
     submit(c,parameter(*initial,7,801,false));
@@ -1113,6 +1155,7 @@ int main(int argc, char **argv) {
         autosaveInhibitionDuringIo(root / "autosave-inhibition-io");
         autosaveInhibitionReceipts(root / "autosave-inhibition-receipts");
         autosaveInhibitionGesture(root / "autosave-inhibition-gesture");
+        autosavePolicy(root / "autosave-policy");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");
