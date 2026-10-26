@@ -4,6 +4,8 @@
 #include "studio_window.hpp"
 #include "fake_native_monitor_streams.hpp"
 #include <QApplication>
+#include <QAction>
+#include <QDialog>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QCheckBox>
@@ -432,6 +434,32 @@ void pipewirePanel(const std::filesystem::path &root){
     std::cout<<"pipewire_panel typed_prepare_record_inspect_export_reopen_close=true raw_original=true simulated_sdk=true timeline_admission_verified=true\n";
 }
 
+void autosaveSettings() {
+    StudioWindow window;window.show();
+    auto *action=window.findChild<QAction *>("autosaveSettingsAction");
+    check(action!=nullptr,"Autosave settings action missing");action->trigger();
+    auto *dialog=window.findChild<QDialog *>("autosaveSettingsDialog");
+    check(dialog!=nullptr,"Autosave settings dialog missing");
+    auto *seconds=dialog->findChild<QSpinBox *>("autosaveIntervalSeconds");
+    auto *apply=dialog->findChild<QPushButton *>("applyAutosaveSettings");
+    auto *status=dialog->findChild<QLabel *>("autosaveSettingsStatus");
+    check(seconds && apply && status && seconds->value()==0 && !apply->isEnabled(),"Autosave defaults not visible");
+    action->trigger();check(window.findChildren<QDialog *>("autosaveSettingsDialog").size()==1,"Duplicate settings dialog");
+    seconds->setValue(60);await([&]{return apply->isEnabled();});apply->click();
+    await([&]{return window.snapshot()->autosaveIntervalMilliseconds==60000 && seconds->isEnabled();});
+    check(!apply->isEnabled() && !status->text().isEmpty() && !window.snapshot()->session,
+          "Acknowledged settings changed project or remained pending");
+    seconds->setValue(120);dialog->close();QTest::qWait(25);
+    check(window.snapshot()->autosaveIntervalMilliseconds==60000,"Closing settings applied unaccepted interval");
+    action->trigger();dialog=window.findChild<QDialog *>("autosaveSettingsDialog");
+    check(dialog!=nullptr,"Settings did not reopen");
+    seconds=dialog->findChild<QSpinBox *>("autosaveIntervalSeconds");apply=dialog->findChild<QPushButton *>("applyAutosaveSettings");
+    check(seconds->value()==60,"Reopened settings lost acknowledged interval");
+    seconds->setValue(0);await([&]{return apply->isEnabled();});apply->click();
+    await([&]{return window.snapshot()->autosaveIntervalMilliseconds==0 && seconds->isEnabled();});
+    dialog->close();window.close();await([&]{return window.snapshot()->closed;});
+}
+
 }
 int main(int argc,char **argv){QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);QApplication app(argc,argv);try{{PanelFixtureRoot recovered;recoveredPanel(recovered.root);}
-PanelFixtureRoot dir;const auto &root=dir.root;guardedPanel(root/"guard-native",false);guardedPanel(root/"guard-cancel",true);pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+autosaveSettings();PanelFixtureRoot dir;const auto &root=dir.root;guardedPanel(root/"guard-native",false);guardedPanel(root/"guard-cancel",true);pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

@@ -2470,6 +2470,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Autosave settings…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>&amp;Edit</source>
       <translation type="unfinished" />
     </message>
@@ -2831,6 +2835,42 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Transition preparation could not start. Check Project resources and the installed render helper.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Autosave settings</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Off</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> seconds</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Autosave interval</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Autosave setting could not be applied. Retry after project operations finish.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Autosave setting applied.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Project command queue is busy. Retry the autosave setting.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Applying autosave setting…</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -3726,10 +3766,6 @@ The complete file was published with a warning: %1</source>
     </message>
     <message>
       <source> · Prepared monitoring: %1. Stop and prepare to use the saved mode.</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Off</source>
       <translation type="unfinished" />
     </message>
     <message>
