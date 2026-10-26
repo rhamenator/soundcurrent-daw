@@ -241,6 +241,39 @@ void autosaveInhibition(const std::filesystem::path &root) {
     c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
     check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
 }
+void autosaveReview(const std::filesystem::path &root) {
+    std::atomic<bool> guiIo{false};const auto gui=QThread::currentThreadId();
+    ControllerOptions options;options.beforeIo=[&]{if(QThread::currentThreadId()==gui)guiIo=true;};
+    ProjectController c(options);auto initial=create(c,root);
+    auto inspect=[&](std::uint64_t request) {
+        ProjectCommand command{CommandKind::InspectAutosave};command.autosaveReviewRequest=request;
+        submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.autosaveReviewCompleted.request==request && v.io==IoOperation::None;});
+    };
+    auto missing=inspect(1);
+    check(missing->autosaveReviewCompleted.error.has_value() && !missing->autosaveReview.session &&
+          missing->session==initial->session,"Missing snapshot review altered canonical state");
+    submit(c,parameter(*initial,6,91));auto edited=await(c,[](auto &v){return v.dirty;});
+    submit(c,{CommandKind::Autosave});await(c,[&](auto &v){return v.autosavedRevision==edited->modelRevision && v.io==IoOperation::None;});
+    submit(c,parameter(*edited,9,92));auto latest=await(c,[&](auto &v){return v.modelRevision>edited->modelRevision;});
+    auto reviewed=inspect(2);
+    check(!reviewed->autosaveReviewCompleted.error && reviewed->autosaveReview.session &&
+          *reviewed->autosaveReview.session==*edited->session && reviewed->session==latest->session &&
+          reviewed->autosaveReview.projectEpoch==initial->projectEpoch &&
+          reviewed->autosaveReview.modelRevision==latest->modelRevision &&
+          reviewed->savedRevision==initial->savedRevision && reviewed->dirty && !guiIo,
+          "Autosave review adopted snapshot or lost revision/off-GUI provenance");
+    check(ProjectStore(root).load()==*initial->session && ProjectStore(root).loadAutosave()==*edited->session,
+          "Review published over manual or recovery snapshot");
+    submit(c,parameter(*latest,12,93));auto newer=await(c,[&](auto &v){return v.modelRevision>latest->modelRevision;});
+    check(newer->autosaveReview.modelRevision!=newer->modelRevision &&
+          newer->autosaveReview.session==reviewed->autosaveReview.session,"Review lost immutable stale-revision evidence");
+    submit(c,{CommandKind::Save});await(c,[](auto &v){return !v.dirty && v.io==IoOperation::None;});
+    ProjectCommand open{CommandKind::Open};open.path=root;submit(c,std::move(open));
+    auto reopened=await(c,[&](auto &v){return v.projectEpoch>initial->projectEpoch;});
+    check(!reopened->autosaveReview.session && reviewed->autosaveReview.session,
+          "Project reopening retained review or invalidated external owned preview");
+}
 void autosavePolicy(const std::filesystem::path &root) {
     std::atomic<std::uint64_t> now{0}, calls{0};
     ControllerOptions options;
@@ -1156,6 +1189,7 @@ int main(int argc, char **argv) {
         autosaveInhibitionReceipts(root / "autosave-inhibition-receipts");
         autosaveInhibitionGesture(root / "autosave-inhibition-gesture");
         autosavePolicy(root / "autosave-policy");
+        autosaveReview(root / "autosave-review");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");

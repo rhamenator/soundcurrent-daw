@@ -61,6 +61,7 @@ struct IoJob {
     std::shared_ptr<const ManualRecordedGroup> retainedTake = nullptr;
     std::string takeName = {};
     std::shared_ptr<const LoopTakeRetention> retainedLoop = nullptr;
+    std::uint64_t autosaveReviewRequest = 0, projectEpoch = 0;
 };
 struct IoResult {
     IoJob job;
@@ -129,6 +130,12 @@ class IoWorker : public QThread {
                 if (next.operation == IoOperation::Open)
                     finished.loaded =
                         snapshots.adopt(store.load(), std::move(*next.loadReservation));
+                else if (next.operation == IoOperation::InspectAutosave) {
+                    auto reviewed = store.loadAutosave();
+                    if (closing.load(std::memory_order_acquire))
+                        throw ProjectError(ErrorCode::Canceled, "Autosave review canceled");
+                    finished.loaded = snapshots.adopt(std::move(reviewed), std::move(*next.loadReservation));
+                }
                 else if (next.operation == IoOperation::AttachRecording) {
                     admitReceipts(next.recordings, options.admission.state);
                     const auto canceled = [&] {
@@ -340,6 +347,19 @@ struct ProjectController::State : QThread {
     }
     void execute(ProjectCommand &command) {
         switch (command.kind) {
+        case CommandKind::InspectAutosave: {
+            requireModel();
+            if (!command.autosaveReviewRequest || view.io != IoOperation::None || activeGesture || view.autosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState, "Finish project operations before reviewing autosave");
+            IoJob job{IoOperation::InspectAutosave, view.root, view.session, view.modelRevision};
+            job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
+            job.autosaveReviewRequest = command.autosaveReviewRequest;
+            job.projectEpoch = view.projectEpoch;
+            io.startJob(std::move(job));
+            view.autosaveReview = {};
+            view.io = IoOperation::InspectAutosave;
+            break;
+        }
         case CommandKind::AutosavePolicy: {
             if (!command.autosaveIntervalMilliseconds || !command.autosavePolicyRequest)
                 throw ProjectError(ErrorCode::InvalidParameter, "Autosave policy request is missing");
@@ -728,6 +748,20 @@ struct ProjectController::State : QThread {
         if (correlated)
             view.attachmentCompleted = {result.job.attachmentRequest, result.error,
                                         result.diagnostic};
+        if (result.job.operation == IoOperation::InspectAutosave) {
+            view.autosaveReviewCompleted = {result.job.autosaveReviewRequest, result.error, result.diagnostic};
+            if (!result.error && result.loaded && result.job.projectEpoch == view.projectEpoch &&
+                result.job.root == view.root && model && result.loaded->id == model->id)
+                view.autosaveReview = {std::move(result.loaded), result.job.autosaveReviewRequest,
+                                      result.job.projectEpoch, result.job.revision};
+            else if (!result.error) {
+                result.error = ErrorCode::InvalidState;
+                result.diagnostic = "Autosave review belongs to a previous project";
+                view.autosaveReviewCompleted = {result.job.autosaveReviewRequest, result.error, result.diagnostic};
+            }
+            if (result.error) error(*result.error, std::move(result.diagnostic));
+            return;
+        }
         if (result.error) {
             error(*result.error, std::move(result.diagnostic));
             return;
@@ -814,6 +848,7 @@ struct ProjectController::State : QThread {
                 view.lastAttachedAsset.reset();
                 view.lastAttachedAssets.clear();
                 view.root = std::move(result.job.root);
+                view.autosaveReview = {};
                 view.autosavedRevision = 0;
                 ++view.projectEpoch;
                 revised();
@@ -885,6 +920,8 @@ struct ProjectController::State : QThread {
                         view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
                             command->autosaveInhibitionEpoch,
                             command->kind == CommandKind::AcquireAutosaveInhibition, e.code()};
+                    if (command->kind == CommandKind::InspectAutosave && command->autosaveReviewRequest)
+                        view.autosaveReviewCompleted = {command->autosaveReviewRequest, e.code(), e.what()};
                     if (command->kind == CommandKind::AutosavePolicy && command->autosavePolicyRequest)
                         view.autosavePolicyCompleted = {command->autosavePolicyRequest, e.code(), e.what()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
@@ -904,6 +941,8 @@ struct ProjectController::State : QThread {
                         view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
                             command->autosaveInhibitionEpoch,
                             command->kind == CommandKind::AcquireAutosaveInhibition, ErrorCode::InvalidState};
+                    if (command->kind == CommandKind::InspectAutosave && command->autosaveReviewRequest)
+                        view.autosaveReviewCompleted = {command->autosaveReviewRequest, ErrorCode::InvalidState, e.what()};
                     if (command->kind == CommandKind::AutosavePolicy && command->autosavePolicyRequest)
                         view.autosavePolicyCompleted = {command->autosavePolicyRequest, ErrorCode::InvalidState, e.what()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)

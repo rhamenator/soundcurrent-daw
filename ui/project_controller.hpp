@@ -29,7 +29,8 @@ enum class CommandKind {
     Autosave,
     AcquireAutosaveInhibition,
     ReleaseAutosaveInhibition,
-    AutosavePolicy
+    AutosavePolicy,
+    InspectAutosave
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -89,10 +90,11 @@ struct ProjectCommand {
     // Application policy only, never loaded from untrusted project metadata.
     std::optional<std::uint64_t> autosaveIntervalMilliseconds;
     std::uint64_t autosavePolicyRequest = 0;
+    std::uint64_t autosaveReviewRequest = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -108,6 +110,10 @@ struct AutosaveInhibitionCompletion {
     bool acquisition = false;
     std::optional<ErrorCode> error;
 };
+struct AutosaveReview {
+    std::shared_ptr<const Session> session;
+    std::uint64_t request = 0, projectEpoch = 0, modelRevision = 0;
+};
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
@@ -118,6 +124,8 @@ struct ControllerSnapshot {
     AutosaveInhibitionCompletion autosaveInhibitionCompleted, autosaveInhibitionRejected;
     std::uint64_t autosaveIntervalMilliseconds = 0;
     HistoryPolicyCompletion autosavePolicyCompleted;
+    HistoryPolicyCompletion autosaveReviewCompleted;
+    AutosaveReview autosaveReview;
     std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
