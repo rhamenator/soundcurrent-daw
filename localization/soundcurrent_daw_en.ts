@@ -2478,6 +2478,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Language and regional settings…</translation>
     </message>
     <message>
+      <source>Autosave settings…</source>
+      <translation>Autosave settings…</translation>
+    </message>
+    <message>
       <source>&amp;Edit</source>
       <translation>&amp;Edit</translation>
     </message>
@@ -2840,6 +2844,42 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Transition preparation could not start. Check Project resources and the installed render helper.</source>
       <translation>Transition preparation could not start. Check Project resources and the installed render helper.</translation>
+    </message>
+    <message>
+      <source>Autosave settings</source>
+      <translation>Autosave settings</translation>
+    </message>
+    <message>
+      <source>Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released.</source>
+      <translation>Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released.</translation>
+    </message>
+    <message>
+      <source>Off</source>
+      <translation>Off</translation>
+    </message>
+    <message>
+      <source> seconds</source>
+      <translation> seconds</translation>
+    </message>
+    <message>
+      <source>Autosave interval</source>
+      <translation>Autosave interval</translation>
+    </message>
+    <message>
+      <source>Autosave setting could not be applied. Retry after project operations finish.</source>
+      <translation>Autosave setting could not be applied. Retry after project operations finish.</translation>
+    </message>
+    <message>
+      <source>Autosave setting applied.</source>
+      <translation>Autosave setting applied.</translation>
+    </message>
+    <message>
+      <source>Project command queue is busy. Retry the autosave setting.</source>
+      <translation>Project command queue is busy. Retry the autosave setting.</translation>
+    </message>
+    <message>
+      <source>Applying autosave setting…</source>
+      <translation>Applying autosave setting…</translation>
     </message>
     <message>
       <source>The project was reopened or replaced. Rendering stopped; owned job files were retained.</source>
@@ -3742,10 +3782,6 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source> · Prepared monitoring: %1. Stop and prepare to use the saved mode.</source>
       <translation> · Prepared monitoring: %1. Stop and prepare to use the saved mode.</translation>
-    </message>
-    <message>
-      <source>Off</source>
-      <translation>Off</translation>
     </message>
     <message>
       <source>Auto during recording</source>

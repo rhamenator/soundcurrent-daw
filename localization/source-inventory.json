@@ -52,8 +52,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "c0708aa95866f08754577cc06e17838048f9501e64020e8f00440e9a9f1868c8",
-    "ui/studio_window.hpp": "39d01ae2ebe25e539dc3bc74a8cc4ced14e3dff11b67c1d9d9876862d8626592",
+    "ui/studio_window.cpp": "7d19c7ef2bbfbbcccdf14e73f2ce2cb46344b529c5d4ab41de0f4289a0888e0c",
+    "ui/studio_window.hpp": "ce26a2e3ca5cd8734ab9de129193e5d103c210c028a465c22ab1e80618b0963d",
     "ui/timeline_editor.cpp": "1164177bfe0a5d858cd9cd6150ec29905203851d0e2cac3a8358663df5464f6e",
     "ui/timeline_editor.hpp": "1fb4b04f14171b2bb5489b99fea063efe46a8b2348c0932cc7fb2f31f7d962a8",
     "ui/timeline_view.cpp": "d3df8afa145fc3cad88dce58ada53d83cbb2d9b7c0234d80dc94362240ca739f",
@@ -3686,6 +3686,12 @@
     ],
     [
       "StudioWindow",
+      "Autosave settings…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "&Edit",
       "",
       false
@@ -4227,6 +4233,60 @@
     [
       "StudioWindow",
       "Transition preparation could not start. Check Project resources and the installed render helper.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Autosave settings",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Off",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " seconds",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Autosave interval",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Autosave setting could not be applied. Retry after project operations finish.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Autosave setting applied.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project command queue is busy. Retry the autosave setting.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Applying autosave setting…",
       "",
       false
     ],
@@ -5559,12 +5619,6 @@
     [
       "StudioWindow",
       " · Prepared monitoring: %1. Stop and prepare to use the saved mode.",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "Off",
       "",
       false
     ],

@@ -168,6 +168,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         dialog->open();
     });
     languageAction->setObjectName(QStringLiteral("languageSettingsAction"));
+    auto *autosaveAction = settings->addAction(tr("Autosave settings…"), this, &StudioWindow::showAutosaveSettings);
+    autosaveAction->setObjectName("autosaveSettingsAction");
     auto *editMenu = menuBar()->addMenu(tr("&Edit"));
     undo_ = editMenu->addAction(tr("&Undo project edit"), QKeySequence::Undo, this, [this] {
         if (auto *focused = focusWidget())
@@ -831,6 +833,57 @@ void StudioWindow::cancelCompTransition() {
     if(!compRenderActive())return;
     compRenderCancel_=true;compPair_.requestCancel();compAssembly_.requestCancel();
 }
+void StudioWindow::showAutosaveSettings() {
+    if (autosaveSettingsDialog_) { autosaveSettingsDialog_->raise(); return; }
+    auto *dialog = new QDialog(this);
+    autosaveSettingsDialog_ = dialog;
+    dialog->setObjectName("autosaveSettingsDialog");
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Autosave settings"));
+    auto *layout = new QVBoxLayout(dialog);
+    auto *explanation = new QLabel(tr("Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released."));
+    explanation->setWordWrap(true); layout->addWidget(explanation);
+    auto *interval = new QSpinBox(dialog);
+    interval->setObjectName("autosaveIntervalSeconds");
+    interval->setRange(0, 86400); interval->setSpecialValueText(tr("Off"));
+    interval->setSuffix(tr(" seconds"));
+    interval->setAccessibleName(tr("Autosave interval"));
+    interval->setValue(int((controller_.snapshot()->autosaveIntervalMilliseconds + 999) / 1000));
+    layout->addWidget(interval);
+    auto *status = new QLabel(dialog); status->setObjectName("autosaveSettingsStatus");
+    status->setTextFormat(Qt::PlainText); status->setWordWrap(true); layout->addWidget(status);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Apply | QDialogButtonBox::Close, dialog);
+    auto *apply = buttons->button(QDialogButtonBox::Apply); apply->setObjectName("applyAutosaveSettings");
+    layout->addWidget(buttons);
+    struct Pending { std::uint64_t request = 0; };
+    auto pending = std::make_shared<Pending>();
+    auto *timer = new QTimer(dialog);
+    connect(timer, &QTimer::timeout, dialog, [this, pending, interval, status, apply] {
+        const auto current = controller_.snapshot();
+        if (pending->request && current->autosavePolicyCompleted.request == pending->request) {
+            status->setText(current->autosavePolicyCompleted.error ? tr("Autosave setting could not be applied. Retry after project operations finish.") : tr("Autosave setting applied."));
+            pending->request = 0;
+        }
+        interval->setEnabled(!pending->request && !current->closing);
+        apply->setEnabled(!pending->request && !current->closing &&
+            std::uint64_t(interval->value()) * 1000 != current->autosaveIntervalMilliseconds);
+    });
+    connect(apply, &QPushButton::clicked, dialog, [this, pending, interval, status, apply] {
+        if (pending->request || nextGesture_ == std::numeric_limits<std::uint64_t>::max()) return;
+        ProjectCommand command{CommandKind::AutosavePolicy};
+        command.autosaveIntervalMilliseconds = std::uint64_t(interval->value()) * 1000;
+        command.autosavePolicyRequest = nextGesture_++;
+        const auto request = command.autosavePolicyRequest;
+        if (controller_.submit(std::move(command)) != Admission::Accepted) {
+            status->setText(tr("Project command queue is busy. Retry the autosave setting.")); return;
+        }
+        pending->request = request; interval->setEnabled(false); apply->setEnabled(false);
+        status->setText(tr("Applying autosave setting…"));
+    });
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    apply->setEnabled(false); timer->start(20); dialog->show();
+}
+
 void StudioWindow::pollCompRender(const std::shared_ptr<const ControllerSnapshot> &owner) {
     if(!compRenderActive())return;
     compRenderElapsedMs_=compRenderClock_.elapsed();
