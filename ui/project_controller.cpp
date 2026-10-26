@@ -237,6 +237,7 @@ struct ProjectController::State : QThread {
                     options.admission.state),
           io(std::move(options), snapshots, closing) {
         validateHistoryBudget(historyBudget);
+        view.autosaveIntervalMilliseconds = io.options.autosaveIntervalMilliseconds;
         view.historyBudget = historyBudget;
         view.snapshotResources = snapshots.usage();
         view.memoryResources = memory.usage();
@@ -339,6 +340,21 @@ struct ProjectController::State : QThread {
     }
     void execute(ProjectCommand &command) {
         switch (command.kind) {
+        case CommandKind::AutosavePolicy: {
+            if (!command.autosaveIntervalMilliseconds || !command.autosavePolicyRequest)
+                throw ProjectError(ErrorCode::InvalidParameter, "Autosave policy request is missing");
+            const auto interval = *command.autosaveIntervalMilliseconds;
+            if (interval && (interval < 1000 || interval > 86400000))
+                throw ProjectError(ErrorCode::InvalidParameter, "Autosave interval must be zero or between one second and one day");
+            // A policy edit neither commits gestures nor revokes recording ownership.
+            // In-flight immutable writes finish normally; disable prevents new work.
+            if (interval != view.autosaveIntervalMilliseconds) {
+                view.autosaveIntervalMilliseconds = interval;
+                autosaveSchedule = AutosaveSchedule{};
+            }
+            view.autosavePolicyCompleted = {command.autosavePolicyRequest, {}, {}};
+            break;
+        }
         case CommandKind::MemoryLimits:
             if (!command.memoryBytes || !command.memoryRequest)
                 throw ProjectError(ErrorCode::InvalidParameter,
@@ -811,7 +827,7 @@ struct ProjectController::State : QThread {
         }
     }
     void scheduleAutosave() {
-        const auto interval = io.options.autosaveIntervalMilliseconds;
+        const auto interval = view.autosaveIntervalMilliseconds;
         if (!interval || closing.load(std::memory_order_acquire)) return;
         {
             QMutexLocker lock(&mutex);
@@ -869,6 +885,8 @@ struct ProjectController::State : QThread {
                         view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
                             command->autosaveInhibitionEpoch,
                             command->kind == CommandKind::AcquireAutosaveInhibition, e.code()};
+                    if (command->kind == CommandKind::AutosavePolicy && command->autosavePolicyRequest)
+                        view.autosavePolicyCompleted = {command->autosavePolicyRequest, e.code(), e.what()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
                         view.structuralRejected={command->structuralRequest,e.code(),e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
@@ -886,6 +904,8 @@ struct ProjectController::State : QThread {
                         view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
                             command->autosaveInhibitionEpoch,
                             command->kind == CommandKind::AcquireAutosaveInhibition, ErrorCode::InvalidState};
+                    if (command->kind == CommandKind::AutosavePolicy && command->autosavePolicyRequest)
+                        view.autosavePolicyCompleted = {command->autosavePolicyRequest, ErrorCode::InvalidState, e.what()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
                         view.structuralRejected={command->structuralRequest,ErrorCode::InvalidState,e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
