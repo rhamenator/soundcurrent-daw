@@ -30,7 +30,8 @@ enum class CommandKind {
     AcquireAutosaveInhibition,
     ReleaseAutosaveInhibition,
     AutosavePolicy,
-    InspectAutosave
+    InspectAutosave,
+    RestoreAutosave
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -90,11 +91,11 @@ struct ProjectCommand {
     // Application policy only, never loaded from untrusted project metadata.
     std::optional<std::uint64_t> autosaveIntervalMilliseconds;
     std::uint64_t autosavePolicyRequest = 0;
-    std::uint64_t autosaveReviewRequest = 0;
+    std::uint64_t autosaveReviewRequest = 0, autosaveRestoreRequest = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -124,7 +125,7 @@ struct ControllerSnapshot {
     AutosaveInhibitionCompletion autosaveInhibitionCompleted, autosaveInhibitionRejected;
     std::uint64_t autosaveIntervalMilliseconds = 0;
     HistoryPolicyCompletion autosavePolicyCompleted;
-    HistoryPolicyCompletion autosaveReviewCompleted;
+    HistoryPolicyCompletion autosaveReviewCompleted, autosaveRestoreCompleted;
     AutosaveReview autosaveReview;
     std::uint64_t autosavedRevision = 0; // Successful autosave only; never marks clean.
     std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
