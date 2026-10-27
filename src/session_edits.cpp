@@ -823,7 +823,9 @@ std::size_t EditHistory::weight(const Change &change) {
     std::visit(
         [&](const auto &c) {
             using C = std::decay_t<decltype(c)>;
-            if constexpr (std::is_same_v<C, StructureChange>) {
+            if constexpr (std::is_same_v<C, RecoveryChange>) {
+                charge.add(c.payloadBytes);
+            } else if constexpr (std::is_same_v<C, StructureChange>) {
                 charge.add(c.tracks.capacity(), sizeof(ObjectChange<Track>));
                 charge.add(c.assets.capacity(), sizeof(ObjectChange<Asset>));
                 for (const auto &p : c.tracks) {
@@ -943,6 +945,23 @@ std::size_t EditHistory::checkAdopt(const Session &value) const {
         return 0;
     return checkCandidate(difference(value), value);
 }
+std::size_t EditHistory::checkRestore(const Session &value) const {
+    validate(value, budget_);
+    require(value.id == session_.id, "Recovery cannot replace project identity");
+    if (value == session_) return 0;
+    PayloadCharge bytes("Recovery Undo payload", historyBudget_.operationBytes);
+    bytes.add(sessionPayloadBytes(session_, budget_));bytes.add(sessionPayloadBytes(value, budget_));
+    return checkCandidate(RecoveryChange{{}, {}, bytes.bytes()}, value);
+}
+bool EditHistory::restore(const Session &value) {
+    require(!active_, "Finish the parameter gesture before recovery");
+    checkRestore(value);
+    if (value == session_) return false;
+    PayloadCharge bytes("Recovery Undo payload", historyBudget_.operationBytes);
+    bytes.add(sessionPayloadBytes(session_, budget_));bytes.add(sessionPayloadBytes(value, budget_));
+    RecoveryChange change{std::make_shared<const Session>(session_), std::make_shared<const Session>(value), bytes.bytes()};
+    auto next=value;retain(std::move(change), next);session_=std::move(next);return true;
+}
 void EditHistory::acceptPreflight(std::size_t declaredBytes) noexcept {
     operationPeakBytes_ = std::max(operationPeakBytes_, declaredBytes);
 }
@@ -1034,7 +1053,10 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
     std::visit(
         [&](const auto &c) {
             using C = std::decay_t<decltype(c)>;
-            if constexpr (std::is_same_v<C, ParameterChange>)
+            if constexpr (std::is_same_v<C, RecoveryChange>) {
+                require(next == *(forward ? c.before : c.after), "Recovery Undo conflicts with current state");
+                next = *(forward ? c.after : c.before);
+            } else if constexpr (std::is_same_v<C, ParameterChange>)
                 setParameterValue(next, c.address, forward ? c.after : c.before);
             else if constexpr (std::is_same_v<C, RouteChange>)
                 setRouteValue(next, c.address, forward ? c.after : c.before, budget_);

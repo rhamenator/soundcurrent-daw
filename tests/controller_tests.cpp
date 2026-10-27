@@ -241,6 +241,22 @@ void autosaveInhibition(const std::filesystem::path &root) {
     c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
     check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
 }
+void recoveryHistory() {
+    auto original=makeOneTrackSession("Manual", "Track");auto current=original;
+    auto snapshot=original;snapshot.name="Recovered";snapshot.playheadFrame=10;
+    EditHistory history(current);
+    bool refused=false;try{history.checkAdopt(snapshot);}catch(const ProjectError &){refused=true;}
+    check(refused && current==original,"Structural adoption allowed recovery preference replacement");
+    check(history.checkRestore(snapshot)>0 && history.restore(snapshot) && current==snapshot,"Explicit recovery lost preferences");
+    check(history.undo() && current==original && history.redo() && current==snapshot,"Recovery Undo/Redo lost complete state");
+    auto foreign=snapshot;foreign.id=Id::generate();refused=false;
+    try{history.restore(foreign);}catch(const ProjectError &){refused=true;}
+    check(refused && current==snapshot,"Recovery replaced project identity");
+    auto limited=original;HistoryBudget budget;budget.retainedBytes=1;
+    EditHistory small(limited,{},budget);refused=false;
+    try{small.restore(snapshot);}catch(const ProjectError &){refused=true;}
+    check(refused && limited==original,"Recovery exceeded history budget or mutated on refusal");
+}
 void autosaveReview(const std::filesystem::path &root) {
     std::atomic<bool> guiIo{false};const auto gui=QThread::currentThreadId();
     ControllerOptions options;options.beforeIo=[&]{if(QThread::currentThreadId()==gui)guiIo=true;};
@@ -1215,6 +1231,7 @@ int main(int argc, char **argv) {
         autosaveInhibitionReceipts(root / "autosave-inhibition-receipts");
         autosaveInhibitionGesture(root / "autosave-inhibition-gesture");
         autosavePolicy(root / "autosave-policy");
+        recoveryHistory();
         autosaveReview(root / "autosave-review");
         closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
