@@ -855,15 +855,15 @@ void StudioWindow::showAutosaveRecovery() {
     restore->setEnabled(false);layout->addWidget(buttons);
     struct ReviewState { std::uint64_t inspecting=0, restoring=0, review=0, epoch=0, revision=0; };
     auto state = std::make_shared<ReviewState>();
-    connect(inspect, &QPushButton::clicked, dialog, [this,state,preview,status,restore] {
+    connect(inspect, &QPushButton::clicked, dialog, [this,state,preview,status,inspect,restore] {
         if (state->inspecting || state->restoring || !stretchCanRender() || nextGesture_==std::numeric_limits<std::uint64_t>::max()) return;
         ProjectCommand command{CommandKind::InspectAutosave};command.autosaveReviewRequest=nextGesture_++;
         const auto request=command.autosaveReviewRequest;
         if (!submitEdit(std::move(command))) {status->setText(tr("Project is busy. Retry snapshot inspection."));return;}
-        state->inspecting=request;state->review=0;restore->setEnabled(false);
+        state->inspecting=request;state->review=0;inspect->setEnabled(false);restore->setEnabled(false);
         preview->clear();status->setText(tr("Validating snapshot and media…"));
     });
-    connect(restore, &QPushButton::clicked, dialog, [this,state,status,restore] {
+    connect(restore, &QPushButton::clicked, dialog, [this,state,status,inspect,restore] {
         const auto current=controller_.snapshot();
         if (state->inspecting || state->restoring || !state->review || !stretchCanRender() ||
             current->projectEpoch!=state->epoch || current->modelRevision!=state->revision ||
@@ -871,7 +871,7 @@ void StudioWindow::showAutosaveRecovery() {
         ProjectCommand command{CommandKind::RestoreAutosave};command.autosaveReviewRequest=state->review;
         command.autosaveRestoreRequest=nextGesture_++;const auto request=command.autosaveRestoreRequest;
         if (!submitEdit(std::move(command))) {status->setText(tr("Project is busy. Retry restoration."));return;}
-        state->restoring=request;autosaveRestorePending_=request;restore->setEnabled(false);
+        state->restoring=request;autosaveRestorePending_=request;inspect->setEnabled(false);restore->setEnabled(false);
         status->setText(tr("Revalidating and restoring the reviewed snapshot…"));
     });
     auto *timer=new QTimer(dialog);
