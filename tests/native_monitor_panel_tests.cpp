@@ -460,7 +460,16 @@ void autosaveRecovery(const std::filesystem::path &root) {
     const auto before=window.snapshot()->session;
     check(preview->text().isEmpty(),"Stale review preview remained actionable");
     await([&]{return inspect->isEnabled();});inspect->click();await([&]{return restore->isEnabled();});
-    restore->click();await([&]{return window.snapshot()->session->name==recovered.name && !window.snapshot()->autosaveReview.session;});
+    const auto errorsBeforeRestore=window.snapshot()->errorSerial;
+    restore->click();
+    std::cout<<"autosave_restore_click status="<<status->text().toStdString()
+             <<" review="<<window.snapshot()->autosaveReview.request
+             <<" epoch="<<window.snapshot()->projectEpoch<<" revision="<<window.snapshot()->modelRevision<<std::endl;
+    await([&]{const auto current=window.snapshot();
+        if(current->errorSerial>errorsBeforeRestore)
+            throw std::runtime_error("Visible autosave restore refused: "+current->diagnostic+"; UI: "+status->text().toStdString());
+        return current->session->name==recovered.name && !current->autosaveReview.session;
+    });
     check(window.snapshot()->dirty && ProjectStore(root).load()==saved && ProjectStore(root).loadAutosave()==recovered,
           "Visible restore overwrote saved/recovery manifest or marked saved");
     await([&]{return inspect->isEnabled();});
