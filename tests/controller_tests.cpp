@@ -268,6 +268,32 @@ void autosaveReview(const std::filesystem::path &root) {
     submit(c,parameter(*latest,12,93));auto newer=await(c,[&](auto &v){return v.modelRevision>latest->modelRevision;});
     check(newer->autosaveReview.modelRevision!=newer->modelRevision &&
           newer->autosaveReview.session==reviewed->autosaveReview.session,"Review lost immutable stale-revision evidence");
+    auto restore=[&](std::uint64_t review,std::uint64_t request) {
+        ProjectCommand command{CommandKind::RestoreAutosave};
+        command.autosaveReviewRequest=review;command.autosaveRestoreRequest=request;
+        submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.autosaveRestoreCompleted.request==request && v.io==IoOperation::None;});
+    };
+    auto stale=restore(2,1);
+    check(stale->autosaveRestoreCompleted.error.has_value() && stale->session==newer->session,
+          "Stale model review was adopted");
+    inspect(3);ProjectStore(root).saveAutosave(*initial->session);
+    auto changed=restore(3,2);
+    check(changed->autosaveRestoreCompleted.error.has_value() && changed->session==newer->session,
+          "Changed disk snapshot bypassed explicit review");
+    ProjectStore(root).saveAutosave(*edited->session);inspect(4);
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    check(restore(4,3)->autosaveRestoreCompleted.error.has_value(),"Restore revoked recording guard");
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    auto restored=restore(4,4);
+    check(!restored->autosaveRestoreCompleted.error && *restored->session==*edited->session &&
+          restored->savedRevision==initial->savedRevision && restored->dirty && !restored->autosaveReview.session &&
+          ProjectStore(root).load()==*initial->session && ProjectStore(root).loadAutosave()==*edited->session,
+          "Explicit restore changed manual file/save state or failed to consume review");
+    submit(c,{CommandKind::Undo});await(c,[&](auto &v){return *v.session==*newer->session;});
+    inspect(5); // Reopening must retire this new review as well.
     submit(c,{CommandKind::Save});await(c,[](auto &v){return !v.dirty && v.io==IoOperation::None;});
     ProjectCommand open{CommandKind::Open};open.path=root;submit(c,std::move(open));
     auto reopened=await(c,[&](auto &v){return v.projectEpoch>initial->projectEpoch;});
