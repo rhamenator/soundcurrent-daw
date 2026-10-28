@@ -5,6 +5,7 @@
 #include "../src/native_poll_wait.hpp"
 #include "rt_audit.hpp"
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <cmath>
 #include <thread>
@@ -21,6 +22,23 @@ struct Spy {
     std::atomic<std::uint64_t> sdkRawPackets{0};
     std::atomic<std::uint64_t> maximumCycleWorkNs{0},maximumCycleNs{0},maximumPaceWaitNs{0};
     std::atomic<std::uint64_t> writtenPackets{0}, qpc{100000000}, callbackCalls{0};
+    // Test-only disk/control observations. Inter-boundary time includes any
+    // descheduling; it is not a measurement of disk device latency.
+    std::atomic<std::uint32_t> diskBoundary{0}; // enum ID + 1; zero means unseen.
+    std::atomic<std::uint64_t> diskBoundarySinceNs{0};
+    std::array<std::atomic<std::uint64_t>,10> diskBoundaryMaximumNs{};
+    void observeDiskBoundary(OriginalRecordingBoundary b) {
+        const auto now=std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count());
+        const auto previous=diskBoundary.load(std::memory_order_relaxed);
+        const auto since=diskBoundarySinceNs.load(std::memory_order_relaxed);
+        if(previous && now>=since) {
+            auto &maximum=diskBoundaryMaximumNs.at(previous-1);
+            maximum.store(std::max(maximum.load(std::memory_order_relaxed),now-since),std::memory_order_release);
+        }
+        diskBoundarySinceNs.store(now,std::memory_order_release);
+        diskBoundary.store(unsigned(b)+1,std::memory_order_release);
+    }
     std::atomic<std::uint32_t> captureActive{0}, captureStop{0}, renderStop{0}, captureJoined{0}, renderJoined{0};
     std::atomic<std::uint32_t> tailCaptureStopPending{0}, tailCaptureStopServiced{0};
     std::atomic<std::uint64_t> tailAvailableFrames{0};

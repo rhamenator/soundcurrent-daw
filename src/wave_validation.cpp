@@ -6,6 +6,7 @@
 #include <cmath>
 #include <climits>
 #include <cstdio>
+#include <cstring>
 #include <exception>
 #include <limits>
 #include <vector>
@@ -87,18 +88,31 @@ sf_count_t write(const void *,sf_count_t,void *raw) noexcept {
         throw ProjectError(ErrorCode::InvalidState,"Read-only approved media decoder attempted writing");
     });
 }
-std::uint64_t integer(std::span<const char> bytes,bool bigEndian) {
+std::uint64_t integer(const char *bytes,std::size_t size,bool bigEndian) {
+    // Callers have admitted the complete byte extent. memcpy permits unaligned
+    // sample/chunk positions without aliasing typed objects over input storage.
+    // Use native loads only when their byte order matches the container.
+    if ((std::endian::native==std::endian::little && !bigEndian) ||
+        (std::endian::native==std::endian::big && bigEndian)) {
+        if(size==4){std::uint32_t value;std::memcpy(&value,bytes,4);return value;}
+        if(size==8){std::uint64_t value;std::memcpy(&value,bytes,8);return value;}
+        if(size==2){std::uint16_t value;std::memcpy(&value,bytes,2);return value;}
+    }
     std::uint64_t result=0;
-    for (std::size_t i=0;i<bytes.size();++i) {
-        const auto index=bigEndian ? i : bytes.size()-1-i;
+    for (std::size_t i=0;i<size;++i) {
+        const auto index=bigEndian ? i : size-1-i;
         result=(result<<8)|static_cast<unsigned char>(bytes[index]);
     }
     return result;
+}
+std::uint64_t integer(std::span<const char> bytes,bool bigEndian) {
+    return integer(bytes.data(),bytes.size(),bigEndian);
 }
 struct Header {
     WaveValidation result;
     std::uint64_t dataBytes=0,dataOffset=0;
     int subtype=0;
+    unsigned validBits=0;
     bool rf64=false;
 };
 Header inspect(Io &io, bool prefixContainer = false) {
@@ -158,12 +172,14 @@ Header inspect(Io &io, bool prefixContainer = false) {
             auto format=value(0,2);h.result.channels=static_cast<std::uint32_t>(value(2,2));
             h.result.rate=static_cast<std::uint32_t>(value(4,4));blockAlign=static_cast<std::uint16_t>(value(12,2));
             h.result.bitsPerSample=static_cast<std::uint32_t>(value(14,2));
+            h.validBits=h.result.bitsPerSample;
             require(h.result.channels>0 && h.result.rate>0 && h.result.rate<=static_cast<std::uint32_t>(INT_MAX),"Invalid wave rate/channel count");
             require(h.result.channels<=io.limits.maximumChannels && h.result.channels<=1024,"Wave channel admission limit exceeded",ErrorCode::ResourceLimit);
             if (format==0xfffe) {
                 require(!h.result.bigEndian,"Big-endian extensible WAVE not yet supported",ErrorCode::UnsupportedSchema);
                 require(length>=40 && value(16,2)>=22 && value(16,2)<=length-18,"Invalid extensible WAVE format");
-                require(value(18,2)==h.result.bitsPerSample,"Partial-precision extensible WAVE not yet supported",ErrorCode::UnsupportedSchema);
+                h.validBits=static_cast<unsigned>(value(18,2));
+                require(h.validBits>0 && h.validBits<=h.result.bitsPerSample,"Invalid extensible WAVE precision",ErrorCode::UnsupportedSchema);
                 // Original subtype GUID, not vendor code or a path to a codec.
                 constexpr std::array<unsigned char,12> suffix{0,0,0x10,0,0x80,0,0,0xaa,0,0x38,0x9b,0x71};
                 for (std::size_t i=0;i<suffix.size();++i)
@@ -179,6 +195,7 @@ Header inspect(Io &io, bool prefixContainer = false) {
                 else if (bits==32) {h.result.encoding=WaveEncoding::Signed32;h.subtype=SF_FORMAT_PCM_32;}
                 else require(false,"PCM precision not yet supported",ErrorCode::UnsupportedSchema);
             } else if (format==3 && (bits==32 || bits==64)) {
+                require(h.validBits==bits,"Partial-precision float WAVE not supported",ErrorCode::UnsupportedSchema);
                 h.result.encoding=bits==32 ? WaveEncoding::Float32 : WaveEncoding::Float64;
                 h.subtype=bits==32 ? SF_FORMAT_FLOAT : SF_FORMAT_DOUBLE;
             } else require(false,"Wave codec not yet supported",ErrorCode::UnsupportedSchema);
@@ -232,13 +249,15 @@ WaveValidation validateApprovedWave(ApprovedMediaFile &file,WaveValidationLimits
     auto header=inspect(io);auto result=header.result;
     const auto samples=std::size_t(limits.blockFrames)*result.channels;
     auto blockWork=file.resourceLedger().reserve(samples*sizeof(double));std::vector<double> buffer(samples);
-    if(header.rf64) {
+    if(header.rf64 || header.validBits<result.bitsPerSample) {
+        // Padded PCM and RF64 use the same validated container normalization.
         // RF64 chunk extents are already independently validated. Decode the
         // admitted PCM/IEEE bytes directly: libsndfile 1.2.2 mishandles odd
         // ancillary RF64 chunks. No altered header or source file is exposed.
         const auto width=result.bitsPerSample/8;
         const auto rawBytes=samples*width;
         auto rawGrant=file.resourceLedger().reserve(rawBytes);std::vector<char> raw(rawBytes);
+        const auto *rawData=raw.data();auto *decoded=buffer.data();
         while(result.decodedFrames<result.frames) {
             io.poll();const auto frames=std::min<std::uint64_t>(limits.blockFrames,result.frames-result.decodedFrames);
             const auto count=std::size_t(frames)*result.channels;
@@ -246,8 +265,13 @@ WaveValidation validateApprovedWave(ApprovedMediaFile &file,WaveValidationLimits
             for(std::size_t at=0;at<size;) {
                 const auto n=std::min<std::size_t>(65536,size-at);io.read(offset+at,{raw.data()+at,n});at+=n;
             }
+            // frames <= blockFrames and width comes from the validated format;
+            // count * width fits the admitted raw slab and count fits buffer.
             for(std::size_t i=0;i<count;++i) {
-                const auto value=integer({raw.data()+i*width,width},false);double sample;
+                const auto value=integer(rawData+i*width,width,false);double sample;
+                const auto padding=result.bitsPerSample-header.validBits;
+                require(!padding || (value & ((std::uint64_t(1)<<padding)-1))==0,
+                        "Nonzero padding in extensible PCM sample");
                 if(result.encoding==WaveEncoding::Float32) sample=double(std::bit_cast<float>(std::uint32_t(value)));
                 else if(result.encoding==WaveEncoding::Float64) sample=std::bit_cast<double>(value);
                 else if(result.encoding==WaveEncoding::Unsigned8) sample=(double(value)-128)/128;
@@ -256,7 +280,7 @@ WaveValidation validateApprovedWave(ApprovedMediaFile &file,WaveValidationLimits
                     const auto signedValue=value<sign?std::int64_t(value):std::int64_t(value)-std::int64_t(sign*2);
                     sample=double(signedValue)/std::ldexp(1.0,int(result.bitsPerSample)-1);
                 }
-                require(std::isfinite(sample),"Nonfinite RF64 sample");buffer[i]=sample;result.peak=std::max(result.peak,std::abs(sample));
+                require(std::isfinite(sample),"Nonfinite RF64 sample");decoded[i]=sample;result.peak=std::max(result.peak,std::abs(sample));
             }
             if(observer) observer(result.decodedFrames,{buffer.data(),count});
             result.decodedFrames+=frames;

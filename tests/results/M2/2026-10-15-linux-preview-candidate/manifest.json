@@ -1,0 +1,21 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 3386815,
+  "sha256": "e7704cadd06489fabd322b0c27f404034078076037be25a5b32ee63496b33aa6",
+  "entries": 1588,
+  "sourceHead": "b5dc2568dbf0e1e623dbaa7d42dcd38fd1eed3ab",
+  "linuxTests": 27,
+  "linuxTestsPassed": true,
+  "sourceArchiveFiles": 8079,
+  "sourceArchiveVerified": true,
+  "originalCi": 38773460845,
+  "originalCiHead": "8c2e4474111c16a66ef16a85abb2211c8cebaca0",
+  "originalCiJobs": 14,
+  "originalCiArtifacts": 12,
+  "originalCiConclusion": "success",
+  "originalCiArchivesLocalOnly": true,
+  "generatedWorkflowFiles": 2099,
+  "allGeneratedMediaPublished": false,
+  "binariesIncluded": false,
+  "installedPreviewUpdated": false
+}

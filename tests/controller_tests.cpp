@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include "autosave_schedule.hpp"
 #include <QCoreApplication>
 #include <QMutex>
 #include <QTemporaryDir>
@@ -171,6 +172,310 @@ void saveWhileEditing(const std::filesystem::path &root) {
     submit(controller, {CommandKind::Undo});
     auto undone = await(controller, [](auto &v) { return v.completedCommands == 5; });
     check(!undone->dirty, "Undo to saved content remained dirty");
+}
+void autosaveScheduling(const std::filesystem::path &root) {
+    AutosaveSchedule schedule;
+    check(!schedule.due(0,100,1,true,true,2,0),"Scheduler skipped initial interval");
+    check(!schedule.due(99,100,1,true,true,2,0),"Scheduler ran early");
+    check(!schedule.due(100,100,1,false,true,2,0),"Busy scheduler ran");
+    check(schedule.due(150,100,1,true,true,9,0),"Scheduler lost latest eligible revision");
+    check(!schedule.due(249,100,1,true,true,10,0),"Failure retry skipped interval");
+    check(schedule.due(250,100,1,true,true,10,0),"Retry interval not honored");
+    check(!schedule.due(400,100,1,true,true,10,10),"Already autosaved revision repeated");
+    check(!schedule.due(400,100,1,true,false,11,10),"Clean project autosaved");
+    check(!schedule.due(400,100,2,true,true,12,0),"New epoch inherited due time");
+    check(!schedule.due(1,100,2,true,true,12,0),"Clock rollback underflowed");
+    check(schedule.due(101,100,2,true,true,12,0),"Rollback did not restart interval");
+    check(!schedule.due(1000,0,2,true,true,13,0),"Disabled scheduler ran");
+    std::atomic<std::uint64_t> now{0}, calls{0};
+    ControllerOptions options;options.autosaveIntervalMilliseconds=100;
+    options.autosaveNowMilliseconds=[&]{auto value=now.load();++calls;return value;};
+    ProjectController controller(options);auto created=create(controller,root);
+    submit(controller,parameter(*created,3,1,false));
+    auto active=await(controller,[](auto &v){return v.completedCommands==2;});
+    const auto count=calls.load();await(controller,[&](auto &){return calls.load()>count+2;});
+    now=100;
+    const auto after=calls.load();await(controller,[&](auto &){return calls.load()>after+2;});
+    check(!std::filesystem::exists(root/"project.autosave.json"),"Timer committed active gesture");
+    submit(controller,parameter(*active,9,1));
+    auto saved=await(controller,[](auto &v){return v.autosavedRevision==v.modelRevision && v.autosavedRevision>0 && v.io==IoOperation::None;});
+    check(saved->completedCommands==3 && saved->dirty && saved->savedRevision==created->savedRevision &&
+          ProjectStore(root).loadAutosave()==*saved->session && ProjectStore(root).load()==*created->session,
+          "Timed autosave did not preserve manual state/latest revision");
+}
+ProjectCommand inhibition(CommandKind kind, std::uint64_t epoch, std::uint64_t token) {
+    ProjectCommand c{kind};c.autosaveInhibitionEpoch=epoch;c.autosaveInhibitionToken=token;return c;
+}
+void autosaveInhibition(const std::filesystem::path &root) {
+    std::atomic<std::uint64_t> now{0},calls{0};
+    ControllerOptions options;options.autosaveIntervalMilliseconds=100;
+    options.autosaveNowMilliseconds=[&]{auto n=now.load();++calls;return n;};
+    ProjectController c(options);auto initial=create(c,root);
+    const auto epoch=initial->projectEpoch;
+    auto reject=[&](ProjectCommand command) {
+        const auto errors=c.snapshot()->errorSerial;submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.errorSerial>errors;});
+    };
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch,0));
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch+1,1));
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,epoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch,2));
+    reject(inhibition(CommandKind::ReleaseAutosaveInhibition,epoch,2));
+    reject(inhibition(CommandKind::ReleaseAutosaveInhibition,epoch+1,1));
+    ProjectCommand open{CommandKind::Open};open.path=root;
+    reject(open); // Even a clean replacement must not invalidate a live owner.
+    submit(c,parameter(*initial,6,91));
+    await(c,[](auto &v){return v.dirty;});
+    auto count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    now=1000;count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    reject({CommandKind::Autosave});
+    check(c.snapshot()->autosaveInhibitionToken==1 && !std::filesystem::exists(root/"project.autosave.json"),"Inhibited autosave ran or stale release removed owner");
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,epoch,1));
+    auto saved=await(c,[](auto &v){return !v.autosaveInhibitionToken && v.autosavedRevision==v.modelRevision && v.io==IoOperation::None;});
+    check(ProjectStore(root).loadAutosave()==*saved->session && saved->dirty,"Release did not autosave latest dirty revision");
+    reject(inhibition(CommandKind::AcquireAutosaveInhibition,epoch,1));
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,epoch,2));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==2;});
+    reject(inhibition(CommandKind::ReleaseAutosaveInhibition,epoch,1));
+    c.requestShutdown();auto closed=await(c,[](auto &v){return v.closed;});
+    check(!closed->autosaveInhibitionToken,"Closed controller retained inhibition");
+}
+void recoveryHistory() {
+    auto original=makeOneTrackSession("Manual", "Track");auto current=original;
+    auto snapshot=original;snapshot.name="Recovered";snapshot.playheadFrame=10;
+    EditHistory history(current);
+    bool refused=false;try{history.checkAdopt(snapshot);}catch(const ProjectError &){refused=true;}
+    check(refused && current==original,"Structural adoption allowed recovery preference replacement");
+    check(history.checkRestore(snapshot)>0 && history.restore(snapshot) && current==snapshot,"Explicit recovery lost preferences");
+    check(history.undo() && current==original && history.redo() && current==snapshot,"Recovery Undo/Redo lost complete state");
+    auto foreign=snapshot;foreign.id=Id::generate();refused=false;
+    try{history.restore(foreign);}catch(const ProjectError &){refused=true;}
+    check(refused && current==snapshot,"Recovery replaced project identity");
+    auto limited=original;HistoryBudget budget;budget.retainedBytes=1;
+    EditHistory small(limited,{},budget);refused=false;
+    try{small.restore(snapshot);}catch(const ProjectError &){refused=true;}
+    check(refused && limited==original,"Recovery exceeded history budget or mutated on refusal");
+}
+void autosaveReview(const std::filesystem::path &root) {
+    std::atomic<bool> guiIo{false};const auto gui=QThread::currentThreadId();
+    ControllerOptions options;options.beforeIo=[&]{if(QThread::currentThreadId()==gui)guiIo=true;};
+    ProjectController c(options);auto initial=create(c,root);
+    auto inspect=[&](std::uint64_t request) {
+        ProjectCommand command{CommandKind::InspectAutosave};command.autosaveReviewRequest=request;
+        submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.autosaveReviewCompleted.request==request && v.io==IoOperation::None;});
+    };
+    auto missing=inspect(1);
+    check(missing->autosaveReviewCompleted.error.has_value() && !missing->autosaveReview.session &&
+          missing->session==initial->session,"Missing snapshot review altered canonical state");
+    submit(c,parameter(*initial,6,91));auto edited=await(c,[](auto &v){return v.dirty;});
+    submit(c,{CommandKind::Autosave});await(c,[&](auto &v){return v.autosavedRevision==edited->modelRevision && v.io==IoOperation::None;});
+    submit(c,parameter(*edited,9,92));auto latest=await(c,[&](auto &v){return v.modelRevision>edited->modelRevision;});
+    auto reviewed=inspect(2);
+    check(!reviewed->autosaveReviewCompleted.error && reviewed->autosaveReview.session &&
+          *reviewed->autosaveReview.session==*edited->session && reviewed->session==latest->session &&
+          reviewed->autosaveReview.projectEpoch==initial->projectEpoch &&
+          reviewed->autosaveReview.modelRevision==latest->modelRevision &&
+          reviewed->savedRevision==initial->savedRevision && reviewed->dirty && !guiIo,
+          "Autosave review adopted snapshot or lost revision/off-GUI provenance");
+    check(ProjectStore(root).load()==*initial->session && ProjectStore(root).loadAutosave()==*edited->session,
+          "Review published over manual or recovery snapshot");
+    submit(c,parameter(*latest,12,93));auto newer=await(c,[&](auto &v){return v.modelRevision>latest->modelRevision;});
+    check(newer->autosaveReview.modelRevision!=newer->modelRevision &&
+          newer->autosaveReview.session==reviewed->autosaveReview.session,"Review lost immutable stale-revision evidence");
+    auto restore=[&](std::uint64_t review,std::uint64_t request) {
+        ProjectCommand command{CommandKind::RestoreAutosave};
+        command.autosaveReviewRequest=review;command.autosaveRestoreRequest=request;
+        submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.autosaveRestoreCompleted.request==request && v.io==IoOperation::None;});
+    };
+    auto stale=restore(2,1);
+    check(stale->autosaveRestoreCompleted.error.has_value() && stale->session==newer->session,
+          "Stale model review was adopted");
+    inspect(3);ProjectStore(root).saveAutosave(*initial->session);
+    auto changed=restore(3,2);
+    check(changed->autosaveRestoreCompleted.error.has_value() && changed->session==newer->session,
+          "Changed disk snapshot bypassed explicit review");
+    ProjectStore(root).saveAutosave(*edited->session);inspect(4);
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    check(restore(4,3)->autosaveRestoreCompleted.error.has_value(),"Restore revoked recording guard");
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    auto restored=restore(4,4);
+    check(!restored->autosaveRestoreCompleted.error && *restored->session==*edited->session &&
+          restored->savedRevision==initial->savedRevision && restored->dirty && !restored->autosaveReview.session &&
+          ProjectStore(root).load()==*initial->session && ProjectStore(root).loadAutosave()==*edited->session,
+          "Explicit restore changed manual file/save state or failed to consume review");
+    submit(c,{CommandKind::Undo});await(c,[&](auto &v){return *v.session==*newer->session;});
+    inspect(5); // Reopening must retire this new review as well.
+    submit(c,{CommandKind::Save});await(c,[](auto &v){return !v.dirty && v.io==IoOperation::None;});
+    ProjectCommand open{CommandKind::Open};open.path=root;submit(c,std::move(open));
+    auto reopened=await(c,[&](auto &v){return v.projectEpoch>initial->projectEpoch;});
+    check(!reopened->autosaveReview.session && reviewed->autosaveReview.session,
+          "Project reopening retained review or invalidated external owned preview");
+}
+void autosavePolicy(const std::filesystem::path &root) {
+    std::atomic<std::uint64_t> now{0}, calls{0};
+    ControllerOptions options;
+    options.autosaveNowMilliseconds=[&]{++calls;return now.load();};
+    ProjectController c(options);auto initial=create(c,root);
+    check(c.snapshot()->autosaveIntervalMilliseconds==0,"Autosave policy default enabled");
+    auto policy=[&](std::uint64_t interval,std::uint64_t request) {
+        ProjectCommand command{CommandKind::AutosavePolicy};
+        command.autosaveIntervalMilliseconds=interval;command.autosavePolicyRequest=request;
+        submit(c,std::move(command));
+        return await(c,[&](auto &v){return v.autosavePolicyCompleted.request==request;});
+    };
+    auto rejected=policy(999,1);
+    check(rejected->autosavePolicyCompleted.error==ErrorCode::InvalidParameter &&
+          rejected->autosaveIntervalMilliseconds==0,"Invalid autosave policy changed setting");
+    rejected=policy(86400001,2);
+    check(rejected->autosavePolicyCompleted.error.has_value(),"Unbounded autosave interval accepted");
+    submit(c,parameter(*initial,6,91));await(c,[](auto &v){return v.dirty;});
+    auto enabled=policy(1000,3);
+    check(!enabled->autosavePolicyCompleted.error && enabled->autosaveIntervalMilliseconds==1000 &&
+          enabled->savedRevision==initial->savedRevision,"Policy edit altered manual save state");
+    auto count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    now=1000;
+    auto saved=await(c,[](auto &v){return v.autosavedRevision==v.modelRevision && v.io==IoOperation::None;});
+    check(saved->dirty && ProjectStore(root).loadAutosave()==*saved->session &&
+          ProjectStore(root).load()==*initial->session,"Enabled policy did not preserve manual project");
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    auto disabled=policy(0,4);
+    check(disabled->autosaveIntervalMilliseconds==0 && disabled->autosaveInhibitionToken==1,
+          "Disable revoked recording autosave ownership");
+    submit(c,parameter(*saved,9,92));auto dirty=await(c,[&](auto &v){return v.modelRevision>saved->modelRevision;});
+    now=10000;
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    check(ProjectStore(root).loadAutosave()==*saved->session,"Disabled timer wrote a new snapshot");
+    policy(1000,5);count=calls.load();await(c,[&](auto &){return calls.load()>count+2;});
+    check(c.snapshot()->autosavedRevision==saved->autosavedRevision,"Re-enable used old overdue deadline");
+    now=11000;
+    auto latest=await(c,[&](auto &v){return v.autosavedRevision==dirty->modelRevision && v.io==IoOperation::None;});
+    check(ProjectStore(root).loadAutosave()==*latest->session && latest->dirty,"Re-enabled timer missed latest edits");
+}
+void autosaveInhibitionGesture(const std::filesystem::path &root) {
+    ProjectController c;auto initial=create(c,root);
+    submit(c,parameter(*initial,7,801,false));
+    auto edited=await(c,[](auto &v){return v.completedCommands==2;});
+    auto acquire=inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1);
+    submit(c,acquire);await(c,[](auto &v){return v.autosaveInhibitionRejected.token==1;});
+    check(!c.snapshot()->autosaveInhibitionToken,"Ordinary acquisition committed gesture");
+    acquire.commitGestureForAutosaveInhibition=true;submit(c,acquire);
+    auto owned=await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    check(*owned->session==*edited->session,"Recording acquisition changed edited state");
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    submit(c,{CommandKind::Undo});
+    auto undone=await(c,[](auto &v){return !v.dirty;});
+    check(*undone->session==*initial->session,"Recording acquisition lost gesture undo boundary");
+}
+void autosaveInhibitionReceipts(const std::filesystem::path &root) {
+    std::atomic<bool> throwOnce{false};
+    ControllerOptions options;
+    options.beforeCommand=[&]{if(throwOnce.exchange(false))throw std::runtime_error("Injected admission failure");};
+    ProjectController c(options);auto initial=create(c,root);const auto epoch=initial->projectEpoch;
+    auto request=[&](CommandKind kind,std::uint64_t token,std::uint64_t requestedEpoch) {
+        const auto prior=c.snapshot();submit(c,inhibition(kind,requestedEpoch,token));
+        return await(c,[&](auto &v){return v.completedCommands>prior->completedCommands || v.errorSerial>prior->errorSerial;});
+    };
+    auto acquired=request(CommandKind::AcquireAutosaveInhibition,1,epoch);
+    const auto &a=acquired->autosaveInhibitionCompleted;
+    check(a.token==1 && a.projectEpoch==epoch && a.acquisition && !a.error,"Acquire receipt lost identity");
+    auto denied=request(CommandKind::ReleaseAutosaveInhibition,2,epoch+1);
+    const auto &r=denied->autosaveInhibitionRejected;
+    check(r.token==2 && r.projectEpoch==epoch+1 && !r.acquisition && r.error==ErrorCode::InvalidState &&
+          denied->autosaveInhibitionCompleted.token==1 && denied->autosaveInhibitionToken==1,"Refusal erased owner or successful receipt");
+    auto errors=denied->errorSerial;submit(c,{CommandKind::Autosave});
+    auto unrelated=await(c,[&](auto &v){return v.errorSerial>errors;});
+    check(unrelated->autosaveInhibitionRejected.token==2 && unrelated->autosaveInhibitionCompleted.token==1,"Unrelated error erased inhibition receipts");
+    auto released=request(CommandKind::ReleaseAutosaveInhibition,1,epoch);
+    check(released->autosaveInhibitionCompleted.token==1 && !released->autosaveInhibitionCompleted.acquisition &&
+          !released->autosaveInhibitionCompleted.error && !released->autosaveInhibitionToken,"Release receipt differs");
+    throwOnce=true;auto failed=request(CommandKind::AcquireAutosaveInhibition,3,epoch);
+    check(failed->autosaveInhibitionRejected.token==3 && failed->autosaveInhibitionRejected.acquisition &&
+          failed->autosaveInhibitionRejected.projectEpoch==epoch && failed->autosaveInhibitionRejected.error==ErrorCode::InvalidState &&
+          !failed->autosaveInhibitionToken,"Standard exception did not publish correlated refusal");
+    auto retried=request(CommandKind::AcquireAutosaveInhibition,3,epoch);
+    check(retried->autosaveInhibitionCompleted.token==3 && retried->autosaveInhibitionCompleted.acquisition &&
+          !retried->autosaveInhibitionCompleted.error,"Refused token could not be retried");
+}
+void autosaveInhibitionDuringIo(const std::filesystem::path &root) {
+    Gate gate;ProjectController c({{},[&]{gate.block();},{}});ReleaseGate release{gate};
+    auto initial=create(c,root);gate.armed.store(true,std::memory_order_release);
+    submit(c,{CommandKind::Autosave});
+    await(c,[&](auto &v){return v.io==IoOperation::Autosave && gate.entered.load();});
+    const auto errors=c.snapshot()->errorSerial;
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    auto rejected=await(c,[&](auto &v){return v.errorSerial>errors;});
+    check(!rejected->autosaveInhibitionToken && rejected->io==IoOperation::Autosave,"In-flight save acknowledged inhibition");
+    gate.release();await(c,[](auto &v){return v.io==IoOperation::None;});
+    // A refused acquisition did not consume the token.
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==1;});
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,1));
+    await(c,[](auto &v){return !v.autosaveInhibitionToken;});
+    ProjectCommand open{CommandKind::Open};open.path=root;submit(c,open);
+    auto reopened=await(c,[&](auto &v){return v.projectEpoch!=initial->projectEpoch && v.io==IoOperation::None;});
+    submit(c,inhibition(CommandKind::AcquireAutosaveInhibition,reopened->projectEpoch,2));
+    await(c,[](auto &v){return v.autosaveInhibitionToken==2;});
+    auto before=c.snapshot()->errorSerial;
+    submit(c,inhibition(CommandKind::ReleaseAutosaveInhibition,initial->projectEpoch,2));
+    auto stale=await(c,[&](auto &v){return v.errorSerial>before;});
+    check(stale->autosaveInhibitionToken==2,"Old epoch released new owner");
+}
+void autosaveWhileEditing(const std::filesystem::path &root) {
+    Gate gate;
+    ProjectController controller({{}, [&] { gate.block(); }, {}});
+    ReleaseGate release{gate};
+    auto created=create(controller,root);
+    submit(controller,parameter(*created,3,10));
+    auto edited=await(controller,[](auto &v){return v.completedCommands==2;});
+    gate.armed.store(true,std::memory_order_release);
+    submit(controller,{CommandKind::Autosave});
+    await(controller,[&](auto &v){return v.io==IoOperation::Autosave && gate.entered.load();});
+    submit(controller,parameter(*edited,12,11));
+    auto later=await(controller,[](auto &v){return v.completedCommands==4;});
+    check(later->dirty && later->autosavedRevision==0 && later->savedRevision==created->savedRevision,
+          "Pending autosave changed manual save state");
+    gate.release();
+    auto done=await(controller,[](auto &v){return v.io==IoOperation::None;});
+    check(done->dirty && done->autosavedRevision==edited->modelRevision &&
+          done->savedRevision==created->savedRevision && ProjectStore(root).load()==*created->session &&
+          ProjectStore(root).loadAutosave()==*edited->session,"Autosave lost captured revision or overwrote manual save");
+    submit(controller,{CommandKind::Autosave});
+    auto latest=await(controller,[&](auto &v){return v.io==IoOperation::None && v.autosavedRevision==later->modelRevision;});
+    check(latest->dirty && ProjectStore(root).loadAutosave()==*later->session,"Latest autosave falsely marked clean");
+    submit(controller,{CommandKind::Save});
+    await(controller,[](auto &v){return !v.dirty && v.io==IoOperation::None;});
+    ProjectCommand open{CommandKind::Open};open.path=root;submit(controller,open);
+    auto reopened=await(controller,[&](auto &v){return v.projectEpoch>created->projectEpoch;});
+    check(reopened->autosavedRevision==0,"Reopen retained another epoch's autosave revision");
+}
+void closeDuringAutosave(const std::filesystem::path &root) {
+    Gate gate;
+    ProjectController controller({{}, [&] { gate.block(); }, {}});
+    ReleaseGate release{gate};
+    auto before=create(controller,root);
+    submit(controller,{CommandKind::Autosave});
+    await(controller,[&](auto &v){return v.autosavedRevision==before->modelRevision && v.io==IoOperation::None;});
+    submit(controller,parameter(*before,5,1));
+    await(controller,[](auto &v){return v.completedCommands==3;});
+    gate.armed.store(true,std::memory_order_release);
+    submit(controller,{CommandKind::Autosave});
+    await(controller,[&](auto &v){return v.io==IoOperation::Autosave && gate.entered.load();});
+    controller.requestShutdown();
+    auto waiting=await(controller,[](auto &v){return v.closing;});
+    check(!waiting->closed,"Autosave close skipped worker join");
+    gate.release();
+    auto closed=await(controller,[](auto &v){return v.closed;});
+    check(closed->errorCode==ErrorCode::Canceled && closed->dirty &&
+          closed->autosavedRevision==before->modelRevision && ProjectStore(root).load()==*before->session &&
+          ProjectStore(root).loadAutosave()==*before->session,"Canceled autosave destroyed prior snapshots");
 }
 void closeDuringSave(const std::filesystem::path &root) {
     Gate gate;
@@ -919,6 +1224,16 @@ int main(int argc, char **argv) {
         creationSampleRates(root / "sample-rates");
         saveWhileEditing(root / "concurrent-save");
         closeDuringSave(root / "cancel-save");
+        autosaveWhileEditing(root / "autosave-edits");
+        autosaveScheduling(root / "autosave-schedule");
+        autosaveInhibition(root / "autosave-inhibition");
+        autosaveInhibitionDuringIo(root / "autosave-inhibition-io");
+        autosaveInhibitionReceipts(root / "autosave-inhibition-receipts");
+        autosaveInhibitionGesture(root / "autosave-inhibition-gesture");
+        autosavePolicy(root / "autosave-policy");
+        recoveryHistory();
+        autosaveReview(root / "autosave-review");
+        closeDuringAutosave(root / "autosave-close");
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");
         closeDuringAttachment(root / "cancel-attachment");

@@ -1512,6 +1512,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Files kept in the project for later recovery.</translation>
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation>Recording preparation could not pause autosave. Finish project operations and retry.</translation>
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation>Recording preparation was interrupted by a project error. Please retry.</translation>
+    </message>
+    <message>
       <source>Could not prepare recording: %1</source>
       <translation>Could not prepare recording: %1</translation>
     </message>
@@ -1850,16 +1858,20 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Monitoring range is too large.</translation>
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation>Recording preparation could not pause autosave. Finish project operations and retry.</translation>
+    </message>
+    <message>
       <source>Recording controls are busy. Try again.</source>
       <translation>Recording controls are busy. Try again.</translation>
     </message>
     <message>
-      <source>Recording is closing.</source>
-      <translation>Recording is closing.</translation>
-    </message>
-    <message>
       <source>Recording settings are invalid.</source>
       <translation>Recording settings are invalid.</translation>
+    </message>
+    <message>
+      <source>Recording is closing.</source>
+      <translation>Recording is closing.</translation>
     </message>
     <message>
       <source>Recording settings exceed the control memory limit.</source>
@@ -2442,6 +2454,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>&amp;Save</translation>
     </message>
     <message>
+      <source>Review autosave snapshot…</source>
+      <translation>Review autosave snapshot…</translation>
+    </message>
+    <message>
       <source>Inspect foreign project…</source>
       <translation>Inspect foreign project…</translation>
     </message>
@@ -2466,6 +2482,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Language and regional settings…</translation>
     </message>
     <message>
+      <source>Autosave settings…</source>
+      <translation>Autosave settings…</translation>
+    </message>
+    <message>
       <source>&amp;Edit</source>
       <translation>&amp;Edit</translation>
     </message>
@@ -2484,6 +2504,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Review retained pitch/stretch renders…</source>
       <translation>Review retained pitch/stretch renders…</translation>
+    </message>
+    <message>
+      <source>Review rendered transitions…</source>
+      <translation>Review rendered transitions…</translation>
     </message>
     <message>
       <source>Retry project display</source>
@@ -2822,6 +2846,306 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</translation>
     </message>
     <message>
+      <source>Transition preparation could not start. Check Project resources and the installed render helper.</source>
+      <translation>Transition preparation could not start. Check Project resources and the installed render helper.</translation>
+    </message>
+    <message>
+      <source>Review autosave snapshot</source>
+      <translation>Review autosave snapshot</translation>
+    </message>
+    <message>
+      <source>Restore replaces the current project edits with the reviewed snapshot. You can Undo this change. The saved project stays unchanged until you choose Save. Stop playback and resolve retained recordings before reviewing or restoring.</source>
+      <translation>Restore replaces the current project edits with the reviewed snapshot. You can Undo this change. The saved project stays unchanged until you choose Save. Stop playback and resolve retained recordings before reviewing or restoring.</translation>
+    </message>
+    <message>
+      <source>Choose Inspect snapshot to validate the stored snapshot and its media.</source>
+      <translation>Choose Inspect snapshot to validate the stored snapshot and its media.</translation>
+    </message>
+    <message>
+      <source>Inspect snapshot</source>
+      <translation>Inspect snapshot</translation>
+    </message>
+    <message>
+      <source>Restore reviewed snapshot</source>
+      <translation>Restore reviewed snapshot</translation>
+    </message>
+    <message>
+      <source>Project is busy. Retry snapshot inspection.</source>
+      <translation>Project is busy. Retry snapshot inspection.</translation>
+    </message>
+    <message>
+      <source>Validating snapshot and media…</source>
+      <translation>Validating snapshot and media…</translation>
+    </message>
+    <message>
+      <source>Project is busy. Retry restoration.</source>
+      <translation>Project is busy. Retry restoration.</translation>
+    </message>
+    <message>
+      <source>Revalidating and restoring the reviewed snapshot…</source>
+      <translation>Revalidating and restoring the reviewed snapshot…</translation>
+    </message>
+    <message>
+      <source>Snapshot: %1 · %2 tracks · %3 media assets</source>
+      <translation>Snapshot: %1 · %2 tracks · %3 media assets</translation>
+    </message>
+    <message>
+      <source>Snapshot validated. Choose Restore only if you want to replace the current edits.</source>
+      <translation>Snapshot validated. Choose Restore only if you want to replace the current edits.</translation>
+    </message>
+    <message>
+      <source>Snapshot could not be reviewed. It may be missing, invalid, or its media unavailable. Inspect again after resolving project operations.</source>
+      <translation>Snapshot could not be reviewed. It may be missing, invalid, or its media unavailable. Inspect again after resolving project operations.</translation>
+    </message>
+    <message>
+      <source>Restoration refused. The project or stored snapshot changed, or validation failed. Inspect again.</source>
+      <translation>Restoration refused. The project or stored snapshot changed, or validation failed. Inspect again.</translation>
+    </message>
+    <message>
+      <source>Snapshot restored. Undo is available; choose Save to update the saved project.</source>
+      <translation>Snapshot restored. Undo is available; choose Save to update the saved project.</translation>
+    </message>
+    <message>
+      <source>Project changed after review. Inspect the snapshot again.</source>
+      <translation>Project changed after review. Inspect the snapshot again.</translation>
+    </message>
+    <message>
+      <source>Autosave settings</source>
+      <translation>Autosave settings</translation>
+    </message>
+    <message>
+      <source>Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released.</source>
+      <translation>Choose an interval for this application session. Autosave keeps a separate recovery snapshot and does not replace Save. Recording pauses automatic snapshots until its retained take is released.</translation>
+    </message>
+    <message>
+      <source>Off</source>
+      <translation>Off</translation>
+    </message>
+    <message>
+      <source> seconds</source>
+      <translation> seconds</translation>
+    </message>
+    <message>
+      <source>Autosave interval</source>
+      <translation>Autosave interval</translation>
+    </message>
+    <message>
+      <source>Autosave setting could not be applied. Retry after project operations finish.</source>
+      <translation>Autosave setting could not be applied. Retry after project operations finish.</translation>
+    </message>
+    <message>
+      <source>Autosave setting applied.</source>
+      <translation>Autosave setting applied.</translation>
+    </message>
+    <message>
+      <source>Project command queue is busy. Retry the autosave setting.</source>
+      <translation>Project command queue is busy. Retry the autosave setting.</translation>
+    </message>
+    <message>
+      <source>Applying autosave setting…</source>
+      <translation>Applying autosave setting…</translation>
+    </message>
+    <message>
+      <source>The project was reopened or replaced. Rendering stopped; owned job files were retained.</source>
+      <translation>The project was reopened or replaced. Rendering stopped; owned job files were retained.</translation>
+    </message>
+    <message>
+      <source>Rendering canceled. Already accepted project changes and saves may have completed; retained jobs remain available for review.</source>
+      <translation>Rendering canceled. Already accepted project changes and saves may have completed; retained jobs remain available for review.</translation>
+    </message>
+    <message>
+      <source>The transition could not be prepared. Check source handles, processing settings, Project resources and the installed helper. No audio was applied.</source>
+      <translation>The transition could not be prepared. Check source handles, processing settings, Project resources and the installed helper. No audio was applied.</translation>
+    </message>
+    <message>
+      <source>The edit queue is unavailable. The prepared job files were retained.</source>
+      <translation>The edit queue is unavailable. The prepared job files were retained.</translation>
+    </message>
+    <message>
+      <source>The transition sources changed before registration. No render started; prepared files were retained.</source>
+      <translation>The transition sources changed before registration. No render started; prepared files were retained.</translation>
+    </message>
+    <message>
+      <source>The project could not be queued for saving. Save it before rendering the retained job.</source>
+      <translation>The project could not be queued for saving. Save it before rendering the retained job.</translation>
+    </message>
+    <message>
+      <source>The project could not be saved. Rendering did not start; check the save error and retained job references.</source>
+      <translation>The project could not be saved. Rendering did not start; check the save error and retained job references.</translation>
+    </message>
+    <message>
+      <source>The source render queue is unavailable. Saved references were retained.</source>
+      <translation>The source render queue is unavailable. Saved references were retained.</translation>
+    </message>
+    <message>
+      <source>Source rendering did not finish successfully. No audio was applied; inspect the retained job before retrying.</source>
+      <translation>Source rendering did not finish successfully. No audio was applied; inspect the retained job before retrying.</translation>
+    </message>
+    <message>
+      <source>The assembly queue is unavailable. Rendered source spans were retained.</source>
+      <translation>The assembly queue is unavailable. Rendered source spans were retained.</translation>
+    </message>
+    <message>
+      <source>The transition could not be assembled or verified. No audio was applied; retained files remain available for review.</source>
+      <translation>The transition could not be assembled or verified. No audio was applied; retained files remain available for review.</translation>
+    </message>
+    <message>
+      <source>Transition rendered and verified. Review it, then choose Apply. The timeline audio has not changed.</source>
+      <translation>Transition rendered and verified. Review it, then choose Apply. The timeline audio has not changed.</translation>
+    </message>
+    <message>
+      <source>Render transition</source>
+      <translation>Render transition</translation>
+    </message>
+    <message>
+      <source>Cancel rendering</source>
+      <translation>Cancel rendering</translation>
+    </message>
+    <message>
+      <source>Review rendered transition</source>
+      <translation>Review rendered transition</translation>
+    </message>
+    <message>
+      <source>Canceling rendering and waiting for active work to retire…</source>
+      <translation>Canceling rendering and waiting for active work to retire…</translation>
+    </message>
+    <message>
+      <source>Preparing transition sources and owned job files…</source>
+      <translation>Preparing transition sources and owned job files…</translation>
+    </message>
+    <message>
+      <source>Registering the transition against the current project…</source>
+      <translation>Registering the transition against the current project…</translation>
+    </message>
+    <message>
+      <source>Saving the project and render references…</source>
+      <translation>Saving the project and render references…</translation>
+    </message>
+    <message>
+      <source>Checking source audio and previous render history…</source>
+      <translation>Checking source audio and previous render history…</translation>
+    </message>
+    <message>
+      <source>Verifying rendered source audio…</source>
+      <translation>Verifying rendered source audio…</translation>
+    </message>
+    <message>
+      <source>Rendering the two source spans…</source>
+      <translation>Rendering the two source spans…</translation>
+    </message>
+    <message>
+      <source>Loading the saved transition and source history…</source>
+      <translation>Loading the saved transition and source history…</translation>
+    </message>
+    <message>
+      <source>Verifying transition audio…</source>
+      <translation>Verifying transition audio…</translation>
+    </message>
+    <message>
+      <source>Assembling and verifying transition audio…</source>
+      <translation>Assembling and verifying transition audio…</translation>
+    </message>
+    <message>
+      <source>Elapsed: %1 s</source>
+      <translation>Elapsed: %1 s</translation>
+    </message>
+    <message>
+      <source>Transition review could not start. Check Project resources and retry.</source>
+      <translation>Transition review could not start. Check Project resources and retry.</translation>
+    </message>
+    <message>
+      <source>Transition verification could not start. Check Project resources and retry.</source>
+      <translation>Transition verification could not start. Check Project resources and retry.</translation>
+    </message>
+    <message>
+      <source>The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.</source>
+      <translation>The transition could not be applied. Review it again; no transition edit was made and retained files were preserved.</translation>
+    </message>
+    <message>
+      <source>The edit queue is unavailable. Review the transition and retry Apply.</source>
+      <translation>The edit queue is unavailable. Review the transition and retry Apply.</translation>
+    </message>
+    <message>
+      <source>The transition was not applied because the project or sources changed. Retained files are available for review.</source>
+      <translation>The transition was not applied because the project or sources changed. Retained files are available for review.</translation>
+    </message>
+    <message>
+      <source>Transition applied. Undo restores both original clips; save to retain the change.</source>
+      <translation>Transition applied. Undo restores both original clips; save to retain the change.</translation>
+    </message>
+    <message>
+      <source>Transition review needs more Project resources. Close unused previews and retry.</source>
+      <translation>Transition review needs more Project resources. Close unused previews and retry.</translation>
+    </message>
+    <message>
+      <source>Rendered transitions — preview</source>
+      <translation>Rendered transitions — preview</translation>
+    </message>
+    <message>
+      <source>Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix.</source>
+      <translation>Review a saved transition before applying it. Apply checks the audio again and changes both clips in one Undo step. Save remains explicit. Rendered transitions are experimental. Check for audible artifacts before using them in a final mix.</translation>
+    </message>
+    <message>
+      <source>Previous page</source>
+      <translation>Previous page</translation>
+    </message>
+    <message>
+      <source>Next page</source>
+      <translation>Next page</translation>
+    </message>
+    <message>
+      <source>Review selected transition</source>
+      <translation>Review selected transition</translation>
+    </message>
+    <message>
+      <source>Apply reviewed audio</source>
+      <translation>Apply reviewed audio</translation>
+    </message>
+    <message>
+      <source>Cancel operation</source>
+      <translation>Cancel operation</translation>
+    </message>
+    <message>
+      <source>This review belongs to a previous project opening. Close it and review the current project.</source>
+      <translation>This review belongs to a previous project opening. Close it and review the current project.</translation>
+    </message>
+    <message>
+      <source>Saved transition %1</source>
+      <translation>Saved transition %1</translation>
+    </message>
+    <message>
+      <source>%1 · frames %2–%3</source>
+      <translation>%1 · frames %2–%3</translation>
+    </message>
+    <message>
+      <source>Checking audio before Apply…</source>
+      <translation>Checking audio before Apply…</translation>
+    </message>
+    <message>
+      <source>Reviewing transition audio…</source>
+      <translation>Reviewing transition audio…</translation>
+    </message>
+    <message>
+      <source>Applying both clips…</source>
+      <translation>Applying both clips…</translation>
+    </message>
+    <message>
+      <source>No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.</source>
+      <translation>No saved rendered transitions are awaiting review. Existing timeline crossfades remain available.</translation>
+    </message>
+    <message>
+      <source>Audio verified. Apply will check it again before changing the project.</source>
+      <translation>Audio verified. Apply will check it again before changing the project.</translation>
+    </message>
+    <message>
+      <source>This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.</source>
+      <translation>This transition is incomplete, canceled, stale or could not be verified. No edit was made; retained files were preserved.</translation>
+    </message>
+    <message>
+      <source>Select a saved transition to review its audio.</source>
+      <translation>Select a saved transition to review its audio.</translation>
+    </message>
+    <message>
       <source>Retained render review needs more Project resources. Close unused previews and retry.</source>
       <translation>Retained render review needs more Project resources. Close unused previews and retry.</translation>
     </message>
@@ -2836,10 +3160,6 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Scan again</source>
       <translation>Scan again</translation>
-    </message>
-    <message>
-      <source>Next page</source>
-      <translation>Next page</translation>
     </message>
     <message>
       <source>Review selected result</source>
@@ -3444,6 +3764,14 @@ The complete file was published with a warning: %1</translation>
       <translation>%1 — input %2</translation>
     </message>
     <message>
+      <source>Recording preparation could not pause autosave. Finish project operations and retry.</source>
+      <translation>Recording preparation could not pause autosave. Finish project operations and retry.</translation>
+    </message>
+    <message>
+      <source>Recording preparation was interrupted by a project error. Please retry.</source>
+      <translation>Recording preparation was interrupted by a project error. Please retry.</translation>
+    </message>
+    <message>
       <source>Selected recording track no longer exists.</source>
       <translation>Selected recording track no longer exists.</translation>
     </message>
@@ -3518,10 +3846,6 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source> · Prepared monitoring: %1. Stop and prepare to use the saved mode.</source>
       <translation> · Prepared monitoring: %1. Stop and prepare to use the saved mode.</translation>
-    </message>
-    <message>
-      <source>Off</source>
-      <translation>Off</translation>
     </message>
     <message>
       <source>Auto during recording</source>
@@ -3856,6 +4180,42 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Audio tracks</translation>
     </message>
     <message>
+      <source>Retry waveforms</source>
+      <translation>Retry waveforms</translation>
+    </message>
+    <message>
+      <source>Recheck source files and retry waveform preparation without changing audio or project edits.</source>
+      <translation>Recheck source files and retry waveform preparation without changing audio or project edits.</translation>
+    </message>
+    <message>
+      <source>Waveform display</source>
+      <translation>Waveform display</translation>
+    </message>
+    <message>
+      <source>Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail.</source>
+      <translation>Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail.</translation>
+    </message>
+    <message>
+      <source>Overview</source>
+      <translation>Overview</translation>
+    </message>
+    <message>
+      <source>Single channel</source>
+      <translation>Single channel</translation>
+    </message>
+    <message>
+      <source>Source channel number</source>
+      <translation>Source channel number</translation>
+    </message>
+    <message>
+      <source>Source channel number; does not change routing or audio.</source>
+      <translation>Source channel number; does not change routing or audio.</translation>
+    </message>
+    <message>
+      <source>Channel</source>
+      <translation>Channel</translation>
+    </message>
+    <message>
       <source>Selected track name</source>
       <translation>Selected track name</translation>
     </message>
@@ -3902,6 +4262,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Down</source>
       <translation>Down</translation>
+    </message>
+    <message>
+      <source>Track versions…</source>
+      <translation>Track versions…</translation>
     </message>
     <message>
       <source>Retained take lanes in selected track</source>
@@ -4196,8 +4560,28 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Create overlap from the retained takes without changing source audio.</translation>
     </message>
     <message>
+      <source>Render extended processed handles (preview)</source>
+      <translation>Render extended processed handles (preview)</translation>
+    </message>
+    <message>
+      <source>Inner blend limit (project frames)</source>
+      <translation>Inner blend limit (project frames)</translation>
+    </message>
+    <message>
       <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
       <translation>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</translation>
+    </message>
+    <message>
+      <source>Save and render</source>
+      <translation>Save and render</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental.</source>
+      <translation>Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental.</translation>
     </message>
     <message>
       <source>This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.</source>
@@ -4206,6 +4590,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Crossfade selection changed; reopen the editor.</source>
       <translation>Crossfade selection changed; reopen the editor.</translation>
+    </message>
+    <message>
+      <source>Transition rendering could not start. Stop playback or recording and retry.</source>
+      <translation>Transition rendering could not start. Stop playback or recording and retry.</translation>
     </message>
     <message>
       <source>View could not be updated: %1</source>
@@ -4235,6 +4623,74 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <source>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</source>
       <translation>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</translation>
     </message>
+    <message>
+      <source>Track versions</source>
+      <translation>Track versions</translation>
+    </message>
+    <message>
+      <source>Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.</source>
+      <translation>Each version keeps its own arrangement. Routing, EQ, and retained takes are shared. Stop transport before switching. Removing an inactive version can be undone.</translation>
+    </message>
+    <message>
+      <source>Active version: %1</source>
+      <translation>Active version: %1</translation>
+    </message>
+    <message>
+      <source>Original</source>
+      <translation>Original</translation>
+    </message>
+    <message>
+      <source>Tracks to change</source>
+      <translation>Tracks to change</translation>
+    </message>
+    <message>
+      <source>Versions on the current track</source>
+      <translation>Versions on the current track</translation>
+    </message>
+    <message>
+      <source>Version name</source>
+      <translation>Version name</translation>
+    </message>
+    <message>
+      <source>New empty</source>
+      <translation>New empty</translation>
+    </message>
+    <message>
+      <source>Duplicate active</source>
+      <translation>Duplicate active</translation>
+    </message>
+    <message>
+      <source>Activate selected</source>
+      <translation>Activate selected</translation>
+    </message>
+    <message>
+      <source>Rename selected</source>
+      <translation>Rename selected</translation>
+    </message>
+    <message>
+      <source>Remove selected</source>
+      <translation>Remove selected</translation>
+    </message>
+    <message>
+      <source>Link active versions</source>
+      <translation>Link active versions</translation>
+    </message>
+    <message>
+      <source>Select matching tracks</source>
+      <translation>Select matching tracks</translation>
+    </message>
+    <message>
+      <source>Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.</source>
+      <translation>Some selected tracks have no matching version. Create versions together, select matching tracks, or link their active versions.</translation>
+    </message>
+    <message>
+      <source>Selected tracks: %L1. The current track stays selected.</source>
+      <translation>Selected tracks: %L1. The current track stays selected.</translation>
+    </message>
+    <message>
+      <source>The project changed while track versions were open. Please reopen the dialog.</source>
+      <translation>The project changed while track versions were open. Please reopen the dialog.</translation>
+    </message>
   </context>
   <context>
     <name>TimelineView</name>
@@ -4249,6 +4705,48 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Start %1 · source %2 + %3/%4 · length %5 project frames</source>
       <translation>Start %1 · source %2 + %3/%4 · length %5 project frames</translation>
+    </message>
+  </context>
+  <context>
+    <name>VersionTrackList</name>
+    <message>
+      <source>%1 — active: %2</source>
+      <translation>%1 — active: %2</translation>
+    </message>
+    <message>
+      <source>Original</source>
+      <translation>Original</translation>
+    </message>
+  </context>
+  <context>
+    <name>soundcurrent::daw::ui::TimelineWaveforms</name>
+    <message>
+      <source>Waveforms unavailable: visible source/resource limit</source>
+      <translation>Waveforms unavailable: visible source/resource limit</translation>
+    </message>
+    <message>
+      <source>Some source waveforms are unavailable; use Retry waveforms</source>
+      <translation>Some source waveforms are unavailable; use Retry waveforms</translation>
+    </message>
+    <message>
+      <source>Preparing source waveforms…</source>
+      <translation>Preparing source waveforms…</translation>
+    </message>
+    <message>
+      <source>Source PCM · channel %1 absent from some sources</source>
+      <translation>Source PCM · channel %1 absent from some sources</translation>
+    </message>
+    <message>
+      <source>Source PCM · channel %1 · shaded edges need finer detail</source>
+      <translation>Source PCM · channel %1 · shaded edges need finer detail</translation>
+    </message>
+    <message>
+      <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
+      <translation>Source PCM · shaded edges need finer detail · &gt;2 channels combined</translation>
+    </message>
+    <message>
+      <source>No channel %1</source>
+      <translation>No channel %1</translation>
     </message>
   </context>
 </TS>

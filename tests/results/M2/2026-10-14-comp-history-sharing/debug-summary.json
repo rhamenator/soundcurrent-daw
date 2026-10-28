@@ -1,0 +1,61 @@
+{
+  "head": "2de1710a9efbd1463dbafb883041bd6c86639a0d",
+  "seconds": 629.6686689670896,
+  "v2Workers": 9,
+  "expectedV2Failures": 4,
+  "repeatedAdoptions": 9,
+  "repeatedWorkers": 15,
+  "maximumRepeatedWorkerSeconds": 9.991111479932442,
+  "pairedReviews": [
+    {
+      "additionalOriginalAssemblyFixtures": 1,
+      "bothOrders": true,
+      "cancellationRefused": true,
+      "coveredOutputCorruptionRefused": true,
+      "crossOperationCorruptionRefused": true,
+      "disjointAssembliesVerified": 2,
+      "disjointCorruptionRefused": true,
+      "pairedAssemblies": 1,
+      "pairedSamples": 71436,
+      "pairedSeconds": 1.69588652,
+      "separateAssemblies": 2,
+      "separateSamples": 142872,
+      "separateSeconds": 3.401663619,
+      "staleCoveredSourceRefused": true
+    },
+    {
+      "additionalOriginalAssemblyFixtures": 1,
+      "bothOrders": true,
+      "cancellationRefused": true,
+      "coveredOutputCorruptionRefused": true,
+      "crossOperationCorruptionRefused": true,
+      "disjointAssembliesVerified": 2,
+      "disjointCorruptionRefused": true,
+      "pairedAssemblies": 1,
+      "pairedSamples": 98408,
+      "pairedSeconds": 0.748956908,
+      "separateAssemblies": 2,
+      "separateSamples": 196816,
+      "separateSeconds": 1.506248954,
+      "staleCoveredSourceRefused": true
+    },
+    {
+      "additionalOriginalAssemblyFixtures": 1,
+      "bothOrders": true,
+      "cancellationRefused": true,
+      "coveredOutputCorruptionRefused": true,
+      "crossOperationCorruptionRefused": true,
+      "disjointAssembliesVerified": 2,
+      "disjointCorruptionRefused": true,
+      "pairedAssemblies": 1,
+      "pairedSamples": 32872,
+      "pairedSeconds": 1.463092893,
+      "separateAssemblies": 2,
+      "separateSamples": 65744,
+      "separateSeconds": 2.908922021,
+      "staleCoveredSourceRefused": true
+    }
+  ],
+  "sourceAndBinariesUnchanged": true,
+  "allObservedRepeatedChildrenReaped": true
+}

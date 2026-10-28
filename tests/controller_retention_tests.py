@@ -9,7 +9,8 @@ with tempfile.TemporaryDirectory() as work:
     source=parent/str(uuid.uuid4());source.mkdir();extras=[]
     try:
         (source/'media').mkdir();(source/'media/take.wav').write_bytes(bytes([0,255,17,0]));(source/'project.json').write_text('{"title":"Ελληνικά 日本語"}',encoding='utf-8')
-        log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8');receipt=c.retain(build);assert len(receipt)==1 and len(receipt[0]['originalFiles'])==2
+        log.write_bytes(b'Unrelated legacy-code-page diagnostic: \xe9\xff\n'+(c.MARKER+str(source)+'\n').encode('utf-8'));originalLog=log.read_bytes()
+        receipt=c.retain(build);assert len(receipt)==1 and len(receipt[0]['originalFiles'])==2 and log.read_bytes()==originalLog
         target=build/'controller-failure-projects'/('controller-'+source.name)
         assert (target/'media/take.wav').read_bytes()==(source/'media/take.wav').read_bytes()
         assert json.loads((target/'retention.json').read_text(encoding='utf-8'))['atomicProjectSnapshot'] is False
@@ -20,6 +21,7 @@ with tempfile.TemporaryDirectory() as work:
         refuses() # Existing snapshot is never overwritten.
         import shutil
         shutil.rmtree(build/'controller-failure-projects')
+        log.write_bytes(c.MARKER.encode('ascii')+b'invalid-path-\xe9\n');refuses()
         log.write_text(c.MARKER+str(build)+'\n',encoding='utf-8');refuses()
         log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8')
         linked=False
@@ -43,9 +45,23 @@ with tempfile.TemporaryDirectory() as work:
         (panel/'devices-é').mkdir();(panel/'devices-é/result.json').write_text('{"complete":false}',encoding='utf-8')
         log.write_text(c.PANEL_MARKER+str(panel)+'\n',encoding='utf-8');assert len(c.retain(build))==1
         assert (build/'controller-failure-projects'/('panel-'+panel.name)/'devices-é/result.json').read_bytes()==(panel/'devices-é/result.json').read_bytes()
+        parentRoot=Path(tempfile.gettempdir())/c.POLICIES[c.PARENT_MARKER];parentRoot.mkdir(exist_ok=True)
+        interruption=parentRoot/str(uuid.uuid4());interruption.mkdir();extras.append(interruption)
+        project=interruption/'during-processing'/'project-été-Κиїв';project.mkdir(parents=True)
+        (project/'audio.partial').write_bytes(bytes([0,255,17,0]))
+        (project/'.save.lock').write_bytes(b'')
+        (interruption/'failure-report.json').write_text('{"failure":"5"}',encoding='utf-8')
+        log.write_bytes((c.PARENT_MARKER+str(interruption)+'\n').encode('utf-8'))
+        parentReceipt=c.retain(build);assert len(parentReceipt)==1 and len(parentReceipt[0]['originalFiles'])==3
+        saved=build/'controller-failure-projects'/('parent-'+interruption.name)
+        assert (saved/'during-processing/project-été-Κиїв/audio.partial').read_bytes()==bytes([0,255,17,0])
+        assert (saved/'during-processing/project-été-Κиїв/.save.lock').read_bytes()==b''
+        refuses() # The parent snapshot also forbids overwrite.
+        log.write_bytes((c.PARENT_MARKER+str(source)+'\n').encode('utf-8'));refuses()
+        log.write_bytes((c.PARENT_MARKER+str(parentRoot/'not-a-uuid')+'\n').encode('utf-8'));refuses()
         for n in range(16):(logs/('extra-'+str(n)+'.log')).write_text('',encoding='utf-8')
         refuses()
-        print('Controller retention: exact Unicode/audio bytes, foreign path/no-overwrite, link refusal='+str(linked))
+        print('Controller retention: exact Unicode/audio and parent partial/hidden bytes, foreign path/no-overwrite, link refusal='+str(linked))
     finally:
         shutil.rmtree(source)
         for item in extras:shutil.rmtree(item)

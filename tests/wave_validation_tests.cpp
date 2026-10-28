@@ -131,11 +131,37 @@ int main() {
             auto moved=std::move(file);refused([&]{validateApprovedWave(file);},ErrorCode::InvalidState);
             check(validateApprovedWave(moved).frames==512,"Failed checks damaged pinned file");
         }
+        for(const auto bits:{16U,24U,32U})for(const auto precision:{1U,12U,20U,24U}) {
+            if(precision>=bits)continue;
+            for(const bool large:{false,true}) {
+                const auto peak=(std::int64_t(1)<<(precision-1));
+                const std::vector<std::int64_t> values{-peak,-1,0,1==peak?0:1,peak-1};
+                std::string data;for(const auto v:values)
+                    put(data,std::uint64_t(v)<<(bits-precision),bits/8);
+                auto bytes=wave(bits,1,data,false,false,true);set(bytes,38,precision,2);
+                if(large)bytes=rf64(bytes,data.size(),values.size());
+                write(path/"padded.wav",bytes);ApprovedMediaRoot root(path,memory);
+                auto file=root.open("padded.wav",bytes.size());const auto before=memory.usage();
+                WaveValidationLimits limits;limits.blockFrames=2;std::size_t seen=0;
+                auto result=validateApprovedWave(file,limits,{},[&](auto first,std::span<const double> samples){
+                    check(first==seen,"Padded PCM frame offset changed");
+                    for(auto x:samples){check(seen<values.size() && x==double(values[seen])/double(peak),"Padded PCM normalization differs");++seen;}
+                });
+                check(seen==values.size() && result.bitsPerSample==bits,"Padded PCM extent/container width changed");
+                check(result.sourceSha256==file.digest(),"Padded PCM source digest changed");usage(memory,before);
+            }
+        }
         check(memory.usage().owners==0,"WAVE/file/root did not retire");
         auto bad=[&](std::string bytes,ErrorCode code,WaveValidationLimits limits=WaveValidationLimits{}) {
             write(path/"bad.wav",bytes);ApprovedMediaRoot root(path,memory);auto file=root.open("bad.wav",65536);const auto before=memory.usage();
             refused([&]{validateApprovedWave(file,limits);},code);usage(memory,before);
         };
+        auto padded=wave(32,1,std::string(4,'\0'),false,false,true);set(padded,38,24,2);
+        auto malformed=padded;malformed[68]=1;bad(malformed,ErrorCode::InvalidParameter);
+        bad(rf64(malformed,4,1),ErrorCode::InvalidParameter);
+        malformed=padded;set(malformed,38,0,2);bad(malformed,ErrorCode::UnsupportedSchema);
+        malformed=padded;set(malformed,38,33,2);bad(malformed,ErrorCode::UnsupportedSchema);
+        malformed=wave(32,1,std::string(4,'\0'),true,false,true);set(malformed,38,24,2);bad(malformed,ErrorCode::UnsupportedSchema);
         auto large=rf64(valid,1024,512);
         write(path/"large.wav",large);
         {ApprovedMediaRoot root(path,memory);auto file=root.open("large.wav",65536);const auto before=memory.usage();check(validateApprovedWave(file).frames==512,"Owned RF64 failed");usage(memory,before);}
@@ -167,7 +193,7 @@ int main() {
         bad(wave(16,1,"x"),ErrorCode::InvalidParameter);
         corrupt=valid;chunk(corrupt,"data","");set(corrupt,4,corrupt.size()-8,4);bad(corrupt,ErrorCode::InvalidParameter);
         auto ext=wave(24,2,std::string(12,'\0'),false,false,true,3);
-        corrupt=ext;set(corrupt,38,20,2);bad(corrupt,ErrorCode::UnsupportedSchema);
+        corrupt=ext;set(corrupt,38,25,2);bad(corrupt,ErrorCode::UnsupportedSchema);
         corrupt=ext;set(corrupt,40,1,4);bad(corrupt,ErrorCode::InvalidParameter);
         corrupt=ext;corrupt[59]='x';bad(corrupt,ErrorCode::UnsupportedSchema);
         WaveValidationLimits limit;limit.maximumChunks=2;bad(wave(16,1,"",false,false,false,0,3),ErrorCode::ResourceLimit,limit);

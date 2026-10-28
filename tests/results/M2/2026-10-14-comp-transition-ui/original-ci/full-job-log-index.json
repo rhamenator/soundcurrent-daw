@@ -1,0 +1,25 @@
+{
+  "localRetentionRoot": "/home/rich/dev/soundcurrent-daw/.cache/comp-assembly-ui/pr194-playback-state-review",
+  "logs": [
+    {
+      "file": "job-116100726972.log",
+      "bytes": 100912,
+      "sha256": "d07246f96151f553e075ebee0a5a39de22ae6dcec4d5c74e81fb92e96f1cc248"
+    },
+    {
+      "file": "job-116100727280.log",
+      "bytes": 1395238,
+      "sha256": "63eb18d45295a1c0f72d2e33a684a6b7af26fe4348290fe5187e0ec3791423d1"
+    },
+    {
+      "file": "job-116100727402.log",
+      "bytes": 270704,
+      "sha256": "5ea7c1a06f95c3f6a7147216c9ad2cb31ac0f952baa41ca83f98c66299a04af3"
+    },
+    {
+      "file": "job-116100727416.log",
+      "bytes": 1304822,
+      "sha256": "7602703c86e590788f07a0bca6d138d09f1b7d7563eb76a4e882c59d85cb77ef"
+    }
+  ]
+}

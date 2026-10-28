@@ -1,5 +1,1188 @@
 # Active full-suite goal: progress and completion evidence
 
+## Installed Linux track-version preview (2026-10-16)
+
+[Checkpoint 360](360-installed-track-version-preview.md) promotes the qualified
+Linux candidate to the Applications launcher, preserving the prior preview.
+All 35 selected tests pass; the installed app verifies waveform recovery,
+render/edit/Undo/Redo/save/reopen, bit-exact independent WAV export, and grouped
+track-version alternatives across two tracks. All five normal launches quit
+cleanly. Original CI passed Linux but exposed a Windows Unicode conversion in a
+new test fixture; original logs/artifacts are retained and the test-only repair
+awaits fresh Windows CI. The Windows preview has not changed. Feature development
+stays frozen for Windows delivery; full M0–M11/F/Q/C/N/X004/X005 and all-Europe
+scope remains active and incomplete.
+
+## Grouped audio track versions (2026-10-15)
+
+[Checkpoint 359](359-grouped-track-versions.md) adds shared version identities and
+multi-track create, link, activate, rename and removal through one Undo/Redo
+transaction. The desktop selects explicit tracks or finds peers by shared group;
+missing peers reject the entire change. State and selected-track staging remain
+resource-admitted, and tests cover groups larger than 64 tracks. Schema 1.25
+preserves group links. The prior CI failure was stale localization inventory;
+strict catalog checks pass after regeneration, with original CI evidence retained.
+New native qualification and matching preview delivery remain required. Full
+M0–M11/F/Q/C/N/X004/X005 and all-Europe scope remains active and incomplete.
+
+## Audio track versions (2026-10-15)
+
+[Checkpoint 358](358-track-versions.md) adds persistent audio arrangements with a
+scrollable version dialog: empty creation, duplicate, switch, rename and inactive
+removal, all through structural Undo/Redo. Only active clips enter playback and
+export; inactive edits retain media and comp origins. Schema 1.24 preserves all
+versions, with resource accounting and strict validation. Local acceptance and
+its exact source/evidence binding are recorded in the checkpoint. Grouped desktop
+version selection, automation interaction, other track types, native Windows
+qualification and preview delivery remain open. No installed preview changed;
+full M0–M11/F/Q/C/N/X004/X005 and all-Europe parity remains incomplete.
+
+## Waveform coverage reuse (2026-10-15)
+
+[Checkpoint 357](357-waveform-coverage-reuse.md) reuses ready or in-flight coverage
+for nearby pans and zooms when source identity, opening, resolution and resource
+bounds match. New requests use spare bin capacity for a bounded margin without
+coarsening detail. Covered movement avoids another decode; uncovered movement
+still prepares data. Five Release integration suites and three ASan/UBSan suites
+pass. The preceding hosted run passed, with all 15 terminal logs and 12 original
+artifacts retained before PR advancement. New native Windows evidence and preview
+delivery remain next; P010 track versions and all other suite milestones remain
+open. Installed previews are unchanged, and full parity remains incomplete.
+
+## Cropped and zoomed source waveforms (2026-10-15)
+
+[Checkpoint 356](356-waveform-source-windows.md) connects bounded source-frame
+windows through decoding, IPC, cache identity and timeline rendering. Crop edges
+use prepared fine data without including adjacent samples. The rendered long-source
+fixture, window/cancellation/freshness oracles and existing dense-source workflow
+pass. All nine Release integration suites and six focused ASan/UBSan suites pass.
+Full-file validation still occurs for every uncached window; efficient reuse,
+larger-source policy, native Windows qualification and updated installed previews
+remain open. Earlier installed previews are unchanged. Full-suite parity remains
+incomplete.
+
+## Windows waveform timing qualification (2026-10-15)
+
+[Checkpoint 355](355-windows-waveform-timing.md) completes a fresh installed
+waveform/edit/export workflow with the corrected observer from the start. The
+independent render observation passes in 21,821 ms within the original 30-second
+limit. Export remains bit-exact, float headroom is preserved, and both launches
+exit normally. Earlier failure evidence is unchanged. All 15 jobs in the current
+CI run passed, with original logs and 12 artifact ZIPs retained. The clone ran
+alone for about four minutes, shut down, and temporary resources were removed.
+This qualifies the frozen preview workflow, not full DAW parity. Fine-window
+waveform preparation and the remaining suite milestones remain next.
+
+## Installed Windows waveform workflows (2026-10-15)
+
+[Checkpoint 354](354-installed-windows-waveforms.md) installs the matching frozen
+waveform preview and verifies its 66 payload files, shortcuts and uninstall entry.
+Actual channel selection, missing/restored-media retry, Review/Apply, Undo/Redo,
+save/reopen, export and normal exit pass; export is bit-exact to an independent
+reference. Original observer failures remain retained, and the independent render
+timing gate is explicitly unproven. Overall preview qualification remains false.
+Earlier previews are preserved, all VMs are off, and temporary capture resources
+are removed. Current hosted Windows desktop and Linux resource-test jobs pass;
+the overall CI run and full DAW parity remain incomplete.
+
+## Matching Windows waveform candidate (2026-10-15)
+
+[Checkpoint 353](353-windows-waveform-preview.md) qualifies the frozen Linux-preview
+source on the Windows clone: all three helper groups and normal desktop launch/exit
+pass. The installer and complete corresponding source are prepared and verified;
+installation and editing qualification remain next. The clone ran alone for about
+five minutes and shut down gracefully. Original CI finished with a Linux resource
+fixture failure, now reproduced and corrected without relaxing memory or timeout
+checks; 80 local assertions pass. All original CI logs/artifacts remain retained.
+The installed Windows preview is unchanged; full parity remains incomplete.
+
+## Dense waveform overviews (2026-10-15)
+
+[Checkpoint 352](352-dense-waveform-overviews.md) replaces the small 32-source
+overview allowance with bounded shared detail and 512 viewport metadata slots.
+All 72 independent sources in a dense-view fixture prepare and paint within its
+256 MiB ledger; Release and ASan/UBSan pass. Still views stop rebuilding source
+keys on every poll. Full-window, cache/controller, catalog and freshly linked
+editing/virtualization checks pass. The preceding Windows preview now passes its
+desktop tests and repaired deployment collection; installed Windows and native
+dense-view qualification remain next. Installed Linux remains the qualified
+checkpoint-351 preview. Full parity remains incomplete.
+
+## Installed Linux waveform preview (2026-10-15)
+
+[Checkpoint 351](351-installed-waveform-preview.md) activates the tested Linux
+preview through Applications, with the prior version preserved. Thirty-one preview
+tests pass; the actual installed channel selection, missing/restored-media retry,
+editing, Undo/Redo, save/reopen, export and normal Quit workflows pass. Export is
+bit-exact to the independent reference. JSON-formatting and launch-tag observer
+issues, including overwritten startup artifacts, are documented explicitly.
+Original terminal CI is fully retained before PR advancement; fresh native
+Windows qualification and its installed preview remain next. Full parity is
+incomplete.
+
+## Windows waveform qualification and staging (2026-10-15)
+
+[Checkpoint 350](350-windows-waveform-staging.md) retains the original native run:
+all 26 desktop tests pass, including waveform drawing/retry and the corrected
+CRLF helper. Deployment collection then fails because its separate copier omits
+the waveform worker. The original artifact confirms that exact missing file.
+Staging now shares the collector's application list; byte-delivery, missing/extra
+file and overwrite regressions pass alongside existing packaging gates. Native
+staging, channel selection and refreshed installed previews remain unqualified.
+The full DAW goal is incomplete; installed previews are unchanged.
+
+## Individual waveform channels (2026-10-15)
+
+[Checkpoint 349](349-waveform-channel-inspection.md) adds an Overview / Single
+channel display selector without changing audio, routing, project state or the
+prepared source cache. Actual-window fixtures now include synthetic 256-channel
+material, independently check selected channel levels/colors, and expose absent
+channels explicitly. Eight focused Linux Release suites pass; rendered-view
+selection also receives ASan/UBSan coverage. Windows and installed-preview gates,
+fine-window/large-file support and the full DAW parity goal remain incomplete.
+Installed previews are unchanged.
+
+## Full-window waveform recovery (2026-10-15)
+
+[Checkpoint 348](348-studio-waveform-recovery.md) adds explicit source-waveform
+retry and accessible status. Full-window mono/stereo/three-channel fixtures cover
+Open, edit, Undo/Redo, save/reopen, missing/restored media, retry and async close
+without activating audio. Eight Release suites pass; the rendered retry fixture
+also passes ASan/UBSan. Original CI evidence is retained. Native cache tests pass;
+the Windows exact-CRLF test-helper defect is corrected pending native confirmation.
+The instrumented crossfade run spends 28.85 seconds in font setup/coverage; its
+startup budget now reflects that observation. This does not prove the older
+timeout's cause. Native drawing/retry and installed preview gates remain next;
+full parity is incomplete and installed previews are unchanged.
+
+## Visible source waveform timeline (2026-10-15)
+
+[Checkpoint 347](347-timeline-source-waveforms.md) connects the source cache to
+real timeline painting with project-root/epoch propagation, separate stereo lanes,
+source-headroom color, explicit coarse-edge shading and async close gates. The
+seven focused Release suites and the ASan/UBSan GUI fixture pass, including
+actual worker/rendered pixels,
+8,192-track virtualization, surrounding editing, localization and packaging.
+The original old centre-pixel oracle failure is retained; the corrected check
+samples the preserved track-coloured edge. Native Windows drawing, installed
+preview delivery, fine-window/large-file work and per-channel multichannel
+inspection remain open. Installed previews remain unchanged. The full goal is
+incomplete. [Checkpoint 346](346-crossfade-stage-diagnostics.md) supplies flushed
+native timeout diagnostics; its preceding CI remains separate from this GUI work.
+
+## Waveform cache and projection (2026-10-15)
+
+[Checkpoint 345](345-waveform-cache.md) adds complete-view cache admission,
+immutable source reuse, explicit invalidation/retry and stale-project rejection.
+Rational projection exposes only fully covered bins and identifies crop edges
+needing finer data. Release and ASan/UBSan pass 112,881 cache/projection checks
+and 106 controller checks. Real Qt Linguist refresh repairs the stale source
+inventory found in preceding CI. Its Windows crossfade timeout remains open.
+Timeline drawing, worker packaging and native Windows cache qualification are
+next; installed previews are unchanged and full DAW parity remains incomplete.
+
+## Waveform control-thread supervision (2026-10-15)
+
+[Checkpoint 344](344-waveform-controller.md) adds single-operation child supervision,
+admission-based deadlines, exact reply banks, process retirement and full-selection
+stale-result rejection. Release and ASan/UBSan pass 106 actual-controller checks
+and four existing source/protocol/worker suites. Borrowed results require a current
+selection match at use. The timeline/cache is not integrated yet and Windows
+controller qualification is pending. Separately, the preceding native Windows
+comp job passes the strengthened checkpoint 343 workflow; its original log is
+retained. Next implement viewport cache/scheduling and channel-aware drawing.
+Installed previews are unchanged; the full goal remains incomplete.
+
+## Comp review invalidation at Open/Create admission (2026-10-15)
+
+[Checkpoint 343](343-comp-review-invalidation.md) reproduces a stale enabled Apply
+control with its refresh timer stopped, then invalidates both review intent and
+controls immediately on accepted project replacement. The repaired same-root
+reopen test and adjacent transition-creation workflow pass on Linux; fresh
+Review/Apply/Undo remains available. The first repair's creation regression and
+the original Windows combined-assertion failure are retained. All 15 original CI
+logs and 12 original archives were preserved before branch advancement. Exact
+causal attribution of the earlier combined assertion and native Windows repair
+qualification remain open. Installed previews are unchanged. Next continue the
+waveform controller and drawing work while checking the new native CI gate.
+
+## Waveform worker boundary (2026-10-15)
+
+[Checkpoint 342](342-waveform-worker-protocol.md) adds a read-only isolated worker
+and bounded binary reply codec tied to source, operation, epoch, generation and
+observed process identity. Release and ASan/UBSan pass 21,060 protocol checks,
+53 actual worker cases and both existing source/WAVE suites. GUI integration and
+native Windows qualification remain open; installed previews are unchanged.
+The preceding PR CI has a retained Windows comp stale-owner assertion failure;
+investigate it before another preview. Next implement the asynchronous waveform
+controller and viewport drawing after that diagnosis. Full goal incomplete.
+
+## Waveform source preparation (2026-10-15)
+
+[Checkpoint 341](341-waveform-source-pyramid.md) adds a Qt-independent, bounded
+per-channel min/max pyramid from fully validated pinned WAVE media. Exact source
+intervals, floating headroom, identity verification, cancellation and resource
+retirement are covered by 164,507 checks. The existing WAVE suite also passes;
+both suites pass Release and ASan/UBSan. Native Windows CI coverage is added but
+has not yet run on this change. The timeline and installed previews are unchanged.
+Next implement the isolated worker protocol, asynchronous controller and viewport
+drawing with stale-result rejection. Full goal incomplete.
+
+## Installed Windows timing gate passes (2026-10-15)
+
+[Checkpoint 340](340-installed-windows-timing.md) repairs asynchronous dialog
+observation within the original 30-second stopwatch budget. One complete run on
+unchanged installed `97e9ecd` observes readiness at 20.481 seconds and passes
+Review/Apply, exact Undo/Redo, save/reopen/export and normal close. Independent
+export samples match exactly; 468 installed-preview files and 268 previous-workflow
+files remain unchanged. The original observer failure stays retained. All VMs are
+off and temporary transport is removed. CI at `cae1cb1` subsequently passes all
+15 jobs; original full logs and 12 published archives are retained and verified.
+Four native interruption cases have verified terminal cleanup with no errors;
+this does not explain the earlier failure. Next add asynchronous waveform
+preparation/drawing to the M2 timeline. Earlier interruption and protected-warp
+failures, broader performance and full DAW parity remain open.
+
+## Matching Windows preview installed (2026-10-15)
+
+[Checkpoint 339](339-installed-windows-batched.md) installs frozen `97e9ecd` and
+verifies all 65 payload files, shortcuts and uninstall registration. After an
+initial automation failure while the render dialog was opening, continuation of
+the same live render passes Review/Apply, Undo/Redo, save/reopen/export and normal
+close. All 18,032 stereo export frames match the independent reference exactly;
+202 original history/media and 401 earlier-preview files remain unchanged. The
+app reports 13.6 seconds, but the original independent 30-second timing gate is
+not passed. Original failure and continuation are retained. All VMs are off and
+temporary transport is removed. CI at `cae1cb1` is still live; retain its original
+terminal evidence before PR advancement. Full goal incomplete.
+
+## Matching Windows candidate prepared (2026-10-15)
+
+[Checkpoint 338](338-windows-batched-preview.md) prepares the Windows installer
+for frozen `97e9ecd`, matching the current Linux preview. All 1,810 native source
+inputs and 15 deployment files verify; native media helpers, v4/v5 stretch checks
+and normal GUI startup/close pass in the independent development clone. The first
+dispatch's premature setup-receipt failure is retained. All 8,101 corresponding
+application-source files verify. Original hosted CI passes all 15 jobs, with full
+logs and 12 artifact archives retained before PR advancement. All VMs are off.
+The installer and actual installed Windows editing workflow are the next gate;
+the existing Windows preview is unchanged. Full goal incomplete.
+
+## Updated installed Linux preview (2026-10-15)
+
+[Checkpoint 337](337-installed-batched-preview.md) prepares the `97e9ecd` DEB
+and verifies all 8,101 corresponding-source files. All 27 preview gates pass in
+229.70 seconds. Installed Render/Review/Apply/Undo/Redo/save/reopen/export passes,
+with a bit-exact independent export and unchanged original media. The observed
+render completes in 4.316 seconds, compared with the previous 5.496-second run
+of this fixture; this is not a general performance guarantee. The Applications
+entry now uses the new preview, with the `b5dc256` version retained for rollback.
+Normal launcher startup and Quit pass. No VM or physical audio used. Hosted CI
+is still live; preserve its original results before advancing PR194. Windows
+preview refresh and full goal remain incomplete.
+
+## Native Windows batched verification (2026-10-15)
+
+[Checkpoint 336](336-windows-batched-comp-verification.md) qualifies the batched
+implementation on the independent Windows development clone. All four integrity
+suites pass in 172.60 seconds. Six alternating runs verify all 16,256 samples;
+the fixed-history diagnostic median falls from 4.116 to 2.684 seconds, about 35%.
+All 802 source inputs match and 225 original project files remain unchanged.
+The initial input-admission failure is retained; its exact-byte delivery repair
+does not weaken tests. All VMs are off. Installed previews remain unchanged and
+whole-render responsiveness still needs qualification. Original CI at `dfa5887`
+passes all 15 jobs; all full logs and 12 original artifact archives are retained
+and verified before PR advancement. Fresh checks on this change are pending.
+Full goal incomplete.
+
+## Measured reduction in comp verification work (2026-10-15)
+
+[Checkpoint 335](335-batched-comp-verification.md) batches complete output
+recomputation between full paired source/nominal checks. Independent WAV/hash,
+bitwise sample, outside-edit and history checks remain; there is no persistent
+verification cache. Four focused suites pass in 82.35 seconds, including new
+batch equivalence, cancellation and corruption cases. The retained Linux
+verification diagnostic improves from a 2.976 to 1.871-second median, with
+42% fewer bytes hashed and 225 unchanged input files. Native Windows and installed
+performance are unqualified; previews stay unchanged. Full goal incomplete.
+
+## Windows render diagnosis and passing required CI (2026-10-15)
+
+[Checkpoint 334](334-windows-render-diagnostic.md) captures bounded process and
+public-stage observations from the unchanged installed Windows candidate. The
+render completes at 36.9 seconds; two worker results match the prior verified WAVs
+exactly. Similar worker CPU/read totals but differing elapsed time narrow the next
+investigation; accessibility observation overhead prevents a benchmark claim. The
+automation fails later during Apply and is retained as failed. Saved Apply and
+normal window closure are observed separately; all VMs are off. Original CI at
+`1cc2db5` passes all 15 jobs, with full logs and 12 archives retained and verified.
+Responsiveness and full-suite completion remain open.
+
+## Installed Windows render-progress preview (2026-10-15)
+
+[Checkpoint 333](333-installed-windows-progress.md) installs the exact `b5dc256`
+Windows candidate and verifies all 65 payloads while preserving 334 earlier-preview
+files. Actual Review/Apply/Undo/Redo/save/reopen/export succeeds; all exported
+samples match the independent reference bit for bit. An initial accessibility
+driver failure is retained; continuation uses the same process and render. The
+completed dialog reports 34.9 seconds, so responsiveness remains open. Both
+launches close normally, all VMs are off and temporary transport is removed.
+Hosted CI is still pending. Full goal incomplete.
+
+## Windows progress candidate and CI evidence separation (2026-10-15)
+
+[Checkpoint 332](332-windows-progress-preview.md) prepares the matching `b5dc256`
+unsigned Windows installer and verifies all 8,079 corresponding-source files.
+Native helper qualification and normal interactive startup/close pass on the
+independent development clone; installed acceptance remains pending. All VMs are
+off. Original CI passes every Windows job but cancels Linux shard 4 after its
+45 CTests pass, during archived-evidence checks at the 30-minute job limit.
+All original logs and 12 artifact archives are retained. The unchanged evidence
+command bank moves to its own required job; CTest assignments and deadlines stay
+unchanged. New hosted execution is pending. Full goal incomplete.
+
+## Installed Linux render-progress preview (2026-10-15)
+
+[Checkpoint 331](331-installed-progress-preview.md) qualifies the installed
+`b5dc256` candidate through public render/review/Apply/Undo/Redo/save/reopen/export
+controls. The exported WAV matches an independent calculation bit for bit.
+Visible stages and a terminal-frozen elapsed timer pass. The normal Applications
+launcher now opens this build; the prior preview remains available as
+“SoundCurrent DAW Preview (before render progress)”. A fixture preparation error
+before rendering is retained separately. No VM or physical audio was used.
+Matching-source CI is still running; Windows qualification and the full goal
+remain incomplete.
+
+## Qualified Linux preview candidate (2026-10-15)
+
+[Checkpoint 330](330-linux-preview-candidate.md) prepares the `b5dc256` Ubuntu
+candidate after 27 scoped checks pass in 184.48 seconds. Its 7.1 MB DEB and exact
+8,079-file corresponding-source archive pass payload/archive verification.
+Installation testing is next; existing previews remain unchanged. Original CI
+at `8c2e447` passes all 14 jobs and is fully retained before draft PR advancement.
+New CI at `b5dc256` is live. All VMs remain off; full goal incomplete.
+
+## Visible render stages and elapsed time (2026-10-15)
+
+[Checkpoint 329](329-comp-render-progress.md) shows source/history verification
+and assembly stages separately, with locale-formatted elapsed time frozen at the
+terminal outcome. Three focused checks pass in 22.02 seconds, including eight
+actual desktop cases at three rates and catalog validation. New strings use
+untranslated fallback where needed. Native Windows and installed qualification
+remain pending; this does not resolve the earlier Windows render delay. No VM or
+installed-preview change. Full goal incomplete.
+
+## Preserve original interruption failures during cleanup (2026-10-15)
+
+[Checkpoint 328](328-interruption-cleanup.md) fixes the Windows observer so a
+parent cleanup failure does not skip helper retirement or mask the original
+failure. Eight fault-injection tests, collector and timing checks pass. These
+are control-flow checks; native qualification remains pending. The original
+partial-boundary failure remains unresolved, with cancellation already present
+in its retained record. Current CI at `8c2e447` is still running and is preserved.
+No VM or installed-preview change. Full goal incomplete.
+
+## Native Windows scan measurement and original CI failure (2026-10-15)
+
+[Checkpoint 327](327-windows-comp-scan-observation.md) verifies the scan change
+with native MSVC binaries: six successful comparisons of the same 16,256 samples,
+225 unchanged project files, and a locally observed 29% lower median diagnostic
+time. Background maintenance and a retained initial build timeout limit the
+performance claim. All VMs are off. Original CI at `2fdeaf9` failed in the Windows
+parent-interruption test; full evidence is retained and investigation is next.
+Installed packages remain unchanged. Full goal incomplete.
+
+## Comp source scan batching (2026-10-15)
+
+[Checkpoint 326](326-comp-source-scan-batching.md) measures retained-history
+verification and batches source scans within a 64 KiB decoded slab. The same
+Windows-created project needs about 65% fewer system calls and has a 9% lower
+median verification time on Linux, with identical verified samples and all files
+unchanged. Integrity checks and worker policies remain enabled. Native Windows
+performance and installed qualification remain next; full goal incomplete.
+
+## Installed Windows portable comp workflow (2026-10-15)
+
+[Checkpoint 325](325-installed-windows-portable-comp.md) installs `61bcaa3` and
+passes actual Render, Review/Apply, exact Undo/Redo, save/reopen/export and normal
+Quit with Linux-created history. All 18,032 exported stereo frames match an
+independent calculation exactly; original media and previous previews are preserved.
+The original render exceeded the 30-second observer window but completed without
+a retry. Responsiveness and the earlier protected-warp failure remain unresolved.
+All 14 original CI jobs at `3adb515` passed. All VMs are off. Full goal incomplete.
+
+## Windows portability candidate and catalog correction (2026-10-15)
+
+[Checkpoint 324](324-windows-portable-candidate.md) prepares the matching `61bcaa3`
+Windows installer and verifies every corresponding-source entry. Native helper
+and desktop startup observations are retained, including an unresolved first
+protected-warp failure followed by a passing diagnostic run. Both second-generation
+requests referencing Linux-made history are prepared; installed Windows execution
+remains next. CI exposed the newer export-label source hash missing from the
+catalog inventory; the real catalog update and all three focused checks pass.
+All VMs are off. Full goal incomplete.
+
+## Installed Linux portable comp workflow (2026-10-15)
+
+[Checkpoint 323](323-installed-portable-comp.md) installs `61bcaa3` while preserving
+the preceding preview. Actual Applications launches pass speed edits, Render,
+Review/Apply, exact Undo/Redo, save/reopen/export and normal Quit. The entire
+18,032-frame stereo export matches an independent reference exactly; original
+media/history remain unchanged. All 25 selected package tests pass. A destination
+accessibility-label correction is tested in source and remains newer than the
+installed package. Windows portability refresh is next. Full goal incomplete.
+
+## Portable render-history correction (2026-10-15)
+
+[Checkpoint 322](322-portable-render-history.md) found that the installed Linux
+preview rejects valid Windows-made stretch history during comp rendering.
+The shared artifact verifiers now accept either supported producer memory metric,
+while retaining grant/hash checks and rejecting unknown metrics. All three focused
+worker suites pass; the original Windows history also renders successfully with
+the fixed Linux worker while all 188 original files remain unchanged. Preceding
+CI completed successfully with both split native banks. The installed workflow
+failed safely with unchanged clips;
+its later shutdown also timed out. Refreshed installed editing/normal-Quit and
+independent Windows portability evidence remain required. Full goal incomplete.
+
+## Windows installed preview and native CI partition (2026-10-15)
+
+[Checkpoint 321](321-windows-installed-comp-preview.md) qualifies the current
+Windows installer, 65 installed payload files, actual save/reopen/export/normal
+close, and uninstall/reinstall preservation in the independent acceptance clone.
+The exported WAV is byte-identical to Linux; originals and physical audio are
+untouched, and the clone is off. Original CI passed eleven jobs but its combined
+native job exceeded 30 minutes after both 43/93 test banks passed. All original
+logs and artifacts are retained. The two native banks now run separately behind
+the unchanged required check name, with deadlines and test commands preserved.
+Fresh execution and installed short-comp editing remain next. Full goal incomplete.
+
+## Installed Linux preview refresh (2026-10-15)
+
+[Checkpoint 320](320-installed-linux-comp-preview.md) installs the unchanged
+`2580164` candidate into a new per-user directory and updates Applications.
+All payload bytes match; both older preview launchers and the preceding installed
+files are preserved. Actual desktop-entry launches pass Save/Quit/reopen and WAV
+export/normal Quit. All 480,000 exported mono samples match an independent SciPy
+EQ calculation exactly. Two initial automation failures remain recorded separately.
+No physical audio routes or VMs were used. The existing Windows installer is next;
+current documentation-head CI is still running, so no new PR revision is pushed.
+Full DAW and quality parity remain open.
+
+## Linux and Windows comp preview candidates (2026-10-15)
+
+[Checkpoint 319](319-linux-windows-comp-previews.md) prepares both packages from
+exact source `2580164`. All 25 focused native Linux tests and private PipeWire
+recording/playback checks pass; the packaged main saves, quits and reopens an
+owned Unicode project. Original CI passes all 12 jobs, with all logs/ZIPs/PNGs
+retained and detailed native PCM/source audits complete. The exact Windows
+deployment passes native helper checks and normal main-window startup/close in
+the independent development clone. Both complete corresponding-source archives
+are verified. No binary release was uploaded or installed preview replaced.
+Next is SDK-free Windows installer and installed editing-workflow acceptance,
+followed by the Linux launcher update. Full DAW and quality parity remain open.
+
+## Original-context paired and desktop edits (2026-10-15)
+
+[Checkpoint 318](318-original-context-pairs.md) connects the original-context
+producer to versioned paired selection and the desktop's repeated-edit controls.
+Release and Debug paired/desktop workflows pass the short 4,054-frame crop, five
+workers and three adoptions per workflow; six export PCM files match across
+builds. Ordinary repeated edits and legacy mixed exports also pass. A test-driver
+mode omission was corrected with production binaries unchanged; the original
+failure is retained. The preceding core/worker source passes all twelve CI jobs,
+including its native Windows workflows, with original evidence retained. Native
+execution of the new paired/desktop source and updated installable previews are
+the next delivery gates. Full DAW and quality parity remain open.
+
+## Original-context owned worker (2026-10-15)
+
+[Checkpoint 317](317-uniform-context-worker.md) publishes short uniform candidates
+through a separately versioned isolated worker. Three Release and one Debug suites
+pass; three candidate outputs match across builds, with 33 refusal cases and
+210,770 PCM comparisons per configuration. A real adopted 4,041-frame crop that
+the legacy renderer refuses now renders from its original context. MinGW syntax
+checks pass. Original checkpoint-314 CI passed all 12 jobs, with logs and artifacts
+retained; new-source native execution remains pending. Versioned paired selection
+and application integration are next, followed by installed preview qualification.
+
+## Original-context uniform renderer (2026-10-15)
+
+[Checkpoint 316](316-uniform-original-context-renderer.md) implements a new core
+producer for short edits using original analysis context and exact candidate
+sampling. Release and Debug pass the 4,054-frame regression, fractional histories,
+stereo pitch, source edges and failure cleanup; seven PCM files match across builds.
+Worker-protocol, paired-adoption and desktop integration remain the next delivery
+steps. The current original CI still qualifies checkpoint 314, not this new source.
+
+
+## Short uniform context feasibility (2026-10-15)
+
+[Checkpoint 315](315-uniform-short-context-feasibility.md) confirms that the failing
+4,054-frame uniform region is below the observed R3 minimum, while longer real
+context renders successfully in 36 sampled configurations. Fixed 512-frame runs
+repeat exactly; changing block size changes PCM in 13 cases. A versioned context
+plan with exact crop timing is the next implementation slice. The experiment does
+not implement the missing short-edit workflow. Fresh checkpoint-314 CI is running.
+
+
+## Repeated desktop speed edits and original CI repairs (2026-10-15)
+
+[Checkpoint 314](314-comp-clocked-repeat-ui.md) qualifies repeated fractional,
+post-SRC and mixed-take edits through actual speed, render, review and Apply
+controls. Four Release and two Debug suites pass; six new exports match across
+builds and nine legacy exports are unchanged. The prior original CI remains failed:
+two Windows setup checks misobserved existing long-path files, and one Linux job
+exceeded its whole-job limit after all its tests passed. Test-only path corrections
+pass three Release/Debug suites; five Linux shards preserve every check and deadline.
+Fresh native and scheduling qualification, installed previews, short uniform windows,
+processing quality, localization and full-suite parity remain open.
+
+
+## Clocked protected paired adoption (2026-10-15)
+
+[Checkpoint 313](313-comp-clocked-protected-pair.md) versions pair selection and
+connects application preparation to exact source/retained clock metadata. Five
+Release and five Debug suites pass: six new adoptions, ten successful workers,
+two worker refusals and shared live/export checks per build. All sixteen new audio
+files match across builds. The focused desktop suite passes twelve cases, including
+one newly supported fractional adoption; five legacy export hashes are unchanged.
+MinGW syntax passes. The original desktop test's obsolete rejection expectation
+was corrected after retaining its failure. Repeated post-SRC desktop/native
+qualification, short uniform backend windows, installed previews, processing
+quality, localization and full DAW parity remain open.
+
+
+## Owned clocked protected workers (2026-10-15)
+
+[Checkpoint 312](312-comp-clocked-protected-worker.md) adds an explicit versioned
+worker protocol that binds exact original geometry, clock, rates and history.
+Actual media/history admission runs before readiness and completion. Four Release
+and four Debug suites pass, including legacy worker regressions. Eight new worker
+outputs match across builds; 82 refusal cases and 1,385,714 PCM comparisons pass.
+MinGW syntax passes. The real-history fixture uses an actual published physical
+ancestor; new paired adoption and post-SRC history coverage remain required.
+Preceding adapter CI passes all ten jobs; its native exact-clock oracle and crop
+checks pass, with small measured full-render platform differences retained. New
+worker native execution, editor delivery, quality/localization and full DAW parity
+remain open.
+
+
+## Complete original geometry for cropped comp rendering (2026-10-15)
+
+[Checkpoint 311](311-comp-clocked-protected-span.md) owns original protected
+geometry across cropped render ancestry and proves retained clocks at every knot.
+Actual candidate audio preserves original outside anchors and baked varispeed.
+Four suites pass in Release, Debug and optimized sanitizer builds; 21,384 crop
+samples and all PCM corpora agree. The 45-case rational oracle agrees across builds;
+both new C++ files pass MinGW syntax. Preceding CI passes all ten jobs, including
+208 Linux suites and native exact-boundary tests. Logs and artifacts are retained.
+The new adapter still needs versioned worker/media authority and application
+integration. Native execution of this adapter, installed delivery, full processing
+quality, localization and overall DAW parity remain incomplete.
+
+
+## Exact outer warp boundaries (2026-10-15)
+
+[Checkpoint 310](310-exact-warp-extents.md) adds an explicit exact semantic domain
+for fractional outer boundaries. The original integer-grid constructor stays
+separate; exact plans refuse legacy integer adapters. The clocked renderer and
+core sampler preserve those boundaries and admit actual samples independently of
+exclusive coordinates. Seven Release, seven Debug and five optimized sanitizer
+suites pass; 48 independent oracle cases match across builds. All 18 legacy audio
+hashes are unchanged. Original short-fixture and overload failures remain retained.
+The preceding original CI passes all ten jobs (206 Linux, 30+93 native core and
+22/6/1 desktop tests); original native renderer counters and exact oracle responses
+are retained and audited with all nine ZIPs and 214 PNGs.
+Comp/history and worker integration, new native execution, application delivery
+and full DAW/quality/localization parity remain incomplete.
+
+
+## Exact-clock protected gap rendering (2026-10-15)
+
+[Checkpoint 309](309-clocked-protected-warp.md) adds an isolated full-gap renderer
+with exact intrinsic grids, bounded sampling and crop-stable semantic halo blends.
+A separate 64-bit processing grid preserves the existing project timing formats.
+Eight Release, eight Debug and five optimized ASan/UBSan suites pass. Two prior
+unoptimized sanitizer timeouts remain recorded as failures under the original
+180-second limit. Seven renderer cases and a 37-case independent exact oracle
+pass; the existing resampling kernel remains bit-identical in its comparison bank.
+The preceding original CI now passes all ten jobs: 203 Linux, 27+93 native core
+and 22/6/1 desktop tests. All logs, nine ZIPs and 214 PNGs are retained. Native
+prepared-core oracle responses match Linux; its C++ PASS is retained but emitted
+counters were overwritten, so future CI preserves the first CTest log separately.
+Exact fractional outer handles, worker/history binding, application adoption,
+new native execution, independent quality and installed previews remain open.
+The full DAW goal remains incomplete.
+
+
+## Exact protected-core sampling (2026-10-15)
+
+[Checkpoint 308](308-protected-core-sampling.md) adds an owned, bounded sampler for
+fractional protected anchors, output-clock conversion and crops. Five Release,
+five Debug and two sanitizer suites pass; all three independent 240-case exact
+oracle responses match. Windows cross syntax passes. Full worker integration,
+nonunity gap/halo processing, native qualification and quality admission remain
+required. Existing app admission and installed previews remain unchanged.
+The preceding original run passes all 201 Linux, 118 native core and new protected
+desktop checks. Original desktop tests all pass, but that job exceeds 20 minutes;
+the aggregate fails and whole run is cancelled. All originals are retained.
+Desktop CI is split into 22/6/1 test banks under the same required status, and Linux
+weights now use actual observations. Fresh scheduling/native sampler CI is pending.
+
+
+## Repeated protected desktop editing (2026-10-15)
+
+[Checkpoint 307](307-protected-repeated-desktop.md) exercises three successive
+edits at 44.1/48/96 kHz through actual timeline Save/render, Review/Apply,
+Undo/Redo/save/reopen and live/export. Four Release and two Debug suites pass;
+all nine exports match the Linux engine path, and nine legacy exports are unchanged.
+Actual project credits, children, cancellation, stale work and ancestry/close
+refusals are checked. A stale prior Apply status was found and fixed; localization
+extraction/checks pass. The preceding original CI passes all seven jobs, including
+200 Linux, 118 native core and 28 desktop tests, with full originals retained.
+Six native history exports match Linux exactly; three 44.1 kHz exports have small
+measured sample differences already present in the nominal render. Their exact
+arithmetic cause and quality admission remain open. New native repeated-desktop CI
+is separated from the original desktop bank under the same required status;
+measured Linux scheduling retains every check and deadline. Installed previews,
+full parity and processing-quality qualification remain incomplete.
+
+
+## Concurrent startup readiness (2026-10-15)
+
+[Checkpoint 306](306-startup-snapshot-admission.md) reproduces a caller-clock
+snapshot failure in both monitor consumers. Readiness newer than that sample now
+waits for fresh independent time while preserving silence, finite PCM, cancellation
+and bounded warmup. PipeWire bank counters are read after readiness acquisition.
+Seven Debug and seven Release suites pass; six C++ units pass Windows cross syntax.
+The original failures and two explicit fixture corrections remain retained.
+Measured CI timings now place the full inventory in three Linux shards with all
+checks and existing deadlines retained. Native Windows execution and actual CI
+scheduling results remain pending; installed previews and the full goal are unchanged.
+
+
+## Repeated protected history (2026-10-15)
+
+[Checkpoint 305](305-protected-comp-history.md) regenerates protected spans from
+original raw/nominal history using exact semantic anchors and a versioned request.
+One Debug and five Release suites pass. Each new bank completes nine adoptions,
+three retained mixed cases, 15 successful workers and two required failures;
+all 24 new audio hashes match across configurations and legacy hashes are stable.
+The original failed playback-scope assertion and its correction remain retained.
+New native Windows and repeated protected desktop qualification remain open.
+Preceding CI38681796679 failed: its native job failed the existing one-frame
+recording test, and a Linux job reached its 30-minute limit in later archive checks
+after all 199 CTest cases passed. All six original artifacts/full logs and 146 PNGs
+are retained and audited. Scoped native assembly/desktop and actual-ledger checks
+pass; the failed run still requires startup diagnosis and scheduling correction. Installed previews are unchanged.
+The full DAW goal remains incomplete.
+
+
+## Protected desktop transitions (2026-10-15)
+
+[Checkpoint 304](304-protected-desktop-transitions.md) enables protected original
+handles through the timeline's Save and render and explicit Review/Apply path.
+Twelve new desktop cases cover five pair/rate combinations and seven refusal,
+cancel or close paths. One Debug and three Release suites pass; five new exports
+match across builds and nine legacy repeated exports are unchanged. Cleanup
+assertions now observe the actual project ledger, correcting an earlier unused
+options-ledger check. Original CI evidence remains unchanged and its derived audit
+records that limitation. The preceding CI passes 197 Linux, 116 native Windows
+core and 27 desktop tests with all original artifacts retained, including the
+previously missing detailed protected corpus. New native assembly/desktop and
+cleanup confirmation, installed delivery and the full goal remain incomplete.
+
+
+## Protected assembly and model adoption (2026-10-15)
+
+[Checkpoint 303](303-protected-comp-assembly.md) qualifies the real nominal/span
+worker path through protected/protected, protected/uniform and protected/existing
+media pairs. Five pairs per configuration publish and pass canonical Undo/Redo,
+save/reopen and shared live/export checks. Fifteen abrupt publication exits recover
+as interrupted with no accepted output or completion and cannot resume/overwrite.
+Two Debug and four Release suites pass; all 14 assembly/export hashes match across
+builds and six legacy assembly hashes are unchanged. Native execution, desktop
+entry, repeated protected history, fractional clocks, independent quality and full
+scope remain open. Installed previews are unchanged.
+
+
+## Protected pair selection and recovery (2026-10-15 UTC)
+
+[Checkpoint 302](302-protected-comp-pair-recovery.md) adds an explicit saved policy,
+semantic producer selection and exact request rederivation. Two Debug and four
+Release suites pass; three protected pairs reopen and relocate per configuration,
+with cancellation, waiting/interrupted state, corruption and stale-state guards.
+All six protected audio hashes match the prior worker bank. Uniform assembly and
+paired-history regressions pass. Protected paired assembly, desktop adoption and
+new native execution remain pending. Original CI at the preceding core revision
+passed 195 Linux, 114 native Windows core and 27 desktop tests; all available
+original artifacts are retained. Its detailed protected-core output folder was
+omitted by CI, so only its test-log PASS is claimed; upload paths are corrected.
+
+
+## Protected comp worker protocol (2026-10-15 UTC)
+
+[Checkpoint 301](301-protected-comp-worker.md) integrates the protected owned core
+with an explicitly identified isolated-worker request and verified completion.
+Two Debug and five Release suites pass. Each new bank records six successful
+renders and 63 required refusals, 622,848 complete PCM comparisons and 12,800
+original protected samples. Existing v1/v2/core/desktop hashes are unchanged.
+MinGW syntax passes; new native Windows runtime remains pending. Paired recovery,
+Review/Apply, history, fractional clocks, independent quality and full scope remain
+open. The installed preview is unchanged.
+
+
+## Owned protected comp spans (2026-10-14)
+
+[Checkpoint 300](300-owned-protected-comp-spans.md) adds a move-only core plan
+and guarded rendering callbacks with a distinct protected-comp identity. Debug
+and Release each pass 18 renders, 264 independent exact-map checks, 34,560
+protected samples and twelve failure/lifetime checks. All 18 output hashes match
+between builds. Owned-worker/publication/UI integration, fractional clocks and
+history, independent quality and native Windows execution remain open.
+The preceding production head independently passed all six original CI jobs:
+194 Linux tests, 113 native Windows core tests and 27 Windows desktop tests. Full
+original logs, six artifact ZIPs and 94 PNGs are retained and audited before the
+next PR update. Those results do not include the new protected component.
+
+## Protected comp-handle feasibility (2026-10-14)
+
+[Checkpoint 299](299-protected-comp-candidate.md) records nine isolated Release
+renders using exact rebased protected anchors. Six expanded handle regions and
+three nominal controls pass 105 independent rational map checks; 11,520 protected
+core samples remain bit-exact. Cancellation, budget and fractional-position
+refusals pass. This opt-in experiment has no shipping hook. Owned-worker
+integration, repeated history, fractional/changed clocks, sound-quality review,
+native Windows execution and the full frozen goal remain open.
+
+## Repeated comp source admission performance (2026-10-14)
+
+[Checkpoint 298](298-comp-source-admission-performance.md) traces the prior Debug
+failure to final verification and removes repeated exact asset checks within one
+source admission. Each subsequent admission still verifies all unique sources
+freshly. Four Debug and eleven Release suites pass with all previous core,
+desktop and legacy Apply export hashes unchanged. The slowest complete Debug
+desktop render stage is 20.666 seconds against the unchanged 30-second observation
+limit. Fresh-source mutation, cancellation, memory refusal and child retirement
+checks pass. Original failures and the bounded profile are retained. Native CI,
+installed delivery, independent quality and the full frozen goal remain open.
+
+## Native comp paths and desktop build follow-up (2026-10-14)
+
+[Checkpoint 297](297-native-comp-build-followup.md) corrects deep Windows fixture
+copies and shares the window compilation across application/test targets. Original
+CI passed all 193 Linux tests; three native comp tests failed during relocation,
+and the desktop job exceeded its budget despite passing 26/26 tests. All original
+artifacts are retained and audited. Sixteen rebuilt local suites plus four fresh
+helper suites pass; the original backup-expectation failure and three stale-helper
+results are retained explicitly. A Debug repeated-desktop probe completes one
+adoption but times out during the next creation; its full failure evidence is
+retained and the PR head is held for a measured correction. Fresh native confirmation, current installed
+preview delivery and the full frozen goal remain incomplete.
+
+## Repeated desktop rendered transitions (2026-10-14)
+
+[Checkpoint 296](296-repeated-desktop-comp-transitions.md) removes the temporary
+repeated-render gate after nine actual timeline create/review/Apply adoptions at
+three source rates, including retained assembled takes. Six selected suites pass
+in 338.62 seconds. Undo/Redo/save/reopen, exact live/export audio, cancellation,
+stale/corrupt history rejection and resource retirement are covered. A test-only
+settled-layout capture follow-up passes another three adoptions. Native Windows,
+installed preview delivery and the previous narrow Debug timing margin remain
+open; the complete frozen DAW goal remains active.
+
+## Paired historical verification performance (2026-10-14)
+
+[Checkpoint 295](295-comp-history-sharing.md) shares only completed exact history
+coverage within each operation and optimizes admitted RF64 byte decoding after a
+bounded partial profile. All twelve selected Release suites and four Debug suites
+pass; nine repeated and three legacy export hashes remain exact. Original failed
+Debug runs and profiler output are preserved alongside successful evidence.
+The slowest Debug child took 9.9911 seconds against ten seconds, so portable timing
+margin remains open. Test-only extended-path stream corrections await native
+runtime confirmation. Actual repeated desktop creation/review/Apply remains the
+next implementation gate. No installed preview changes; the full goal is active.
+
+## Repeated paired comp production (2026-10-14)
+
+[Checkpoint 294](294-repeated-paired-production.md) qualifies nine actual repeated
+paired adoptions and fifteen workers, including retained assembled takes,
+Undo/Redo/save/reopen/export, late historical-file rejection and unchanged outer
+playback. All ten selected local suites pass in 401.31 seconds. Repeated rendering
+through the application remains gated pending its actual desktop workflow.
+Original CI is fully retained and audited: Linux passes 190/191 with one test
+timeout, Windows desktop passes 26/26, and native worker tests pass 16/18. Deeper
+Windows path corrections pass local checks and cross-compiler syntax; native
+confirmation and a measured Linux performance correction remain next. The full
+frozen DAW goal remains active.
+
+## Queued comp dependency checks (2026-10-14)
+
+[Checkpoint 293](293-queued-comp-dependencies.md) retains immutable source-history
+closure through canonical Apply, rejects stale ancestry, and preserves unrelated
+edits. Six suites pass in 172.64 seconds, including actual desktop
+Apply/Undo/Redo/save/reopen/export, exact legacy WAV hashes and queued resource
+release. Original CI artifacts are fully retained: Windows desktop/cross-build
+passed; native history setup failed and Linux exceeded its job deadline. Fresh
+CI will test the path correction and complete Linux partitions. Repeated paired
+production remains gated; the complete frozen DAW goal remains active.
+
+## Versioned comp span workers (2026-10-14)
+
+[Checkpoint 292](292-versioned-comp-span-workers.md) binds explicit clocks in
+version-two requests and reviews original histories around actual child rendering.
+Five suites pass: nine successful workers, four required failures and 350,902
+worker PCM comparisons, alongside original-history and legacy regressions.
+Paired regeneration and queued canonical adoption remain gated. Native Windows
+version-two execution and full processing-quality qualification remain due.
+The preceding native CI exposed long journal paths; the correction has a focused
+Linux test and Windows syntax check, with native confirmation still pending.
+The complete frozen DAW goal remains active.
+
+## Explicit comp-span sample clocks (2026-10-14)
+
+[Checkpoint 291](291-comp-span-output-clocks.md) adds direct span rendering with
+explicit output clocks and previously baked pitch. Four suites pass, including
+15 new tone renders, 36 legacy renders, unchanged legacy export hashes and the
+original-history checks. Owned regenerated jobs remain gated pending protocol
+and adoption integration. Original CI is fully retained: Linux passes 187 tests;
+the native Windows compiler fix awaits a fresh run. The full goal remains active.
+
+## Original assembly history review (2026-10-14)
+
+[Checkpoint 290](290-original-assembly-history-review.md) verifies saved rendering
+jobs through their original source selections without restoring old live clips.
+Three suites pass: six actual adopted-source reviews, 405,432 PCM comparisons,
+393 history assertions and 132 refusal cases, with legacy recipe compatibility
+retained. A native Windows JSON-comparison build failure is corrected; new native
+confirmation remains due. Repeated production and queued adoption still need
+clock-aware integration. The full frozen DAW goal remains active.
+
+## Repeated-edit plans and desktop corrections (2026-10-14)
+
+[Checkpoint 289](289-regeneration-plans-and-ci-corrections.md) integrates original
+source history into handle planning and v2 recipes while preserving six retained
+v1 recipe identities. Twelve layered recipe cases pass; production remains gated
+until historical-file verification and clock-aware rendering are implemented.
+Original CI exposed a narrow-dialog layout bug and a Windows test-path conversion
+failure. Corrections pass local layout and transition tests, including enlarged
+DejaVu Sans at 350 pixels wide; native Windows confirmation remains due. Original
+CI evidence is retained and audited. The full frozen DAW goal remains active.
+
+## Original-source history for repeated rendering (2026-10-14)
+
+[Checkpoint 288](288-comp-regeneration-source-history.md) adds immutable source
+resolution through adopted assembly histories, complete paired dependencies,
+exact raw-frame maps and explicit accumulated clock/pitch ratios. Two suites
+pass with six actual adopted sources, nine additional metadata generations and
+101,358 fractional-position comparisons. This is source resolution only:
+repeated rendering, original-file verification and application integration remain
+required. Existing producer refusals stay in place. Native Windows qualification,
+processing quality and the full frozen DAW goal remain open.
+
+## Timeline creation of rendered transitions (2026-10-14)
+
+[Checkpoint 287](287-timeline-transition-creation.md) adds explicit Save and render
+from the crossfade dialog, bounded background preparation, atomic reference
+registration, durable save, supervised source workers, assembly and separate
+review/Apply. Eight new main-window cases (174 assertions), six Apply cases and
+fifteen controller cases pass with crossfade/package regressions. New renders
+leave audio unchanged until Apply; reopened exports match prior Linux evidence.
+Original preceding CI passes all four jobs; its full artifacts are retained and
+audited. Small cross-platform sample differences are documented without a new
+quality admission. Native Windows execution/installation of this new UI,
+repeated source-aware regeneration and full processing-quality gates remain due.
+Localization now has 1,090 source keys, with native review/full UI coverage still
+open. The complete frozen DAW goal remains active.
+
+## Main-window comp review and Apply (2026-10-14)
+
+[Checkpoint 286](286-main-window-comp-adoption.md) connects saved assembly jobs
+to a bounded review dialog, fresh background verification and guarded atomic
+Apply. Six actual main-window cases pass alongside fifteen controller regression
+cases. Undo/Redo, save/reopen, changed-file and stale-owner refusal, cancellation
+and asynchronous close are covered; three exported WAVs exactly match the prior
+engine qualification. Creating new rendered transitions from the timeline remains
+open, along with repeated regeneration, processing quality and new native Windows
+qualification. The full frozen goal remains active. Localization extraction now
+contains 1,062 keys; native review and full language UI coverage remain open.
+
+## Persistent comp playback and paired adoption (2026-10-14)
+
+[Checkpoint 285](285-comp-playback-state-and-adoption.md) adds conditional schema
+1.23 for original source provenance, atomic paired adoption and conflict-safe
+Undo/Redo. Six source-bound Linux suites pass: 54 persistent pairs and three
+actual assembly/save/reopen/playback/export workflows. All 202,404 playback
+samples exactly match exported WAV samples with floating headroom preserved.
+The preceding original CI passes all four jobs; both platform controller corpora
+and Windows bundle inputs are retained and audited. Main-window Apply, repeated
+source-aware regeneration, new native qualification and sound quality remain
+open. The full frozen DAW and localization goal remains active.
+
+## Final comp playback source preparation (2026-10-14)
+
+[Checkpoint 284](284-comp-playback-source-preparation.md) prepares actual physical
+or project-rate playback geometry while retaining the original clip/nominal/raw
+metadata separately. The expanded source-bound corpus passes 110 prepared sources
+and preserves every original sample's exact raw timing, fractional crops and
+processing alignment. This is a control-side preparation API. Versioned canonical
+provenance, paired adoption/Undo, real save/reopen/playback/export and main-window
+integration remain to be implemented. It does not establish new processing-quality
+or native Windows coverage. The complete frozen goal remains active.
+
+## Desktop assembly ownership (2026-10-14)
+
+[Checkpoint 282](282-desktop-assembly-ownership.md) queues final publication and
+recovery on a control thread with durable references, shared memory accounting,
+live owner/root/epoch guards and asynchronous close. Fifteen source-bound Linux
+cases pass in 23.88 seconds using actual source workers and the real project
+controller. GUI event processing, stale/same-root-reopen refusal, cancellation,
+late committed recovery and resource retirement are covered. Main-window wiring,
+post-SRC live/offline state, paired audio adoption, native verification and quality
+remain open. Checkpoint 283 retains and audits the completed preceding CI: all
+four jobs pass, including native Windows publication and schema 1.22 relocation.
+Both platform corpora preserve their original process/file evidence. The Windows
+bundle audit verifies fourteen payloads and 1,626 source files. This clears the
+pending head-update gate; Windows execution of the newer controller is still due.
+
+## Project-owned assembly requests (2026-10-14)
+
+[Checkpoint 281](281-project-assembly-recovery.md) adds conditional schema 1.22,
+trusted immutable request sidecars, globally reserved operation/output identities
+and atomic registration/removal Undo/Redo. Five source-bound Linux suites pass in
+31.17 seconds, including real publication and recovery after project relocation.
+Original preceding CI passes all four jobs and its full artifacts are retained.
+Desktop assembly ownership, explicit post-SRC playback state, paired audio
+adoption, new native execution and processing quality remain open. Full frozen
+professional DAW and European localization requirements remain active.
+
+## Owned comp assembly publication and recovery (2026-10-14)
+
+[Checkpoint 280](280-owned-comp-assembly-jobs.md) publishes immutable final candidate
+files and commits the pair only after complete recomputation and scope checks.
+Source-bound Linux evidence covers three complete, six interrupted and three
+canceled jobs; 202,716 output samples match. A forged within-blend sample with
+repaired hashes is refused. The running executable is hashed through its actual
+Linux image, including a real pathname-replacement probe. Trusted request references
+in project state, desktop ownership, post-SRC live/offline state, paired adoption,
+new native execution and sonic quality remain open. Full parity is not claimed.
+
+## Original nominal render review (2026-10-14)
+
+[Checkpoint 279](279-original-comp-nominal-review.md) binds assembly to original
+owned nominal assets/anchors and independently verifies their receipts before and
+after streaming. A source-bound workflow launches six nominal workers, applies
+verified edits with Undo/Redo/save/reopen, then runs six comp workers and assembles
+six fragments. Busy leases, wrong policies and changed original markers refuse.
+All preceding CI jobs pass with actual native schema/supervisor evidence retained.
+Original protocol executable attestation, final owned publication, post-SRC shared
+state, paired adoption/UI, new Windows assembly execution and sound quality remain
+open; the complete frozen DAW target is unchanged.
+
+## Verified comp candidate assembly (2026-10-14)
+
+[Checkpoint 278](278-verified-comp-assembly.md) streams verified paired span outputs
+on physical or project-after-SRC grids with trusted reference checks, bounded
+buffers, byte grants and final paired reinspection. Six real workers pass the
+source-bound Linux corpus; 202,620 unblended samples and 96 independently computed
+curve samples match. Separate outside-scope media checks pass. Original nominal
+producer provenance, sound quality, owned final publication, post-SRC live/offline
+state, paired adoption, main-window integration and new Windows execution remain
+open. The full frozen target is unchanged.
+
+## Paired comp process supervision (2026-10-14)
+
+[Checkpoint 277](277-paired-comp-supervision.md) controls actual span children with
+live project/root/epoch/reference guards, joined memory reservations, bounded logs,
+start/cancel/reaping and asynchronous close. Ten source-bound Linux cases pass;
+nine processes/three completed spans cover stale edits/replacement, partial cancel,
+unsaved-reference refusal and the actual deadline watchdog. Previous pair API CI
+passes all four jobs with original native process evidence. Main-window wiring,
+new native schema/supervisor tests, final assembly/adoption and quality remain open.
+
+## Trusted comp references in project state (2026-10-14)
+
+[Checkpoint 276](276-project-comp-references.md) adds strict schema1.21 operation/
+selection-digest references, budgeted validation and atomic registration/removal
+Undo/Redo. The actual worker fixture saves/reopens those references and verifies
+a relocated completed pair with fresh context. Six source-bound Linux suites pass
+in 5.75 seconds. Previous original CI is still active; new Windows state execution
+is pending. Desktop process supervision, final comp assembly/adoption, quality,
+installation and European localization remain open.
+
+## Durable paired comp recovery (2026-10-14)
+
+[Checkpoint 275](275-paired-comp-recovery.md) persists immutable selection/recipe/
+requests with a trusted owner digest, rederives them on reopen, and inspects paired
+active/interrupted/canceled/completed/stale states. Four actual Linux workers cover
+completed, canceled and watchdog retirement paths; stale/no-render and synthetic
+interrupted-start checks pass. Previous owned-worker CI passes all four jobs.
+Actual project references, desktop process supervision, final assembly/adoption,
+quality, new native pair execution, installation and Europe coverage remain open.
+
+## Owned comp span processes (2026-10-14)
+
+[Checkpoint 274](274-owned-comp-span-worker.md) renders actual candidates in an
+owned process with request/recipe/executable identity, resource/watchdog limits,
+source admission, readiness/start, no-overwrite completion and independent PCM
+verification. A source-bound 33-worker corpus passes with six completed spans and
+27 refusal/interruption paths. Original preceding CI passes all four jobs and
+retains actual Windows span reports; quality flags remain false. New worker native,
+controller/paired assembly/recovery/nonuniform/overlay/state/adoption/UI and full
+quality/installed-platform/Europe gates remain open.
+
+## Exact uniform comp span renderer (2026-10-14)
+
+[Checkpoint 273](273-uniform-comp-span-rendering.md) renders exact fractional-grid
+uniform spans through positioned preparation and R3, retaining independent pitch
+and playback speed. Three source-bound gates pass; 36 fresh stereo renders cover
+rates/time/pitch/formant modes. Independent fundamental error reaches 0.506%; three
+off-fundamental dominant peaks keep quality open. Corrected native predecessor
+passes original recipe/media gates and all four jobs. Owned producer/completion,
+nonuniform maps, curve/alignment, overlay/adoption/UI/native and full-suite/Europe
+work remain required.
+
+## Actual comp media scope review (2026-10-14)
+
+[Checkpoint 272](272-comp-media-review.md) independently validates actual WAVs and
+source companion bytes and compares physical/project PCM outside permitted edits.
+Three source-bound Linux gates pass across 36 paired file cases, including all
+nine rate/encoding combinations, with about 2.8 million outside-project samples
+bit-identical. The result remains separate from adoption/producer/quality authority.
+Original native Windows recipe compilation failed; its logs/artifacts are retained
+and the typed-string correction is implemented, awaiting native confirmation.
+Owned jobs, general producer/curve alignment, overlay/state/playback/UI, quality,
+installed platforms and all-Europe/full-suite gates remain open.
+
+## Portable comp recipes (2026-10-14)
+
+[Checkpoint 271](271-comp-processing-recipes.md) adds versioned source snapshots,
+recomputed permissions, owner-supplied digest/executor identity and immutable
+Unicode-safe sidecar publication/reload. Four source-bound local gates pass,
+including 618 recipe checks over 11 cases. Preceding permission CI passes all four
+original jobs, with full logs/ZIPs retained and build inputs independently audited.
+New recipe Windows execution, owned jobs, project references, media review,
+post-SRC live/offline integration, adoption/UI and processing quality remain open.
+Full frozen-suite, installed-platform and all-Europe requirements stay active.
+
+## Derived comp processing permissions (2026-10-14)
+
+[Checkpoint270](270-comp-processing-permissions.md) derives immutable permissions
+from requested transitions and includes real FIR read neighborhoods.51 physical
+and35 post-SRC cases retain byte-exact outside project PCM across rate/speed/
+fraction/offset variants. One-frame edits retain their width. Three local gates
+pass; prior source passes all original Windows/Linux jobs and reviewed build-input
+bytes. Persisted recipes, renderer/adoption/live-offline integration and quality
+remain open. Full frozen-suite, installed-platform and all-Europe goals stay active.
+
+## Explicit comp processing region (2026-10-14)
+
+[Checkpoint 269](269-explicit-comp-processing-region.md) evaluates scoped,
+permission-checked inner blending while preserving original assets and outside
+PCM. Both core gates and the corrected desktop import gate pass locally;36
+assemblies retain independent curve/scope and artifact measurements. Joins improve
+but quality observations remain mixed. Original preceding CI has one Windows UI
+timer-observation failure; its actual logs/artifacts are retained, and the test
+now observes GUI dispatch during held work. New Windows execution and production
+permission/state/adoption integration remain open. Full-suite/Europe goal active.
+
+## Separate comp edges and bounded assembly (2026-10-14)
+
+[Checkpoint 268](268-comp-edge-assembly.md) adds bounded PCM assembly with original
+inner samples, resource/failure checks and measured joins. Three focused Linux
+gates pass; 36 actual R3 renders across 12 nonunity/pitched cases retain full PCM
+and independent exact-recipe/boundary analysis. Large join steps prevent quality
+admission despite center preservation. Original preceding hosted grid checks pass
+all four jobs and build inputs pass independent byte/source review. Current
+assembly Windows execution, production jobs, join quality and UI remain open;
+full-suite and all-Europe requirements stay active.
+
+## Fractional comp processing grids (2026-10-14)
+
+[Checkpoint 267](267-comp-processing-grid.md) supplies exact raw intervals to an
+integer processing grid without changing clip speeds or nominal anchors. Seven
+focused Linux gates pass, including independent Fraction and existing FIR/rate
+oracles. Fourteen retained backend renders demonstrate input-grid pitch
+compensation and show that full rerendering changes every nominal sample in the
+tested comp case. Residual pitch error, formants, edge joins, general production
+generation and controller/UI delivery remain open. Windows checks are wired and
+pending; the full-suite and all-Europe goals remain active.
+
+## Actual unity comp handle generation (2026-10-13)
+
+[Checkpoint 265](265-unity-comp-handle-renders.md) adds reviewed dual-buffer source
+admission as one structural change. Sixteen existing-worker renders across four
+software scenarios preserve nominal/current PCM and pass all three fade curves,
+atomic Undo/reopen, live/export equality and refusal paths. Eight selected Linux
+gates pass; the preceding window-state source passes all original hosted jobs.
+The original hosted run for this source has now passed all four jobs. A follow-up
+uses a distinct processed retained take and refuses a changed retained-artifact
+file across 20 real renders. Nonunity/pitch/general producers, paired
+regeneration, controller/UI and broader sonic/SRC qualification remain open;
+installed previews and full-suite/Europe delivery are unchanged.
+
+
+## Processed comp handle window state (2026-10-13)
+
+[Checkpoint 264](264-processed-comp-window-state.md) adds conditional project schema
+1.20 with explicit processed windows and unchanged nominal/raw anchors. Exact lookup,
+validation, split/paired edits, Undo/reopen and further planning pass nine Linux
+gates, including 75 window checks. The preceding planner passes all four original
+hosted jobs and its build inputs pass byte/source review. Current window-state
+Windows checks are pending. Actual worker generation/admission, paired stretch
+regeneration and PCM edge quality remain required; no audio is generated yet.
+Installed previews and full-suite/Europe delivery are unchanged.
+
+
+## Immutable comp handle planning (2026-10-13)
+
+[Checkpoint 263](263-immutable-comp-handle-plans.md) promotes bounded handle geometry
+into the engine with immutable ownership, revision/workspace and expected-source
+checks, shared exact warp arithmetic and paired reservation cleanup. Fresh Linux
+acceptance passes eight gates and 156 planner checks; no missing audio is generated
+yet. The preceding Windows font correction passes all four original hosted jobs,
+with readable Arial captures and verified deployment/source bytes. The planner's
+own hosted checks are pending. Versioned handle state, worker generation/admission
+and PCM edge quality are next. Installed previews and full-suite/Europe delivery
+remain unchanged.
+
+
+## Windows desktop font and recording wait evidence (2026-10-13)
+
+[Checkpoint 262](262-windows-offscreen-fonts.md) retains the original Windows
+crossfade and finite-recording failures. Offscreen tests now use Windows' installed
+fonts and require printable English glyphs. Test-only disk boundary observations
+are captured before cancellation without extending the five-second wait. A fresh
+Linux build passes 165 dialog checks, 5,932,791 simulated native-owner checks and
+both catalog checks. The ignored handle planner passes 136 metadata/resource checks;
+missing-span rendering remains open. Hosted Windows results are pending. Installed
+previews, full-suite parity and European language qualification are unchanged.
+
+
+## Prepared rendered comp handles (2026-10-13)
+
+[Checkpoint 260](260-rendered-comp-handles.md) corrects admission of existing
+verified derivative handles using exact raw-coordinate coverage, including context,
+warp and retained processed takes. Real v4/v5 file/PCM, curves, export, persistence
+and callback checks pass alongside rollback/model tests. Crossfade explanation now
+reflows in a small vertically scrollable dialog; screenshot review also corrected
+horizontal clipping. Linguist is regenerated. Missing-span asynchronous rendering,
+current Windows/installed/quality and full Europe/frozen-reference goals remain open.
+
+
+## Ubuntu comp/audition preview delivery (2026-10-13)
+
+[Checkpoint 259](259-comp-audition-preview.md) installs a per-user preview with
+previous-version rollback, current retained-take preparation and handle crossfades.
+Actual packaged Undo/Redo/save/reopen/identical exports, independent whole PCM and
+private native recording/playback pass. The stale post-retirement Linguist fingerprint
+was found by Linux CI and corrected with real extraction. Corrected source `1a3b202`
+passes all four hosted jobs; original failures remain indexed. Current Windows
+installer, physical/quality, responsive dialog help and all-Europe remain open.
+Full frozen-reference workflows remain the target.
+
+
 ## Retained take audition (2026-10-13)
 
 [Checkpoint 258](258-retained-take-audition.md) adds finite transient take playback
@@ -2111,7 +3294,7 @@ assign a host/instructioncause froman interval alone.
 ## 2026-10-06 continuation: retained individual-call miss and signing budget
 
 Exact11110 terminates exit1 before actualcafc539 diagnostic binary freeze; reader
-35316 terminates exit0 before source/build edits. All62launch source pins and
+35316 terminates exit 0 before source/build edits. All62launch source pins and
 binary/library hashes match. At56.92audio seconds sink skips1024frames. Same-cycle
 owner21.854538mswall/21.851922msCPU ends23.490041ms aftercycle; original maximum
 gate fails. Matching rawmax ordinal3 wall4.177203ms/CPU4.175100ms; EQ wallmax ordinal4
@@ -2243,7 +3426,7 @@ professional/import/profile/all-Europe gates stay required. Full goal incomplete
 
 ## 2026-10-06 continuation: default native recording and committed signing policy
 
-Exact28857 is terminal exit0 before subsequent edits. At1fd9e9e, the serial plain
+Exact28857 is terminal exit 0 before subsequent edits. At1fd9e9e, the serial plain
 owned PipeWire20-second normal fixture verifies30,720,000raw/1,920,000output samples
 with zero difference, no missing frames and intact float headroom. Joined raw
 journals/origins/hashes/alignment and Save/reopen pass. All three callback roles
@@ -3622,7 +4805,7 @@ The next local Ubuntu 26.04 amd64 package/source pair is
 `0.1.0~preview.20261008034000.743392ece10a`; all **719** corresponding-source files are
 independently verified. Normal owned-rootfs upgrade and the actual installed GUI
 fault/verified raw prefix/Save/Quit/reopen/historical review pass. Both app exits
-and launcher exit0; original raw take, journal, sidecar and project bytes are
+and launcher exit 0; original raw take, journal, sidecar and project bytes are
 unchanged on reopen/review. No recording endpoint or audio preview is started by
 the historical error row. Host default/link fingerprints match.
 
@@ -4488,7 +5671,7 @@ normal exit, new-process reopen and two byte-identical WAV exports. Independent
 48 kHz stereo PCM equals the derived 12,288-frame clip; finite peak2.22680855
 preserves float headroom. Actual installed helper identity/hash was captured by
 polling; non-admin process-start tracing was denied and remains explicitly limited.
-Normal uninstall and same-build reinstall exit0, payload/shortcuts/registration
+Normal uninstall and same-build reinstall exit 0, payload/shortcuts/registration
 checks pass, project/media/export and sentinel settings/user files survive unchanged.
 Post-reinstallation startup and normal exit pass. Windows reused a terminated PID;
 the three sequential reports retain their distinct timestamps. All VMs are off,
@@ -4639,7 +5822,7 @@ checks, with its tested/merged tree verified. [Checkpoint152](152-bounded-worker
 now corrects acceptance pipe observation and retains exact exits/protocol output
 instead of an empty-stderr message. Six real failure cases and both real Linux
 render banks pass. In a brief single-clone rebooted session the historical8b46
-native v4 bank passed and the default-style desktop opened/closed with exit0;
+native v4 bank passed and the default-style desktop opened/closed with exit 0;
 v5 still timed out without a completed report or known cause. The observations
 retain8b46 source identity and do not qualify this new head's native bank or installer.
 All VMs are shut off. Next: reproduce one protected native request with the new
@@ -4874,7 +6057,7 @@ unchanged. Source3012/helper8304 have exact native handle/creation/image binding
 parent death leaves a live writer unavailable for review in fresh GUI6448.
 Separate helper death changes the recovery row to Incomplete and keeps Review
 IsEnabled=false. Partial4120 bytes/hash, project/raw and prior proven fixture
-stay unchanged. Fresh GUI normal exit0; all owned handles terminal/thread joined.
+stay unchanged. Fresh GUI normal exit 0; all owned handles terminal/thread joined.
 List focus/Home actions are recorded; separate IsSelected properties are not.
 
 Three operator failures remain in original archives with actual cleanup. The
@@ -5370,7 +6553,7 @@ Current-MAIN native job114400815807 exposed the original manual wait timeout wit
 an intact Unicode path. The exact caller was hidden by the shared wait helper;
 e442fc89 forwards caller location and early callback-failure status/frame. A
 separate Windows desktop parent-interruption case lacked completion markers.
-Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit0/
+Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit 0/
 busy/unverified regression, and records timeout/exit/error/deadline/job inventory
 at the interruption boundary. Deadlines/assertions remain unchanged. Linux Debug
 controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-byte/

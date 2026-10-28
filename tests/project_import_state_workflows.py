@@ -22,7 +22,7 @@ def check(ok, why):
     assert ok, why
 
 
-def case(root, source, media):
+def case(root, source, media, expected_samples=None):
     root.mkdir()
     selected = root / "original.rpp"
     selected.write_bytes(source)
@@ -55,6 +55,21 @@ def case(root, source, media):
     saved = json.loads((relocated / "project.json").read_text())
     check(saved["schemaMinor"] == 18 and len(saved["imports"]) == 1,
           "Portable import manifest missing")
+    if expected_samples is not None:
+        exported = (relocated / "exports" / "observed.wav").read_bytes()
+        check(exported[:4] == b"RIFF" and exported[8:12] == b"WAVE", "Export container differs")
+        chunks = {}
+        at = 12
+        while at + 8 <= len(exported):
+            length = struct.unpack_from("<I", exported, at + 4)[0]
+            chunks[exported[at:at + 4]] = exported[at + 8:at + 8 + length]
+            at += 8 + length + length % 2
+        fmt = chunks[b"fmt "]
+        check(struct.unpack_from("<H", fmt)[0] == 3
+              and struct.unpack_from("<H", fmt, 14)[0] == 32,
+              "Export is not float32 PCM")
+        samples = struct.unpack("<" + "f" * (len(chunks[b"data"]) // 4), chunks[b"data"])
+        check(list(samples) == expected_samples, "Export differs from independent integer fixture oracle")
     source_record = saved["imports"][0]
     check(source_record["sourceSha256"] == hashlib.sha256(source).hexdigest(),
           "Original source digest changed")
@@ -85,6 +100,26 @@ with tempfile.TemporaryDirectory(prefix="sc-import-state-été-") as temporary:
               b'   UNKNOWN_DO_NOT_EXECUTE "foreign-state"\n   <SOURCE WAVE\n'
               b'    FILE "audio.wav"\n   >\n  >\n >\n>\n')
     case(root / "synthetic", source, wave)
+    # Original little-endian stereo fixtures cross both decoder paths and cache
+    # page boundaries; expected amplitudes are derived from integer precision.
+    for bits, precision in [(16, 12), (24, 20), (32, 24)]:
+        peak = 1 << (precision - 1)
+        values = [-peak, peak - 1, -1, 1, 0, peak // 2] * 100
+        data = b"".join(((v << (bits - precision)) & ((1 << bits) - 1)).to_bytes(bits // 8, "little")
+                        for v in values)
+        fmt = (struct.pack("<HHIIHHHHI", 0xfffe, 2, 48000, 48000 * 2 * (bits // 8),
+                           2 * (bits // 8), bits, 22, precision, 3)
+               + bytes.fromhex("0100000000001000800000aa00389b71"))
+        fmt_chunk = b"fmt " + struct.pack("<I", len(fmt)) + fmt
+        for rf64 in [False, True]:
+            chunks = fmt_chunk + b"data" + struct.pack("<I", 0xffffffff if rf64 else len(data)) + data
+            if rf64:
+                ds64 = b"ds64" + struct.pack("<IQQQI", 28, 4 + 36 + len(chunks), len(data), len(values) // 2, 0)
+                wave = b"RF64" + b"\xff" * 4 + b"WAVE" + ds64 + chunks
+            else:
+                wave = b"RIFF" + struct.pack("<I", 4 + len(chunks)) + b"WAVE" + chunks
+            case(root / f"padded-{precision}-in-{bits}-{'rf64' if rf64 else 'riff'}",
+                 source, wave, [v / peak for v in values])
     manifest = json.loads((corpus / "manifest.json").read_text())
     seen = []
     for native in manifest["cases"]:

@@ -112,3 +112,14 @@ Wine, a cross-build, or an archive copied to the owner's Windows machine.
 
 Start the dependency/support audit alongside continued native backend development;
 do not postpone every installation task to M11. M11 verifies the complete delivery.
+
+## Official release candidate gate (2026-10-27)
+
+The [release candidate contract](381-release-candidate-contract.md) applies production
+quality/security/compatibility/documentation/adversarial/owner self-review gates to
+candidates below1.0. Windows/Linux each require a native installer or recognized
+package with disposable install/launch/upgrade/uninstall/residue qualification.
+Commercial signing awaits funding; installer work does not. Clearly label unsigned
+candidates and include checksums, provenance attestations where available and GPL
+source delivery. Disclose absent independent human review; it is not a hard blocker.
+Existing preview evidence remains scoped and does not certify an official candidate.

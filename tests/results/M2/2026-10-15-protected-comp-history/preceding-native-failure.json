@@ -1,0 +1,38 @@
+{
+  "run": 38681796679,
+  "head": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f",
+  "job": 116247770666,
+  "jobConclusion": "failure",
+  "test": "pipewire-owned-recording",
+  "check": 2,
+  "retainedOriginalProjectFiles": 13,
+  "originalManifestFiles": 14,
+  "missingOriginalFiles": [
+    {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "path": ".save.lock"
+    }
+  ],
+  "originalArtifact": {
+    "id": 11949471558,
+    "bytes": 332762564,
+    "sha256": "ba20b703cdebc6f2b73b1657d8f99f6282a37129c860cb925847b18da9d2d429"
+  },
+  "archive": "preceding-native-failure.zip",
+  "bytes": 108529,
+  "sha256": "dd64e77d10d3b2dac457736e996a2c4ea8a26bd9ec948aaf351a83b02dff0ef2",
+  "observed": {
+    "disposition": "Failed",
+    "renderCause": "Startup",
+    "rawFramesFinalized": 96480,
+    "monitorFramesDelivered": 0,
+    "finiteFramesPublished": 1,
+    "captureAndRenderJoined": true,
+    "diskFailure": false,
+    "processingFault": null
+  },
+  "inference": "Possible stale pre-readiness accepted count or caller clock snapshot; exact branch not instrumented. Reproduce before selecting fix.",
+  "fullRunTerminal": false,
+  "wholeRunAuditComplete": false
+}

@@ -7,6 +7,8 @@
 #include <soundcurrent/session.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_handle_plan.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <set>
 #include <filesystem>
 #include <unordered_map>
@@ -291,6 +293,19 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
         bytes.add(a.nativeEvidence.capacity(),sizeof(ProjectEvidenceFile));
         for(const auto &f:a.nativeEvidence){string(f.relativePath);string(f.sha256);}
     }
+    bytes.add(s.compPairSelections.capacity(), sizeof(CompPairSelectionReference));
+    for (const auto &reference : s.compPairSelections) {
+        id(reference.operation); string(reference.selectionSha256);
+    }
+    bytes.add(s.compAssemblies.capacity(), sizeof(CompAssemblyReference));
+    for (const auto &reference : s.compAssemblies) {
+        id(reference.operation); string(reference.selectionOperation.str());
+        string(reference.requestSha256);
+        for (const auto &output : reference.outputs) if (output) id(*output);
+    }
+    bytes.add(s.compPlaybackSources.capacity(),sizeof(CompPlaybackSourceState));
+    for(const auto &source:s.compPlaybackSources)
+        bytes.add(compPlaybackSourcePayloadBytes(source)-sizeof(CompPlaybackSourceState));
     bytes.add(s.imports.capacity(), sizeof(ImportedProjectSource));
     const auto evidence = [&](const ProjectEvidenceFile &f) {
         string(f.relativePath); string(f.sha256);
@@ -328,9 +343,21 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
                 string(c.takeOrigin->laneId.str());
                 string(c.takeOrigin->clipId.str());
             }
+            if(c.compHandles) {
+                string(c.compHandles->baseAssetId.str());
+                string(c.compHandles->baseSha256);string(c.compHandles->renderKey);
+            }
         };
         bytes.add(t.clips.capacity(), sizeof(Clip));
         for (const auto &c : t.clips) clipPayload(c);
+        if (t.activeVersion) { id(t.activeVersion->id); string(t.activeVersion->name); if(t.activeVersion->groupId)id(*t.activeVersion->groupId); }
+        bytes.add(t.inactiveVersions.capacity(), sizeof(TrackVersion));
+        for (const auto &version : t.inactiveVersions) {
+            id(version.identity.id); string(version.identity.name);
+            if(version.identity.groupId)id(*version.identity.groupId);
+            bytes.add(version.clips.capacity(), sizeof(Clip));
+            for (const auto &c : version.clips) clipPayload(c);
+        }
         bytes.add(t.takeLanes.capacity(), sizeof(TakeLane));
         for (const auto &lane : t.takeLanes) {
             id(lane.id); id(lane.groupId); string(lane.name);
@@ -362,7 +389,7 @@ void validate(const Session &s, StateBudget budget) {
     check(s.loop.startFrame >= 0 && s.loop.endFrame >= s.loop.startFrame &&
               (!s.loop.enabled || s.loop.endFrame > s.loop.startFrame),
           "Invalid loop playback locators");
-    std::unordered_set<std::string_view> ids;
+    std::unordered_set<std::string_view> ids, versionGroups;
     std::unordered_map<std::string_view, std::pair<Frame, Frame>> takeGroups;
     struct RetainedClip { const Track *track; const TakeLane *lane; const Clip *clip; };
     std::unordered_map<std::string_view, RetainedClip> retained;
@@ -370,6 +397,26 @@ void validate(const Session &s, StateBudget budget) {
         check(ids.insert(id.str()).second, "Duplicate object UUID");
     };
     unique(s.id);
+    for (const auto &reference : s.compPairSelections) {
+        unique(reference.operation);
+        check(reference.selectionSha256.size() == 64 &&
+              std::all_of(reference.selectionSha256.begin(),reference.selectionSha256.end(),lowerHex),
+              "Invalid comp selection SHA-256");
+    }
+    for (const auto &reference : s.compAssemblies) {
+        unique(reference.operation);
+        check(reference.requestSha256.size() == 64 &&
+              std::all_of(reference.requestSha256.begin(),reference.requestSha256.end(),lowerHex),
+              "Invalid comp assembly request SHA-256");
+        check(std::any_of(s.compPairSelections.begin(),s.compPairSelections.end(),
+                         [&](const auto &r){return r.operation==reference.selectionOperation;}),
+              "Comp assembly has no trusted selection reference");
+        check(reference.outputs[0] || reference.outputs[1], "Comp assembly has no generated output");
+        for (const auto &output : reference.outputs) if (output) unique(*output);
+    }
+    std::unordered_set<std::string_view> provenanceOperations;
+    for(const auto &source:s.compPlaybackSources)
+        if(provenanceOperations.insert(source.assembly.operation.str()).second)unique(source.assembly.operation);
     std::unordered_map<std::string_view, const Asset *> assets;
     std::unordered_map<std::string_view, const Track *> tracks;
     for (const auto &t : s.tracks)
@@ -408,6 +455,7 @@ void validate(const Session &s, StateBudget budget) {
         }
         assets.emplace(a.id.str(), &a);
     }
+    validateCompPlaybackSources(s);
     for (const auto &source : s.imports) {
         unique(source.id);
         validateImportedProjectSource(source);
@@ -493,10 +541,17 @@ void validate(const Session &s, StateBudget budget) {
             check(c.startFrame <= std::numeric_limits<Frame>::max() - c.lengthFrames,
                   "Clip timeline overflow");
             check(t.layout == a.layout, "Clip/track layout mismatch");
+            if(findCompPlaybackSource(s,c.assetId))
+                check(!c.stretch && !c.compHandles,"Assembled playback cannot reuse a nominal stretch anchor");
+            check(!c.compHandles || c.stretch,"Processed handle window has no nominal anchor");
             if(c.stretch) {
                 const auto raw=assets.find(c.stretch->sourceAssetId.str());
                 check(raw!=assets.end(),"Stretch refers to missing raw asset");
-                validateClipStretch(*c.stretch,*raw->second,a);
+                if(c.compHandles) {
+                    const auto base=assets.find(c.compHandles->baseAssetId.str());
+                    check(base!=assets.end(),"Processed handles refer to missing nominal artifact");
+                    validateCompHandleWindow(c,*raw->second,*base->second,a);
+                } else validateClipStretch(*c.stretch,*raw->second,a);
                 validateStretchClipWindow(c,*raw->second,a,s.sampleRate);
             }
         };
@@ -524,21 +579,76 @@ void validate(const Session &s, StateBudget budget) {
                 check(ranges[n-1].second <= ranges[n].first, "Retained take clips overlap");
         }
         for (const auto &c : t.clips) validateClip(c);
+        check(t.activeVersion || t.inactiveVersions.empty(), "Inactive versions have no active version");
+        std::unordered_set<std::string_view> trackVersionGroups;
+        const auto versionIdentity = [&](const TrackVersionIdentity &v) {
+            if(v.groupId) {
+                check(trackVersionGroups.insert(v.groupId->str()).second, "Track has duplicate version group");
+                versionGroups.insert(v.groupId->str());
+            }
+            unique(v.id); text(v.name);
+            check(!v.name.empty(), "Track version name is empty");
+        };
+        if (t.activeVersion) versionIdentity(*t.activeVersion);
+        for (const auto &version : t.inactiveVersions) {
+            versionIdentity(version.identity);
+            for (const auto &c : version.clips) validateClip(c);
+        }
     }
-    for (const auto &t : s.tracks)
-        for (const auto &c : t.clips)
+    for (const auto &reference : s.compAssemblies) {
+        check(!takeGroups.contains(reference.operation.str()), "Assembly operation reuses a take group UUID");
+        for (const auto &output : reference.outputs) if (output)
+            check(!takeGroups.contains(output->str()), "Assembly output reuses a take group UUID");
+    }
+    const auto validateTakeOrigin = [&](const Clip &c,std::uint32_t clipProjectRate) {
             if (c.takeOrigin) {
                 const auto origin = retained.find(c.takeOrigin->clipId.str());
                 check(origin != retained.end() && origin->second.track->id == c.takeOrigin->trackId &&
                           origin->second.lane->id == c.takeOrigin->laneId,
                       "Comp refers to a missing retained take clip");
                 const auto &source = *origin->second.clip;
+                const auto *assembled=findCompPlaybackSource(s,c.assetId);
+                const auto *retainedAssembly=findCompPlaybackSource(s,source.assetId);
                 check(source.assetId == c.assetId ||
+                          (assembled && (assembled->source.raw.id==source.assetId ||
+                              (retainedAssembly && assembled->source.raw==retainedAssembly->source.raw) ||
+                              (source.stretch && assembled->source.raw.id==source.stretch->sourceAssetId &&
+                               assembled->source.raw.sha256==source.stretch->sourceSha256))) ||
                           (c.stretch && (c.stretch->sourceAssetId == source.assetId ||
                               (source.stretch && c.stretch->sourceAssetId == source.stretch->sourceAssetId &&
                                c.stretch->sourceSha256 == source.stretch->sourceSha256))),
                       "Comp source asset differs from retained take");
+                if(c.compHandles || assembled) {
+                    const auto &raw=assembled?assembled->source.raw:*assets.at(c.stretch->sourceAssetId.str());
+                    const auto &retainedAsset=*assets.at(source.assetId.str());
+                    const auto allowed=clipSourceMap(source,retainedAsset.sampleRate,s.sampleRate);
+                    auto first=allowed.at(0),end=allowed.at(source.lengthFrames);
+                    if(source.stretch) {
+                        const auto geometry=stretchGeometry(*source.stretch,raw.frames);
+                        if(!source.compHandles && sourcePositionLess(geometry.visibleEnd,end))end=geometry.visibleEnd;
+                        first=processedClipOutputToRaw(source,raw,first);
+                        end=processedClipOutputToRaw(source,raw,end);
+                    } else if(const auto *retainedSource=findCompPlaybackSource(s,source.assetId)) {
+                        if(sourcePositionLess({retainedAsset.frames,0,1},end))end={retainedAsset.frames,0,1};
+                        first=compPlaybackRawPosition(retainedSource->source,first);
+                        end=compPlaybackRawPosition(retainedSource->source,end);
+                    }
+                    const auto map=clipSourceMap(c,assets.at(c.assetId.str())->sampleRate,clipProjectRate);
+                    const auto rawPosition=[&](SourcePosition at){return assembled?compPlaybackRawPosition(assembled->source,at):processedClipOutputToRaw(c,raw,at);};
+                    check(!sourcePositionLess(rawPosition(map.at(0)),first) &&
+                        sourcePositionLess(rawPosition(map.at(c.lengthFrames-1)),end),
+                        "Processed comp handles exceed retained take coverage");
+                }
             }
+    };
+    for (const auto &t : s.tracks) {
+        for (const auto &c : t.clips) validateTakeOrigin(c, s.sampleRate);
+        for (const auto &version : t.inactiveVersions)
+            for (const auto &c : version.clips) validateTakeOrigin(c, s.sampleRate);
+    }
+    for(const auto &source:s.compPlaybackSources){validateTakeOrigin(source.source.original,source.source.projectRate);validateTakeOrigin(source.source.playback,source.source.projectRate);}
+    for (const auto &group : versionGroups)
+        check(ids.insert(group).second, "Version group UUID conflicts with an object");
     for (const auto &[group, extent] : takeGroups) {
         (void)extent;
         check(ids.insert(group).second, "Take group UUID conflicts with an object");

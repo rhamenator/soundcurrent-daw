@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/session.hpp>
+#include <soundcurrent/comp_assembly_dependencies.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_handle_plan.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/warp.hpp>
 #include <numeric>
+#include <unordered_set>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -149,6 +153,10 @@ void dynamicWeight(PayloadCharge &charge, const Clip &c) {
         stringWeight(charge, c.stretch->processor);
         if (c.stretch->warp) charge.add(warpPayloadBytes(*c.stretch->warp));
     }
+    if(c.compHandles) {
+        stringWeight(charge,c.compHandles->baseAssetId.str());
+        stringWeight(charge,c.compHandles->baseSha256);stringWeight(charge,c.compHandles->renderKey);
+    }
     if (c.takeOrigin) {
         stringWeight(charge, c.takeOrigin->trackId.str());
         stringWeight(charge, c.takeOrigin->laneId.str());
@@ -164,6 +172,19 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
     for (const auto &b : t.eq.bands)
         stringWeight(charge, b.id.str());
     for (const auto &c : t.clips) dynamicWeight(charge, c);
+    if (t.activeVersion) {
+        stringWeight(charge, t.activeVersion->id.str());
+        stringWeight(charge, t.activeVersion->name);
+        if(t.activeVersion->groupId)stringWeight(charge,t.activeVersion->groupId->str());
+    }
+    charge.add(t.inactiveVersions.capacity(), sizeof(TrackVersion));
+    for (const auto &version : t.inactiveVersions) {
+        stringWeight(charge, version.identity.id.str());
+        stringWeight(charge, version.identity.name);
+        if(version.identity.groupId)stringWeight(charge,version.identity.groupId->str());
+        charge.add(version.clips.capacity(), sizeof(Clip));
+        for (const auto &c : version.clips) dynamicWeight(charge, c);
+    }
     charge.add(t.takeLanes.capacity(), sizeof(TakeLane));
     for (const auto &lane : t.takeLanes) {
         stringWeight(charge, lane.id.str()); stringWeight(charge, lane.groupId.str());
@@ -262,14 +283,39 @@ const Clip &retainedSource(Session &s, const Clip &clip) {
 }
 Clip extendedCompCopy(Session &s, const Clip &clip, Frame first, Frame end) {
     const auto &retained=retainedSource(s,clip);
-    require(clip.assetId == retained.assetId,
-            "Comp transition requires matching rendered source handles; prepare the derivative first");
     const auto &asset=*find(s.assets,clip.assetId);
     const auto source=clipSourceMap(clip,asset.sampleRate,s.sampleRate).translated(first-clip.startFrame);
-    const auto allowed=clipSourceMap(retained,asset.sampleRate,s.sampleRate);
-    require(!sourcePositionLess(source.at(0),allowed.at(0)) &&
-            !sourcePositionLess(allowed.at(retained.lengthFrames-1),source.at(end-first-1)),
-            "Retained take does not cover the requested transition handles");
+    if(clip.assetId==retained.assetId) {
+        const auto allowed=clipSourceMap(retained,asset.sampleRate,s.sampleRate);
+        require(!sourcePositionLess(source.at(0),allowed.at(0)) &&
+                !sourcePositionLess(allowed.at(retained.lengthFrames-1),source.at(end-first-1)),
+                "Retained take does not cover the requested transition handles");
+    } else {
+        const auto *assembled=findCompPlaybackSource(s,clip.assetId);
+        require(assembled || (clip.stretch && (clip.stretch->sourceAssetId==retained.assetId ||
+                    (retained.stretch && clip.stretch->sourceAssetId==retained.stretch->sourceAssetId &&
+                     clip.stretch->sourceSha256==retained.stretch->sourceSha256))),
+                "Comp transition requires matching rendered source handles; prepare the derivative first");
+        const auto &raw=assembled?assembled->source.raw:*find(s.assets,clip.stretch->sourceAssetId);
+        require(assembled || clip.stretch->sourceSha256==raw.sha256,
+                "Comp derivative does not match retained source bytes");
+        const auto &retainedAsset=*find(s.assets,retained.assetId);
+        const auto allowed=clipSourceMap(retained,retainedAsset.sampleRate,s.sampleRate);
+        auto allowedFirst=allowed.at(0),allowedEnd=allowed.at(retained.lengthFrames);
+        if(retained.assetId!=raw.id) {
+            require(retained.stretch.has_value(),"Retained derivative has no raw anchor");
+            const auto geometry=stretchGeometry(*retained.stretch,raw.frames);
+            if(!retained.compHandles && sourcePositionLess(geometry.visibleEnd,allowedEnd))allowedEnd=geometry.visibleEnd;
+            allowedFirst=processedClipOutputToRaw(retained,raw,allowedFirst);
+            allowedEnd=processedClipOutputToRaw(retained,raw,allowedEnd);
+        }
+        const auto rawFirst=assembled?compPlaybackRawPosition(assembled->source,source.at(0)):processedClipOutputToRaw(clip,raw,source.at(0));
+        const auto rawLast=assembled?compPlaybackRawPosition(assembled->source,source.at(end-first-1)):processedClipOutputToRaw(clip,raw,source.at(end-first-1));
+        // A rendered sample can map between the final retained physical sample
+        // and the exclusive raw interval end. It must remain inside that interval.
+        require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),
+                "Retained take does not cover the requested rendered handles");
+    }
     auto result=clip;
     const auto position=source.at(0);
     const auto divisor=std::gcd(position.fraction,position.denominator);
@@ -296,6 +342,88 @@ void prepareCompTransition(Session &s,const PrepareCompTransition &e,StateBudget
     incoming.processing.fadeIn={e.startFrame-incoming.startFrame,e.endFrame-incoming.startFrame,e.curve,1};
     validateClipProcessing(outgoing.processing);validateClipProcessing(incoming.processing);
     out=std::move(outgoing);in=std::move(incoming);
+}
+void adoptCompHandlePair(Session &s,const ApplyCompHandlePair &e,StateBudget budget) {
+    const auto replace=[&](const std::optional<CompHandleReplacement> &replacement,const Id &id) {
+        if(!replacement)return;
+        const auto &r=*replacement;
+        auto &c=*find(track(s,e.transition.track).clips,id);
+        require(c==r.expected && c.stretch && c.takeOrigin,"Comp fragment changed before handle adoption");
+        require(*find(s.assets,c.assetId)==r.current && r.current.id==c.assetId &&
+            *find(s.assets,c.stretch->sourceAssetId)==r.raw &&
+            *find(s.assets,r.nominal.id)==r.nominal,"Comp source changed before handle adoption");
+        const auto nominal=c.compHandles?c.compHandles->baseAssetId:c.assetId;
+        const auto prefix=c.compHandles?c.compHandles->prefixFrames:0;
+        const auto suffix=c.compHandles?c.compHandles->suffixFrames:0;
+        require(r.window.baseAssetId==nominal && r.nominal.id==nominal &&
+            r.window.prefixFrames>=prefix && r.window.suffixFrames>=suffix,
+            "Handle adoption must preserve the existing processed buffer");
+        auto proposed=c;proposed.assetId=r.rendered.id;proposed.compHandles=r.window;
+        const auto position=addSourcePosition({c.sourceFrame,c.sourceTiming.fraction,c.sourceTiming.denominator},
+            {r.window.prefixFrames-prefix,0,1});
+        proposed.sourceFrame=position.frame;proposed.sourceTiming={position.fraction,position.denominator};
+        validateCompHandleWindow(proposed,r.raw,r.nominal,r.rendered);
+        require(r.rendered.id!=r.current.id,"A new handle artifact must have a new identity");
+        const auto existing=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &a){return a.id==r.rendered.id;});
+        if(existing==s.assets.end())s.assets.push_back(r.rendered);
+        else require(*existing==r.rendered,"Handle artifact identity already names different media");
+        c=std::move(proposed); // Track storage is unaffected by the asset insertion.
+    };
+    require(e.transition.outgoing!=e.transition.incoming,"Handle adoption needs distinct fragments");
+    replace(e.outgoing,e.transition.outgoing);replace(e.incoming,e.transition.incoming);
+    prepareCompTransition(s,e.transition,budget);
+}
+void adoptCompAssembly(Session &s,const ApplyCompAssembly &e,StateBudget budget) {
+    verifyCompAssemblyDependencyCoverage(e);
+    verifyCompAssemblyDependencies(s,*e.dependencies);
+    auto reference=std::find_if(s.compAssemblies.begin(),s.compAssemblies.end(),[&](const auto &r){return r.operation==e.expectedReference.operation;});
+    require(reference!=s.compAssemblies.end() && *reference==e.expectedReference,"Comp request changed before adoption");
+    require(e.expectedSelection.operation==reference->selectionOperation &&
+        std::find(s.compPairSelections.begin(),s.compPairSelections.end(),e.expectedSelection)!=s.compPairSelections.end(),"Comp selection changed before adoption");
+    const std::array<Id,2> ids{e.transition.outgoing,e.transition.incoming};
+    require(ids[0]!=ids[1],"Comp assembly needs two distinct fragments");
+    auto &clips=track(s,e.transition.track).clips;
+    const auto &out=*find(clips,ids[0]),&in=*find(clips,ids[1]);
+    const auto outEnd=out.startFrame+out.lengthFrames,inEnd=in.startFrame+in.lengthFrames;
+    require(out.startFrame<=in.startFrame && outEnd<=inEnd && in.startFrame<=outEnd &&
+        e.transition.startFrame>=out.startFrame && e.transition.startFrame<outEnd &&
+        e.transition.endFrame>in.startFrame && e.transition.endFrame<=inEnd &&
+        e.transition.endFrame>e.transition.startFrame,"Comp assembly transition changed before adoption");
+    for(unsigned side=0;side<2;++side){
+        const auto &current=*find(clips,ids[side]);
+        const auto &expected=e.expected[side];
+        require(current==expected.clip && retainedSource(s,current)==expected.retained,"Comp fragment or retained take changed before adoption");
+        for(const auto *a:{&expected.raw,&expected.base,&expected.retainedAsset})
+            require(*find(s.assets,a->id)==*a,"Comp source asset changed before adoption");
+        require(expected.base.id==current.assetId && expected.retainedAsset.id==expected.retained.assetId,"Comp source identity is inconsistent");
+        if(expected.nominal)require(*find(s.assets,expected.nominal->id)==*expected.nominal,"Nominal comp asset changed before adoption");
+        require(bool(e.sources[side])==bool(reference->outputs[side]),"Comp adoption output set changed");
+        if(e.sources[side]){
+            const auto &d=*e.sources[side];
+            require(d.original==current && d.rendered.id==*reference->outputs[side] && d.projectRate==s.sampleRate,"Comp playback source differs from requested fragment");
+            require(d.raw==expected.raw && d.base==expected.base && d.nominal==expected.nominal,"Comp playback provenance differs from original assets");
+            require(d.rendered.relativePath=="media/comp-results/"+reference->selectionOperation.str()+"/"+d.rendered.id.str()+".wav","Comp output is outside its owned assembly");
+            const auto end=current.startFrame+current.lengthFrames;
+            require(d.playback.startFrame==(side?std::min(current.startFrame,e.transition.startFrame):current.startFrame) &&
+                    d.playback.startFrame+d.playback.lengthFrames==(side?end:std::max(end,e.transition.endFrame)),"Comp adoption changed requested span");
+        }
+    }
+    const auto originalReference=*reference;s.compAssemblies.erase(reference);
+    for(unsigned side=0;side<2;++side)if(e.sources[side]){
+        const auto &d=*e.sources[side];
+        require(std::none_of(s.assets.begin(),s.assets.end(),[&](const auto &a){return a.id==d.rendered.id;}),"Comp output asset already exists");
+        s.assets.push_back(d.rendered);s.compPlaybackSources.push_back({originalReference,side,e.expectedSelection.selectionSha256,d});
+        *find(clips,ids[side])=d.playback;
+    }
+    // Existing nominal context can be exposed without generating new PCM. Its
+    // same-rate marker still describes that original artifact, not post-SRC data.
+    for(unsigned side=0;side<2;++side)if(!e.sources[side]){
+        auto &c=*find(clips,ids[side]);if(c.stretch && !c.compHandles){
+            const auto &asset=*find(s.assets,c.assetId);
+            c.compHandles=ClipCompHandleWindow{asset.id,asset.sha256,c.stretch->renderKey,0,0};
+        }
+    }
+    validate(s,budget);prepareCompTransition(s,e.transition,budget);
 }
 } // namespace
 void validateClipProcessing(const ClipProcessing &p) {
@@ -364,6 +492,49 @@ Session makeTakeAudition(const Session &source,const TakeAudition &selection,Sta
     target.clips=std::move(clips);
     validate(result,budget);return result;
 }
+namespace {
+std::vector<Track *> versionTargets(Session &s,const std::vector<Id> &ids,StateBudget budget) {
+    require(!ids.empty(),"Select at least one track for version operations");
+    PayloadCharge staging("Version track selection",budget.memoryBudgetBytes);
+    staging.add(sessionPayloadBytes(s,budget));staging.add(ids.size(),sizeof(Track *)+256);
+    std::unordered_set<std::string_view> wanted;
+    wanted.reserve(ids.size());
+    for(const auto &id:ids)require(wanted.insert(id.str()).second,"Duplicate selected track",ErrorCode::InvalidId);
+    std::vector<Track *> result;result.reserve(ids.size());
+    for(auto &t:s.tracks)if(wanted.erase(t.id.str()))result.push_back(&t);
+    require(wanted.empty(),"Selected version track missing",ErrorCode::InvalidId);
+    return result;
+}
+void prepareVersionCreation(const Session &s,std::span<Track *const> tracks,
+    const std::string &name,const std::string &previousName,bool duplicate,StateBudget budget) {
+    PayloadCharge staging("Track version creation",budget.memoryBudgetBytes);
+    staging.add(sessionPayloadBytes(s,budget));staging.add(tracks.size(),sizeof(Track *)+256);
+    for(const auto *t:tracks) {
+        staging.add(t->inactiveVersions.size()+1,2*sizeof(TrackVersion));
+        staging.add(name.size());staging.add(previousName.size());staging.add(2048);
+        if(duplicate) {
+            staging.add(t->clips.size(),sizeof(Clip)+256);
+            for(const auto &c:t->clips)dynamicWeight(staging,c);
+        }
+    }
+}
+void createVersion(Track &t,const std::string &name,const std::string &previousName,
+    bool duplicate,std::optional<Id> group,std::optional<Id> originalGroup) {
+    std::vector<Clip> next;
+    if(duplicate){next=t.clips;for(auto &c:next)c.id=Id::generate();}
+    if(!t.activeVersion)t.activeVersion=TrackVersionIdentity{Id::generate(),previousName,originalGroup};
+    t.inactiveVersions.push_back({std::move(*t.activeVersion),std::move(t.clips)});
+    t.activeVersion=TrackVersionIdentity{Id::generate(),name,group};t.clips=std::move(next);
+}
+void activateVersion(Track &t,const Id &version) {
+    require(t.activeVersion.has_value(),"Track has no named versions",ErrorCode::InvalidId);
+    if(t.activeVersion->id==version)return;
+    auto it=std::find_if(t.inactiveVersions.begin(),t.inactiveVersions.end(),
+        [&](const auto &v){return v.identity.id==version;});
+    require(it!=t.inactiveVersions.end(),"Track version missing",ErrorCode::InvalidId);
+    std::swap(*t.activeVersion,it->identity);t.clips.swap(it->clips);
+}
+}
 void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateBudget budget) {
     require(!edits.empty() && edits.size() <= 64, "Edit batch must contain 1 to 64 operations");
     validate(s, budget);
@@ -372,7 +543,27 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
         std::visit(
             [&](const auto &e) {
                 using E = std::decay_t<decltype(e)>;
-                if constexpr (std::is_same_v<E, InsertTrack>) {
+                if constexpr (std::is_same_v<E, AddCompAssembly>) {
+                    const auto found=std::find_if(proposed.compAssemblies.begin(),proposed.compAssemblies.end(),
+                        [&](const auto &r){return r.operation==e.value.operation;});
+                    if(found==proposed.compAssemblies.end())proposed.compAssemblies.push_back(e.value);
+                    else require(*found==e.value,"Comp assembly identity already names a different request");
+                } else if constexpr (std::is_same_v<E, RemoveCompAssembly>) {
+                    const auto found=std::find_if(proposed.compAssemblies.begin(),proposed.compAssemblies.end(),
+                        [&](const auto &r){return r.operation==e.operation;});
+                    require(found!=proposed.compAssemblies.end(),"Comp assembly reference missing",ErrorCode::InvalidId);
+                    proposed.compAssemblies.erase(found);
+                } else if constexpr (std::is_same_v<E, AddCompPairSelection>) {
+                    const auto found=std::find_if(proposed.compPairSelections.begin(),proposed.compPairSelections.end(),
+                        [&](const auto &r){return r.operation==e.value.operation;});
+                    if(found==proposed.compPairSelections.end())proposed.compPairSelections.push_back(e.value);
+                    else require(*found==e.value,"Comp selection identity already names different bytes");
+                } else if constexpr (std::is_same_v<E, RemoveCompPairSelection>) {
+                    const auto found=std::find_if(proposed.compPairSelections.begin(),proposed.compPairSelections.end(),
+                        [&](const auto &r){return r.operation==e.operation;});
+                    require(found!=proposed.compPairSelections.end(),"Comp selection reference missing",ErrorCode::InvalidId);
+                    proposed.compPairSelections.erase(found);
+                } else if constexpr (std::is_same_v<E, InsertTrack>) {
                     proposed.tracks.insert(position(proposed.tracks, e.before), e.track);
                 } else if constexpr (std::is_same_v<E, RemoveTrack>) {
                     proposed.tracks.erase(find(proposed.tracks, e.track));
@@ -387,6 +578,62 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     proposed.loop = e.value;
                 } else if constexpr (std::is_same_v<E, SetInputLatency>) {
                     track(proposed, e.track).inputLatencyFrames = e.frames;
+                } else if constexpr (std::is_same_v<E, CreateTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    const std::array<Track *,1> targets{&t};
+                    prepareVersionCreation(proposed,targets,e.name,e.previousName,e.duplicate,budget);
+                    createVersion(t,e.name,e.previousName,e.duplicate,{},{});
+                } else if constexpr (std::is_same_v<E, SwitchTrackVersion>) {
+                    activateVersion(track(proposed,e.track),e.version);
+                } else if constexpr (std::is_same_v<E, CreateTrackVersions>) {
+                    auto targets=versionTargets(proposed,e.tracks,budget);
+                    prepareVersionCreation(proposed,targets,e.name,e.previousName,e.duplicate,budget);
+                    const auto group=Id::generate(), originalGroup=Id::generate();
+                    for(auto *t:targets)createVersion(*t,e.name,e.previousName,e.duplicate,group,originalGroup);
+                } else if constexpr (std::is_same_v<E, LinkActiveTrackVersions>) {
+                    auto targets=versionTargets(proposed,e.tracks,budget);
+                    PayloadCharge staging("Version group linking",budget.memoryBudgetBytes);
+                    staging.add(sessionPayloadBytes(proposed,budget));
+                    staging.add(targets.size(),1024);staging.add(targets.size(),e.previousName.size());
+                    const auto group=Id::generate();
+                    for(auto *t:targets) {
+                        if(!t->activeVersion)t->activeVersion=TrackVersionIdentity{Id::generate(),e.previousName,{}};
+                        t->activeVersion->groupId=group;
+                    }
+                } else if constexpr (std::is_same_v<E, EditTrackVersionGroup>) {
+                    auto targets=versionTargets(proposed,e.tracks,budget);
+                    PayloadCharge staging("Version group edit",budget.memoryBudgetBytes);
+                    staging.add(sessionPayloadBytes(proposed,budget));staging.add(targets.size(),sizeof(Track *));
+                    if(e.action==TrackVersionGroupAction::Rename)staging.add(targets.size(),e.name.size());
+                    for(auto *t:targets) {
+                        TrackVersionIdentity *version=nullptr;
+                        if(t->activeVersion && t->activeVersion->groupId==e.group)version=&*t->activeVersion;
+                        else for(auto &v:t->inactiveVersions)if(v.identity.groupId==e.group)version=&v.identity;
+                        require(version,"Selected track has no matching version group",ErrorCode::InvalidId);
+                        if(e.action==TrackVersionGroupAction::Activate)activateVersion(*t,version->id);
+                        else if(e.action==TrackVersionGroupAction::Rename)version->name=e.name;
+                        else if(e.action==TrackVersionGroupAction::Remove) {
+                            require(!t->activeVersion || t->activeVersion->groupId!=e.group,
+                                    "Switch every selected track before removing its version group");
+                            std::erase_if(t->inactiveVersions,[&](const auto &v){return v.identity.groupId==e.group;});
+                        } else require(false,"Unknown track version group action");
+                    }
+                } else if constexpr (std::is_same_v<E, RenameTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    require(t.activeVersion.has_value(), "Track has no named versions", ErrorCode::InvalidId);
+                    if (t.activeVersion->id == e.version) t.activeVersion->name = e.name;
+                    else {
+                        auto it = std::find_if(t.inactiveVersions.begin(), t.inactiveVersions.end(),
+                            [&](const auto &v) { return v.identity.id == e.version; });
+                        require(it != t.inactiveVersions.end(), "Track version missing", ErrorCode::InvalidId);
+                        it->identity.name = e.name;
+                    }
+                } else if constexpr (std::is_same_v<E, RemoveTrackVersion>) {
+                    auto &t = track(proposed, e.track);
+                    auto it = std::find_if(t.inactiveVersions.begin(), t.inactiveVersions.end(),
+                        [&](const auto &v) { return v.identity.id == e.version; });
+                    require(it != t.inactiveVersions.end(), "Only an inactive track version can be removed", ErrorCode::InvalidId);
+                    t.inactiveVersions.erase(it);
                 } else if constexpr (std::is_same_v<E, InsertTakeLane>) {
                     auto &lanes = track(proposed, e.track).takeLanes;
                     lanes.insert(position(lanes, e.before), e.lane);
@@ -516,6 +763,10 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     c.lengthFrames=low;
                 } else if constexpr (std::is_same_v<E, ApplyClipStretch>) {
                     adoptClipStretch(proposed,e);
+                } else if constexpr (std::is_same_v<E, ApplyCompHandlePair>) {
+                    adoptCompHandlePair(proposed,e,budget);
+                } else if constexpr (std::is_same_v<E, ApplyCompAssembly>) {
+                    adoptCompAssembly(proposed,e,budget);
                 } else if constexpr (std::is_same_v<E, MoveClip>) {
                     auto &from = track(proposed, e.from).clips;
                     auto &to = track(proposed, e.to).clips;
@@ -572,7 +823,9 @@ std::size_t EditHistory::weight(const Change &change) {
     std::visit(
         [&](const auto &c) {
             using C = std::decay_t<decltype(c)>;
-            if constexpr (std::is_same_v<C, StructureChange>) {
+            if constexpr (std::is_same_v<C, RecoveryChange>) {
+                charge.add(c.payloadBytes);
+            } else if constexpr (std::is_same_v<C, StructureChange>) {
                 charge.add(c.tracks.capacity(), sizeof(ObjectChange<Track>));
                 charge.add(c.assets.capacity(), sizeof(ObjectChange<Asset>));
                 for (const auto &p : c.tracks) {
@@ -594,6 +847,26 @@ std::size_t EditHistory::weight(const Change &change) {
                     charge.add(ids->capacity(), sizeof(Id));
                     for (const auto &id : *ids)
                         stringWeight(charge, id.str());
+                }
+                if (c.compPairSelections) {
+                    for(const auto *references : {&c.compPairSelections->first,&c.compPairSelections->second}) {
+                        charge.add(references->capacity(),sizeof(CompPairSelectionReference));
+                        for(const auto &r:*references){stringWeight(charge,r.operation.str());stringWeight(charge,r.selectionSha256);}
+                    }
+                }
+                if (c.compAssemblies) {
+                    for(const auto *references : {&c.compAssemblies->first,&c.compAssemblies->second}) {
+                        charge.add(references->capacity(),sizeof(CompAssemblyReference));
+                        for(const auto &r:*references) {
+                            stringWeight(charge,r.operation.str());stringWeight(charge,r.selectionOperation.str());
+                            stringWeight(charge,r.requestSha256);
+                            for(const auto &output:r.outputs)if(output)stringWeight(charge,output->str());
+                        }
+                    }
+                }
+                if(c.compPlaybackSources)for(const auto *sources:{&c.compPlaybackSources->first,&c.compPlaybackSources->second}) {
+                    charge.add(sources->capacity(),sizeof(CompPlaybackSourceState));
+                    for(const auto &source:*sources)charge.add(compPlaybackSourcePayloadBytes(source)-sizeof(CompPlaybackSourceState));
                 }
                 if (c.master) {
                     dynamicWeight(charge, c.master->first);
@@ -672,6 +945,23 @@ std::size_t EditHistory::checkAdopt(const Session &value) const {
         return 0;
     return checkCandidate(difference(value), value);
 }
+std::size_t EditHistory::checkRestore(const Session &value) const {
+    validate(value, budget_);
+    require(value.id == session_.id, "Recovery cannot replace project identity");
+    if (value == session_) return 0;
+    PayloadCharge bytes("Recovery Undo payload", historyBudget_.operationBytes);
+    bytes.add(sessionPayloadBytes(session_, budget_));bytes.add(sessionPayloadBytes(value, budget_));
+    return checkCandidate(RecoveryChange{{}, {}, bytes.bytes()}, value);
+}
+bool EditHistory::restore(const Session &value) {
+    require(!active_, "Finish the parameter gesture before recovery");
+    checkRestore(value);
+    if (value == session_) return false;
+    PayloadCharge bytes("Recovery Undo payload", historyBudget_.operationBytes);
+    bytes.add(sessionPayloadBytes(session_, budget_));bytes.add(sessionPayloadBytes(value, budget_));
+    RecoveryChange change{std::make_shared<const Session>(session_), std::make_shared<const Session>(value), bytes.bytes()};
+    auto next=value;retain(std::move(change), next);session_=std::move(next);return true;
+}
 void EditHistory::acceptPreflight(std::size_t declaredBytes) noexcept {
     operationPeakBytes_ = std::max(operationPeakBytes_, declaredBytes);
 }
@@ -733,6 +1023,12 @@ EditHistory::StructureChange EditHistory::difference(const Session &value) const
         change.punch = {{session_.punch, value.punch}};
     if (value.loop != session_.loop)
         change.loop = {{session_.loop, value.loop}};
+    if (value.compPairSelections != session_.compPairSelections)
+        change.compPairSelections = {{session_.compPairSelections,value.compPairSelections}};
+    if (value.compAssemblies != session_.compAssemblies)
+        change.compAssemblies = {{session_.compAssemblies,value.compAssemblies}};
+    if(value.compPlaybackSources!=session_.compPlaybackSources)
+        change.compPlaybackSources={{session_.compPlaybackSources,value.compPlaybackSources}};
     return change;
 }
 bool EditHistory::adopt(const Session &value) {
@@ -757,7 +1053,10 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
     std::visit(
         [&](const auto &c) {
             using C = std::decay_t<decltype(c)>;
-            if constexpr (std::is_same_v<C, ParameterChange>)
+            if constexpr (std::is_same_v<C, RecoveryChange>) {
+                require(next == *(forward ? c.before : c.after), "Recovery Undo conflicts with current state");
+                next = *(forward ? c.after : c.before);
+            } else if constexpr (std::is_same_v<C, ParameterChange>)
                 setParameterValue(next, c.address, forward ? c.after : c.before);
             else if constexpr (std::is_same_v<C, RouteChange>)
                 setRouteValue(next, c.address, forward ? c.after : c.before, budget_);
@@ -787,6 +1086,20 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
                     require(proposed.loop == (forward ? c.loop->first : c.loop->second),
                             "Undo loop locators conflict with current state");
                     proposed.loop = forward ? c.loop->second : c.loop->first;
+                }
+                if(c.compAssemblies) {
+                    require(proposed.compAssemblies==(forward?c.compAssemblies->first:c.compAssemblies->second),
+                            "Undo comp assembly references conflict with current state");
+                    proposed.compAssemblies=forward?c.compAssemblies->second:c.compAssemblies->first;
+                }
+                if(c.compPlaybackSources) {
+                    require(proposed.compPlaybackSources==(forward?c.compPlaybackSources->first:c.compPlaybackSources->second),"Undo comp playback provenance conflicts with current state");
+                    proposed.compPlaybackSources=forward?c.compPlaybackSources->second:c.compPlaybackSources->first;
+                }
+                if(c.compPairSelections) {
+                    require(proposed.compPairSelections==(forward?c.compPairSelections->first:c.compPairSelections->second),
+                        "Undo comp selection references conflict with current state");
+                    proposed.compPairSelections=forward?c.compPairSelections->second:c.compPairSelections->first;
                 }
                 validate(proposed, budget_);
             }

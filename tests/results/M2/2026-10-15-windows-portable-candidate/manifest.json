@@ -1,0 +1,14 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 857874,
+  "sha256": "87a55ca510566ab17cb2594d9ca3907ca21683359e35486bf83f15404e8d5a23",
+  "entries": 106,
+  "sourceHead": "61bcaa3439ac0ec9a9856d893e5c0b10fee23e72",
+  "originalCiHead": "d81edf36b4360b7798659ea14761b134c31d8195",
+  "reverseProjectFiles": 214,
+  "reverseProjectReconstructionVerified": true,
+  "reverseWindowsExecution": false,
+  "initialProtectedFailureUnresolved": true,
+  "applicationBinariesIncluded": false,
+  "credentialsIncluded": false
+}

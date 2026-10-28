@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include "autosave_schedule.hpp"
+#include <chrono>
 #include <soundcurrent/native_take_admission.hpp>
+#include <soundcurrent/comp_assembly_adoption.hpp>
+#include <soundcurrent/comp_transition_preparation.hpp>
 #include <soundcurrent/warp.hpp>
 #include <soundcurrent/stretch_render_protocol.hpp>
 #include <QMutex>
@@ -57,6 +61,7 @@ struct IoJob {
     std::shared_ptr<const ManualRecordedGroup> retainedTake = nullptr;
     std::string takeName = {};
     std::shared_ptr<const LoopTakeRetention> retainedLoop = nullptr;
+    std::uint64_t autosaveReviewRequest = 0, projectEpoch = 0, autosaveRestoreRequest = 0;
 };
 struct IoResult {
     IoJob job;
@@ -125,6 +130,14 @@ class IoWorker : public QThread {
                 if (next.operation == IoOperation::Open)
                     finished.loaded =
                         snapshots.adopt(store.load(), std::move(*next.loadReservation));
+                else if (next.operation == IoOperation::InspectAutosave || next.operation == IoOperation::RestoreAutosave) {
+                    auto reviewed = store.loadAutosave();
+                    if (next.operation == IoOperation::RestoreAutosave && (!next.session || reviewed != *next.session))
+                        throw ProjectError(ErrorCode::InvalidState, "Autosave changed after review; inspect it again");
+                    if (closing.load(std::memory_order_acquire))
+                        throw ProjectError(ErrorCode::Canceled, "Autosave review canceled");
+                    finished.loaded = snapshots.adopt(std::move(reviewed), std::move(*next.loadReservation));
+                }
                 else if (next.operation == IoOperation::AttachRecording) {
                     admitReceipts(next.recordings, options.admission.state);
                     const auto canceled = [&] {
@@ -176,13 +189,17 @@ class IoWorker : public QThread {
                     if (next.operation == IoOperation::Create &&
                         !std::filesystem::create_directory(next.root))
                         throw ProjectError(ErrorCode::Io, "New project folder already exists");
-                    store.save(*next.session, {[&] {
+                    SaveOptions saveOptions{[&] {
                         if (options.beforeSavePublish)
                             options.beforeSavePublish();
                         if (closing.load(std::memory_order_acquire))
                             throw ProjectError(ErrorCode::Canceled,
                                                "Project save canceled before publication");
-                    }});
+                    }};
+                    if (next.operation == IoOperation::Autosave)
+                        store.saveAutosave(*next.session, saveOptions);
+                    else
+                        store.save(*next.session, saveOptions);
                 }
             } catch (const ProjectError &e) {
                 finished.error = e.code();
@@ -220,6 +237,8 @@ struct ProjectController::State : QThread {
     std::optional<ParameterAddress> activeAddress;
     std::shared_ptr<const Session> gestureBefore;
     ControllerSnapshot view;
+    AutosaveSchedule autosaveSchedule;
+    std::uint64_t lastAutosaveInhibitionToken = 0;
     explicit State(ControllerOptions options)
         : admission(options.admission), historyBudget(options.historyBudget),
           memory(options.memoryBytes, "Controller project memory"),
@@ -227,6 +246,7 @@ struct ProjectController::State : QThread {
                     options.admission.state),
           io(std::move(options), snapshots, closing) {
         validateHistoryBudget(historyBudget);
+        view.autosaveIntervalMilliseconds = io.options.autosaveIntervalMilliseconds;
         view.historyBudget = historyBudget;
         view.snapshotResources = snapshots.usage();
         view.memoryResources = memory.usage();
@@ -329,6 +349,49 @@ struct ProjectController::State : QThread {
     }
     void execute(ProjectCommand &command) {
         switch (command.kind) {
+        case CommandKind::RestoreAutosave: {
+            requireModel();
+            const auto &review = view.autosaveReview;
+            if (!command.autosaveRestoreRequest || !review.session ||
+                command.autosaveReviewRequest != review.request || review.projectEpoch != view.projectEpoch ||
+                review.modelRevision != view.modelRevision || view.io != IoOperation::None ||
+                activeGesture || view.autosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState, "Autosave review is stale or project operations are active");
+            IoJob job{IoOperation::RestoreAutosave, view.root, review.session, view.modelRevision};
+            job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
+            job.autosaveReviewRequest = review.request; job.projectEpoch = view.projectEpoch;
+            job.autosaveRestoreRequest = command.autosaveRestoreRequest;
+            io.startJob(std::move(job));view.io = IoOperation::RestoreAutosave;
+            break;
+        }
+        case CommandKind::InspectAutosave: {
+            requireModel();
+            if (!command.autosaveReviewRequest || view.io != IoOperation::None || activeGesture || view.autosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState, "Finish project operations before reviewing autosave");
+            IoJob job{IoOperation::InspectAutosave, view.root, view.session, view.modelRevision};
+            job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
+            job.autosaveReviewRequest = command.autosaveReviewRequest;
+            job.projectEpoch = view.projectEpoch;
+            io.startJob(std::move(job));
+            view.autosaveReview = {};
+            view.io = IoOperation::InspectAutosave;
+            break;
+        }
+        case CommandKind::AutosavePolicy: {
+            if (!command.autosaveIntervalMilliseconds || !command.autosavePolicyRequest)
+                throw ProjectError(ErrorCode::InvalidParameter, "Autosave policy request is missing");
+            const auto interval = *command.autosaveIntervalMilliseconds;
+            if (interval && (interval < 1000 || interval > 86400000))
+                throw ProjectError(ErrorCode::InvalidParameter, "Autosave interval must be zero or between one second and one day");
+            // A policy edit neither commits gestures nor revokes recording ownership.
+            // In-flight immutable writes finish normally; disable prevents new work.
+            if (interval != view.autosaveIntervalMilliseconds) {
+                view.autosaveIntervalMilliseconds = interval;
+                autosaveSchedule = AutosaveSchedule{};
+            }
+            view.autosavePolicyCompleted = {command.autosavePolicyRequest, {}, {}};
+            break;
+        }
         case CommandKind::MemoryLimits:
             if (!command.memoryBytes || !command.memoryRequest)
                 throw ProjectError(ErrorCode::InvalidParameter,
@@ -350,7 +413,7 @@ struct ProjectController::State : QThread {
         case CommandKind::HistoryLimits:
             if (!command.historyBudget || !command.historyRequest)
                 throw ProjectError(ErrorCode::InvalidParameter, "Undo resource request is missing");
-            if (view.io != IoOperation::None || activeGesture)
+            if (view.io != IoOperation::None || activeGesture || view.autosaveInhibitionToken)
                 throw ProjectError(
                     ErrorCode::InvalidState,
                     "Finish project I/O and the active gesture before changing Undo limits");
@@ -380,6 +443,45 @@ struct ProjectController::State : QThread {
             commitGesture();
             io.startJob(std::move(job));
             view.io = command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
+            break;
+        }
+        case CommandKind::AcquireAutosaveInhibition: {
+            requireModel();
+            if (command.autosaveInhibitionEpoch != view.projectEpoch ||
+                !command.autosaveInhibitionToken ||
+                command.autosaveInhibitionToken <= lastAutosaveInhibitionToken ||
+                view.autosaveInhibitionToken || view.io != IoOperation::None ||
+                (activeGesture && !command.commitGestureForAutosaveInhibition))
+                throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition cannot be acquired");
+            OperationWork work(*this);
+            work.admit(0);
+            if (command.commitGestureForAutosaveInhibition) commitGesture();
+            view.autosaveInhibitionToken = command.autosaveInhibitionToken;
+            lastAutosaveInhibitionToken = command.autosaveInhibitionToken;
+            view.autosaveInhibitionCompleted = {command.autosaveInhibitionToken,
+                                               command.autosaveInhibitionEpoch, true, {}};
+            break;
+        }
+        case CommandKind::ReleaseAutosaveInhibition: {
+            requireModel();
+            if (command.autosaveInhibitionEpoch != view.projectEpoch ||
+                !command.autosaveInhibitionToken ||
+                command.autosaveInhibitionToken != view.autosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState, "Autosave inhibition owner does not match");
+            view.autosaveInhibitionToken = 0;
+            view.autosaveInhibitionCompleted = {command.autosaveInhibitionToken,
+                                               command.autosaveInhibitionEpoch, false, {}};
+            break;
+        }
+        case CommandKind::Autosave: {
+            requireModel();
+            if (view.io != IoOperation::None || activeGesture || view.autosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "Finish project I/O and the active gesture before autosave");
+            OperationWork work(*this);
+            work.admit(0);
+            io.startJob({IoOperation::Autosave, view.root, view.session, view.modelRevision});
+            view.io = IoOperation::Autosave;
             break;
         }
         case CommandKind::Save: {
@@ -478,15 +580,34 @@ struct ProjectController::State : QThread {
                 if(g.projectEpoch!=view.projectEpoch || g.project!=model->id || g.root!=view.root)
                     throw ProjectError(ErrorCode::InvalidState,"Background edit belongs to a replaced project");
             }
-            if(command.stretchResult && (!command.structuralGuard || !command.edits.empty() || !command.stretchResult->ownedBy(memory)))
+            if(command.stretchResult && (!command.structuralGuard || command.compAssemblyResult || command.compPreparation || !command.edits.empty() || !command.stretchResult->ownedBy(memory)))
                 throw ProjectError(ErrorCode::InvalidState,"Unbound or unadmitted stretch result");
-            if(command.nativeTake && (!command.structuralGuard || command.stretchResult || !command.edits.empty() ||
+            if(command.nativeTake && (!command.structuralGuard || command.stretchResult || command.compAssemblyResult || command.compPreparation || !command.edits.empty() ||
                 !command.nativeTake->ownedBy(memory) || command.nativeTake->project()!=model->id || command.nativeTake->root()!=view.root))
                 throw ProjectError(ErrorCode::InvalidState,"Native take adoption requires verified current project evidence");
             if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<InsertNativeTake>(e);}))
                 throw ProjectError(ErrorCode::InvalidState,"Desktop native take adoption requires a verified result");
             if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyClipStretch>(e);}))
                 throw ProjectError(ErrorCode::InvalidState,"Desktop stretch adoption requires a verified result");
+            if(command.compAssemblyResult){const auto &r=*command.compAssemblyResult;
+                const auto bytes=view.root.generic_u8string();
+                const std::string rootIdentity(reinterpret_cast<const char *>(bytes.data()),bytes.size());
+                if(!command.structuralGuard || command.stretchResult || command.nativeTake || command.compPreparation || !command.edits.empty() ||
+                    !r.ownedBy(memory) || r.project()!=model->id || r.root()!=view.root ||
+                    r.context()!=CompHandlePlanContext{view.projectEpoch,rootIdentity})
+                    throw ProjectError(ErrorCode::InvalidState,"Comp adoption requires verified current owner evidence");
+            }
+            if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyCompAssembly>(e);}))
+                throw ProjectError(ErrorCode::InvalidState,"Desktop comp adoption requires a verified result");
+            if(command.compPreparation){const auto &r=*command.compPreparation;
+                const auto bytes=view.root.generic_u8string();
+                const std::string identity(reinterpret_cast<const char *>(bytes.data()),bytes.size());
+                if(!command.structuralGuard || command.compAssemblyResult || command.stretchResult || command.nativeTake ||
+                    !command.edits.empty() || !r.ownedBy(memory) || r.project()!=model->id || r.root()!=view.root ||
+                    r.context()!=CompHandlePlanContext{view.projectEpoch,identity})
+                    throw ProjectError(ErrorCode::InvalidState,"Comp preparation belongs to a different project owner");
+                verifyCompProcessingCurrent(*model,r.context(),r.selection().recipe().plan());
+            }
             PayloadCharge stretchStaging("Verified stretch candidate staging",SIZE_MAX);
             stretchStaging.add(stagingBytes());
             if(command.stretchResult){
@@ -498,7 +619,10 @@ struct ProjectController::State : QThread {
             std::vector<SessionEdit> verified;
             if(command.stretchResult)verified.push_back(command.stretchResult->edit());
             if(command.nativeTake)verified.push_back(command.nativeTake->edit());
-            applySessionEdits(proposed, (command.stretchResult || command.nativeTake)?verified:command.edits,
+            if(command.compAssemblyResult)verified.push_back(command.compAssemblyResult->edit());
+            if(command.compPreparation){verified.push_back(AddCompPairSelection{command.compPreparation->pairReference()});
+                verified.push_back(AddCompAssembly{command.compPreparation->assemblyReference()});}
+            applySessionEdits(proposed, (command.stretchResult || command.nativeTake || command.compAssemblyResult || command.compPreparation)?verified:command.edits,
                               admission.state); // Reject before committing a gesture.
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())
@@ -628,6 +752,8 @@ struct ProjectController::State : QThread {
         ++view.completedCommands;
     }
     void requireCleanReplacement() const {
+        if (view.autosaveInhibitionToken)
+            throw ProjectError(ErrorCode::InvalidState, "Release autosave inhibition before replacing the project");
         if (model && (!savedModel || *model != *savedModel))
             throw ProjectError(ErrorCode::InvalidState,
                                "Save the current project before replacing it");
@@ -639,6 +765,43 @@ struct ProjectController::State : QThread {
         if (correlated)
             view.attachmentCompleted = {result.job.attachmentRequest, result.error,
                                         result.diagnostic};
+        if (result.job.operation == IoOperation::RestoreAutosave) {
+            auto &receipt = view.autosaveRestoreCompleted;
+            receipt = {result.job.autosaveRestoreRequest, result.error, result.diagnostic};
+            try {
+                if (result.error) throw ProjectError(*result.error, result.diagnostic);
+                if (closing.load(std::memory_order_acquire) || !result.loaded || !model || view.root != result.job.root ||
+                    view.projectEpoch != result.job.projectEpoch || view.modelRevision != result.job.revision ||
+                    view.autosaveReview.request != result.job.autosaveReviewRequest || activeGesture ||
+                    view.autosaveInhibitionToken || view.modelRevision == std::numeric_limits<std::uint64_t>::max())
+                    throw ProjectError(ErrorCode::InvalidState, "Project changed during autosave verification; inspect again");
+                OperationWork work(*this, stagingBytes());
+                const auto peak = history->checkRestore(*result.loaded);work.admit(peak);
+                if (history->restore(*result.loaded)) revised();
+                view.session = std::move(result.loaded);history->acceptPreflight(peak);
+                view.autosaveReview = {}; // One accepted review, one undoable adoption; no disk publication.
+            } catch (const ProjectError &e) {
+                receipt = {result.job.autosaveRestoreRequest, e.code(), e.what()};error(e.code(), e.what());
+            } catch (const std::exception &e) {
+                receipt = {result.job.autosaveRestoreRequest, ErrorCode::InvalidState, e.what()};
+                error(ErrorCode::InvalidState, e.what());
+            }
+            return;
+        }
+        if (result.job.operation == IoOperation::InspectAutosave) {
+            view.autosaveReviewCompleted = {result.job.autosaveReviewRequest, result.error, result.diagnostic};
+            if (!result.error && result.loaded && result.job.projectEpoch == view.projectEpoch &&
+                result.job.root == view.root && model && result.loaded->id == model->id)
+                view.autosaveReview = {std::move(result.loaded), result.job.autosaveReviewRequest,
+                                      result.job.projectEpoch, result.job.revision};
+            else if (!result.error) {
+                result.error = ErrorCode::InvalidState;
+                result.diagnostic = "Autosave review belongs to a previous project";
+                view.autosaveReviewCompleted = {result.job.autosaveReviewRequest, result.error, result.diagnostic};
+            }
+            if (result.error) error(*result.error, std::move(result.diagnostic));
+            return;
+        }
         if (result.error) {
             error(*result.error, std::move(result.diagnostic));
             return;
@@ -693,6 +856,8 @@ struct ProjectController::State : QThread {
                                                 ErrorCode::InvalidState, e.what()};
                 error(ErrorCode::InvalidState, e.what());
             }
+        } else if (result.job.operation == IoOperation::Autosave) {
+            view.autosavedRevision = result.job.revision;
         } else if (result.job.operation == IoOperation::Save) {
             // Edits continue during disk I/O. Only the captured revision was saved.
             view.savedRevision = result.job.revision;
@@ -723,6 +888,8 @@ struct ProjectController::State : QThread {
                 view.lastAttachedAsset.reset();
                 view.lastAttachedAssets.clear();
                 view.root = std::move(result.job.root);
+                view.autosaveReview = {};
+                view.autosavedRevision = 0;
                 ++view.projectEpoch;
                 revised();
                 view.savedRevision = view.modelRevision;
@@ -732,6 +899,32 @@ struct ProjectController::State : QThread {
             } catch (const std::exception &e) {
                 error(ErrorCode::InvalidState, e.what());
             }
+        }
+    }
+    void scheduleAutosave() {
+        const auto interval = view.autosaveIntervalMilliseconds;
+        if (!interval || closing.load(std::memory_order_acquire)) return;
+        {
+            QMutexLocker lock(&mutex);
+            if (!commands.empty()) return; // Accepted commands get priority.
+        }
+        try {
+            const auto now = io.options.autosaveNowMilliseconds ? io.options.autosaveNowMilliseconds() :
+                std::uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count());
+            if (autosaveSchedule.due(now, interval, view.projectEpoch,
+                    model && view.io == IoOperation::None && !activeGesture && !view.autosaveInhibitionToken,
+                    view.dirty, view.modelRevision, view.autosavedRevision)) {
+                OperationWork work(*this);
+                work.admit(0);
+                io.startJob({IoOperation::Autosave, view.root, view.session, view.modelRevision});
+                view.io = IoOperation::Autosave;
+                publish();
+            }
+        } catch (const ProjectError &e) {
+            error(e.code(), e.what()); publish();
+        } catch (const std::exception &e) {
+            error(ErrorCode::InvalidState, e.what()); publish();
         }
     }
     void run() override {
@@ -762,6 +955,17 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if (command->kind == CommandKind::AcquireAutosaveInhibition ||
+                        command->kind == CommandKind::ReleaseAutosaveInhibition)
+                        view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
+                            command->autosaveInhibitionEpoch,
+                            command->kind == CommandKind::AcquireAutosaveInhibition, e.code()};
+                    if (command->kind == CommandKind::RestoreAutosave && command->autosaveRestoreRequest)
+                        view.autosaveRestoreCompleted = {command->autosaveRestoreRequest, e.code(), e.what()};
+                    if (command->kind == CommandKind::InspectAutosave && command->autosaveReviewRequest)
+                        view.autosaveReviewCompleted = {command->autosaveReviewRequest, e.code(), e.what()};
+                    if (command->kind == CommandKind::AutosavePolicy && command->autosavePolicyRequest)
+                        view.autosavePolicyCompleted = {command->autosavePolicyRequest, e.code(), e.what()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
                         view.structuralRejected={command->structuralRequest,e.code(),e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
@@ -774,6 +978,17 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if (command->kind == CommandKind::AcquireAutosaveInhibition ||
+                        command->kind == CommandKind::ReleaseAutosaveInhibition)
+                        view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
+                            command->autosaveInhibitionEpoch,
+                            command->kind == CommandKind::AcquireAutosaveInhibition, ErrorCode::InvalidState};
+                    if (command->kind == CommandKind::RestoreAutosave && command->autosaveRestoreRequest)
+                        view.autosaveRestoreCompleted = {command->autosaveRestoreRequest, ErrorCode::InvalidState, e.what()};
+                    if (command->kind == CommandKind::InspectAutosave && command->autosaveReviewRequest)
+                        view.autosaveReviewCompleted = {command->autosaveReviewRequest, ErrorCode::InvalidState, e.what()};
+                    if (command->kind == CommandKind::AutosavePolicy && command->autosavePolicyRequest)
+                        view.autosavePolicyCompleted = {command->autosavePolicyRequest, ErrorCode::InvalidState, e.what()};
                     if(command->kind==CommandKind::Structural && command->structuralRequest)
                         view.structuralRejected={command->structuralRequest,ErrorCode::InvalidState,e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
@@ -792,6 +1007,7 @@ struct ProjectController::State : QThread {
                 }
                 publish();
             }
+            scheduleAutosave();
         }
         view.closing = true;
         publish();
@@ -799,6 +1015,7 @@ struct ProjectController::State : QThread {
         // An already-published save still needs to be reported honestly on close.
         if (auto result = io.takeResult())
             finishIo(std::move(*result));
+        view.autosaveInhibitionToken = 0;
         view.closed = true;
         publish();
     }

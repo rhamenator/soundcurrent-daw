@@ -1,0 +1,192 @@
+{
+  "checkpoint": 260,
+  "source_head": "e79b7c7ee2f5d4f78ca2e48a1a9894b86b3b7067",
+  "source_tree": "5228c4d9508f939007e85da3f5c17b50f8ded06d",
+  "scope": "Prepared rendered handles with existing verified spans; asynchronous missing-span generation not complete",
+  "selected_tests": [
+    "comp-transition-handles",
+    "paired-crossfade-edits",
+    "desktop-paired-crossfade",
+    "retained-take-comp",
+    "editable-stretch-state",
+    "stretch-timing-oracle",
+    "daw-translation-catalogs",
+    "daw-translation-catalog-failures",
+    "stretch-worker-workflows",
+    "protected-warp-worker-workflows"
+  ],
+  "passed": 10,
+  "elapsed_seconds": 38.04,
+  "core_checks": 6807,
+  "paired_checks": 2365,
+  "native_v4_comp_verifier_checks": 109597,
+  "native_v5_workers": 33,
+  "native_v5_completed": 21,
+  "native_v5_full_pcm_comparisons": 18,
+  "native_v5_checks": 517,
+  "ui_checks_without_capture": 68,
+  "ui_checks_with_capture": 70,
+  "retained_take_checks": 13819,
+  "callback_audit": 0,
+  "input_hashes_unchanged_after_test": true,
+  "qualification_sha256": "5056f2ec02652bcef8f2169b6a873af237d3b47dbff3d8c9266617b71d6ff178",
+  "archive": {
+    "bytes": 235068,
+    "sha256": "3016d3156a74959cee4dd6c16f22fc8a10e2491460203f7ec348306c168aa646",
+    "entries": {
+      "baseline-build-commands.json": {
+        "bytes": 823,
+        "sha256": "19a8fa3591441c603be5812a1a3a3586b6da6ef2cbbf5681192f8a8b57bb8f2e"
+      },
+      "capture-tests.log": {
+        "bytes": 469,
+        "sha256": "dab25bf7b2e6ca9278a8ea9d610f3ec1c10d5db80fe7b95a142b43537ba1b686"
+      },
+      "first-acceptance-tests.log": {
+        "bytes": 1684,
+        "sha256": "8d7f619a54e26450a9863f05302adb93b3792e2588143f6ebeed2eed09dbca6f"
+      },
+      "frozen-qualification.json": {
+        "bytes": 120159,
+        "sha256": "5056f2ec02652bcef8f2169b6a873af237d3b47dbff3d8c9266617b71d6ff178"
+      },
+      "frozen-tests.log": {
+        "bytes": 1333,
+        "sha256": "3a7988361adc7106c77fba992dd747401d9fbcb8cddf5ddaece3d262d416403f"
+      },
+      "localization-final.log": {
+        "bytes": 359,
+        "sha256": "6238e08268072056bd10e8616607190505fb3d2883d8d11d19e01a77a91e6f16"
+      },
+      "localization-reflow.log": {
+        "bytes": 359,
+        "sha256": "7aa88536f080825a0fdaddc46cbbda79921f0d7cf1600897e0c696c7b2dabc17"
+      },
+      "localization-wrapped-rows.log": {
+        "bytes": 359,
+        "sha256": "f335d6dc295f44f6e7d7371b835cfdf4c780854636a830d9663c95cb17fefe1d"
+      },
+      "native-v4-worker.json": {
+        "bytes": 1191,
+        "sha256": "1abafafeac6319c43690f1dc853f88fd30571546a953fab88618f64dd705b374"
+      },
+      "native-v5-worker.json": {
+        "bytes": 581230,
+        "sha256": "7ce96c4c4bd5d701f5f5d95e2e9c208b6a5339c3e3756770b565503bfd3032ad"
+      },
+      "parent-ci/artifacts-original.json": {
+        "bytes": 3743,
+        "sha256": "f6d91fcf45f562ac3ff9681c8ac7a92d54909c6bfadbd2d0489cdeefc67adc51"
+      },
+      "parent-ci/jobs-original.json": {
+        "bytes": 3979,
+        "sha256": "79b5b6108398b5d0915605ec957084117036f95958b010239c7631e9e20d5a03"
+      },
+      "parent-ci/linux-synthetic-test-log-LastTest.log": {
+        "bytes": 320436,
+        "sha256": "29a025a707c84acceb6ae2e368424372a20f96901147a9c42e087188d3b2a31a"
+      },
+      "parent-ci/run-original.json": {
+        "bytes": 13776,
+        "sha256": "3a85b3c4226894ce1c68ddfa2140a0868cfa29cf865ca924082c085f411b70c3"
+      },
+      "parent-ci/windows-desktop-import-test-log-LastTest.log": {
+        "bytes": 22181,
+        "sha256": "2b72ea85a2fbfae99e00ae82d226cc50252efd5cf8bdfc2d1e88c52cae8db83a"
+      },
+      "parent-ci/windows-native-packet-unit-log-LastTest.log": {
+        "bytes": 241452,
+        "sha256": "f8405006f5e4e21d1abe3d0162686a368b14a2eeaa6bae9765b7d673cdbed23b"
+      },
+      "parent-windows-byte-audit.json": {
+        "bytes": 948,
+        "sha256": "edf5cf5d8fdb70f187e8e61b8d37bfd7653ddb55fbf6347e00bfd847f44542ee"
+      },
+      "prepared-derivative-probe.cpp": {
+        "bytes": 10651,
+        "sha256": "386183057141d11427ab5f062eae5b7c38234bcb1beb4b2e68f9b4a5e3a98e2b"
+      },
+      "probe-baseline-receipt.json": {
+        "bytes": 1467,
+        "sha256": "95118a0a4dfd7b4046d0fd11140b6e10a13afe3e0d46fcb422c35e33b3d80834"
+      },
+      "probe-baseline.log": {
+        "bytes": 88,
+        "sha256": "453f75c96fae83299239bb8b8d48a947992a8d80a17097afad24b92f1259e88a"
+      },
+      "qualify-frozen.py": {
+        "bytes": 2891,
+        "sha256": "ce46799ade4ec77ba339ecfccde1bf5fb0c16c7de936e8fc21f767abd360d2a4"
+      },
+      "reflow-tests.log": {
+        "bytes": 378,
+        "sha256": "06fd3b4cc8674c954dbed7771ea6ff5087d79faf2c591803bfcea50fe8afa552"
+      },
+      "ui-final/default.png": {
+        "bytes": 25459,
+        "sha256": "a87f43d461804b831567f8969590840298ff90da7128ac6d89cd7ca88d1d839c"
+      },
+      "ui-final/small.png": {
+        "bytes": 18058,
+        "sha256": "2c10172e12486e4f1a2cb9b9509809d995a645834f0edcca6deef746e8c2922a"
+      },
+      "ui-first/default.png": {
+        "bytes": 25459,
+        "sha256": "a87f43d461804b831567f8969590840298ff90da7128ac6d89cd7ca88d1d839c"
+      },
+      "ui-first/small.png": {
+        "bytes": 18777,
+        "sha256": "0255e972fd2a342cb844c097e1da2b23b9f312ccb3b0bae75185fddde709fa38"
+      },
+      "wrapped-rows-tests.log": {
+        "bytes": 469,
+        "sha256": "490d1b2e66386bff51520a3ab5e00fa840c7f39f00332015a360780ff9573648"
+      }
+    }
+  },
+  "parent_ci": {
+    "run_id": 38471120515,
+    "source_head": "fe1be4f51923170c68ef5f1ab6b0d6ff161fa90d",
+    "all_four_jobs_passed": true,
+    "linux": 165,
+    "windows_native": 90,
+    "windows_desktop": 22,
+    "byte_audit": {
+      "source_head": "fe1be4f51923170c68ef5f1ab6b0d6ff161fa90d",
+      "source_tree": "7d695dc4efff430d61234e7168f9da9c62ebd5b0",
+      "archive_bytes": 123605814,
+      "archive_sha256": "c5c0be01ee310dc0cf48217e2d0daf70e933106496ae95a9fe14d1470c4b7663",
+      "archive_entries": 47,
+      "deployment_files": 14,
+      "source_files_verified_against_git_windows_checkout_filters": 1510,
+      "all_corresponding_source_archive_bytes_match_native_snapshot": true,
+      "checkout_filter": "actual bounded git -c core.autocrlf=true cat-file --filters; no ad hoc byte normalization",
+      "all_collection_artifact_hashes_verified": true,
+      "dependency_mismatches": [],
+      "two_media_builds_match_reviewed_pin": true,
+      "sndfile_sha256": "2f50a0b47e46407bf9d3d34f95dd58289356020331ebd989a0c0a924a57fb6e7",
+      "main_window_qualified": false,
+      "native_audio_qualified": false,
+      "installer_prepared": false,
+      "audit_platform": "Linux independent byte/source audit; not native execution"
+    }
+  },
+  "localization": {
+    "keys": 1038,
+    "partial_catalogs": 34,
+    "drafts": 3168,
+    "native_reviewed": 0,
+    "ui_qualified": 0
+  },
+  "current_windows_qualified": false,
+  "installed_preview_updated": false,
+  "physical_audio": false,
+  "vm_started": false,
+  "full_parity": false,
+  "remaining": [
+    "asynchronous missing-handle plan/render/review/atomic admission",
+    "phase/listening/processing quality",
+    "current Windows and installer qualification",
+    "full M2\u2013M11/F/Q/C/N/X004/X005 and all-Europe"
+  ]
+}

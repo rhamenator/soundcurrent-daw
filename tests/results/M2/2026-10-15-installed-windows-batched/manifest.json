@@ -1,0 +1,19 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 3240584,
+  "sha256": "72577baa6332f6c61e147f1b69d7099d76b0c64113bd37c5c75add9627ba7e10",
+  "entries": 85,
+  "sourceHead": "97e9ecdc32cfaddca03e4c8df9829fbdcb68c0aa",
+  "ciRunAtObservation": 38797374241,
+  "projectFiles": 225,
+  "projectReconstructionVerified": true,
+  "windowsInstalledWorkflow": true,
+  "independentExportBitExact": true,
+  "originalRenderWaitPassed": false,
+  "renderMilliseconds": null,
+  "terminalElapsed": "Elapsed: 13.6 s",
+  "elapsedFrozenAtTerminal": true,
+  "initialProtectedFailureUnresolved": true,
+  "applicationBinariesIncluded": false,
+  "credentialsIncluded": false
+}

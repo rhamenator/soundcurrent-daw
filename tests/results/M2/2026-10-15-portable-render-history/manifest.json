@@ -1,0 +1,9 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 10922881,
+  "sha256": "7a9749ea1d9ea03e996e79116316c2bf2432217cefa69462e3e9129203cc8a40",
+  "files": 264,
+  "crcAndPayloadHashesVerified": true,
+  "binariesIncluded": false,
+  "privateTransportExcluded": true
+}
