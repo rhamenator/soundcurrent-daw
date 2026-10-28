@@ -65,3 +65,13 @@ publication or equalizer-code import was performed. Before a public Windows
 release, choose and qualify an affordable distribution/trust route with the
 owner. A signing expense must not stop independent product development, and
 unsigned development is not a claim of a qualified public installer.
+
+## Updated candidate distribution policy,2026-10-27
+
+The owner now permits clearly labeled unsigned release candidates under the
+[release candidate contract](381-release-candidate-contract.md). Commercial signing
+is deferred until funding; installer implementation and native lifecycle tests are
+required now. Checksums/provenance and disclosure of trust limitations do not replace
+platform protections. Earlier requests to choose an affordable trust route do not
+make purchasing a certificate a present candidate gate. No installer is qualified
+or published by this policy update.
