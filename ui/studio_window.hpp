@@ -140,6 +140,9 @@ class StudioWindow : public QMainWindow {
     QPointer<QDialog> historyDialog_;
     QPointer<QDialog> autosaveSettingsDialog_;
     void showAutosaveSettings();
+    void showAutosaveRecovery();
+    QPointer<QDialog> autosaveRecoveryDialog_;
+    std::uint64_t autosaveRestorePending_ = 0;
     TimelineEditor *timeline_ = nullptr;
     std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
     std::uint64_t guiEpoch_ = 0, guiRevision_ = 0;

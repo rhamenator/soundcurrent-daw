@@ -40,7 +40,7 @@
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "a20591cf2fc9b83995f8432644fb32f35090372cf8fc66be1815d0082df3a7a6",
     "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
-    "ui/project_controller.cpp": "be3ba671fbfddad25055190064d68e971cfb28fd68e7720a71072280ae53458f",
+    "ui/project_controller.cpp": "db5b90bbb8f4b9759dccec66cb3012bc80dac74e1cb1ec7d3bf96a3924f2f059",
     "ui/project_controller.hpp": "7dd190d040564cb6aee0811c8bf99e4cc0154c6b1c086890be6f27671a81bb38",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
@@ -52,8 +52,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "7d19c7ef2bbfbbcccdf14e73f2ce2cb46344b529c5d4ab41de0f4289a0888e0c",
-    "ui/studio_window.hpp": "ce26a2e3ca5cd8734ab9de129193e5d103c210c028a465c22ab1e80618b0963d",
+    "ui/studio_window.cpp": "9ca14b58fae6f452215fd89c2ee60a5f5a47f0eb7f2db4a2943e850cb1506af7",
+    "ui/studio_window.hpp": "9d4f5b1c7a8bb10088c7a418602842347ae060aff0cc8a37163270122a67b476",
     "ui/timeline_editor.cpp": "1164177bfe0a5d858cd9cd6150ec29905203851d0e2cac3a8358663df5464f6e",
     "ui/timeline_editor.hpp": "1fb4b04f14171b2bb5489b99fea063efe46a8b2348c0932cc7fb2f31f7d962a8",
     "ui/timeline_view.cpp": "d3df8afa145fc3cad88dce58ada53d83cbb2d9b7c0234d80dc94362240ca739f",
@@ -3650,6 +3650,12 @@
     ],
     [
       "StudioWindow",
+      "Review autosave snapshot…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Inspect foreign project…",
       "",
       false
@@ -4233,6 +4239,96 @@
     [
       "StudioWindow",
       "Transition preparation could not start. Check Project resources and the installed render helper.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review autosave snapshot",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Restore replaces the current project edits with the reviewed snapshot. You can Undo this change. The saved project stays unchanged until you choose Save. Stop playback and resolve retained recordings before reviewing or restoring.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose Inspect snapshot to validate the stored snapshot and its media.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Inspect snapshot",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Restore reviewed snapshot",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project is busy. Retry snapshot inspection.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Validating snapshot and media…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project is busy. Retry restoration.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Revalidating and restoring the reviewed snapshot…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Snapshot: %1 · %2 tracks · %3 media assets",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Snapshot validated. Choose Restore only if you want to replace the current edits.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Snapshot could not be reviewed. It may be missing, invalid, or its media unavailable. Inspect again after resolving project operations.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Restoration refused. The project or stored snapshot changed, or validation failed. Inspect again.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Snapshot restored. Undo is available; choose Save to update the saved project.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project changed after review. Inspect the snapshot again.",
       "",
       false
     ],

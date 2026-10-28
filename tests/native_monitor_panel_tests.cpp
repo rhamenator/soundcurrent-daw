@@ -434,6 +434,53 @@ void pipewirePanel(const std::filesystem::path &root){
     std::cout<<"pipewire_panel typed_prepare_record_inspect_export_reopen_close=true raw_original=true simulated_sdk=true timeline_admission_verified=true\n";
 }
 
+void autosaveRecovery(const std::filesystem::path &root) {
+    auto saved=makeOneTrackSession("Session – Ελληνικά","Audio");ProjectStore(root).save(saved);
+    StudioWindow window;window.show();window.openProject(root);
+    await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+    auto *action=window.findChild<QAction *>("autosaveRecoveryAction");check(action,"Recovery action missing");action->trigger();
+    auto *dialog=window.findChild<QDialog *>("autosaveRecoveryDialog");check(dialog,"Recovery dialog missing");
+    auto *inspect=dialog->findChild<QPushButton *>("inspectAutosaveSnapshot");
+    auto *restore=dialog->findChild<QPushButton *>("restoreAutosaveSnapshot");
+    auto *preview=dialog->findChild<QLabel *>("autosaveRecoveryPreview");
+    auto *status=dialog->findChild<QLabel *>("autosaveRecoveryStatus");
+    check(inspect && restore && preview && status && !restore->isEnabled(),"Recovery controls missing/default restore enabled");
+    action->trigger();check(window.findChildren<QDialog *>("autosaveRecoveryDialog").size()==1,"Duplicate recovery dialog");
+    await([&]{return inspect->isEnabled();});inspect->click();
+    await([&]{return window.snapshot()->autosaveReviewCompleted.request && inspect->isEnabled();});
+    check(!restore->isEnabled() && !status->text().isEmpty() && *window.snapshot()->session==saved,
+          "Missing snapshot silently restored or lacked feedback");
+    auto recovered=saved;recovered.name="Recovered – été";ProjectStore(root).saveAutosave(recovered);
+    inspect->click();await([&]{return restore->isEnabled();});
+    check(preview->text().contains(QString::fromUtf8("Recovered – été")),"Reviewed snapshot absent from preview");
+    const auto &track=saved.tracks.front();ProjectCommand edit{CommandKind::Parameter};
+    edit.address=ParameterAddress{track.id,track.eq.id,track.eq.bands.front().id,BandParameter::GainDb};
+    edit.value=9;edit.gesture=80001;check(window.submitEdit(edit),"Recovery fixture edit refused");
+    await([&]{return window.snapshot()->dirty && !restore->isEnabled();});
+    const auto before=window.snapshot()->session;
+    check(preview->text().isEmpty(),"Stale review preview remained actionable");
+    await([&]{return inspect->isEnabled();});inspect->click();await([&]{return restore->isEnabled();});
+    const auto errorsBeforeRestore=window.snapshot()->errorSerial;
+    restore->click();
+    std::cout<<"autosave_restore_click status="<<status->text().toStdString()
+             <<" review="<<window.snapshot()->autosaveReview.request
+             <<" epoch="<<window.snapshot()->projectEpoch<<" revision="<<window.snapshot()->modelRevision<<std::endl;
+    await([&]{const auto current=window.snapshot();
+        if(current->errorSerial>errorsBeforeRestore)
+            throw std::runtime_error("Visible autosave restore refused: "+current->diagnostic+"; UI: "+status->text().toStdString());
+        return current->session->name==recovered.name && !current->autosaveReview.session;
+    });
+    check(window.snapshot()->dirty && ProjectStore(root).load()==saved && ProjectStore(root).loadAutosave()==recovered,
+          "Visible restore overwrote saved/recovery manifest or marked saved");
+    await([&]{return inspect->isEnabled();});
+    check(window.submitEdit({CommandKind::Undo}),"Restored state could not Undo");
+    await([&]{return *window.snapshot()->session==*before;});
+    inspect->click();await([&]{return restore->isEnabled();});dialog->close();QTest::qWait(25);
+    check(*window.snapshot()->session==*before,"Closing recovery dialog restored snapshot");
+    check(window.submitEdit({CommandKind::Save}),"Recovery fixture save refused");
+    await([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
+    window.close();await([&]{return window.snapshot()->closed;});
+}
 void autosaveSettings() {
     StudioWindow window;window.show();
     auto *action=window.findChild<QAction *>("autosaveSettingsAction");
@@ -462,4 +509,4 @@ void autosaveSettings() {
 
 }
 int main(int argc,char **argv){QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);QApplication app(argc,argv);try{{PanelFixtureRoot recovered;recoveredPanel(recovered.root);}
-autosaveSettings();PanelFixtureRoot dir;const auto &root=dir.root;guardedPanel(root/"guard-native",false);guardedPanel(root/"guard-cancel",true);pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+autosaveSettings();PanelFixtureRoot dir;const auto &root=dir.root;autosaveRecovery(root/"autosave-recovery-ui");guardedPanel(root/"guard-native",false);guardedPanel(root/"guard-cancel",true);pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

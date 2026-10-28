@@ -649,6 +649,9 @@ class EditHistory {
     void configure(HistoryBudget);
     // Controller preflight includes an unrelated pending gesture before committing it.
     std::size_t checkAdopt(const Session &) const;
+    // Explicit verified recovery only: restores preferences as well as structure.
+    std::size_t checkRestore(const Session &) const;
+    bool restore(const Session &);
     std::size_t checkRoute(const RouteAddress &, const RouteIntent &) const;
     std::size_t checkMonitoring(const Id &, RecordingMonitor) const;
     std::size_t checkBegin(const ParameterAddress &) const;
@@ -700,7 +703,11 @@ class EditHistory {
         std::optional<std::pair<std::vector<CompAssemblyReference>, std::vector<CompAssemblyReference>>> compAssemblies;
         std::optional<std::pair<std::vector<CompPlaybackSourceState>, std::vector<CompPlaybackSourceState>>> compPlaybackSources;
     };
-    using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
+    struct RecoveryChange {
+        std::shared_ptr<const Session> before, after;
+        std::size_t payloadBytes = 0;
+    };
+    using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange, RecoveryChange>;
     struct Entry {
         Change change;
         std::size_t bytes;

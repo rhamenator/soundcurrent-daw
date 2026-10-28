@@ -776,8 +776,8 @@ struct ProjectController::State : QThread {
                     view.autosaveInhibitionToken || view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                     throw ProjectError(ErrorCode::InvalidState, "Project changed during autosave verification; inspect again");
                 OperationWork work(*this, stagingBytes());
-                const auto peak = history->checkAdopt(*result.loaded);work.admit(peak);
-                if (history->adopt(*result.loaded)) revised();
+                const auto peak = history->checkRestore(*result.loaded);work.admit(peak);
+                if (history->restore(*result.loaded)) revised();
                 view.session = std::move(result.loaded);history->acceptPreflight(peak);
                 view.autosaveReview = {}; // One accepted review, one undoable adoption; no disk publication.
             } catch (const ProjectError &e) {

@@ -2454,6 +2454,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>&amp;Save</translation>
     </message>
     <message>
+      <source>Review autosave snapshot…</source>
+      <translation>Review autosave snapshot…</translation>
+    </message>
+    <message>
       <source>Inspect foreign project…</source>
       <translation>Inspect foreign project…</translation>
     </message>
@@ -2844,6 +2848,66 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Transition preparation could not start. Check Project resources and the installed render helper.</source>
       <translation>Transition preparation could not start. Check Project resources and the installed render helper.</translation>
+    </message>
+    <message>
+      <source>Review autosave snapshot</source>
+      <translation>Review autosave snapshot</translation>
+    </message>
+    <message>
+      <source>Restore replaces the current project edits with the reviewed snapshot. You can Undo this change. The saved project stays unchanged until you choose Save. Stop playback and resolve retained recordings before reviewing or restoring.</source>
+      <translation>Restore replaces the current project edits with the reviewed snapshot. You can Undo this change. The saved project stays unchanged until you choose Save. Stop playback and resolve retained recordings before reviewing or restoring.</translation>
+    </message>
+    <message>
+      <source>Choose Inspect snapshot to validate the stored snapshot and its media.</source>
+      <translation>Choose Inspect snapshot to validate the stored snapshot and its media.</translation>
+    </message>
+    <message>
+      <source>Inspect snapshot</source>
+      <translation>Inspect snapshot</translation>
+    </message>
+    <message>
+      <source>Restore reviewed snapshot</source>
+      <translation>Restore reviewed snapshot</translation>
+    </message>
+    <message>
+      <source>Project is busy. Retry snapshot inspection.</source>
+      <translation>Project is busy. Retry snapshot inspection.</translation>
+    </message>
+    <message>
+      <source>Validating snapshot and media…</source>
+      <translation>Validating snapshot and media…</translation>
+    </message>
+    <message>
+      <source>Project is busy. Retry restoration.</source>
+      <translation>Project is busy. Retry restoration.</translation>
+    </message>
+    <message>
+      <source>Revalidating and restoring the reviewed snapshot…</source>
+      <translation>Revalidating and restoring the reviewed snapshot…</translation>
+    </message>
+    <message>
+      <source>Snapshot: %1 · %2 tracks · %3 media assets</source>
+      <translation>Snapshot: %1 · %2 tracks · %3 media assets</translation>
+    </message>
+    <message>
+      <source>Snapshot validated. Choose Restore only if you want to replace the current edits.</source>
+      <translation>Snapshot validated. Choose Restore only if you want to replace the current edits.</translation>
+    </message>
+    <message>
+      <source>Snapshot could not be reviewed. It may be missing, invalid, or its media unavailable. Inspect again after resolving project operations.</source>
+      <translation>Snapshot could not be reviewed. It may be missing, invalid, or its media unavailable. Inspect again after resolving project operations.</translation>
+    </message>
+    <message>
+      <source>Restoration refused. The project or stored snapshot changed, or validation failed. Inspect again.</source>
+      <translation>Restoration refused. The project or stored snapshot changed, or validation failed. Inspect again.</translation>
+    </message>
+    <message>
+      <source>Snapshot restored. Undo is available; choose Save to update the saved project.</source>
+      <translation>Snapshot restored. Undo is available; choose Save to update the saved project.</translation>
+    </message>
+    <message>
+      <source>Project changed after review. Inspect the snapshot again.</source>
+      <translation>Project changed after review. Inspect the snapshot again.</translation>
     </message>
     <message>
       <source>Autosave settings</source>

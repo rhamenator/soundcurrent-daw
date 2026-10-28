@@ -150,6 +150,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     save_ = file->addAction(tr("&Save"), QKeySequence::Save, this,
                             [this] { submitEdit({CommandKind::Save}); });
     save_->setObjectName(QStringLiteral("saveAction"));
+    auto *autosaveRecovery = file->addAction(tr("Review autosave snapshot…"), this, &StudioWindow::showAutosaveRecovery);
+    autosaveRecovery->setObjectName("autosaveRecoveryAction");
     auto *inspectAction=file->addAction(tr("Inspect foreign project…"),this,&StudioWindow::showImportInspection);
     inspectAction->setObjectName(QStringLiteral("inspectForeignProjectAction"));
     exportAction_ =
@@ -833,6 +835,72 @@ void StudioWindow::cancelCompTransition() {
     if(!compRenderActive())return;
     compRenderCancel_=true;compPair_.requestCancel();compAssembly_.requestCancel();
 }
+void StudioWindow::showAutosaveRecovery() {
+    if (autosaveRecoveryDialog_) { autosaveRecoveryDialog_->raise(); return; }
+    auto *dialog = new QDialog(this); autosaveRecoveryDialog_ = dialog;
+    dialog->setObjectName("autosaveRecoveryDialog");dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Review autosave snapshot"));
+    auto *layout = new QVBoxLayout(dialog);
+    auto *warning = new QLabel(tr("Restore replaces the current project edits with the reviewed snapshot. You can Undo this change. The saved project stays unchanged until you choose Save. Stop playback and resolve retained recordings before reviewing or restoring."));
+    warning->setWordWrap(true);layout->addWidget(warning);
+    auto *preview = new QLabel(tr("Choose Inspect snapshot to validate the stored snapshot and its media."));
+    preview->setObjectName("autosaveRecoveryPreview");preview->setTextFormat(Qt::PlainText);
+    preview->setWordWrap(true);layout->addWidget(preview);
+    auto *status = new QLabel;status->setObjectName("autosaveRecoveryStatus");
+    status->setTextFormat(Qt::PlainText);status->setWordWrap(true);layout->addWidget(status);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    auto *inspect = buttons->addButton(tr("Inspect snapshot"), QDialogButtonBox::ActionRole);
+    auto *restore = buttons->addButton(tr("Restore reviewed snapshot"), QDialogButtonBox::ActionRole);
+    inspect->setObjectName("inspectAutosaveSnapshot");restore->setObjectName("restoreAutosaveSnapshot");
+    restore->setEnabled(false);layout->addWidget(buttons);
+    struct ReviewState { std::uint64_t inspecting=0, restoring=0, review=0, epoch=0, revision=0; };
+    auto state = std::make_shared<ReviewState>();
+    connect(inspect, &QPushButton::clicked, dialog, [this,state,preview,status,inspect,restore] {
+        if (state->inspecting || state->restoring || !stretchCanRender() || nextGesture_==std::numeric_limits<std::uint64_t>::max()) return;
+        ProjectCommand command{CommandKind::InspectAutosave};command.autosaveReviewRequest=nextGesture_++;
+        const auto request=command.autosaveReviewRequest;
+        if (!submitEdit(std::move(command))) {status->setText(tr("Project is busy. Retry snapshot inspection."));return;}
+        state->inspecting=request;state->review=0;inspect->setEnabled(false);restore->setEnabled(false);
+        preview->clear();status->setText(tr("Validating snapshot and media…"));
+    });
+    connect(restore, &QPushButton::clicked, dialog, [this,state,status,inspect,restore] {
+        const auto current=controller_.snapshot();
+        if (state->inspecting || state->restoring || !state->review || !stretchCanRender() ||
+            current->projectEpoch!=state->epoch || current->modelRevision!=state->revision ||
+            current->autosaveReview.request!=state->review || nextGesture_==std::numeric_limits<std::uint64_t>::max()) return;
+        ProjectCommand command{CommandKind::RestoreAutosave};command.autosaveReviewRequest=state->review;
+        command.autosaveRestoreRequest=nextGesture_++;const auto request=command.autosaveRestoreRequest;
+        if (!submitEdit(std::move(command))) {status->setText(tr("Project is busy. Retry restoration."));return;}
+        state->restoring=request;autosaveRestorePending_=request;inspect->setEnabled(false);restore->setEnabled(false);
+        status->setText(tr("Revalidating and restoring the reviewed snapshot…"));
+    });
+    auto *timer=new QTimer(dialog);
+    connect(timer,&QTimer::timeout,dialog,[this,state,inspect,restore,preview,status] {
+        const auto current=controller_.snapshot();
+        if (state->inspecting && current->autosaveReviewCompleted.request==state->inspecting) {
+            const auto request=state->inspecting;state->inspecting=0;
+            const auto &review=current->autosaveReview;
+            if (!current->autosaveReviewCompleted.error && review.request==request && review.session) {
+                state->review=request;state->epoch=review.projectEpoch;state->revision=review.modelRevision;
+                preview->setText(tr("Snapshot: %1 · %2 tracks · %3 media assets")
+                    .arg(text(review.session->name)).arg(qulonglong(review.session->tracks.size())).arg(qulonglong(review.session->assets.size())));
+                status->setText(tr("Snapshot validated. Choose Restore only if you want to replace the current edits."));
+            } else status->setText(tr("Snapshot could not be reviewed. It may be missing, invalid, or its media unavailable. Inspect again after resolving project operations."));
+        }
+        if (state->restoring && current->autosaveRestoreCompleted.request==state->restoring) {
+            state->restoring=0;state->review=0;
+            status->setText(current->autosaveRestoreCompleted.error ? tr("Restoration refused. The project or stored snapshot changed, or validation failed. Inspect again.") : tr("Snapshot restored. Undo is available; choose Save to update the saved project."));
+        }
+        if (!state->restoring && state->review && (current->projectEpoch!=state->epoch || current->modelRevision!=state->revision || current->autosaveReview.request!=state->review)) {
+            state->review=0;preview->clear();status->setText(tr("Project changed after review. Inspect the snapshot again."));
+        }
+        const bool ready=!state->inspecting && !state->restoring && stretchCanRender();
+        inspect->setEnabled(ready);restore->setEnabled(ready && state->review);
+    });
+    connect(buttons,&QDialogButtonBox::rejected,dialog,&QDialog::reject);
+    inspect->setEnabled(stretchCanRender());timer->start(20);dialog->show();
+}
+
 void StudioWindow::showAutosaveSettings() {
     if (autosaveSettingsDialog_) { autosaveSettingsDialog_->raise(); return; }
     auto *dialog = new QDialog(this);
@@ -2174,7 +2242,7 @@ void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSna
 }
 bool StudioWindow::recordingBusy() const {
     const auto r = recording_.snapshot();
-    return recordAutosaveToken_ || (nativeRecording_ && nativeRecording_->busy()) || (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
+    return autosaveRestorePending_ || recordAutosaveToken_ || (nativeRecording_ && nativeRecording_->busy()) || (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
            r->take ||
            (r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Unsupported &&
             r->phase != RecordingPhase::Fault && r->phase != RecordingPhase::Closed);
@@ -3596,6 +3664,9 @@ void StudioWindow::updateBands(const Session &session) {
     }
 }
 void StudioWindow::poll() {
+    const auto recoveryOwner=controller_.snapshot();
+    if (autosaveRestorePending_ && (recoveryOwner->closed ||
+        recoveryOwner->autosaveRestoreCompleted.request==autosaveRestorePending_)) autosaveRestorePending_=0;
     if (polling_)
         return;
     QScopedValueRollback<bool> guard(polling_, true);
