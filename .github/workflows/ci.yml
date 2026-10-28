@@ -1,3 +1,5 @@
+# Development artifacts are not official release candidates or native installer evidence.
+# Official Windows/Linux candidates must satisfy docs/381-release-candidate-contract.md.
 name: Development checks
 on:
   push:

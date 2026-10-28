@@ -867,3 +867,12 @@ selects a versioned worker/state and one editable marker with review/Apply,
 Undo/reopen/crop/split/shared output next. The opt-in prototype is not an
 installed usable marker workflow. Full general/group/tempo/pitch/comp and all
 other milestones, import/equipment, native recovery and Europe remain required.
+
+## Official release candidate exit policy
+
+Candidates remain below1.0 and satisfy production-level gates under the
+[release candidate contract](381-release-candidate-contract.md). Windows/Linux are
+the present desktop targets; native installers/packages and disposable lifecycle
+evidence are mandatory. Signing funding does not defer installer work. Independent
+human review status is disclosed, not a hard blocker. This does not reduce any
+frozen-reference, processing/content/import/equipment/localization acceptance scope.

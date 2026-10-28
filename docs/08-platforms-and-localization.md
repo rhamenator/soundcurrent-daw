@@ -58,3 +58,12 @@ Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, 
 ## Next implementation task
 
 S6: connect the Qt recording/playback/EQ UI, then export. S6a read-ahead/private EQ/worker retirement is implemented on Linux and cross-compiled for Windows; native playback is an owned Linux fixture only. S5 owned PipeWire capture/monitor/source-removal fixtures now pass; physical latency/reprepare and native Windows audio remain open. S3 prepared EQ/events/lifetime and S4 capture/disk/journal/recovery foundations are tested; physical filesystem faults, >4 GiB, native Windows runtime and the full graph remain unqualified. Preserve the full DAW, Windows, localization and import scope while delivering the first recording slice.
+
+## Current release platform policy
+
+Official candidate targets are Windows and Linux only. The staged capability rows
+above are requirements, not completed release certification. Each declared target
+needs a native installer or recognized package plus disposable clean-install, launch,
+upgrade, uninstall and residue evidence. Portable archives/cross-builds are insufficient.
+No current macOS release work or support claim is planned. See the
+[release candidate contract](381-release-candidate-contract.md).
