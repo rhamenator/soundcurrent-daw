@@ -58,7 +58,7 @@
     "ui/timeline_editor.hpp": "1fb4b04f14171b2bb5489b99fea063efe46a8b2348c0932cc7fb2f31f7d962a8",
     "ui/timeline_view.cpp": "d3df8afa145fc3cad88dce58ada53d83cbb2d9b7c0234d80dc94362240ca739f",
     "ui/timeline_view.hpp": "1981c0cf9a33aaaac99fedeb5da5e85cad4eae7ad2695c089a45c6b67d8a3612",
-    "ui/timeline_waveforms.cpp": "ae6d59b4d93217bf8f415deebf57cc7fc08a364edb0d39dfc674a82f2a7692b0",
+    "ui/timeline_waveforms.cpp": "ee357bfbeafce6fff66648cd66582a5eacebf2ca8273737a68eb80dc817b537d",
     "ui/timeline_waveforms.hpp": "d0a9df7157fc1e49dbc9065c83b45325239fc41fb3629e3dbd242c6f6bb10a90",
     "ui/track_versions_dialog.cpp": "6fcc19ee8034bffbb14eaf03b0bd062e2d690c6979b3f3f085579bcba1b1e91e",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
@@ -7028,13 +7028,13 @@
     ],
     [
       "soundcurrent::daw::ui::TimelineWaveforms",
-      "Source PCM · channel %1 · shaded edges need finer detail",
+      "Source PCM · channel %1 · shading marks edges needing finer detail",
       "",
       false
     ],
     [
       "soundcurrent::daw::ui::TimelineWaveforms",
-      "Source PCM · shaded edges need finer detail · >2 channels combined",
+      "Source PCM · shading marks edges needing finer detail · sources with >2 channels combined",
       "",
       false
     ],

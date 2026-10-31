@@ -87,9 +87,9 @@ QString TimelineWaveforms::status() const {
         const auto number=QLocale().toString(qulonglong(*channel_)+1);
         if (std::any_of(items_.begin(),items_.end(),[&](const auto &i){return i.result.waveform && *channel_>=i.result.waveform->source().channels;}))
             return tr("Source PCM · channel %1 absent from some sources").arg(number);
-        return tr("Source PCM · channel %1 · shaded edges need finer detail").arg(number);
+        return tr("Source PCM · channel %1 · shading marks edges needing finer detail").arg(number);
     }
-    return tr("Source PCM · shaded edges need finer detail · >2 channels combined");
+    return tr("Source PCM · shading marks edges needing finer detail · sources with >2 channels combined");
 }
 void TimelineWaveforms::setChannel(std::optional<std::uint32_t> channel) {
     if (channel && *channel>=1024) throw ProjectError(ErrorCode::InvalidParameter,"Waveform display channel exceeds source policy");
