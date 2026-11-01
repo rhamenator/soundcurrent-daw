@@ -4720,11 +4720,11 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Source PCM · channel %1 · shaded edges need finer detail</source>
+      <source>Source PCM · channel %1 · shading marks edges needing finer detail</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
+      <source>Source PCM · shading marks edges needing finer detail · sources with &gt;2 channels combined</source>
       <translation type="unfinished" />
     </message>
     <message>

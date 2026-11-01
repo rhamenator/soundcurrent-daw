@@ -4737,12 +4737,12 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Source PCM · channel %1 absent from some sources</translation>
     </message>
     <message>
-      <source>Source PCM · channel %1 · shaded edges need finer detail</source>
-      <translation>Source PCM · channel %1 · shaded edges need finer detail</translation>
+      <source>Source PCM · channel %1 · shading marks edges needing finer detail</source>
+      <translation>Source PCM · channel %1 · shading marks edges needing finer detail</translation>
     </message>
     <message>
-      <source>Source PCM · shaded edges need finer detail · &gt;2 channels combined</source>
-      <translation>Source PCM · shaded edges need finer detail · &gt;2 channels combined</translation>
+      <source>Source PCM · shading marks edges needing finer detail · sources with &gt;2 channels combined</source>
+      <translation>Source PCM · shading marks edges needing finer detail · sources with &gt;2 channels combined</translation>
     </message>
     <message>
       <source>No channel %1</source>
