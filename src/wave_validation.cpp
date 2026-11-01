@@ -314,4 +314,19 @@ WaveValidation validateApprovedWave(ApprovedMediaFile &file,WaveValidationLimits
     });
     file.verifyUnchanged();io.poll();result.bytesRead=io.bytes;result.ioOperations=io.operations;return result;
 }
+WaveValidation verifyAssetReplacement(ApprovedMediaFile &file, const Asset &expected,
+    WaveValidationLimits limits, std::stop_token stop, const std::function<void()> &beforeRead) {
+    require(expected.frames > 0 && expected.sampleRate > 0 && expected.layout.channels > 0 &&
+        expected.sha256.size() == 64 &&
+        std::all_of(expected.sha256.begin(), expected.sha256.end(), [](char c) {
+            return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+        }), "Invalid expected replacement identity");
+    require(!stop.stop_requested(), "Asset replacement check canceled", ErrorCode::Canceled);
+    const auto result = validateApprovedWave(file, limits, stop, {}, beforeRead);
+    require(result.frames == static_cast<std::uint64_t>(expected.frames) &&
+        result.rate == expected.sampleRate && result.channels == expected.layout.channels &&
+        std::equal(result.sourceSha256.begin(), result.sourceSha256.end(), expected.sha256.begin()),
+        "Replacement differs from the original asset", ErrorCode::MediaMismatch);
+    return result;
+}
 } // namespace soundcurrent::daw

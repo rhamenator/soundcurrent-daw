@@ -51,4 +51,13 @@ WaveDataExtent inspectApprovedWaveData(ApprovedMediaFile &, WaveValidationLimits
 WaveValidation validateApprovedWave(ApprovedMediaFile &, WaveValidationLimits = {},
     std::stop_token = {}, const std::function<void(std::uint64_t,std::span<const double>)> &observer = {},
     const std::function<void()> &beforeRead = {});
+// P084 exact replacement check, serialized control/I/O only. The caller must
+// select/approve the candidate explicitly; saved asset paths grant no access.
+// Requires the original whole-file hash and exact rate/channel/frame identity,
+// plus the full finite-sample validation above. Never changes files or Session.
+// This is a snapshot, not authority to reopen a path: retain the approved file
+// and reverify/copy through it before publishing any later recovery operation.
+WaveValidation verifyAssetReplacement(ApprovedMediaFile &, const Asset &,
+    WaveValidationLimits = {}, std::stop_token = {},
+    const std::function<void()> &beforeRead = {});
 } // namespace soundcurrent::daw
