@@ -34,12 +34,15 @@ int main() {
             verifyAssetReplacementReport(ticket,decoded,asset,context,42,memory);++checks;
             for(unsigned field=0;field<4;++field) {
                 auto stale=context;if(field==0)++stale.projectEpoch;if(field==1)++stale.modelRevision;
-                if(field==2)++stale.request;if(field==3)++stale.job;
+                if(field==2)++stale.request;
+                if(field==3)++stale.job;
                 refuses([&]{verifyAssetReplacementReport(ticket,decoded,asset,stale,42,memory);});
             }
             for(unsigned field=0;field<5;++field) {
                 auto changed=asset;if(field==0)changed.id=Id::generate();if(field==1)changed.sha256[0]='b';
-                if(field==2)++changed.frames;if(field==3)changed.sampleRate=44100;if(field==4)changed.layout.channels=1;
+                if(field==2)++changed.frames;
+                if(field==3)changed.sampleRate=44100;
+                if(field==4)changed.layout.channels=1;
                 refuses([&]{verifyAssetReplacementReport(ticket,decoded,changed,context,42,memory);});
             }
             for(const auto pid:{0U,43U})refuses([&]{verifyAssetReplacementReport(ticket,decoded,asset,context,pid,memory);});
@@ -50,7 +53,8 @@ int main() {
             for(unsigned field=0;field<4;++field) {
                 auto value=fixture();if(field==0)value["sourceSha256"]=std::string(64,'b');
                 if(field==1){value["frames"]=5;value["decodedFrames"]=5;}
-                if(field==2)value["rateHz"]=44100;if(field==3)value["channels"]=1;
+                if(field==2)value["rateHz"]=44100;
+                if(field==3)value["channels"]=1;
                 auto wrong=report(memory,value);
                 refuses([&]{verifyAssetReplacementReport(ticket,wrong,asset,context,42,memory);},ErrorCode::MediaMismatch);
             }
