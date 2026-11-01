@@ -93,6 +93,11 @@ void sampleCase(const std::filesystem::path &path,ResourceLedger memory,unsigned
     double peak=0;for (const auto x:expected) peak=std::max(peak,std::abs(x));check(result.peak==peak,"Floating headroom/sample peak changed");
     check(result.sourceBytes==bytes.size() && result.bytesRead>=(large ? bytes.size()+data.size() : bytes.size()*2) && result.ioOperations>0,"WAVE work counters/byte extent wrong");
     const auto digest=file.digest();check(result.sourceSha256==digest,"WAVE original-byte digest changed");usage(memory,baseline);
+    Asset originalAsset;originalAsset.sha256.assign(digest.begin(),digest.end());originalAsset.frames=19;
+    originalAsset.sampleRate=result.rate;originalAsset.layout.channels=channels;
+    const auto replacement=verifyAssetReplacement(file,originalAsset);
+    check(replacement.sourceSha256==digest && replacement.peak==result.peak && replacement.decodedFrames==19,
+        "Replacement check changed format samples or headroom");usage(memory,baseline);
 }
 }
 int main() {
@@ -110,6 +115,38 @@ int main() {
         sampleCase(path,memory,32,true,false,true,2,true);
         sampleCase(path,memory,64,true,false,false,1,true);
         const auto valid=wave(16,1,std::string(1024,'\0'));write(path/"valid.wav",valid);
+        {
+            ApprovedMediaRoot root(path,memory);auto file=root.open("valid.wav",valid.size());
+            Asset expected;expected.relativePath="media/moved-original.wav";
+            const auto hash=file.digest();expected.sha256.assign(hash.begin(),hash.end());
+            expected.frames=512;expected.sampleRate=48000;expected.layout.channels=1;
+            const auto original=expected;const auto before=memory.usage();
+            check(verifyAssetReplacement(file,expected).decodedFrames==512,"Exact asset replacement refused");
+            check(expected==original,"Replacement check changed asset identity or provenance");usage(memory,before);
+            for(unsigned field=0;field<4;++field) {
+                auto wrong=expected;
+                if(field==0) wrong.sha256[0]=wrong.sha256[0]=='0' ? '1' : '0';
+                if(field==1) ++wrong.frames;
+                if(field==2) wrong.sampleRate=44100;
+                if(field==3) wrong.layout.channels=2;
+                refused([&]{verifyAssetReplacement(file,wrong);},ErrorCode::MediaMismatch);usage(memory,before);
+            }
+            for(const auto &digest:{std::string(63,'a'),std::string(64,'A'),std::string(64,'z')}) {
+                auto malformed=expected;malformed.sha256=digest;unsigned reads=0;
+                refused([&]{verifyAssetReplacement(file,malformed,{}, {},[&]{++reads;});},ErrorCode::InvalidParameter);
+                check(reads==0,"Malformed identity initiated decoding");usage(memory,before);
+            }
+            auto invalid=expected;invalid.frames=-1;
+            refused([&]{verifyAssetReplacement(file,invalid);},ErrorCode::InvalidParameter);
+            std::stop_source stop;stop.request_stop();
+            refused([&]{verifyAssetReplacement(file,expected,{},stop.get_token());},ErrorCode::Canceled);usage(memory,before);
+            WaveValidationLimits limits;limits.maximumFrames=511;
+            refused([&]{verifyAssetReplacement(file,expected,limits);},ErrorCode::ResourceLimit);usage(memory,before);
+            std::stop_source during;unsigned reads=0;
+            refused([&]{verifyAssetReplacement(file,expected,{},during.get_token(),[&]{if(++reads==4)during.request_stop();});},ErrorCode::Canceled);
+            check(reads==4,"Replacement cancellation callback not honored");usage(memory,before);
+            check(file.digest()==hash && expected==original,"Refused replacement modified source or asset");
+        }
         {
             ApprovedMediaRoot root(path,memory);auto file=root.open("valid.wav",valid.size());const auto before=memory.usage();
             WaveValidationLimits limits;limits.maximumFrames=511;
