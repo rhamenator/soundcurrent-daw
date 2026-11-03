@@ -41,3 +41,25 @@ candidate selection tied to project epoch/revision/asset ID, supervised verifica
 exclusive verified restoration/publication, ambiguous/multiple candidate handling,
 and native Linux/Windows recovery/save/reopen acceptance preserving clips, takes,
 provenance and Undo/Redo. No approximate matching is enabled by this change.
+
+## Parent-owned verification context
+
+`AssetReplacementTicket` snapshots the selected asset ID and exact content identity
+under a resource lease, with project epoch, model revision, request and candidate
+job IDs supplied by the parent. Revision zero is valid; epoch, request and job
+must be nonzero. This ticket is immutable and cannot qualify after retirement.
+
+`verifyAssetReplacementReport` accepts only an already decoded strict desktop v2
+`WaveCheckReport` from the same admission scope. It checks the current parent
+context and asset against the ticket, the actually observed child PID against the
+report, and the reported content identity against the saved asset. This adds no
+file access, audio-thread work or publication authority. The existing decoder and
+supervised child remain responsible for bounded output, selected reference, PID,
+format and completed validation; their schema is unchanged. The developer-only
+`--match-asset` protocol is not accepted by the desktop v2 decoder.
+
+Focused binding tests cover stale context/asset, wrong content/PID/scope, invalid
+metadata, insufficient admission, cancellation and moved-from retirement. Windows
+CI explicitly builds and runs this test alongside the existing native core gates.
+Desktop selection/review integration and exclusive verified restoration remain
+open; this parent-side check alone does not finish P084.

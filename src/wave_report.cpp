@@ -71,4 +71,28 @@ WaveCheckReport decodeWaveCheckReport(OwnedInspectionProtocol protocol,std::stri
         std::copy(hash.begin(),hash.end(),a.sourceSha256.begin());poll(stop);return result;
     } catch (const nlohmann::json::exception &) {throw ProjectError(ErrorCode::InvalidState,"Malformed WAVE report");}
 }
+AssetReplacementTicket::AssetReplacementTicket(const Asset &asset,AssetReplacementContext context,ResourceLedger memory)
+    :lease_(memory.reserve(sizeof(AssetReplacementTicket)+128)),asset_(asset.id),
+     frames_(asset.frames),rate_(asset.sampleRate),channels_(asset.layout.channels),context_(context) {
+    check(context.projectEpoch && context.request && context.job,"Invalid replacement request context");
+    check(frames_>0 && rate_ && channels_ && asset.sha256.size()==hash_.size() &&
+        std::all_of(asset.sha256.begin(),asset.sha256.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}),
+        "Invalid replacement asset identity");
+    std::copy(asset.sha256.begin(),asset.sha256.end(),hash_.begin());
+}
+void verifyAssetReplacementReport(const AssetReplacementTicket &ticket,const WaveCheckReport &report,
+    const Asset &current,AssetReplacementContext context,std::size_t observedPid,ResourceLedger memory,std::stop_token stop) {
+    poll(stop);
+    check(memory.owns(ticket.lease_) && report.ownedBy(memory),"Replacement report admission scope mismatch");
+    check(context==ticket.context_ && current.id==ticket.asset_,"Stale replacement request or asset");
+    check(observedPid && report.workerPid()==observedPid,"Replacement report observed child mismatch");
+    const auto hash=std::string_view(ticket.hash_.data(),ticket.hash_.size());
+    check(current.sha256==hash && current.frames==ticket.frames_ && current.sampleRate==ticket.rate_ &&
+        current.layout.channels==ticket.channels_,"Replacement asset changed since request");
+    const auto &audio=report.audio();
+    if (audio.frames!=static_cast<std::uint64_t>(ticket.frames_) || audio.rate!=ticket.rate_ ||
+        audio.channels!=ticket.channels_ || audio.sourceSha256!=ticket.hash_)
+        throw ProjectError(ErrorCode::MediaMismatch,"Replacement report differs from original asset");
+    poll(stop);
+}
 } // namespace soundcurrent::daw
