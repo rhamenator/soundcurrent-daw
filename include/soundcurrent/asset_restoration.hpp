@@ -9,6 +9,7 @@ struct AssetRestorationContext {
     bool operator==(const AssetRestorationContext &) const=default;
 };
 struct AssetRestorationState;
+class AssetRestorationRecord;
 // Serialized control/I/O owner only. The caller owns the current accepted model
 // through publish(); child reports and saved source paths grant no file access.
 class PreparedAssetRestoration {
@@ -22,9 +23,10 @@ class PreparedAssetRestoration {
     const Id &operation() const;
     const std::string &stagedRelativePath() const;
     std::size_t chargedBytes() const;
+    const AssetRestorationRecord &record() const;
     // One attempt. Refuses stale context/asset and existing target names. Returns
     // publication truth even if later flush/cancellation fails. No Session edit,
-    // project transaction or durable restoration receipt is claimed by this API.
+    // project transaction is claimed. receiptPublished separately reports audit visibility.
     MediaCommitOutcome publish(const Asset &current,AssetRestorationContext,
         std::stop_token = {},const StageObserver & = {});
   private:

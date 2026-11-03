@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/asset_restoration.hpp>
+#include <soundcurrent/restoration_record.hpp>
 namespace soundcurrent::daw {
 namespace {
 void require(bool ok,const char *message,ErrorCode code=ErrorCode::InvalidState) {
@@ -21,10 +22,12 @@ struct AssetRestorationState {
     ResourceLease lease;
     Asset identity;
     AssetRestorationContext context;
+    AssetRestorationRecord record;
+    ResourceLedger resources;
     StagedMedia stage;
     bool attempted=false;
-    AssetRestorationState(ResourceLease grant,Asset asset,AssetRestorationContext value,StagedMedia media)
-        :lease(std::move(grant)),identity(std::move(asset)),context(value),stage(std::move(media)) {}
+    AssetRestorationState(ResourceLease grant,Asset asset,AssetRestorationContext value,AssetRestorationRecord evidence,ResourceLedger memory,StagedMedia media)
+        :lease(std::move(grant)),identity(std::move(asset)),context(value),record(std::move(evidence)),resources(memory),stage(std::move(media)) {}
 };
 PreparedAssetRestoration::PreparedAssetRestoration(std::unique_ptr<AssetRestorationState> state):state_(std::move(state)) {}
 PreparedAssetRestoration::PreparedAssetRestoration(PreparedAssetRestoration &&) noexcept=default;
@@ -41,21 +44,29 @@ PreparedAssetRestoration PreparedAssetRestoration::prepare(ApprovedMediaFile &so
     auto grant=source.resourceLedger().reserve(sizeof(AssetRestorationState)+4096);
     Asset identity{expected.id,expected.relativePath,expected.sha256,expected.sampleRate,expected.layout,expected.frames,{}};
     const auto verified=verifyAssetReplacement(source,identity,limits,stop);
+    const auto memory=source.resourceLedger();auto recordGrant=memory.reserve(assetRestorationRecordValueCharge);
+    AssetRestorationRecordData data{operation,identity.id};data.context=context;data.relativePath=identity.relativePath;
+    data.content={verified.sourceBytes,verified.sourceSha256};data.frames=identity.frames;data.rate=identity.sampleRate;data.layout=identity.layout;
+    AssetRestorationRecord record(std::move(recordGrant),std::move(data));
+    auto intent=encodeAssetRestorationRecord(record,AssetRestorationPhase::Planned,memory,stop);
     auto stage=StagedMedia::prepareRestorationStage(source,root,{verified.sourceBytes,verified.sourceSha256},maximum,
-        std::move(operation),stop,observer);
-    return PreparedAssetRestoration(std::make_unique<AssetRestorationState>(std::move(grant),std::move(identity),context,std::move(stage)));
+        std::move(operation),intent,stop,observer);
+    return PreparedAssetRestoration(std::make_unique<AssetRestorationState>(std::move(grant),std::move(identity),context,std::move(record),memory,std::move(stage)));
 }
 const Id &PreparedAssetRestoration::operation() const {
     require(bool(state_),"Retired asset restoration");return state_->stage.operation();
 }
 const std::string &PreparedAssetRestoration::stagedRelativePath() const {operation();return state_->stage.relativePath();}
-std::size_t PreparedAssetRestoration::chargedBytes() const {operation();return state_->lease.bytes()+state_->stage.chargedBytes();}
+std::size_t PreparedAssetRestoration::chargedBytes() const {operation();return state_->lease.bytes()+state_->record.chargedBytes()+state_->stage.chargedBytes();}
+const AssetRestorationRecord &PreparedAssetRestoration::record() const {operation();return state_->record;}
 MediaCommitOutcome PreparedAssetRestoration::publish(const Asset &current,AssetRestorationContext context,
     std::stop_token stop,const StageObserver &observer) {
     operation();auto &s=*state_;require(!s.attempted,"Asset restoration already attempted");s.attempted=true;
     const auto &a=s.identity;
     require(context==s.context && current.id==a.id && current.relativePath==a.relativePath && current.sha256==a.sha256 &&
         current.frames==a.frames && current.sampleRate==a.sampleRate && current.layout==a.layout,"Stale asset restoration context/identity");
-    return s.stage.restoreMissing(a.relativePath,stop,observer);
+    auto intent=encodeAssetRestorationRecord(s.record,AssetRestorationPhase::Planned,s.resources,stop);
+    auto receipt=encodeAssetRestorationRecord(s.record,AssetRestorationPhase::Published,s.resources,stop);
+    return s.stage.restoreMissing(a.relativePath,intent,receipt,stop,observer);
 }
 } // namespace soundcurrent::daw
