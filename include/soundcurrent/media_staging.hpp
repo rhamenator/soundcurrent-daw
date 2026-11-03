@@ -5,6 +5,7 @@
 namespace soundcurrent::daw {
 struct StagedMediaState;
 class MediaProvenance;
+class PreparedAssetRestoration;
 struct CheckedMediaBytes {
     std::uint64_t bytes = 0;
     std::array<char,64> sha256{};
@@ -45,8 +46,12 @@ class StagedMedia {
         const MediaProvenance &,std::uint64_t,std::stop_token,const StageObserver &);
     friend MediaCommitOutcome commitStagedMedia(StagedMedia &,const MediaProvenance &,
         std::stop_token,const StageObserver &);
+    friend class PreparedAssetRestoration;
+    static StagedMedia prepareRestorationStage(ApprovedMediaFile &,const std::filesystem::path &,
+        CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &);
+    MediaCommitOutcome restoreMissing(std::string_view,std::stop_token,const StageObserver &);
     friend StagedMedia stageMediaImpl(ApprovedMediaFile &,const std::filesystem::path &,
-        CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &,const MediaProvenance *);
+        CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &,const MediaProvenance *,bool);
     explicit StagedMedia(std::unique_ptr<StagedMediaState>);
     std::unique_ptr<StagedMediaState> state_;
 };

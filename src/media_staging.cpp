@@ -11,6 +11,7 @@
 #include <cerrno>
 #include <fcntl.h>
 #include <linux/fs.h>
+#include <linux/openat2.h>
 #include <sys/syscall.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -180,6 +181,57 @@ void renameExclusive(const Handle &directory,const Handle &file,const char *oldN
         "Cannot exclusively publish owned staging name");
 #endif
 }
+void restorationDirectory(const Handle &parent,std::string_view leaf,Handle &out) {
+#ifdef _WIN32
+    std::array<wchar_t,256> name{};
+    const auto count=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,leaf.data(),static_cast<int>(leaf.size()),name.data(),255);
+    require(count>0,"Cannot encode restoration directory",ErrorCode::InvalidParameter);
+    UNICODE_STRING unicode{};unicode.Buffer=name.data();unicode.Length=static_cast<USHORT>(count*sizeof(wchar_t));unicode.MaximumLength=unicode.Length;
+    OBJECT_ATTRIBUTES attributes{};attributes.Length=sizeof(attributes);attributes.RootDirectory=parent.value;
+    attributes.ObjectName=&unicode;attributes.Attributes=0x1000UL; // OBJ_DONT_REPARSE
+    using Create=NTSTATUS (NTAPI *)(PHANDLE,ACCESS_MASK,POBJECT_ATTRIBUTES,PIO_STATUS_BLOCK,PLARGE_INTEGER,ULONG,ULONG,ULONG,ULONG,PVOID,ULONG);
+    const auto module=GetModuleHandleW(L"ntdll.dll");const auto entry=module ? GetProcAddress(module,"NtCreateFile") : nullptr;
+    require(entry!=nullptr,"Contained restoration opening unavailable",ErrorCode::InvalidState);
+    IO_STATUS_BLOCK result{};const auto createFile=std::bit_cast<Create>(entry);
+    require(createFile(&out.value,FILE_LIST_DIRECTORY|FILE_ADD_FILE|FILE_ADD_SUBDIRECTORY|FILE_TRAVERSE|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
+        &attributes,&result,nullptr,FILE_ATTRIBUTE_DIRECTORY,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+        3,0x21UL,nullptr,0)==0,"Cannot open/create plain restoration directory"); // FILE_OPEN_IF, synchronous directory
+    plainDirectory(out);
+#else
+    const std::string name(leaf);open_how how{};how.flags=O_RDONLY|O_DIRECTORY|O_CLOEXEC;
+    how.resolve=RESOLVE_BENEATH|RESOLVE_NO_SYMLINKS|RESOLVE_NO_MAGICLINKS|RESOLVE_NO_XDEV;
+    out.value=static_cast<int>(syscall(SYS_openat2,parent.value,name.c_str(),&how,sizeof(how)));
+    if (out.value<0 && errno==ENOENT) {
+        const auto made=mkdirat(parent.value,name.c_str(),0700);
+        require(made==0 || errno==EEXIST,"Cannot create restoration directory");
+        out.value=static_cast<int>(syscall(SYS_openat2,parent.value,name.c_str(),&how,sizeof(how)));
+    }
+    require(out.value>=0,"Cannot open contained plain restoration directory");
+#endif
+}
+void restoreRename(const Handle &sourceDirectory,const Handle &file,const Handle &destination,std::string_view leaf) {
+#ifdef _WIN32
+    (void)sourceDirectory;
+    struct Rename { BOOLEAN replace;HANDLE root;ULONG bytes;WCHAR name[256]; } info{};
+    const auto count=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,leaf.data(),static_cast<int>(leaf.size()),info.name,255);
+    require(count>0,"Cannot encode restoration filename",ErrorCode::InvalidParameter);
+    info.root=destination.value;info.bytes=static_cast<ULONG>(count*sizeof(wchar_t)); // replace=false
+    using Set=NTSTATUS (NTAPI *)(HANDLE,PIO_STATUS_BLOCK,PVOID,ULONG,FILE_INFORMATION_CLASS);
+    const auto module=GetModuleHandleW(L"ntdll.dll");const auto entry=module ? GetProcAddress(module,"NtSetInformationFile") : nullptr;
+    require(entry!=nullptr,"Exclusive restoration rename unavailable",ErrorCode::InvalidState);
+    IO_STATUS_BLOCK result{};const auto set=std::bit_cast<Set>(entry);
+    require(set(file.value,&result,&info,sizeof(info),static_cast<FILE_INFORMATION_CLASS>(10))==0,
+        "Cannot exclusively restore missing asset");
+#else
+    struct stat named{},held{};
+    require(fstatat(sourceDirectory.value,"media.partial",&named,AT_SYMLINK_NOFOLLOW)==0 && fstat(file.value,&held)==0 &&
+        named.st_dev==held.st_dev && named.st_ino==held.st_ino && S_ISREG(named.st_mode),
+        "Owned restoration staging name changed",ErrorCode::MediaMismatch);
+    const std::string name(leaf);
+    require(syscall(SYS_renameat2,sourceDirectory.value,"media.partial",destination.value,name.c_str(),RENAME_NOREPLACE)==0,
+        "Cannot exclusively restore missing asset");
+#endif
+}
 std::array<char,64> digest(const Handle &file,std::uint64_t extent,std::stop_token stop) {
     require(size(file)==extent,"Owned staged extent changed",ErrorCode::MediaMismatch);
     std::array<char,65536> buffer{};detail::Hash hash;
@@ -203,7 +255,7 @@ struct StagedMediaState {
     std::string relative;
     CheckedMediaBytes checked;
     StageDurability durability=StageDurability::FileFlushed;
-    bool hasIntent=false,commitAttempted=false,committed=false;
+    bool hasIntent=false,commitAttempted=false,committed=false,restoration=false;
     Handle parent,directory,file,intent;
     StagedMediaState(ResourceLease l,ResourceLedger ledger,Id id,CheckedMediaBytes bytes)
         :lease(std::move(l)),resources(std::move(ledger)),operation(std::move(id)),relative(operation.str()+"/media.partial"),checked(bytes) {}
@@ -217,7 +269,7 @@ CheckedMediaBytes StagedMedia::checkedBytes() const { operation();return state_-
 StageDurability StagedMedia::durability() const { operation();return state_->durability; }
 std::size_t StagedMedia::chargedBytes() const { operation();return state_->lease.bytes(); }
 StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path &parent,
-    CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer,const MediaProvenance *origin) {
+    CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer,const MediaProvenance *origin,bool restoration) {
     poll(stop);
     require(parent.is_absolute() && parent.native().size()<=4096 &&
         parent.native().find(std::filesystem::path::value_type(0))==parent.native().npos,
@@ -229,12 +281,14 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
     require(source.size()==checked.bytes,"Source size differs from checked selection",ErrorCode::MediaMismatch);
     const auto ledger=source.resourceLedger();
     auto state=std::make_unique<StagedMediaState>(ledger.reserve(sizeof(StagedMediaState)+1024),ledger,std::move(id),checked);
+    state->restoration=restoration;
     auto scratch=ledger.reserve(65536+8192+16384); // transfer, crypto, native path/work allowance
     std::optional<OwnedInspectionProtocol> planned;
     if (origin) planned.emplace(encodeMediaProvenance(*origin,MediaReceiptPhase::Planned,ledger,stop));
     require(source.digest(stop)==checked.sha256,"Source differs from checked selection",ErrorCode::MediaMismatch);
 #ifdef _WIN32
-    state->parent.value=CreateFileW(parent.c_str(),FILE_LIST_DIRECTORY|FILE_ADD_SUBDIRECTORY|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
+    state->parent.value=CreateFileW(parent.c_str(),FILE_LIST_DIRECTORY|FILE_ADD_SUBDIRECTORY|FILE_READ_ATTRIBUTES|SYNCHRONIZE|
+        (restoration ? FILE_ADD_FILE|FILE_TRAVERSE : 0UL),
         FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
     require(state->parent.value!=INVALID_HANDLE_VALUE,"Cannot open staging parent");plainDirectory(state->parent);
@@ -257,7 +311,7 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
         state->hasIntent=true;
     }
     boundary(observer,StageBoundary::BeforeFile,0,stop);
-    create(state->directory,"media.partial",false,state->file,origin!=nullptr);
+    create(state->directory,"media.partial",false,state->file,origin!=nullptr || restoration);
     std::array<char,65536> buffer{};
     {
         detail::Hash hash;
@@ -291,14 +345,14 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
 }
 StagedMedia stageVerifiedMedia(ApprovedMediaFile &source,const std::filesystem::path &parent,
     CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer) {
-    return stageMediaImpl(source,parent,checked,maximum,std::move(id),stop,observer,nullptr);
+    return stageMediaImpl(source,parent,checked,maximum,std::move(id),stop,observer,nullptr,false);
 }
 StagedMedia stageBoundMedia(ApprovedMediaFile &source,const std::filesystem::path &parent,
     const MediaProvenance &origin,std::uint64_t maximum,std::stop_token stop,const StageObserver &observer) {
     require(origin.ownedBy(source.resourceLedger()) && origin.data().phase==MediaReceiptPhase::Planned,
         "Unadmitted or non-planned media intent",ErrorCode::InvalidState);
     const auto &p=origin.data();return stageMediaImpl(source,parent,{p.audio.sourceBytes,p.audio.sourceSha256},maximum,
-        p.operation,stop,observer,&origin);
+        p.operation,stop,observer,&origin,false);
 }
 MediaCommitOutcome commitStagedMedia(StagedMedia &owned,const MediaProvenance &origin,std::stop_token stop,const StageObserver &observer) {
     poll(stop);require(bool(owned.state_),"Retired media stage",ErrorCode::InvalidState);auto &state=*owned.state_;
@@ -337,5 +391,36 @@ MediaCommitOutcome commitStagedMedia(StagedMedia &owned,const MediaProvenance &o
 #endif
     } catch (...) {outcome.postCommitFlushFailed=true;}
     state.durability=outcome.durability;return outcome;
+}
+StagedMedia StagedMedia::prepareRestorationStage(ApprovedMediaFile &source,const std::filesystem::path &root,
+    CheckedMediaBytes checked,std::uint64_t maximum,Id operation,std::stop_token stop,const StageObserver &observer) {
+    return stageMediaImpl(source,root,checked,maximum,std::move(operation),stop,observer,nullptr,true);
+}
+MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,std::stop_token stop,const StageObserver &observer) {
+    operation();auto &s=*state_;
+    require(s.restoration && !s.hasIntent && !s.commitAttempted && !s.committed,"Restoration stage already attempted",ErrorCode::InvalidState);
+    s.commitAttempted=true;validateRelativeMediaPath(relative);
+    require(relative.starts_with("media/") && relative.back()!='/',"Restoration requires an owned media path",ErrorCode::InvalidParameter);
+    auto scratch=s.resources.reserve(65536+8192+16384);
+    std::array<Handle,64> directories;std::size_t count=0,begin=0;const Handle *parent=&s.parent;
+    for (;;) {
+        const auto end=relative.find('/',begin);const auto part=relative.substr(begin,end==relative.npos ? end : end-begin);
+        require(!part.empty() && part.size()<=255 && count<directories.size(),"Restoration path limit",ErrorCode::InvalidParameter);
+        if (end==relative.npos)break;
+        poll(stop);restorationDirectory(*parent,part,directories[count]);parent=&directories[count++];begin=end+1;
+    }
+    boundary(observer,StageBoundary::BeforeCommit,s.checked.bytes,stop);
+    require(digest(s.file,s.checked.bytes,stop)==s.checked.sha256,"Restoration staged content changed",ErrorCode::MediaMismatch);
+    flush(s.file);poll(stop);restoreRename(s.directory,s.file,*parent,relative.substr(begin));
+    s.committed=true;MediaCommitOutcome outcome;outcome.published=true;
+    try {
+        if (observer)observer(StageBoundary::AfterCommitBeforeDirectoryFlush,s.checked.bytes);
+#ifndef _WIN32
+        flush(s.directory);
+        for (std::size_t i=count;i>0;--i)flush(directories[i-1]);
+        flush(s.parent);outcome.durability=StageDurability::FileAndDirectoriesFlushed;
+#endif
+    } catch (...) {outcome.postCommitFlushFailed=true;}
+    s.durability=outcome.durability;return outcome;
 }
 } // namespace soundcurrent::daw
