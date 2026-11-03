@@ -11,7 +11,7 @@ std::atomic<bool> reached{false},released{false},timedOut{false};
 unsigned checks=0;
 void check(bool good,const char *message) {++checks;if(!good)throw std::runtime_error(message);}
 constexpr std::uint64_t now=(std::uint64_t(1)<<54)+40000000;
-void eofCase(bool withInput,bool lateEnd=false) {
+void eofCase(bool withInput,bool lateEnd=false,bool planned=false) {
     CaptureFanoutConfig capture;
     capture.capture.identity={11,31,7};capture.capture.channels=3;
     capture.capture.maximumPacketFrames=64;capture.capture.slots=32;capture.monitorSlots=32;
@@ -23,6 +23,8 @@ void eofCase(bool withInput,bool lateEnd=false) {
     auto &d=config.drift;d.captureIdentity=capture.capture.identity;d.inputCapacityFrames=b.inputCapacityFrames;
     d.targetQueuedSourceFrames=1024;d.outputFrameBase=b.outputFrameBase;d.occupancyGainPpmPerFrame=0;
     PreparedCaptureFanout fanout(capture);PreparedMonitorOutputBank out(output);PreparedMonitorProcessing processing(fanout,out,config);
+    const auto end=output.first.value+(withInput ? 512 : 0);
+    if(planned)check(processing.planEnd({end}),"Planned EOF horizon refused");
     if(withInput) {
         const auto origin=std::uint64_t(1)<<63;
         for(unsigned n=0;n<3;++n) {
@@ -54,15 +56,33 @@ void eofCase(bool withInput,bool lateEnd=false) {
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
     while(!reached.load(std::memory_order_acquire) && std::chrono::steady_clock::now()<deadline)std::this_thread::yield();
     const bool window=reached.load() && !fanout.producerDone() && fanout.monitorDrained();
-    bool premature=false;std::array<float,192> scratch{};
+    bool premature=false,prematureClosing=false;std::array<float,192> scratch{};
     for(unsigned i=0;i<128 && window;++i) {
         const auto code=processing.step({now});out.pull(scratch);
+        const auto state=processing.statistics().buffer;
+        prematureClosing=prematureClosing || state.closing || state.ended;
         if(code==MonitorProcessingCode::NeedEnd){premature=true;break;}
         if(code==MonitorProcessingCode::NeedInput)break;
     }
     released.store(true,std::memory_order_release);producer.join();
     check(window && !timedOut,"EOF test did not hold the publication window");
     check(!premature,"NeedEnd escaped before aggregate capture EOF publication");
+    check(!prematureClosing,"Buffer finalized before aggregate capture EOF publication");
+    if(planned) {
+        bool done=false;
+        for(unsigned i=0;i<128;++i) {
+            const auto code=processing.step({now});out.pull(scratch);
+            check(code!=MonitorProcessingCode::NeedEnd && code!=MonitorProcessingCode::Fault,
+                  "Planned EOF did not finalize automatically");
+            if(code==MonitorProcessingCode::Done){done=true;break;}
+        }
+        const auto state=processing.statistics().buffer;
+        check(done && fanout.producerDone() && state.closing && state.ended,
+              "Planned EOF did not complete after aggregate publication");
+        check(state.nextOutputFrame==end && out.deliveredFrames()==end-output.first.value,
+              "Planned EOF did not stop at the declared horizon");
+        return;
+    }
     bool needEnd=false;
     for(unsigned i=0;i<128;++i) {
         const auto code=processing.step({now});out.pull(scratch);
@@ -84,6 +104,6 @@ extern "C" void scCaptureFanoutAfterMonitorFinish() noexcept {
     }
 }
 int main() {
-    try {eofCase(true);eofCase(false);eofCase(true,true);std::cout<<checks<<" deterministic aggregate EOF checks passed\n";return 0;}
+    try {eofCase(true);eofCase(false);eofCase(true,true);eofCase(true,false,true);eofCase(false,false,true);std::cout<<checks<<" deterministic aggregate EOF checks passed\n";return 0;}
     catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}
 }

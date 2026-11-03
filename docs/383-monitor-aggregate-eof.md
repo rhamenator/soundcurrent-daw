@@ -16,6 +16,9 @@ precondition. The extra atomic read occurs only on a drained monitor bank.
 compile-time seam in a dedicated test executable. The production fanout library
 contains no hook. Established-clock/input and empty-input cases must both wait;
 after aggregate completion the established-clock case can finalize normally.
+Planned-end cases with input and with an empty zero-length horizon also require
+the buffer to remain non-closing throughout the held window, then finalize
+automatically at exactly the declared horizon after aggregate completion.
 The unchanged regression fails on the previous processing implementation and
 passes after the guard is added. It avoids a timing-dependent reproduction loop.
 
