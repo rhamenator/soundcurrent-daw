@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/asset_restoration.hpp>
+#include <soundcurrent/restoration_record.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <fstream>
 #include <iostream>
@@ -41,7 +42,7 @@ void directoryLink(const std::filesystem::path &target,const std::filesystem::pa
 }
 }
 int main() {
-    const auto fixture=std::filesystem::temp_directory_path()/utf8Path("sc-restore-Κиїв-"+Id::generate().str());
+    const auto fixture=std::filesystem::temp_directory_path()/utf8Path("sc-restore-Κиїв-")/Id::generate().str();
     try {
         std::filesystem::create_directories(fixture/"input");const auto bytes=wave();write(fixture/"input/source.wav",bytes);
         ResourceLedger resources(8*1024*1024,"Restoration qualification");
@@ -63,17 +64,30 @@ int main() {
             // Warm native/hash runtime before strict lifetime accounting.
             {auto warm=PreparedAssetRestoration::prepare(source,root(),asset,context,1024);}
             const auto baseline=resources.usage().reservedBytes;const auto owners=resources.usage().owners;const auto oldHandles=handles();
+            std::string successfulOperation;
             {
                 auto prepared=PreparedAssetRestoration::prepare(source,project,asset,context,1024);
+                successfulOperation=prepared.operation().str();
+                verifyAssetRestorationRecord(prepared.record(),asset,context,prepared.operation(),AssetRestorationPhase::Planned,resources);++checks;
                 check(prepared.chargedBytes()>0 && !std::filesystem::exists(project/utf8Path(asset.relativePath)),"Prepare published an asset");
                 auto moved=std::move(prepared);refuses([&]{prepared.operation();});
-                const auto result=moved.publish(asset,context);check(result.published && !result.postCommitFlushFailed,"Restoration not published");
+                const auto result=moved.publish(asset,context);
+                check(result.published,"Restoration media not published");
+                check(result.receiptPublished,"Restoration audit receipt not published");
+                check(!result.postCommitFlushFailed,"Restoration post-publication flush/observer failed");
                 refuses([&]{moved.publish(asset,context);});
 #ifdef _WIN32
                 check(result.durability==StageDurability::FileFlushed,"Windows directory durability overstated");
 #else
                 check(result.durability==StageDurability::FileAndDirectoriesFlushed,"Restoration directories not flushed");
 #endif
+            }
+            {
+                auto intent=decodeAssetRestorationRecord(read(project/successfulOperation/"intent.json"),resources);
+                auto receipt=decodeAssetRestorationRecord(read(project/successfulOperation/"receipt.json"),resources);
+                verifyAssetRestorationRecord(intent,asset,context,Id(successfulOperation),AssetRestorationPhase::Planned,resources);++checks;
+                verifyAssetRestorationRecord(receipt,asset,context,Id(successfulOperation),AssetRestorationPhase::Published,resources);++checks;
+                check(!std::filesystem::exists(project/successfulOperation/"receipt.partial"),"Receipt partial survived complete publication");
             }
             check(resources.usage().reservedBytes==baseline && resources.usage().owners==owners && handles()==oldHandles,"Restoration owner leaked");
             check(read(project/utf8Path(asset.relativePath))==bytes && read(fixture/"input/source.wav")==bytes,"Restoration changed bytes");
@@ -152,7 +166,7 @@ int main() {
                     auto prepared=PreparedAssetRestoration::prepare(source,target,asset,context,1024);
                     result=prepared.publish(asset,context,{},[](StageBoundary at,std::uint64_t){if(at==StageBoundary::AfterCommitBeforeDirectoryFlush)throw ProjectError(ErrorCode::Io,"post-publication failure");});
                 }
-                check(result.published && result.postCommitFlushFailed && read(target/utf8Path(asset.relativePath))==bytes,"Committed truth lost after publication");
+                check(result.published && !result.receiptPublished && result.postCommitFlushFailed && read(target/utf8Path(asset.relativePath))==bytes,"Committed truth lost after publication");
             }
             {
                 const auto target=root();MediaCommitOutcome result;std::stop_source stop;
@@ -160,7 +174,7 @@ int main() {
                     auto prepared=PreparedAssetRestoration::prepare(source,target,asset,context,1024);
                     result=prepared.publish(asset,context,stop.get_token(),[&](StageBoundary at,std::uint64_t){if(at==StageBoundary::AfterCommitBeforeDirectoryFlush)stop.request_stop();});
                 }
-                check(stop.stop_requested() && result.published && read(target/utf8Path(asset.relativePath))==bytes,"Post-commit cancellation hid publication");
+                check(stop.stop_requested() && result.published && result.receiptPublished && read(target/utf8Path(asset.relativePath))==bytes,"Post-commit cancellation hid publication/receipt");
             }
             {
                 const auto target=root();std::stop_source stop;stop.request_stop();refuses([&]{PreparedAssetRestoration::prepare(source,target,asset,context,1024,{},Id::generate(),stop.get_token());});
@@ -176,6 +190,43 @@ int main() {
                 catch(const ProjectError &e){finiteRefusal=std::string(e.what()).find("non-finite")!=std::string::npos;}
                 check(finiteRefusal && std::filesystem::is_empty(target),"Matching hash admitted nonfinite source or created staging");
             }
+            for(const auto point:{StageBoundary::BeforeIntentWrite,StageBoundary::BeforeIntentFlush,StageBoundary::BeforeFile,StageBoundary::BeforeWrite}) {
+                const auto target=root();const auto operation=Id::generate();std::stop_source stop;
+                refuses([&]{PreparedAssetRestoration::prepare(source,target,asset,context,1024,{},operation,stop.get_token(),
+                    [&](StageBoundary at,std::uint64_t){if(at==point)stop.request_stop();});});
+                check(!std::filesystem::exists(target/utf8Path(asset.relativePath)) && !std::filesystem::exists(target/operation.str()/"receipt.json"),"Interrupted preparation claimed publication");
+                if(point==StageBoundary::BeforeFile || point==StageBoundary::BeforeWrite) {
+                    auto intent=decodeAssetRestorationRecord(read(target/operation.str()/"intent.json"),resources);
+                    verifyAssetRestorationRecord(intent,asset,context,operation,AssetRestorationPhase::Planned,resources);++checks;
+                }
+            }
+            for(const auto point:{StageBoundary::BeforeReceiptWrite,StageBoundary::BeforeReceiptFlush,StageBoundary::BeforeCommit}) {
+                const auto target=root();std::string operation;
+                {
+                    auto prepared=PreparedAssetRestoration::prepare(source,target,asset,context,1024);operation=prepared.operation().str();std::stop_source stop;
+                    refuses([&]{prepared.publish(asset,context,stop.get_token(),[&](StageBoundary at,std::uint64_t){if(at==point)stop.request_stop();});});
+                }
+                auto intent=decodeAssetRestorationRecord(read(target/operation/"intent.json"),resources);
+                verifyAssetRestorationRecord(intent,asset,context,Id(operation),AssetRestorationPhase::Planned,resources);++checks;
+                check(!std::filesystem::exists(target/utf8Path(asset.relativePath)) && !std::filesystem::exists(target/operation/"receipt.json"),"Interrupted receipt claimed publication");
+            }
+            {
+                const auto target=root();std::string operation;MediaCommitOutcome result;
+                {
+                    auto prepared=PreparedAssetRestoration::prepare(source,target,asset,context,1024);operation=prepared.operation().str();
+                    result=prepared.publish(asset,context,{},[](StageBoundary at,std::uint64_t){if(at==StageBoundary::BeforeRestorationReceiptPublish)throw ProjectError(ErrorCode::Io,"receipt publication failure");});
+                }
+                check(result.published && !result.receiptPublished && result.postCommitFlushFailed && read(target/utf8Path(asset.relativePath))==bytes,
+                    "Missing audit receipt hid published media");
+                check(!std::filesystem::exists(target/operation/"receipt.json") && std::filesystem::exists(target/operation/"receipt.partial"),"Failed audit fabricated receipt");
+            }
+#ifndef _WIN32
+            for(const char *name:{"intent.json","receipt.partial"}) {
+                const auto target=root();auto prepared=PreparedAssetRestoration::prepare(source,target,asset,context,1024);const auto operation=prepared.operation().str();
+                refuses([&]{prepared.publish(asset,context,{},[&](StageBoundary at,std::uint64_t){if(at==StageBoundary::BeforeCommit)write(target/operation/name,"tampered");});});
+                check(!std::filesystem::exists(target/utf8Path(asset.relativePath)),"Tampered evidence allowed publication");
+            }
+#endif
             {
                 const auto target=root();auto wrong=asset;wrong.relativePath="media/"+std::string(256,'a')+".wav";
                 refuses([&]{PreparedAssetRestoration::prepare(source,target,wrong,context,1024);});
@@ -194,5 +245,12 @@ int main() {
         }
         check(resources.usage().reservedBytes==0 && resources.usage().owners==0,"Restoration source credit leaked");
         std::filesystem::remove_all(fixture);std::cout<<checks<<" exclusive exact-asset restoration checks passed\n";return 0;
-    }catch(const std::exception &e){std::cerr<<e.what()<<"; retained fixture "<<fixture<<'\n';return 1;}
+    }catch(const std::exception &e){
+        std::cerr<<e.what()<<'\n';
+        // Stream explicit UTF-8 bytes: operator<<(path) may throw while narrowing
+        // this Unicode name on Windows, hiding the original failure and fixture.
+        const auto path=fixture.generic_u8string();std::cerr<<"Retained restoration fixture ";
+        std::cerr.write(reinterpret_cast<const char *>(path.data()),static_cast<std::streamsize>(path.size()));
+        std::cerr<<'\n';return 1;
+    }
 }

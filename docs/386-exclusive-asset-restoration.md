@@ -46,8 +46,9 @@ budget retirement, linked parents, existing/racing targets, cancellation,
 non-finite samples, tampered staging and truthful post-publication outcomes.
 Native Windows CI explicitly builds and runs the new corpus.
 
-This API changes no Session and does not provide a durable restoration intent,
-project command, recovery dialog or completed P084 workflow. Strict ProjectStore
+Durable restoration intent and receipt records are specified in
+[387](387-restoration-records.md). This API changes no Session and does not
+provide a project command, recovery dialog or completed P084 workflow. Strict ProjectStore
 media checks remain intact. Later integration must also handle recovery before a
 missing-media project can pass strict Open, serialize publication with model and
 autosave ownership, and qualify the complete desktop workflow. The frozen

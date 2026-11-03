@@ -59,6 +59,20 @@ with tempfile.TemporaryDirectory() as work:
         refuses() # The parent snapshot also forbids overwrite.
         log.write_bytes((c.PARENT_MARKER+str(source)+'\n').encode('utf-8'));refuses()
         log.write_bytes((c.PARENT_MARKER+str(parentRoot/'not-a-uuid')+'\n').encode('utf-8'));refuses()
+        restorationRoot=Path(tempfile.gettempdir())/c.POLICIES[c.RESTORATION_MARKER];restorationRoot.mkdir(exist_ok=True)
+        restoration=restorationRoot/str(uuid.uuid4());restoration.mkdir();extras.append(restoration)
+        operation=restoration/str(uuid.uuid4());operation.mkdir()
+        (operation/'intent.json').write_bytes(b'{"phase":1}')
+        (operation/'receipt.partial').write_bytes(b'{"phase":2}')
+        (restoration/'media').mkdir();(restoration/'media/take-été.wav').write_bytes(bytes([0,255,17,0]))
+        log.write_bytes((c.RESTORATION_MARKER+str(restoration)+'\n').encode('utf-8'))
+        restorationReceipt=c.retain(build);assert len(restorationReceipt)==1 and len(restorationReceipt[0]['originalFiles'])==3
+        saved=build/'controller-failure-projects'/('restoration-'+restoration.name)
+        assert (saved/'media/take-été.wav').read_bytes()==bytes([0,255,17,0])
+        assert (saved/operation.name/'intent.json').read_bytes()==b'{"phase":1}'
+        assert (saved/operation.name/'receipt.partial').read_bytes()==b'{"phase":2}'
+        refuses()
+        log.write_bytes((c.RESTORATION_MARKER+str(source)+'\n').encode('utf-8'));refuses()
         for n in range(16):(logs/('extra-'+str(n)+'.log')).write_text('',encoding='utf-8')
         refuses()
         print('Controller retention: exact Unicode/audio and parent partial/hidden bytes, foreign path/no-overwrite, link refusal='+str(linked))
