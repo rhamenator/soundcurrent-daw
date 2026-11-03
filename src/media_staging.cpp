@@ -300,7 +300,9 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
     require(state->parent.value>=0,"Cannot open plain staging parent");
 #endif
     boundary(observer,StageBoundary::BeforeDirectory,0,stop);
-    create(state->parent,state->operation.str(),true,state->directory,origin!=nullptr);
+    // Windows must share the held operation directory for handle-relative
+    // receipt renames, just as for bound-media publication. DELETE stays denied.
+    create(state->parent,state->operation.str(),true,state->directory,origin!=nullptr || restoration);
     if (intentProtocol) {
         const auto &intent=*intentProtocol;
         boundary(observer,StageBoundary::BeforeIntentWrite,0,stop);

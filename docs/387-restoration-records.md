@@ -50,6 +50,11 @@ credit retirement. Existing exact-byte restoration and staging assertions remain
 The same new corpora are explicitly selected by native Windows CI; local cross
 syntax checks are only compilation evidence. Native runtime qualification is
 recorded separately when that CI finishes.
+The Windows operation directory retains read/write sharing needed for native
+handle-relative receipt renames while denying delete sharing. Failure diagnostics
+emit explicit UTF-8 fixture markers; the bounded CI collector retains generated
+restoration media, intents and partial receipts under the same no-link,
+no-overwrite and exact-copy rules used for other owned failure fixtures.
 
 P084 remains open: isolated worker/controller integration, admitted passive
 manifest recovery before strict Open, model/root/autosave serialization and the

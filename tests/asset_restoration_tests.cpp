@@ -42,7 +42,7 @@ void directoryLink(const std::filesystem::path &target,const std::filesystem::pa
 }
 }
 int main() {
-    const auto fixture=std::filesystem::temp_directory_path()/utf8Path("sc-restore-Κиїв-"+Id::generate().str());
+    const auto fixture=std::filesystem::temp_directory_path()/utf8Path("sc-restore-Κиїв-")/Id::generate().str();
     try {
         std::filesystem::create_directories(fixture/"input");const auto bytes=wave();write(fixture/"input/source.wav",bytes);
         ResourceLedger resources(8*1024*1024,"Restoration qualification");
@@ -71,7 +71,10 @@ int main() {
                 verifyAssetRestorationRecord(prepared.record(),asset,context,prepared.operation(),AssetRestorationPhase::Planned,resources);++checks;
                 check(prepared.chargedBytes()>0 && !std::filesystem::exists(project/utf8Path(asset.relativePath)),"Prepare published an asset");
                 auto moved=std::move(prepared);refuses([&]{prepared.operation();});
-                const auto result=moved.publish(asset,context);check(result.published && result.receiptPublished && !result.postCommitFlushFailed,"Restoration/receipt not published");
+                const auto result=moved.publish(asset,context);
+                check(result.published,"Restoration media not published");
+                check(result.receiptPublished,"Restoration audit receipt not published");
+                check(!result.postCommitFlushFailed,"Restoration post-publication flush/observer failed");
                 refuses([&]{moved.publish(asset,context);});
 #ifdef _WIN32
                 check(result.durability==StageDurability::FileFlushed,"Windows directory durability overstated");
@@ -242,5 +245,12 @@ int main() {
         }
         check(resources.usage().reservedBytes==0 && resources.usage().owners==0,"Restoration source credit leaked");
         std::filesystem::remove_all(fixture);std::cout<<checks<<" exclusive exact-asset restoration checks passed\n";return 0;
-    }catch(const std::exception &e){std::cerr<<e.what()<<"; retained fixture "<<fixture<<'\n';return 1;}
+    }catch(const std::exception &e){
+        std::cerr<<e.what()<<'\n';
+        // Stream explicit UTF-8 bytes: operator<<(path) may throw while narrowing
+        // this Unicode name on Windows, hiding the original failure and fixture.
+        const auto path=fixture.generic_u8string();std::cerr<<"Retained restoration fixture ";
+        std::cerr.write(reinterpret_cast<const char *>(path.data()),static_cast<std::streamsize>(path.size()));
+        std::cerr<<'\n';return 1;
+    }
 }
