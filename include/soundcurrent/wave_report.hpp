@@ -30,4 +30,33 @@ inline constexpr std::size_t waveReportParserCharge=waveReportMaximumBytes*32;
 WaveCheckReport decodeWaveCheckReport(OwnedInspectionProtocol,std::string_view expectedRelative,
     std::size_t observedPid,std::uint64_t maximumSourceBytes,ResourceLedger,
     ResourceLease valueGrant,ResourceLease parserGrant,std::stop_token = {});
+// Parent-owned context, never decoded from child output. Revision zero is valid.
+struct AssetReplacementContext {
+    std::uint64_t projectEpoch=0, modelRevision=0, request=0, job=0;
+    bool operator==(const AssetReplacementContext &) const = default;
+};
+// Immutable, admitted snapshot of the selected asset's content identity.
+// This ticket/report pair does not authorize reopening paths or publishing files.
+class AssetReplacementTicket {
+  public:
+    AssetReplacementTicket(const Asset &,AssetReplacementContext,ResourceLedger);
+    AssetReplacementTicket(AssetReplacementTicket &&) noexcept=default;
+    AssetReplacementTicket(const AssetReplacementTicket &)=delete;
+  private:
+    friend void verifyAssetReplacementReport(const AssetReplacementTicket &,const WaveCheckReport &,
+        const Asset &,AssetReplacementContext,std::size_t,ResourceLedger,std::stop_token);
+    ResourceLease lease_; // Retire strings before their credit.
+    Id asset_;
+    std::array<char,64> hash_{};
+    Frame frames_;
+    std::uint32_t rate_,channels_;
+    AssetReplacementContext context_;
+};
+// Control side only, after existing strict v2 decode/PID/reference validation.
+// Current context and observed PID come from the owning controller, not report
+// fields. context.job must be the delivered snapshot job, not a pending job ID.
+// A stale model, wrong job/asset/scope or changed content cannot qualify.
+void verifyAssetReplacementReport(const AssetReplacementTicket &,const WaveCheckReport &,
+    const Asset &current,AssetReplacementContext,std::size_t observedPid,ResourceLedger,
+    std::stop_token = {});
 } // namespace soundcurrent::daw
