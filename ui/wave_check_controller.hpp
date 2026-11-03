@@ -42,6 +42,7 @@ struct WaveCheckOptions {
     // Trusted off-thread qualification hooks, never selected by foreign data.
     std::function<void()> beforeSpawn;
     std::function<void(std::string &,std::size_t)> afterChild;
+    std::function<void()> beforeTerminalPublish;
 };
 // Single flight, control/I/O thread only. Child owns approval/opening of the
 // explicitly selected root at job execution, then pins the plain file. A GUI

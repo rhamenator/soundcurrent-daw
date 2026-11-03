@@ -90,6 +90,20 @@ int main(int argc,char **argv) {
         }
         verifyWaveAssetReplacement(*replacement,project,asset.id,31,memory);
         replacement.reset();retired(memory);
+        {
+            std::atomic<bool> reached=false,release=false;WaveCheckOptions options;options.memory=memory;
+            options.beforeTerminalPublish=[&]{reached=true;while(!release)QThread::msleep(1);};
+            WaveCheckController c(options);Release guard{release};
+            check(c.submitAssetReplacement(file,project,asset.id,32)==Admission::Accepted,"Terminal cancellation fixture refused");
+            wait([&]{return reached.load();});
+            check(c.snapshot()->busy && c.snapshot()->childPid && !c.snapshot()->report,
+                "Completed child escaped terminal-publication barrier");
+            c.requestCancel();release=true;const auto result=finish(c);
+            check(result->phase==WaveCheckPhase::Canceled && result->error==ErrorCode::Canceled && !result->report,
+                "Cancellation before terminal publication qualified a replacement");
+            refuses([&]{verifyWaveAssetReplacement(*result,project,asset.id,32,memory);});
+        }
+        retired(memory);
         for(unsigned mode=0;mode<4;++mode) {
             auto different=std::make_shared<Session>(*model);
             if(mode==0)different->assets[0].sha256[0]=originalHash[0]=='a' ? 'b' : 'a';

@@ -30,3 +30,12 @@ Original hosted logs and the failed shard archive are retained.
 Linux CI retains the existing duplex owner test. Windows native recording CI now
 explicitly builds and selects it as well. Exact-head CI and review are required
 before integration; no installed preview or physical audio claim follows.
+
+The disk-fault fixture also establishes its intended first terminal winner. It
+waits for the injected writer failure to become observable before calling Stop;
+playback progress alone cannot establish that ordering while disk input remains
+queued. The original CaptureFailed assertion and original disk exception remain.
+Separate deterministic barriers cover both fault-before-Stop and Stop-before-
+fault, preserving the first terminal winner, the original writer exception,
+independently finalized raw lanes and the unchanged canonical project. Production
+terminal-state behavior is not changed to satisfy a test ordering assumption.

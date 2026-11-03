@@ -119,11 +119,17 @@ struct WaveCheckController::State : QThread {
             std::stop_token token;
             {QMutexLocker lock(&mutex);while (!queued && !closing) wake.wait(&mutex);if (!queued) break;
              view=*latest;queued.reset();token=stop.get_token();}
-            try {execute(token);}
+            try {execute(token);if (options.beforeTerminalPublish) options.beforeTerminalPublish();}
             catch (const ProjectError &e) {view.error=e.code();view.phase=e.code()==ErrorCode::Canceled ? WaveCheckPhase::Canceled : WaveCheckPhase::Fault;}
             catch (const std::exception &) {view.error=ErrorCode::Io;view.phase=WaveCheckPhase::Fault;}
             view.busy=false;
-            {QMutexLocker lock(&mutex);busy=false;latest=std::make_shared<const WaveCheckSnapshot>(view);if (closing) break;}
+            {QMutexLocker lock(&mutex);
+             // Linearize cancellation with terminal publication, including the
+             // interval after the verifier's final stop-token poll.
+             if (token.stop_requested() && view.phase==WaveCheckPhase::Complete) {
+                 view.report.reset();view.error=ErrorCode::Canceled;view.phase=WaveCheckPhase::Canceled;
+             }
+             busy=false;latest=std::make_shared<const WaveCheckSnapshot>(view);if (closing) break;}
         }
         view.selection.reset();view.report.reset();view.replacement.reset();view.busy=false;view.closed=true;view.phase=WaveCheckPhase::Closed;publish();
     }

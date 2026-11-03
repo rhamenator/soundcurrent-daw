@@ -29,3 +29,10 @@ against the then-current accepted model and preserve project IDs, edits, takes,
 provenance, Undo/Redo and save/reopen behavior. P084 remains open until that path
 and its Linux/Windows desktop workflows are qualified. The frozen preview stays
 unchanged.
+
+Cancellation and successful terminal publication are serialized under the same
+controller mutex. A stop request that wins before publication discards the
+verified report and publishes Canceled, including after the verifier's last
+stop-token poll. A deterministic off-thread qualification seam holds that exact
+window; the unchanged regression fails without the terminal check. Cancellation
+after terminal publication observes an already idle controller.
