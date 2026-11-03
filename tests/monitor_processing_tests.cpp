@@ -317,6 +317,9 @@ void clockStartupAndPostroll() {
 void concurrentOwners() {
     Config c;unsigned inputFrames=0;for(unsigned n=0;n<256;++n)inputFrames+=1+n%31;
     const auto pcm=signal(3,inputFrames);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);PreparedMonitorProcessing p(f,o,c.processing);seed(p,c);
+    // The fixed output horizon is known before concurrent processing starts.
+    // Declaring it only at EOF can be too late if render has passed that frame.
+    check(rt([&]{return p.planEnd({c.output.first.value+3072});}),"Concurrent finite output horizon");
     std::atomic<std::uint64_t> rawSeen{0},processingSeen{0};std::atomic<bool> failed{false};
     std::atomic<unsigned> firstFailure{0};
     // Preserve the first observed branch without logging/allocating on owners.

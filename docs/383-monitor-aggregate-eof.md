@@ -30,3 +30,11 @@ Linux and Windows CI run the deterministic regression. Focused local tests cover
 the original processing corpus and repeated forced EOF interleavings; native and
 full-suite qualification still require the current exact-head CI results. No
 installed preview or frozen Windows producer is changed by this source repair.
+
+
+The concurrent finite-output fixture also declares its existing 3072-frame horizon
+before owners start. Asking for that fixed end only after capture EOF allowed
+some schedules to render beyond it; a later finalization correctly refused to
+truncate already rendered output. No frame, sample, deadline or audit assertion
+is removed. An additional deterministic case deliberately advances unplanned
+output past a requested final end and requires that late request to remain refused.

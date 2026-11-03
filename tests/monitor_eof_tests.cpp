@@ -11,7 +11,7 @@ std::atomic<bool> reached{false},released{false},timedOut{false};
 unsigned checks=0;
 void check(bool good,const char *message) {++checks;if(!good)throw std::runtime_error(message);}
 constexpr std::uint64_t now=(std::uint64_t(1)<<54)+40000000;
-void eofCase(bool withInput) {
+void eofCase(bool withInput,bool lateEnd=false) {
     CaptureFanoutConfig capture;
     capture.capture.identity={11,31,7};capture.capture.channels=3;
     capture.capture.maximumPacketFrames=64;capture.capture.slots=32;capture.monitorSlots=32;
@@ -41,6 +41,14 @@ void eofCase(bool withInput) {
         }
         check(processing.statistics().buffer.acceptedInputFrames==1024,"EOF fixture input not consumed");
     }
+    if(lateEnd) {
+        // With no declared horizon, live processing may pass a future EOF request.
+        std::array<float,192> scratch{};
+        for(unsigned i=0;i<128 && out.deliveredFrames()<=512;++i) {
+            processing.step({now});out.pull(scratch);
+        }
+        check(out.deliveredFrames()>512,"Late-end fixture did not pass requested frame");
+    }
     reached=false;released=false;timedOut=false;
     std::thread producer([&]{fanout.finish();});
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
@@ -61,7 +69,10 @@ void eofCase(bool withInput) {
         if(code==MonitorProcessingCode::NeedEnd){needEnd=true;break;}
     }
     check(needEnd && fanout.producerDone(),"NeedEnd unavailable after aggregate capture EOF");
-    if(withInput)check(processing.finishAt({output.first.value+512}),"Final end refused after aggregate EOF");
+    if(withInput) {
+        const auto accepted=processing.finishAt({output.first.value+512});
+        check(accepted!=lateEnd,lateEnd ? "Retrospective final end was silently accepted" : "Final end refused after aggregate EOF");
+    }
 }
 }
 extern "C" void scCaptureFanoutAfterMonitorFinish() noexcept {
@@ -73,6 +84,6 @@ extern "C" void scCaptureFanoutAfterMonitorFinish() noexcept {
     }
 }
 int main() {
-    try {eofCase(true);eofCase(false);std::cout<<checks<<" deterministic aggregate EOF checks passed\n";return 0;}
+    try {eofCase(true);eofCase(false);eofCase(true,true);std::cout<<checks<<" deterministic aggregate EOF checks passed\n";return 0;}
     catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}
 }
