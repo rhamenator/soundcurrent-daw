@@ -185,7 +185,7 @@ int main() {
             }
             {
                 const auto target=root();ResourceLedger tiny(16384,"Insufficient restoration admission");
-                {ApprovedMediaRoot small(fixture/"input",tiny);auto file=small.open("source.wav",1024);
+                {ApprovedMediaRoot budgetRoot(fixture/"input",tiny);auto file=budgetRoot.open("source.wav",1024);
                  refuses([&]{PreparedAssetRestoration::prepare(file,target,asset,context,1024);});}
                 check(std::filesystem::is_empty(target) && tiny.usage().reservedBytes==0 && tiny.usage().owners==0,
                     "Budget refusal touched target or leaked credit");
