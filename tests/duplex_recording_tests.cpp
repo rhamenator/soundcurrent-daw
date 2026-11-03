@@ -4,6 +4,7 @@
 #include <sndfile.h>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -345,7 +346,13 @@ void activationFailure() {
 void failureAndRecovery(bool cancel) {
     Directory d;
     auto s = session(d.root, 3);
+    std::array<std::atomic<Frame>, 3> committed{};
     auto a = lanes(s);
+    for (unsigned n = 0; n < a.size(); ++n)
+        a[n].writer.instrumentation = {&committed[n], [](void *context, const RecordingWriterObservation &o) noexcept {
+            if (o.phase == RecordingWriterPhase::JournalPublishEnd)
+                static_cast<std::atomic<Frame> *>(context)->store(o.committedFrames, std::memory_order_release);
+        }};
     if (!cancel)
         a[1].writer.boundary = [](RecordingBoundary b, Frame f) {
             if (b == RecordingBoundary::BeforeAudioWrite && f >= 8192)
@@ -359,8 +366,17 @@ void failureAndRecovery(bool cancel) {
         (void)source.process(run, false);
         pause();
     }
-    if (cancel)
+    if (cancel) {
+        // This case promises positive recoverable prefixes on every lane.
+        // Playback progress alone does not establish disk-owner publication.
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        for (const auto &frames : committed)
+            while (frames.load(std::memory_order_acquire) == 0) {
+                check(std::chrono::steady_clock::now() < deadline, "Recovery checkpoint publication timeout");
+                pause();
+            }
         run.cancel();
+    }
     else
         run.stop();
     run.checkReader();
@@ -379,6 +395,16 @@ void failureAndRecovery(bool cancel) {
             rejects([&] { (void)run.result(n); });
         const auto job = *run.jobDirectory(n);
         const auto prefix = inspectRecording(job, {}, true);
+        if (!(prefix.committedFrames > 0 && prefix.writerActivityConfirmed &&
+              prefix.timingOrigin == run.timingOrigin())) {
+            const auto capture = run.capture(n);
+            std::cerr << "prefix diagnostic cancel=" << cancel << " lane=" << n
+                      << " committed=" << prefix.committedFrames << " written=" << capture.written
+                      << " captured=" << capture.captured << " inactive=" << prefix.writerActivityConfirmed
+                      << " journalOrigin=" << bool(prefix.timingOrigin)
+                      << " runOrigin=" << bool(run.timingOrigin())
+                      << " originEqual=" << (prefix.timingOrigin == run.timingOrigin()) << '\n';
+        }
         check(prefix.committedFrames > 0 && prefix.writerActivityConfirmed &&
                   prefix.timingOrigin == run.timingOrigin(),
               "Failed/canceled prefix not recoverable");
@@ -392,6 +418,35 @@ void failureAndRecovery(bool cancel) {
         }
     }
     check(ProjectStore(d.root).load() == s, "Failure/cancel/recovery mutated canonical model");
+}
+void canceledBeforeFirstCheckpoint() {
+    Directory d;
+    const auto s = session(d.root, 3);
+    auto a = lanes(s);
+    a[2].writer.boundary = [](RecordingBoundary b, Frame frames) {
+        if (b == RecordingBoundary::BeforeJournalPublish && frames > 0)
+            throw ProjectError(ErrorCode::Canceled, "Canceled before first journal publication");
+    };
+    DuplexRecordingRun run(d.root, s, plan(s), a, options(3, 96000));
+    run.startWriters();
+    Source source(3);
+    for (unsigned i = 0; i < 4; ++i)
+        (void)source.process(run, false);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+    while (!run.capture(2).writerComplete) {
+        check(std::chrono::steady_clock::now() < deadline, "Early cancellation owner timeout");
+        pause();
+    }
+    run.cancel();
+    const auto job = *run.jobDirectory(2);
+    const auto prefix = inspectRecording(job, {}, true);
+    check(prefix.committedFrames == 0 && prefix.writerActivityConfirmed &&
+              !prefix.timingOrigin && !prefix.finalized,
+          "Early cancellation fabricated a committed prefix");
+    rejects([&] { (void)run.result(2); });
+    rejects([&] { (void)recoverRecording(d.root, job); });
+    check(inspectRecording(job, {}, true) == prefix && ProjectStore(d.root).load() == s,
+          "Empty recovery refusal changed journal or project");
 }
 void readerFailure() {
     Directory d;
@@ -511,6 +566,7 @@ int main() {
         activationFailure();
         failureAndRecovery(false);
         failureAndRecovery(true);
+        canceledBeforeFirstCheckpoint();
         readerFailure();
         destruction();
         canceledCompletedWriters();
