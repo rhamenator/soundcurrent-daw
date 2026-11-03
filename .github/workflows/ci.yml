@@ -405,7 +405,9 @@ jobs:
             targets: sc-comp-transition-ui-tests
             tests: "^(desktop-comp-protected-repeated-transition|desktop-comp-clocked-protected-repeated-transition|desktop-comp-clocked-uniform-repeated-transition)$"
     runs-on: windows-2025
-    timeout-minutes: 20
+    # Slow hosted checkout/dependency setup must not consume the native test window.
+    # Keep all per-test deadlines, matrix selections and aggregate gates unchanged.
+    timeout-minutes: 35
     env:
       SC_DESKTOP_TARGETS: ${{ matrix.targets }}
       SC_DESKTOP_TESTS: ${{ matrix.tests }}
