@@ -317,7 +317,16 @@ void clockStartupAndPostroll() {
 void concurrentOwners() {
     Config c;unsigned inputFrames=0;for(unsigned n=0;n<256;++n)inputFrames+=1+n%31;
     const auto pcm=signal(3,inputFrames);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);PreparedMonitorProcessing p(f,o,c.processing);seed(p,c);
+    // The fixed output horizon is known before concurrent processing starts.
+    // Declaring it only at EOF can be too late if render has passed that frame.
+    check(rt([&]{return p.planEnd({c.output.first.value+3072});}),"Concurrent finite output horizon");
     std::atomic<std::uint64_t> rawSeen{0},processingSeen{0};std::atomic<bool> failed{false};
+    std::atomic<unsigned> firstFailure{0};
+    // Preserve the first observed branch without logging/allocating on owners.
+    const auto fail=[&](unsigned reason) {
+        unsigned empty=0;firstFailure.compare_exchange_strong(empty,reason);
+        failed.store(true);
+    };
     std::array<rt_audit::Counts,3> audits{};std::vector<float> rendered;rendered.reserve(3072*3);
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
     const auto expired=[&]{return failed.load() || std::chrono::steady_clock::now()>=deadline;};
@@ -327,12 +336,12 @@ void concurrentOwners() {
             CaptureBankView v;const auto code=rt([&]{return f.acquireRaw(v);});
             if(code==CaptureBankRead::Drained)break;
             if(code==CaptureBankRead::Empty){std::this_thread::yield();continue;}
-            if(code!=CaptureBankRead::Ready){failed.store(true);break;}
-            for(float x:v.interleaved)if(std::bit_cast<std::uint32_t>(x)!=std::bit_cast<std::uint32_t>(pcm[offset++]))failed.store(true);
-            if(!rt([&]{return f.releaseRaw(v);}))failed.store(true);
+            if(code!=CaptureBankRead::Ready){fail(1);break;}
+            for(float x:v.interleaved)if(std::bit_cast<std::uint32_t>(x)!=std::bit_cast<std::uint32_t>(pcm[offset++]))fail(2);
+            if(!rt([&]{return f.releaseRaw(v);}))fail(3);
             rawSeen.store(offset/3,std::memory_order_release);
         }
-        if(rawSeen.load()!=inputFrames)failed.store(true);
+        if(rawSeen.load()!=inputFrames)fail(4);
         audits[0]=rt_audit::counts;
     });
     std::thread processing([&]{
@@ -340,27 +349,27 @@ void concurrentOwners() {
         while(!expired()) {
             const auto code=rt([&]{return p.step({now});});
             processingSeen.store(p.statistics().buffer.acceptedInputFrames,std::memory_order_release);
-            if(code==MonitorProcessingCode::NeedEnd && !closing){closing=rt([&]{return p.finishAt({c.output.first.value+3072});});if(!closing)failed.store(true);}
+            if(code==MonitorProcessingCode::NeedEnd && !closing){closing=rt([&]{return p.finishAt({c.output.first.value+3072});});if(!closing)fail(5);}
             if(code==MonitorProcessingCode::Done)break;
-            if(code==MonitorProcessingCode::Fault || code==MonitorProcessingCode::Cancelled){failed.store(true);break;}
+            if(code==MonitorProcessingCode::Fault || code==MonitorProcessingCode::Cancelled){fail(6);break;}
             std::this_thread::yield();
         }
-        if(!p.statistics().done)failed.store(true);
+        if(!p.statistics().done)fail(7);
         audits[1]=rt_audit::counts;
     });
     std::thread render([&]{
         rt_audit::reset();std::array<float,51> scratch{};
         while(!expired()) {
             const auto r=rt([&]{return o.pull(scratch);});
-            if(r.phase==MonitorOutputPhase::Fault || r.phase==MonitorOutputPhase::Cancelled){failed.store(true);break;}
+            if(r.phase==MonitorOutputPhase::Fault || r.phase==MonitorOutputPhase::Cancelled){fail(8);break;}
             if(r.code==MonitorOutputCode::Drained)break;
             if(r.frames) {
-                if(r.first.value!=c.output.first.value+rendered.size()/3)failed.store(true);
+                if(r.first.value!=c.output.first.value+rendered.size()/3)fail(9);
                 rendered.insert(rendered.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(r.frames*3));
             }
             std::this_thread::yield();
         }
-        if(rendered.size()!=3072*3)failed.store(true);
+        if(rendered.size()!=3072*3)fail(10);
         audits[2]=rt_audit::counts;
     });
     std::array<float,93> scratch{};std::uint64_t offset=0,previous=0;
@@ -370,10 +379,21 @@ void concurrentOwners() {
         const auto count=1+n%31;std::copy_n(pcm.data()+std::size_t(offset)*3,std::size_t(count)*3,scratch.data());
         const CaptureBankStamp stamp{c.capture.capture.identity,{(std::uint64_t(1)<<63)+offset},{now+offset*211},count,0};
         const auto r=rt([&]{return f.publish({stamp,reinterpret_cast<const std::byte *>(scratch.data()),std::size_t(count)*3*sizeof(float)});});
-        if(r.rawAcceptedFrames!=count || r.monitorAcceptedFrames!=count)failed.store(true);
+        if(r.rawAcceptedFrames!=count || r.monitorAcceptedFrames!=count)fail(11);
         previous=offset;offset+=r.rawAcceptedFrames;scratch.fill(999.f);
     }
     rt([&]{f.finish();});raw.join();processing.join();render.join();p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
+    // All diagnostic reads and output follow owner joins and retirement.
+    if(failed.load() || rawSeen!=inputFrames || !p.statistics().done || o.deliveredFrames()!=3072) {
+        std::cerr<<"Concurrent owner diagnostics firstFailure="<<firstFailure.load()
+            <<" rawSeen="<<rawSeen.load()<<" inputFrames="<<inputFrames
+            <<" producerOffset="<<offset<<" processingSeen="<<processingSeen.load()
+            <<" processingDone="<<p.statistics().done<<" deliveredFrames="<<o.deliveredFrames()
+            <<" expectedOutputFrames=3072 renderedSamples="<<rendered.size()<<'\n';
+        std::cerr<<"Failure IDs: 1=raw-acquire 2=raw-bits 3=raw-release 4=raw-incomplete "
+            "5=processing-finish 6=processing-state 7=processing-incomplete "
+            "8=render-state 9=render-position 10=render-incomplete 11=capture-acceptance\n";
+    }
     check(!failed.load() && rawSeen==inputFrames && p.statistics().done && o.deliveredFrames()==3072,"Concurrent processing owners failed");
     for(const auto &a:audits)check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Concurrent processing handoff audit");
     auto referenceConfig=c.processing.buffer;referenceConfig.inputCapacityFrames=8192;
