@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include "restoration_process.hpp"
 #include "autosave_schedule.hpp"
 #include <chrono>
 #include <soundcurrent/native_take_admission.hpp>
@@ -62,9 +63,13 @@ struct IoJob {
     std::string takeName = {};
     std::shared_ptr<const LoopTakeRetention> retainedLoop = nullptr;
     std::uint64_t autosaveReviewRequest = 0, projectEpoch = 0, autosaveRestoreRequest = 0;
+    std::shared_ptr<const AssetRestorationInput> restoration = {};
+    RestorationOwnerContext restorationContext = {};
+    std::optional<ResourceLedger> restorationMemory = {};
 };
 struct IoResult {
     IoJob job;
+    RestorationProcessResult restoration;
     std::shared_ptr<const Session> loaded;
     std::optional<ErrorCode> error;
     std::string diagnostic;
@@ -79,6 +84,8 @@ class IoWorker : public QThread {
     std::optional<IoJob> job;
     std::optional<IoResult> result;
     bool busy = false, quit = false;
+    std::atomic<bool> restorationCancel{false};
+    QMutex restorationPermitMutex;
     IoWorker(ControllerOptions o, SessionSnapshots s, std::atomic<bool> &c)
         : options(std::move(o)), snapshots(std::move(s)), closing(c) {}
     void startJob(IoJob next) {
@@ -127,7 +134,13 @@ class IoWorker : public QThread {
                 if (closing.load(std::memory_order_acquire))
                     throw ProjectError(ErrorCode::Canceled, "Project operation canceled");
                 ProjectStore store(next.root, options.admission);
-                if (next.operation == IoOperation::Open)
+                if (next.operation == IoOperation::RestoreAsset) {
+                    finished.restoration=runRestorationProcess(*next.restoration,*next.session,next.root,
+                        next.restorationContext,options,*next.restorationMemory,closing,restorationCancel,restorationPermitMutex);
+                    finished.error=finished.restoration.error;
+                    if(finished.error)finished.diagnostic="Asset restoration requires review";
+                }
+                else if (next.operation == IoOperation::Open)
                     finished.loaded =
                         snapshots.adopt(store.load(), std::move(*next.loadReservation));
                 else if (next.operation == IoOperation::InspectAutosave || next.operation == IoOperation::RestoreAutosave) {
@@ -239,6 +252,7 @@ struct ProjectController::State : QThread {
     ControllerSnapshot view;
     AutosaveSchedule autosaveSchedule;
     std::uint64_t lastAutosaveInhibitionToken = 0;
+    std::uint64_t lastRestorationRequest=0,lastRestorationJob=0;
     explicit State(ControllerOptions options)
         : admission(options.admission), historyBudget(options.historyBudget),
           memory(options.memoryBytes, "Controller project memory"),
@@ -348,7 +362,38 @@ struct ProjectController::State : QThread {
         return bytes.bytes();
     }
     void execute(ProjectCommand &command) {
+        if ((view.io==IoOperation::RestoreAsset || view.assetRestorationNeedsReconciliation) &&
+            command.kind!=CommandKind::CancelAssetRestoration && command.kind!=CommandKind::Barrier)
+            throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
         switch (command.kind) {
+        case CommandKind::RestoreAsset: {
+            requireModel();
+            if(!command.restoration || !command.restoration->checked || view.io!=IoOperation::None ||
+                activeGesture || view.autosaveInhibitionToken ||
+                command.restoration->request<=lastRestorationRequest ||
+                lastRestorationJob==std::numeric_limits<std::uint64_t>::max() ||
+                command.autosaveInhibitionEpoch!=view.projectEpoch ||
+                !command.autosaveInhibitionToken || command.autosaveInhibitionToken<=lastAutosaveInhibitionToken)
+                throw ProjectError(ErrorCode::InvalidState,"Restoration owner cannot be acquired");
+            const auto &input=*command.restoration;
+            verifyWaveAssetReplacement(*input.checked,view,input.asset,input.request,memory);
+            const auto token=command.autosaveInhibitionToken,jobId=lastRestorationJob+1;
+            IoJob job{IoOperation::RestoreAsset,view.root,view.session,view.modelRevision};
+            job.restoration=command.restoration;job.projectEpoch=view.projectEpoch;
+            job.restorationContext={{view.projectEpoch,view.modelRevision,input.request,input.checked->job},jobId,token};
+            job.restorationMemory=memory;
+            io.restorationCancel.store(false,std::memory_order_release);
+            io.startJob(std::move(job));
+            lastAutosaveInhibitionToken=token;lastRestorationJob=jobId;lastRestorationRequest=input.request;
+            view.autosaveInhibitionToken=token;view.assetRestorationJob=jobId;view.io=IoOperation::RestoreAsset;
+            break;
+        }
+        case CommandKind::CancelAssetRestoration:
+            if(view.io!=IoOperation::RestoreAsset || !command.restorationJob || command.restorationJob!=view.assetRestorationJob)
+                throw ProjectError(ErrorCode::InvalidState,"Restoration cancellation owner differs");
+            {QMutexLocker permission(&io.restorationPermitMutex);
+             io.restorationCancel.store(true,std::memory_order_release);}
+            break;
         case CommandKind::RestoreAutosave: {
             requireModel();
             const auto &review = view.autosaveReview;
@@ -760,6 +805,15 @@ struct ProjectController::State : QThread {
     }
     void finishIo(IoResult result) {
         view.io = IoOperation::None;
+        if(result.job.operation==IoOperation::RestoreAsset) {
+            const auto &r=result.restoration;const auto &context=result.job.restorationContext;
+            view.assetRestorationCompleted={result.job.restoration->request,context.dispatchJob,r.operation,r.childPid,r.childExit,
+                r.permitSent,r.canonicalVerified,r.needsReconciliation,r.published,r.receiptPublished,r.postCommitFlushFailed,r.durability,result.error};
+            view.assetRestorationNeedsReconciliation=view.assetRestorationNeedsReconciliation||r.needsReconciliation;
+            if(view.autosaveInhibitionToken==context.autosaveToken)view.autosaveInhibitionToken=0;
+            if(result.error)error(*result.error,"Asset restoration requires review");
+            return; // Exact same Session/revision/history/manual-save identity.
+        }
         const bool correlated =
             result.job.operation == IoOperation::AttachRecording && result.job.attachmentRequest;
         if (correlated)
@@ -913,7 +967,7 @@ struct ProjectController::State : QThread {
                 std::uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count());
             if (autosaveSchedule.due(now, interval, view.projectEpoch,
-                    model && view.io == IoOperation::None && !activeGesture && !view.autosaveInhibitionToken,
+                    model && view.io == IoOperation::None && !activeGesture && !view.autosaveInhibitionToken && !view.assetRestorationNeedsReconciliation,
                     view.dirty, view.modelRevision, view.autosavedRevision)) {
                 OperationWork work(*this);
                 work.admit(0);
@@ -955,6 +1009,8 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if(command->kind==CommandKind::RestoreAsset)
+                        view.assetRestorationRejected={command->restoration?command->restoration->request:0,e.code(),"Restoration owner refused"};
                     if (command->kind == CommandKind::AcquireAutosaveInhibition ||
                         command->kind == CommandKind::ReleaseAutosaveInhibition)
                         view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
@@ -978,6 +1034,8 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if(command->kind==CommandKind::RestoreAsset)
+                        view.assetRestorationRejected={command->restoration?command->restoration->request:0,ErrorCode::Io,"Restoration owner refused"};
                     if (command->kind == CommandKind::AcquireAutosaveInhibition ||
                         command->kind == CommandKind::ReleaseAutosaveInhibition)
                         view.autosaveInhibitionRejected = {command->autosaveInhibitionToken,
@@ -1052,7 +1110,8 @@ ResourceLedger ProjectController::resourceLedger() const {
     return state_->memory;
 }
 void ProjectController::requestShutdown() noexcept {
-    state_->closing.store(true, std::memory_order_release);
+    {QMutexLocker permission(&state_->io.restorationPermitMutex);
+     state_->closing.store(true, std::memory_order_release);}
     state_->wake.wakeOne();
 }
 } // namespace soundcurrent::daw::ui

@@ -10,6 +10,7 @@
 
 namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;class VerifiedCompAssemblyAdoption;class PreparedCompTransition;}
 namespace soundcurrent::daw::ui {
+struct AssetRestorationInput;
 enum class CommandKind {
     Create,
     Open,
@@ -31,7 +32,9 @@ enum class CommandKind {
     ReleaseAutosaveInhibition,
     AutosavePolicy,
     InspectAutosave,
-    RestoreAutosave
+    RestoreAutosave,
+    RestoreAsset,
+    CancelAssetRestoration
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -85,6 +88,7 @@ struct ProjectCommand {
     std::optional<std::size_t> memoryBytes;
     std::uint64_t memoryRequest = 0;
     // Caller tokens must increase across acquisitions, including project epochs.
+    // RestoreAsset atomically acquires this SAME caller namespace and epoch.
     std::uint64_t autosaveInhibitionToken = 0, autosaveInhibitionEpoch = 0;
     // Recording preparation may close its current edit gesture atomically with inhibition.
     bool commitGestureForAutosaveInhibition = false;
@@ -92,10 +96,12 @@ struct ProjectCommand {
     std::optional<std::uint64_t> autosaveIntervalMilliseconds;
     std::uint64_t autosavePolicyRequest = 0;
     std::uint64_t autosaveReviewRequest = 0, autosaveRestoreRequest = 0;
+    std::shared_ptr<const AssetRestorationInput> restoration;
+    std::uint64_t restorationJob=0; // Cancel only; exact current dispatch identity.
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -114,6 +120,17 @@ struct AutosaveInhibitionCompletion {
 struct AutosaveReview {
     std::shared_ptr<const Session> session;
     std::uint64_t request = 0, projectEpoch = 0, modelRevision = 0;
+};
+struct AssetRestorationCompletion {
+    std::uint64_t request=0,job=0;
+    std::optional<Id> operation;
+    std::size_t childPid=0;
+    std::optional<int> childExit;
+    bool permitSent=false,canonicalVerified=false,needsReconciliation=false;
+    std::optional<bool> published; // Unknown after ambiguous permission/termination.
+    bool receiptPublished=false,postCommitFlushFailed=false;
+    unsigned durability=0;
+    std::optional<ErrorCode> error;
 };
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
@@ -150,6 +167,10 @@ struct ControllerSnapshot {
     ResourceUsage memoryResources{};
     std::size_t canonicalBytes = 0, historyBytes = 0;
     HistoryPolicyCompletion memoryCompleted;
+    AssetRestorationCompletion assetRestorationCompleted;
+    AttachmentCompletion assetRestorationRejected;
+    std::uint64_t assetRestorationJob=0;
+    bool assetRestorationNeedsReconciliation=false;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -159,6 +180,12 @@ struct ControllerOptions {
     std::function<void()> beforeSavePublish;
     std::function<void()> beforeCommand;        // Control-worker admission/failure fixture only.
     std::function<void()> beforeInitialPublish; // Control-worker startup qualification only.
+    // Trusted application policy, never selected by project/worker metadata.
+    std::filesystem::path restorationWorkerProgram = {};
+    unsigned restorationDeadlineMilliseconds=20000;
+    std::function<void()> restorationBeforePermit = {},restorationAfterPermit = {};
+    std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
+    std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
     HistoryBudget historyBudget{};
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
