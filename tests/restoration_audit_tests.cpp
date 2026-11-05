@@ -71,7 +71,18 @@ int main() {
                 write(p/"project.json",encodeProject(model,budget));return p;};
             auto audit=[&](const std::filesystem::path &p,const Id &operation){return inspectAssetRestoration(p,model.id,asset,operation,1024,memory,budget);};
             // Warm native/hash/decoder runtime before lifetime accounting.
-            {const auto p=root();auto prepared=PreparedAssetRestoration::prepare(source,p,asset,context,1024);auto report=audit(p,prepared.operation());}
+            {
+                const auto p=root();const auto op=Id::generate();
+                {
+                    auto prepared=PreparedAssetRestoration::prepare(source,p,asset,context,1024,{},op);
+#ifdef _WIN32
+                    // The live writer deliberately denies this read pin. Audit
+                    // interrupted state only after its original owner retires.
+                    refuses([&]{audit(p,op);},ErrorCode::Io);
+#endif
+                }
+                auto report=audit(p,op);report.reverify();++checks;
+            }
             const auto baseline=memory.usage();const auto nativeBaseline=handles();
             const auto project=root();Id operation=Id::generate();
             {

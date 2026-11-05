@@ -41,7 +41,10 @@ a finite-audio decoder check or permission to clear a recovery latch. Native
 Windows pinned handles deny write/delete sharing; Linux verifies native file
 identity/change stamps around reads. Cancellation is cooperative around native
 I/O, hashes and manifest decoding, not a hard OS deadline. Declared banks and
-handle limits are admission accounting, not allocator/RSS guarantees.
+handle limits are admission accounting, not allocator/RSS guarantees. A live
+Windows staging writer can deny the audit read pin with a sharing violation;
+that refusal is preserved. Interrupted-state qualification retires the original
+writer before inspecting its files, without relaxing native sharing rules.
 
 The audit has no writes, rename, source reopen, Session/history mutation,
 autosave permission or latch-clearing API. Future controller reconciliation
