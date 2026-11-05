@@ -13,7 +13,7 @@ void owner(const RestorationOwnerView &view) {
     const auto name=view.root.u8string();
     check(name.size()<=4096 && validUtf8(std::string_view(reinterpret_cast<const char *>(name.data()),name.size())),"Invalid restoration root encoding");
 }
-const Asset &asset(const Session &session,const Id &id,std::stop_token stop) {
+const Asset &asset(const Session &session,const Id &id,const std::stop_token &stop) {
     check(session.assets.size()<=100000,"Restoration asset scan bound exceeded");const Asset *found=nullptr;
     for(const auto &a:session.assets) {poll(stop);if(a.id==id){check(!found,"Duplicate restoration asset identity");found=&a;}}
     check(found,"Restoration asset is absent from current project");return *found;
