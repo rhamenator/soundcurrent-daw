@@ -24,6 +24,8 @@ class RestorationDispatchTicket {
     RestorationDispatchTicket(RestorationDispatchTicket &&) noexcept=default;
     RestorationDispatchTicket(const RestorationDispatchTicket &)=delete;
     const Id &operation() const {return operation_;}
+    const Id &assetId() const {return asset_.id;}
+    std::uint64_t checkedSourceBytes() const {return sourceBytes_;}
     std::size_t chargedBytes() const {return lease_.bytes();}
   private:
     friend void verifyRestorationDispatch(const RestorationDispatchTicket &,const RestorationOwnerView &,ResourceLedger,std::stop_token);
@@ -49,6 +51,7 @@ class DispatchedAssetRestoration {
     // One attempt; caller keeps the current accepted owner serialized throughout.
     MediaCommitOutcome publish(const RestorationOwnerView &,std::stop_token = {},const StageObserver & = {});
   private:
+    friend class RestorationPublicationPermit;
     DispatchedAssetRestoration(RestorationDispatchTicket,PreparedAssetRestoration,ResourceLedger);
     RestorationDispatchTicket ticket_;
     PreparedAssetRestoration prepared_;

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/restoration_dispatch.hpp>
+#include <soundcurrent/restoration_permit.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
@@ -113,6 +114,84 @@ int main(){const auto fixture=std::filesystem::temp_directory_path()/utf8Path("s
                 result=prepared.publish(current,stop.get_token(),[&](StageBoundary at,std::uint64_t){if(at==StageBoundary::AfterCommitBeforeDirectoryFlush)stop.request_stop();});
             }
             check(result.published && result.receiptPublished && stop.stop_requested() && read(target/utf8Path(a.relativePath))==bytes,"Post-publication cancel erased dispatch truth");
+        }
+        {
+            const auto target=root();RestorationOwnerView current{model,target,context};const auto operation=Id::generate();
+            RestorationDispatchTicket ticket(current,a.id,checked,decoded,42,operation,1024,memory);
+            RestorationDispatchTicket childTicket(current,a.id,checked,decoded,42,operation,1024,memory);
+            auto prepared=DispatchedAssetRestoration::prepare(std::move(childTicket),source,current);
+            auto wire=encodeRestorationPublicationPermit(ticket,prepared.record(),current,4242,memory);
+            const std::string rawWire(wire.bytes());
+            const auto json=nlohmann::json::parse(rawWire);const auto before=memory.usage();
+            auto bad=[&](const nlohmann::json &j){refuses([&]{decodeRestorationPublicationPermit(j.dump(),ticket,prepared.record(),current,4242,memory);});
+                check(memory.usage().reservedBytes==before.reservedBytes && memory.usage().owners==before.owners,"Rejected permit leaked admission");};
+            for(auto it=json.begin();it!=json.end();++it){auto missing=json;missing.erase(it.key());bad(missing);auto changed=json;
+                if(it->is_string())changed[it.key()]=it->get<std::string>()+"x";else changed[it.key()]=it->get<std::uint64_t>()+1;bad(changed);
+                if(it->is_number_integer())for(const auto &v:{nlohmann::json(-1),nlohmann::json(1.0),nlohmann::json(true),nlohmann::json("1")}){auto typed=json;typed[it.key()]=v;bad(typed);}
+            }
+            auto unknown=json;unknown["published"]=true;bad(unknown);unknown=json;unknown["sourceRoot"]="/unapproved";bad(unknown);
+            for(const auto &raw:{std::string("[")+rawWire+"]",std::string("{\"phase\":\"publish\",")+rawWire.substr(1),
+                std::string("{\"nested\":")+rawWire+"}",rawWire+"x",rawWire+std::string(1,'\0'),
+                std::string(restorationPermitMaximumBytes+1,' '),rawWire+"é"})
+                refuses([&]{decodeRestorationPublicationPermit(raw,ticket,prepared.record(),current,4242,memory);});
+            for(auto pid:{0U,4243U})refuses([&]{decodeRestorationPublicationPermit(wire.bytes(),ticket,prepared.record(),current,pid,memory);});
+            refuses([&]{encodeRestorationPublicationPermit(ticket,prepared.record(),current,0,memory);});
+            refuses([&]{decodeRestorationPublicationPermit(wire.bytes(),ticket,prepared.record(),current,4242,foreign);});
+            auto changed=context;++changed.dispatchJob;RestorationOwnerView stale{model,target,changed};
+            refuses([&]{encodeRestorationPublicationPermit(ticket,prepared.record(),stale,4242,memory);});
+            std::stop_source stop;stop.request_stop();refuses([&]{encodeRestorationPublicationPermit(ticket,prepared.record(),current,4242,memory,stop.get_token());});
+            refuses([&]{decodeRestorationPublicationPermit(wire.bytes(),ticket,prepared.record(),current,4242,memory,stop.get_token());});
+            {
+                auto exhausted=memory.reserve(memory.usage().limitBytes-memory.usage().reservedBytes-1);
+                refuses([&]{encodeRestorationPublicationPermit(ticket,prepared.record(),current,4242,memory);});
+            }
+            {
+                auto record=encodeAssetRestorationRecord(prepared.record(),AssetRestorationPhase::Planned,memory);
+                auto wrong=nlohmann::json::parse(record.bytes());wrong["sourceBytes"]=1;auto changedRecord=decodeAssetRestorationRecord(wrong.dump(),memory);
+                refuses([&]{encodeRestorationPublicationPermit(ticket,changedRecord,current,4242,memory);});
+                wrong=nlohmann::json::parse(record.bytes());wrong["phase"]=2;auto published=decodeAssetRestorationRecord(wrong.dump(),memory);
+                refuses([&]{encodeRestorationPublicationPermit(ticket,published,current,4242,memory);});
+                auto otherRecord=decodeAssetRestorationRecord(record.bytes(),foreign);auto otherReport=report(foreign,a,bytes.size());
+                AssetReplacementTicket otherCheck(a,context.checked,foreign);
+                RestorationDispatchTicket otherTicket(current,a.id,otherCheck,otherReport,42,operation,1024,foreign);
+                auto wrongScope=decodeRestorationPublicationPermit(wire.bytes(),otherTicket,otherRecord,current,4242,foreign);
+                refuses([&]{wrongScope.publish(prepared,current,4242);});
+            }
+            {
+                const auto otherTarget=root();RestorationOwnerView otherOwner{model,otherTarget,context};const auto otherOperation=Id::generate();
+                RestorationDispatchTicket otherExpected(otherOwner,a.id,checked,decoded,42,otherOperation,1024,memory);
+                RestorationDispatchTicket otherChild(otherOwner,a.id,checked,decoded,42,otherOperation,1024,memory);
+                auto otherPrepared=DispatchedAssetRestoration::prepare(std::move(otherChild),source,otherOwner);
+                refuses([&]{encodeRestorationPublicationPermit(ticket,otherPrepared.record(),current,4242,memory);});
+                refuses([&]{decodeRestorationPublicationPermit(wire.bytes(),otherExpected,otherPrepared.record(),otherOwner,4242,memory);});
+                auto wrongOperation=decodeRestorationPublicationPermit(wire.bytes(),ticket,prepared.record(),current,4242,memory);
+                refuses([&]{wrongOperation.publish(otherPrepared,otherOwner,4242);});
+                check(!std::filesystem::exists(otherTarget/"media"),"Permit authorized a different physical operation");
+            }
+            check(!std::filesystem::exists(target/"media"),"Permit qualification published media");
+        }
+        for(unsigned mode=0;mode<5;++mode){const auto target=root();RestorationOwnerView current{model,target,context};
+            const auto operation=Id::generate();MediaCommitOutcome outcome;std::stop_source stop;
+            {
+                RestorationDispatchTicket ticket(current,a.id,checked,decoded,42,operation,1024,memory);
+                RestorationDispatchTicket childTicket(current,a.id,checked,decoded,42,operation,1024,memory);
+                auto prepared=DispatchedAssetRestoration::prepare(std::move(childTicket),source,current);
+                auto wire=encodeRestorationPublicationPermit(ticket,prepared.record(),current,4242,memory);
+                auto permit=decodeRestorationPublicationPermit(wire.bytes(),ticket,prepared.record(),current,4242,memory);
+                if(mode==0){auto moved=std::move(permit);refuses([&]{permit.publish(prepared,current,4242);});outcome=moved.publish(prepared,current,4242);refuses([&]{moved.publish(prepared,current,4242);});}
+                if(mode==1 || mode==2){auto changed=context;++changed.autosaveToken;RestorationOwnerView stale{model,target,changed};
+                    refuses([&]{permit.publish(prepared,mode==1 ? current : stale,mode==1 ? 4243 : 4242);});
+                    check(!std::filesystem::exists(target/"media"),"Stale permit published canonical media");
+                    refuses([&]{permit.publish(prepared,current,4242);});
+                    auto currentPermit=decodeRestorationPublicationPermit(wire.bytes(),ticket,prepared.record(),current,4242,memory);
+                    outcome=currentPermit.publish(prepared,current,4242);
+                }
+                if(mode==3 || mode==4)outcome=permit.publish(prepared,current,4242,stop.get_token(),[&](StageBoundary at,std::uint64_t){
+                    if(at==StageBoundary::AfterCommitBeforeDirectoryFlush){if(mode==3)stop.request_stop();else throw ProjectError(ErrorCode::Io,"after permitted publication");}});
+            }
+            check(outcome.published && read(target/utf8Path(a.relativePath))==bytes,"Permit lost exact published media");
+            check(mode==4 ? !outcome.receiptPublished && outcome.postCommitFlushFailed : outcome.receiptPublished && !outcome.postCommitFlushFailed,"Permit audit outcome changed");
+            if(mode==3)check(stop.stop_requested(),"Post-publication cancellation was not exercised");
         }
         check(memory.usage().reservedBytes==baseline.reservedBytes && memory.usage().owners==baseline.owners,"Dispatch ownership leaked");
     }
