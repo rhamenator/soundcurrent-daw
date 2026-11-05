@@ -10,6 +10,9 @@ class WaveCheckReport {
     const WaveValidation &audio() const noexcept {return audio_;}
     std::string_view relative() const noexcept {return relative_;}
     std::size_t workerPid() const noexcept {return pid_;}
+    // Exact previously validated bytes, copied into the same admitted scope.
+    // No source reopening, current-owner lock or publication authority.
+    OwnedInspectionProtocol copyProtocol(ResourceLedger,std::stop_token = {}) const;
     bool ownedBy(const ResourceLedger &memory) const {return memory.owns(lease_) && protocol_.ownedBy(memory);}
     std::size_t chargedBytes() const {return lease_.bytes()+protocol_.chargedBytes();}
   private:

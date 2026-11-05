@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include <optional>
 #include <soundcurrent/wave_report.hpp>
 #include <nlohmann/json.hpp>
 #include <iostream>
@@ -65,6 +66,33 @@ int main() {
             verifyAssetReplacementReport(retained,moved,asset,context,42,memory);++checks;
             check(moved.audio().peak==3.25 && asset==original,"Verification changed content or asset state");
         }
+        // Preserve the exact admitted child protocol, including harmless layout;
+        // serializing parsed fields again would not satisfy this oracle.
+        const auto wire=std::string(" ")+fixture().dump(2)+"\r\n";
+        std::optional<OwnedInspectionProtocol> handoff;
+        {
+            auto source=decodeWaveCheckReport(OwnedInspectionProtocol(memory.reserve(waveReportMaximumBytes*2),wire),
+                "chosen.wav",42,1024,memory,memory.reserve(waveReportValueCharge),memory.reserve(waveReportParserCharge));
+            const auto before=memory.usage();
+            refuses([&]{source.copyProtocol(foreign);});
+            auto sibling=memory.child(1024*1024,"Foreign child scope");
+            refuses([&]{source.copyProtocol(sibling);});
+            std::stop_source stop;stop.request_stop();
+            refuses([&]{source.copyProtocol(memory,stop.get_token());},ErrorCode::Canceled);
+            memory.configure(before.reservedBytes+waveReportMaximumBytes*2-1);
+            refuses([&]{source.copyProtocol(memory);},ErrorCode::ResourceLimit);
+            check(memory.usage().reservedBytes==before.reservedBytes && memory.usage().owners==before.owners,
+                "Failed protocol handoff retained credit");
+            memory.configure(2*1024*1024);
+            handoff.emplace(source.copyProtocol(memory));
+            check(handoff->bytes()==wire && handoff->ownedBy(memory) && handoff->chargedBytes()>=wire.size(),
+                "Protocol handoff reconstructed or lost original bytes/credit");
+            auto moved=std::move(source);
+            refuses([&]{source.copyProtocol(memory);});
+            auto second=moved.copyProtocol(memory);check(second.bytes()==wire,"Moved report lost exact protocol");
+        }
+        check(handoff->bytes()==wire,"Protocol handoff borrowed retired report storage");
+        handoff.reset();
         for(unsigned field=0;field<3;++field) {
             auto bad=context;if(field==0)bad.projectEpoch=0;if(field==1)bad.request=0;if(field==2)bad.job=0;
             refuses([&]{AssetReplacementTicket t(asset,bad,memory);});

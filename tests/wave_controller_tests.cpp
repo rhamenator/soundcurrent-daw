@@ -55,8 +55,11 @@ int main(int argc,char **argv) {
         auto model=std::make_shared<Session>(makeOneTrackSession("Recovery","Track"));model->assets.push_back(asset);
         ControllerSnapshot project;project.session=model;project.root=root;project.projectEpoch=7;
         std::shared_ptr<const WaveCheckSnapshot> replacement;
+        std::optional<OwnedInspectionProtocol> handoff;std::string capturedWire;
         {
-            WaveCheckOptions options;options.memory=memory;WaveCheckController c(options);
+            WaveCheckOptions options;options.memory=memory;
+            options.afterChild=[&](std::string &raw,std::size_t){raw=" "+raw+"\r\n";if(capturedWire.empty())capturedWire=raw;};
+            WaveCheckController c(options);
             check(c.submitAssetReplacement(file,project,asset.id,31)==Admission::Accepted,"Asset replacement refused");
             replacement=finish(c);
             check(replacement->phase==WaveCheckPhase::Complete && replacement->replacement &&
@@ -65,6 +68,11 @@ int main(int argc,char **argv) {
             check(replacement->replacement->identity.relativePath.empty() &&
                 replacement->replacement->identity.nativeEvidence.empty(),"Candidate inherited project path authority/evidence");
             verifyWaveAssetReplacement(*replacement,project,asset.id,31,memory);
+            handoff.emplace(copyWaveAssetReplacementProtocol(*replacement,project,asset.id,31,memory));
+            check(handoff->bytes()==capturedWire && nlohmann::json::parse(handoff->bytes()).at("workerPid")==replacement->childPid,
+                "Handoff lost exact real checker reply or observed PID");
+            std::stop_source canceled;canceled.request_stop();
+            refuses([&]{copyWaveAssetReplacementProtocol(*replacement,project,asset.id,31,memory,canceled.get_token());},ErrorCode::Canceled);
             for (unsigned mode=0;mode<8;++mode) {
                 auto current=project;auto result=*replacement;auto selected=asset.id;auto request=std::uint64_t(31);
                 if(mode==0)++current.projectEpoch;
@@ -76,6 +84,7 @@ int main(int argc,char **argv) {
                 if(mode==6)current.closing=true;
                 if(mode==7)current.io=IoOperation::Open;
                 refuses([&]{verifyWaveAssetReplacement(result,current,selected,request,memory);});
+                refuses([&]{copyWaveAssetReplacementProtocol(result,current,selected,request,memory);});
             }
             auto changed=std::make_shared<Session>(*model);changed->assets[0].frames++;
             auto current=project;current.session=changed;
@@ -89,7 +98,9 @@ int main(int argc,char **argv) {
             refuses([&]{verifyWaveAssetReplacement(*ordinary,project,asset.id,31,memory);});
         }
         verifyWaveAssetReplacement(*replacement,project,asset.id,31,memory);
-        replacement.reset();retired(memory);
+        replacement.reset();
+        check(handoff->bytes()==capturedWire && handoff->ownedBy(memory),"Handoff lost bytes after checker/controller retirement");
+        handoff.reset();retired(memory);
         {
             std::atomic<bool> reached=false,release=false;WaveCheckOptions options;options.memory=memory;
             options.beforeTerminalPublish=[&]{reached=true;while(!release)QThread::msleep(1);};
