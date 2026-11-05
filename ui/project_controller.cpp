@@ -372,11 +372,12 @@ struct ProjectController::State : QThread {
                 activeGesture || view.autosaveInhibitionToken ||
                 command.restoration->request<=lastRestorationRequest ||
                 lastRestorationJob==std::numeric_limits<std::uint64_t>::max() ||
-                lastAutosaveInhibitionToken==std::numeric_limits<std::uint64_t>::max())
+                command.autosaveInhibitionEpoch!=view.projectEpoch ||
+                !command.autosaveInhibitionToken || command.autosaveInhibitionToken<=lastAutosaveInhibitionToken)
                 throw ProjectError(ErrorCode::InvalidState,"Restoration owner cannot be acquired");
             const auto &input=*command.restoration;
             verifyWaveAssetReplacement(*input.checked,view,input.asset,input.request,memory);
-            const auto token=lastAutosaveInhibitionToken+1,jobId=lastRestorationJob+1;
+            const auto token=command.autosaveInhibitionToken,jobId=lastRestorationJob+1;
             IoJob job{IoOperation::RestoreAsset,view.root,view.session,view.modelRevision};
             job.restoration=command.restoration;job.projectEpoch=view.projectEpoch;
             job.restorationContext={{view.projectEpoch,view.modelRevision,input.request,input.checked->job},jobId,token};

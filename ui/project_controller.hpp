@@ -88,6 +88,7 @@ struct ProjectCommand {
     std::optional<std::size_t> memoryBytes;
     std::uint64_t memoryRequest = 0;
     // Caller tokens must increase across acquisitions, including project epochs.
+    // RestoreAsset atomically acquires this SAME caller namespace and epoch.
     std::uint64_t autosaveInhibitionToken = 0, autosaveInhibitionEpoch = 0;
     // Recording preparation may close its current edit gesture atomically with inhibition.
     bool commitGestureForAutosaveInhibition = false;

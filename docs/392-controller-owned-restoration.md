@@ -5,8 +5,12 @@ admitted completed replacement checker snapshot, its asset and original request.
 The control worker rechecks the CURRENT accepted model/root/epoch/revision and
 actual checking job/PID, refuses an active gesture, I/O or inhibition owner, and
 atomically starts its own serialized restoration I/O job. It assigns a fresh
-dispatch identity and monotonic autosave token. Refused acquisition consumes
-neither identity nor token. The immutable Session remains unchanged.
+dispatch identity and atomically acquires the caller's fresh monotonic autosave
+token/epoch from the existing shared token namespace. It does not secretly
+advance a recording caller's next token. Refused acquisition consumes
+neither identity nor token. The immutable Session remains unchanged. Restoration request IDs increase across
+successful dispatches for this controller lifetime; completion and cancellation
+are correlated with the controller-assigned dispatch job.
 
 While that job owns the project, every model, history, policy and competing I/O
 command refuses, including a matching generic inhibition release. Read-only

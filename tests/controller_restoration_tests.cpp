@@ -49,7 +49,7 @@ struct Fixture {
         check(checker.snapshot()->phase==WaveCheckPhase::Complete,"Replacement checker failed");input=std::make_shared<const AssetRestorationInput>(AssetRestorationInput{checker.snapshot(),asset.id,1});
         check(std::filesystem::remove(canonical),"Could not create missing-media fixture");
     }
-    void start(){ProjectCommand command{CommandKind::RestoreAsset};command.restoration=input;submit(*controller,std::move(command));}
+    void start(std::uint64_t token=1){ProjectCommand command{CommandKind::RestoreAsset};command.restoration=input;command.autosaveInhibitionToken=token;command.autosaveInhibitionEpoch=initial->projectEpoch;submit(*controller,std::move(command));}
     auto finish(){return await(*controller,[](const auto &s){return s.assetRestorationCompleted.request==1&&s.io==IoOperation::None;});}
     void unchanged(const ControllerSnapshot &s){check(s.session==initial->session&&s.modelRevision==initial->modelRevision&&s.savedRevision==initial->savedRevision&&s.root==root,"Restoration changed accepted model/root/revision");check(bytes(root/"project.json")==manifest,"Restoration changed manifest");}
 };
@@ -65,6 +65,8 @@ void normalAndGuards(){
     release=true;const auto done=f.finish();const auto &r=done->assetRestorationCompleted;
     check(!r.error&&r.childPid&&r.childExit==0&&r.permitSent&&r.published==true&&r.canonicalVerified&&!r.needsReconciliation,"Restoration result not independently verified");check(!done->autosaveInhibitionToken&&!done->assetRestorationNeedsReconciliation,"Verified restoration retained owner");f.unchanged(*done);
     check(bytes(f.canonical)==f.data&&bytes(f.source)==f.data,"Restoration whole bytes differ");check(f.controller->memoryResources().reservedBytes==baseline,"Child/framing memory credit leaked");
+    ProjectCommand recording{CommandKind::AcquireAutosaveInhibition};recording.autosaveInhibitionToken=2;recording.autosaveInhibitionEpoch=done->projectEpoch;submit(*f.controller,recording);await(*f.controller,[](const auto &s){return s.autosaveInhibitionToken==2;});
+    recording.kind=CommandKind::ReleaseAutosaveInhibition;submit(*f.controller,recording);await(*f.controller,[](const auto &s){return !s.autosaveInhibitionToken;});
     submit(*f.controller,edit(*done));await(*f.controller,[&](const auto &s){return s.modelRevision>done->modelRevision;});
 }
 void beforePermitCancelOrClose(bool close){
@@ -99,7 +101,7 @@ void ambiguousPermission(){std::atomic<std::uint64_t> now=0,clockCalls=0,ioCalls
 void staleAndInhibited(){
     Fixture stale;submit(*stale.controller,edit(*stale.initial));await(*stale.controller,[&](const auto &s){return s.modelRevision>stale.initial->modelRevision;});stale.start();auto rejected=await(*stale.controller,[](const auto &s){return s.assetRestorationRejected.request==1;});check(rejected->io==IoOperation::None&&!rejected->autosaveInhibitionToken&&!std::filesystem::exists(stale.canonical),"Stale replacement started I/O");
     Fixture inhibited;ProjectCommand acquire{CommandKind::AcquireAutosaveInhibition};acquire.autosaveInhibitionToken=77;acquire.autosaveInhibitionEpoch=inhibited.initial->projectEpoch;submit(*inhibited.controller,acquire);await(*inhibited.controller,[](const auto &s){return s.autosaveInhibitionToken==77;});inhibited.start();auto refused=await(*inhibited.controller,[](const auto &s){return s.assetRestorationRejected.request==1;});check(refused->autosaveInhibitionToken==77&&refused->io==IoOperation::None,"Restoration stole existing inhibition");
-    acquire.kind=CommandKind::ReleaseAutosaveInhibition;submit(*inhibited.controller,acquire);await(*inhibited.controller,[](const auto &s){return !s.autosaveInhibitionToken;});inhibited.start();auto done=inhibited.finish();check(done->assetRestorationCompleted.canonicalVerified,"Refused acquisition consumed usable request");
+    acquire.kind=CommandKind::ReleaseAutosaveInhibition;submit(*inhibited.controller,acquire);await(*inhibited.controller,[](const auto &s){return !s.autosaveInhibitionToken;});inhibited.start(78);auto done=inhibited.finish();check(done->assetRestorationCompleted.canonicalVerified,"Refused acquisition consumed usable request");
 }
 }
 int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
