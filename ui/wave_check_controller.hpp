@@ -71,4 +71,10 @@ class WaveCheckController {
 // No file IO or publication; callers must revalidate before any later adoption.
 void verifyWaveAssetReplacement(const WaveCheckSnapshot &,const ControllerSnapshot &,
     const Id &asset,std::uint64_t request,ResourceLedger);
+// Worker-side request preparation: recheck the CURRENT accepted replacement,
+// then copy its original strict checker bytes with same-scope credit. Caller
+// must serialize actual project ownership through later child completion.
+OwnedInspectionProtocol copyWaveAssetReplacementProtocol(const WaveCheckSnapshot &,
+    const ControllerSnapshot &,const Id &asset,std::uint64_t request,ResourceLedger,
+    std::stop_token = {});
 } // namespace soundcurrent::daw::ui

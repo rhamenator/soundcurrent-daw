@@ -9,6 +9,17 @@ namespace {
 void check(bool good,const char *text) {if (!good) throw ProjectError(ErrorCode::InvalidState,text);}
 void poll(std::stop_token stop) {if (stop.stop_requested()) throw ProjectError(ErrorCode::Canceled,"Wave report decoding canceled");}
 }
+OwnedInspectionProtocol WaveCheckReport::copyProtocol(ResourceLedger memory,std::stop_token stop) const {
+    poll(stop);
+    check(ownedBy(memory) && pid_ && !protocol_.bytes().empty() &&
+        protocol_.bytes().size()<=waveReportMaximumBytes,"Unadmitted WAVE report handoff");
+    // Admit the conservative copy bank before allocating. The returned owner
+    // retires its bytes before its credit, independently of this report.
+    auto grant=memory.reserve(waveReportMaximumBytes*2);
+    std::string bytes(protocol_.bytes());
+    poll(stop);
+    return OwnedInspectionProtocol(std::move(grant),std::move(bytes));
+}
 WaveCheckReport decodeWaveCheckReport(OwnedInspectionProtocol protocol,std::string_view expected,
     std::size_t pid,std::uint64_t maximum,ResourceLedger memory,ResourceLease values,ResourceLease parser,std::stop_token stop) {
     poll(stop);

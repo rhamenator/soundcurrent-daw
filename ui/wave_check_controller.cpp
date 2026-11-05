@@ -194,4 +194,11 @@ void verifyWaveAssetReplacement(const WaveCheckSnapshot &result,const Controller
     verifyAssetReplacementReport(result.replacement->ticket,*result.report,*found,
         {project.projectEpoch,project.modelRevision,request,result.job},result.childPid,memory);
 }
+OwnedInspectionProtocol copyWaveAssetReplacementProtocol(const WaveCheckSnapshot &result,
+    const ControllerSnapshot &project,const Id &asset,std::uint64_t request,
+    ResourceLedger memory,std::stop_token stop) {
+    canceled(stop);
+    verifyWaveAssetReplacement(result,project,asset,request,memory);
+    return result.report->copyProtocol(memory,stop);
+}
 } // namespace soundcurrent::daw::ui

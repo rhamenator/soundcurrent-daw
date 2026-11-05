@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
-import importlib.util,json,tempfile,uuid
+import importlib.util,json,tempfile,uuid,subprocess,sys
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('collector',Path(__file__).resolve().parents[1]/'.github/scripts/retain-controller-failure-projects.py')
 c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
@@ -73,6 +73,30 @@ with tempfile.TemporaryDirectory() as work:
         assert (saved/operation.name/'receipt.partial').read_bytes()==b'{"phase":2}'
         refuses()
         log.write_bytes((c.RESTORATION_MARKER+str(source)+'\n').encode('utf-8'));refuses()
+        # Actual producer failure: matching catalog audit with a changed source
+        # fingerprint must publish a bounded marker and retain exact inputs.
+        repository=Path(__file__).resolve().parents[1]
+        sandbox=build/'catalog-source';(sandbox/'tests').mkdir(parents=True);(sandbox/'tools').mkdir()
+        for folder in ['ui','localization']:shutil.copytree(repository/folder,sandbox/folder)
+        for relative in ['tests/translation_catalog_tests.py','tools/localization.py']:
+            shutil.copy2(repository/relative,sandbox/relative)
+        changed=sandbox/'ui/wave_check_controller.cpp'
+        with changed.open('ab') as out:out.write(b'\n// retention qualification: deliberately stale fingerprint\n')
+        expected=changed.read_bytes()
+        child=subprocess.run([sys.executable,str(sandbox/'tests/translation_catalog_tests.py')],capture_output=True,timeout=30)
+        assert child.returncode!=0 and b'UI changed' in child.stderr
+        markers=[line for line in child.stdout.splitlines() if line.startswith(c.LOCALIZATION_MARKER.encode('ascii'))]
+        assert len(markers)==1
+        generated=Path(markers[0][len(c.LOCALIZATION_MARKER):].decode('utf-8'));extras.append(generated)
+        log.write_bytes(child.stdout+child.stderr)
+        receipts=c.retain(build);assert len(receipts)==1
+        saved=build/'controller-failure-projects'/('localization-'+generated.name)
+        assert (saved/'fixture/ui/wave_check_controller.cpp').read_bytes()==expected
+        assert (saved/'fixture/localization/source-inventory.json').read_bytes()==(sandbox/'localization/source-inventory.json').read_bytes()
+        assert json.loads((saved/'failure.json').read_text(encoding='utf-8'))['case']=='matching'
+        assert (generated/'fixture/ui/wave_check_controller.cpp').read_bytes()==expected
+        refuses()
+        log.write_bytes((c.LOCALIZATION_MARKER+str(source)+'\n').encode('utf-8'));refuses()
         for n in range(16):(logs/('extra-'+str(n)+'.log')).write_text('',encoding='utf-8')
         refuses()
         print('Controller retention: exact Unicode/audio and parent partial/hidden bytes, foreign path/no-overwrite, link refusal='+str(linked))
