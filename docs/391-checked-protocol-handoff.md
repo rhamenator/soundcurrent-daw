@@ -34,3 +34,15 @@ uses an actual checker PID/reply, verifies stale/current context refusal and
 retained bytes after facade retirement. Hosted native Windows execution remains
 required; a cross-compiler syntax check alone does not qualify the workflow.
 No installed preview, catalog, package, real-time callback or release changes.
+
+The first CI attempt exposed a stale UI source fingerprint, repaired by the
+existing Linguist generator without changing keys or catalog payloads. Review
+of its retained archive also found that the catalog corpus's printed temporary
+path was not collected. Unexpected failures now move only the active isolated
+case into an exclusive UUID directory and emit an explicit UTF-8 marker for the
+existing bounded collector. The collector retains original UI/catalog bytes and
+failure metadata under the same path, link, byte, entry and no-overwrite gates.
+An actual deliberately stale source audit tests producer-to-collector retention,
+byte equality and the original nonzero/error outcome. The historical temporary
+fixture was absent from the original archive and cannot be claimed recovered;
+its complete log and exact source commit remain preserved separately.
