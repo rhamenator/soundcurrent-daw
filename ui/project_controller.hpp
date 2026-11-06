@@ -5,12 +5,17 @@
 #include <soundcurrent/loop_recording.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/resource_ledger.hpp>
+#include <soundcurrent/restoration_audit.hpp>
 #include <memory>
 #include <optional>
 
 namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;class VerifiedCompAssemblyAdoption;class PreparedCompTransition;}
 namespace soundcurrent::daw::ui {
 struct AssetRestorationInput;
+struct RestorationInspectionRequest {
+    Id project,asset,operation;
+    std::uint64_t projectEpoch=0,modelRevision=0,request=0;
+};
 enum class CommandKind {
     Create,
     Open,
@@ -34,7 +39,9 @@ enum class CommandKind {
     InspectAutosave,
     RestoreAutosave,
     RestoreAsset,
-    CancelAssetRestoration
+    CancelAssetRestoration,
+    InspectAssetRestoration,
+    CancelAssetRestorationInspection
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -98,10 +105,12 @@ struct ProjectCommand {
     std::uint64_t autosaveReviewRequest = 0, autosaveRestoreRequest = 0;
     std::shared_ptr<const AssetRestorationInput> restoration;
     std::uint64_t restorationJob=0; // Cancel only; exact current dispatch identity.
+    std::optional<RestorationInspectionRequest> restorationInspection;
+    std::uint64_t restorationInspectionJob=0; // Cancel only, exact active dispatch.
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -130,6 +139,15 @@ struct AssetRestorationCompletion {
     std::optional<bool> published; // Unknown after ambiguous permission/termination.
     bool receiptPublished=false,postCommitFlushFailed=false;
     unsigned durability=0;
+    std::optional<ErrorCode> error;
+};
+// Plain observations only: no native handles, passive Session or resume authority.
+struct RestorationInspectionCompletion {
+    std::uint64_t request=0,job=0,projectEpoch=0,modelRevision=0,sourceBytes=0;
+    std::array<char,36> project{},asset{},operation{};
+    std::array<char,64> manifestSha256{};
+    std::optional<RestorationMediaObservation> canonical,staged;
+    std::optional<RestorationReceiptObservation> receipt;
     std::optional<ErrorCode> error;
 };
 struct ControllerSnapshot {
@@ -171,6 +189,9 @@ struct ControllerSnapshot {
     AttachmentCompletion assetRestorationRejected;
     std::uint64_t assetRestorationJob=0;
     bool assetRestorationNeedsReconciliation=false;
+    RestorationInspectionCompletion restorationInspectionCompleted;
+    AttachmentCompletion restorationInspectionRejected;
+    std::uint64_t restorationInspectionJob=0;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -183,6 +204,8 @@ struct ControllerOptions {
     // Trusted application policy, never selected by project/worker metadata.
     std::filesystem::path restorationWorkerProgram = {};
     unsigned restorationDeadlineMilliseconds=20000;
+    std::function<void()> restorationInspectionBeforeVerify = {}; // Trusted I/O qualification seam.
+    std::uint64_t restorationInspectionMaximumBytes=1024ULL*1024*1024;
     std::function<void()> restorationBeforePermit = {},restorationAfterPermit = {};
     std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
     std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
