@@ -150,4 +150,38 @@ RestorationAudit inspectSavedAssetRestoration(const std::filesystem::path &root,
     RestorationAudit audit(inspectState(root,project,asset,nullptr,operation,maximum,memory,budget,stop));
     audit.reverify(stop);return audit;
 }
+SavedRestorationSourceTicket::SavedRestorationSourceTicket(RestorationAudit &audit,std::string_view relative,
+    SavedRestorationSourceContext context,ResourceLedger memory,std::stop_token stop)
+    :lease_(memory.reserve(sizeof(SavedRestorationSourceTicket)+4096)),context_(context) {
+    poll(stop);require(context.request && context.job,"Invalid saved source request owner");
+    require(!relative.empty() && relative.size()<=1024 && relative.find('\0')==relative.npos && validUtf8(relative),
+        "Invalid explicit saved source selection",ErrorCode::InvalidParameter);
+    require(audit.ownedBy(memory),"Saved source audit admission scope mismatch");audit.reverify(stop);
+    const auto &s=audit.state();root_=s.stamp;hashes_=s.hashes;
+    for(std::size_t i=0;i<present_.size();++i)present_[i]=bool(s.files[i]);
+    const auto &intent=audit.intent();sourceSha256_=intent.content.sha256;sourceBytes_=intent.content.bytes;
+    frames_=intent.frames;rate_=intent.rate;channels_=intent.layout.channels;
+    selectedRelative_=relative;poll(stop);
+}
+void verifySavedRestorationSourceReport(const SavedRestorationSourceTicket &ticket,RestorationAudit &audit,
+    const WaveCheckReport &report,SavedRestorationSourceContext context,std::size_t pid,ResourceLedger memory,std::stop_token stop) {
+    poll(stop);require(memory.owns(ticket.lease_) && audit.ownedBy(memory) && report.ownedBy(memory),
+        "Saved source report admission scope mismatch");
+    require(context==ticket.context_,"Stale saved source request owner");
+    require(pid && report.workerPid()==pid && report.relative()==ticket.selectedRelative_,
+        "Saved source checker identity mismatch");
+    audit.reverify(stop);const auto &s=audit.state();
+    require(s.stamp==ticket.root_ && s.hashes==ticket.hashes_,"Saved source audit changed since selection");
+    for(std::size_t i=0;i<ticket.present_.size();++i)
+        require(bool(s.files[i])==ticket.present_[i],"Saved source audit visibility changed");
+    const auto &a=report.audio();
+    require(a.sourceBytes==ticket.sourceBytes_ && a.sourceSha256==ticket.sourceSha256_ && a.frames==ticket.frames_ &&
+        a.rate==ticket.rate_ && a.channels==ticket.channels_,"Saved source report differs from original asset",ErrorCode::MediaMismatch);
+    poll(stop);
+}
+OwnedInspectionProtocol copySavedRestorationSourceProtocol(const SavedRestorationSourceTicket &ticket,RestorationAudit &audit,
+    const WaveCheckReport &report,SavedRestorationSourceContext context,std::size_t pid,ResourceLedger memory,std::stop_token stop) {
+    verifySavedRestorationSourceReport(ticket,audit,report,context,pid,memory,stop);
+    return report.copyProtocol(memory,stop);
+}
 } // namespace soundcurrent::daw
