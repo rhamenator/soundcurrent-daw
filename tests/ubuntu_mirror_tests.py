@@ -134,6 +134,22 @@ class MirrorTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Ubuntu 24.04'): mirror.main()
                 prepare.assert_not_called()
 
+    def test_cross_build_preserves_compiler_gate_with_qualified_mirror(self):
+        text = (repo / '.github/workflows/ci.yml').read_text()
+        cross = text.split('  windows-core-cross-build:', 1)[1].split('  windows-native-tests:', 1)[0]
+        self.assertIn('tests/ubuntu_mirror_tests.py', cross)
+        self.assertIn('prepare-ubuntu-mirror.py', cross)
+        self.assertIn('timeout-minutes: 15', cross)
+        self.assertIn('ninja-build g++-mingw-w64-x86-64', cross)
+        self.assertIn('Acquire::https::Timeout=30', cross)
+        self.assertIn('cmake --build build-windows --parallel 2', cross)
+        self.assertIn('cmake/toolchains/windows-mingw.cmake', cross)
+        self.assertIn('SC_BUILD_MEDIA=OFF', cross)
+        self.assertIn('windows-core-cross-build-evidence', cross)
+        self.assertIn('if: always()', cross)
+        self.assertIn('ci-ubuntu-mirror.json', cross)
+        self.assertNotIn('--allow-unauthenticated', cross)
+
     def test_workflow_uses_helper_and_preserves_test_gates(self):
         text = (repo / '.github/workflows/ci.yml').read_text()
         linux = text.split('  linux-tests:', 1)[1].split('  linux-retained-evidence:', 1)[0]

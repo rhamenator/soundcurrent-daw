@@ -56,3 +56,14 @@ mutation must be detected; native Windows mutation must remain blocked while the
 audit pin is held. Existing controller/publication tests remain required, with
 native Windows execution in CI before integration. Unexpected fixtures retain
 the existing UTF-8 failure marker and collector policy.
+
+
+The original inspection head9698c436 passed its Linux/native Windows runtime
+matrix and exact-head review. Its separate core cross-build job was cancelled
+while installing the compiler from the Azure Ubuntu mirror, before configure or
+compile. That Ubuntu job now uses the already-qualified primary-archive helper
+from docs394 and retains its setup receipt/CMake cache. Its15-minute job limit,
+compiler package list, toolchain/configuration and compilation gate remain
+unchanged. Original logs/archives are retained separately. The repaired exact
+head still needs every required CI/review gate; native test success alone does
+not waive the cross-build gate.
