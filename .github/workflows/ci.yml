@@ -227,12 +227,27 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
+      - name: Qualify Ubuntu mirror preparation
+        run: python3 tests/ubuntu_mirror_tests.py
+      - name: Prepare the primary Ubuntu archive
+        run: sudo --preserve-env=GITHUB_ACTIONS,RUNNER_OS,RUNNER_ENVIRONMENT python3 .github/scripts/prepare-ubuntu-mirror.py --evidence "$PWD/ci-ubuntu-mirror.json"
       - name: Install cross compiler
-        run: sudo apt-get update && sudo apt-get install -y ninja-build g++-mingw-w64-x86-64
+        run: |
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y ninja-build g++-mingw-w64-x86-64
       - name: Configure state, engine and transport
         run: cmake -S . -B build-windows -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake -DSC_BUILD_MEDIA=OFF -DCMAKE_BUILD_TYPE=Release
       - name: Compile
         run: cmake --build build-windows --parallel 2
+      - name: Retain cross-build setup evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          archive: true
+          name: windows-core-cross-build-evidence
+          path: |
+            ci-ubuntu-mirror.json
+            build-windows/CMakeCache.txt
   windows-native-tests:
     name: Windows native ${{ matrix.group }} workflows
     strategy:

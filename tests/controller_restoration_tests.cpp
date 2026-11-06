@@ -8,6 +8,12 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -103,5 +109,110 @@ void staleAndInhibited(){
     Fixture inhibited;ProjectCommand acquire{CommandKind::AcquireAutosaveInhibition};acquire.autosaveInhibitionToken=77;acquire.autosaveInhibitionEpoch=inhibited.initial->projectEpoch;submit(*inhibited.controller,acquire);await(*inhibited.controller,[](const auto &s){return s.autosaveInhibitionToken==77;});inhibited.start();auto refused=await(*inhibited.controller,[](const auto &s){return s.assetRestorationRejected.request==1;});check(refused->autosaveInhibitionToken==77&&refused->io==IoOperation::None,"Restoration stole existing inhibition");
     acquire.kind=CommandKind::ReleaseAutosaveInhibition;submit(*inhibited.controller,acquire);await(*inhibited.controller,[](const auto &s){return !s.autosaveInhibitionToken;});inhibited.start(78);auto done=inhibited.finish();check(done->assetRestorationCompleted.canonicalVerified,"Refused acquisition consumed usable request");
 }
+
+ProjectCommand inspection(const ControllerSnapshot &view,const Asset &asset,const Id &operation,std::uint64_t request=1){
+    ProjectCommand command{CommandKind::InspectAssetRestoration};
+    command.restorationInspection=RestorationInspectionRequest{view.session->id,asset.id,operation,view.projectEpoch,view.modelRevision,request};
+    return command;
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+auto finishInspection(Fixture &f,std::uint64_t request=1){return await(*f.controller,[&](const auto &s){return s.restorationInspectionCompleted.request==request&&s.io==IoOperation::None;});}
+Id stagedOperation(Fixture &f,unsigned mode=0){
+    const auto op=Id::generate();
+    {ApprovedMediaRoot root(f.source.parent_path(),f.controller->resourceLedger());auto source=root.openSelectedFilename(f.source.filename(),1024);
+     auto prepared=PreparedAssetRestoration::prepare(source,f.root,f.asset,{987,123,321},1024,{},op);
+     if(mode==1||mode==3){bool reached=false;try{prepared.publish(f.asset,{987,123,321},{},[&](StageBoundary at,std::uint64_t){
+         if(at==(mode==1?StageBoundary::BeforeCommit:StageBoundary::BeforeRestorationReceiptPublish)){reached=true;throw ProjectError(ErrorCode::Canceled,"Inspection fixture interruption");}
+     });}catch(const ProjectError &){}check(reached,"Physical inspection boundary not reached");}
+     else if(mode==2)check(prepared.publish(f.asset,{987,123,321}).receiptPublished,"Inspection publication fixture failed");}
+    return op; // Native writer is retired BEFORE inspection on either OS.
+}
+void inspectionStates(){
+    for(unsigned mode=0;mode<4;++mode){Fixture f;const auto op=stagedOperation(f,mode);const auto baseline=f.controller->memoryResources().reservedBytes;
+        submit(*f.controller,inspection(*f.initial,f.asset,op));auto done=finishInspection(f);const auto &r=done->restorationInspectionCompleted;
+        check(!r.error&&r.request==1&&r.job&&r.projectEpoch==done->projectEpoch&&r.modelRevision==done->modelRevision,"Inspection actual owner/result correlation failed");
+        check(r.canonical==(mode>=2?RestorationMediaObservation::Verified:RestorationMediaObservation::Missing)&&
+            r.staged==(mode>=2?RestorationMediaObservation::Missing:RestorationMediaObservation::Verified),"Inspection canonical/staged truth differs");
+        check(r.receipt==(mode==0?RestorationReceiptObservation::Missing:mode==2?RestorationReceiptObservation::Final:RestorationReceiptObservation::Partial),"Inspection receipt truth differs");
+        check(r.sourceBytes==52&&std::string(r.operation.begin(),r.operation.end())==op.str()&&std::string(r.asset.begin(),r.asset.end())==f.asset.id.str()&&
+            std::string(r.project.begin(),r.project.end())==done->session->id.str(),"Inspection bound identity/extent lost");
+        check(!done->autosaveInhibitionToken&&!done->assetRestorationNeedsReconciliation,"Read-only inspection acquired token or created latch");f.unchanged(*done);
+        await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+        const auto serial=done->errorSerial;submit(*f.controller,inspection(*done,f.asset,op));auto rejected=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(rejected->restorationInspectionRejected.request==1&&rejected->io==IoOperation::None&&rejected->restorationInspectionCompleted.job==r.job,"Consumed inspection request replayed or destroyed completion");
+    }
+}
+void inspectionGuardsAndCancel(){
+    std::atomic<bool> block=false,reached=false,release=false;ControllerOptions o;o.beforeIo=[&]{if(block){reached=true;while(!release)QThread::msleep(1);}};
+    Fixture f(o);Release guard{release};const auto op=stagedOperation(f);block=true;submit(*f.controller,inspection(*f.initial,f.asset,op));
+    auto held=await(*f.controller,[&](const auto &s){return reached&&s.io==IoOperation::InspectAssetRestoration;});check(held->restorationInspectionJob&&!held->autosaveInhibitionToken,"Inspection I/O ownership absent");
+    for(const auto kind:{CommandKind::Create,CommandKind::Open,CommandKind::Save,CommandKind::Parameter,CommandKind::CancelGesture,CommandKind::Undo,CommandKind::Redo,
+        CommandKind::AttachRecording,CommandKind::Routing,CommandKind::Monitoring,CommandKind::Structural,CommandKind::HistoryLimits,CommandKind::SnapshotLimits,
+        CommandKind::MemoryLimits,CommandKind::Autosave,CommandKind::AcquireAutosaveInhibition,CommandKind::ReleaseAutosaveInhibition,CommandKind::AutosavePolicy,
+        CommandKind::InspectAutosave,CommandKind::RestoreAutosave,CommandKind::RestoreAsset,CommandKind::InspectAssetRestoration,CommandKind::CancelAssetRestoration}){
+        auto command=inspection(*held,f.asset,op,2);command.kind=kind;command.restoration=f.input;command.restorationJob=held->restorationInspectionJob;
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(command));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(refused->io==IoOperation::InspectAssetRestoration&&!refused->autosaveInhibitionToken&&refused->errorCode==ErrorCode::InvalidState,"Competing command revoked inspection ownership");f.unchanged(*refused);
+    }
+    ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=117;submit(*f.controller,barrier);await(*f.controller,[](const auto &s){return s.lastBarrier==117;});++checks;
+    ProjectCommand cancel{CommandKind::CancelAssetRestorationInspection};cancel.restorationInspectionJob=held->restorationInspectionJob+1;
+    const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,cancel);auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+    check(refused->io==IoOperation::InspectAssetRestoration,"Wrong inspection cancel revoked actual owner");
+    cancel.restorationInspectionJob=held->restorationInspectionJob;submit(*f.controller,cancel);release=true;auto done=finishInspection(f);
+    check(done->restorationInspectionCompleted.error==ErrorCode::Canceled&&!done->restorationInspectionCompleted.canonical&&!done->restorationInspectionCompleted.receipt,"Canceled inspection claimed observations");f.unchanged(*done);
+}
+void inspectionStaleAndRefusals(){
+    Fixture f;const auto op=stagedOperation(f);
+    for(unsigned mode=0;mode<6;++mode){auto c=inspection(*f.initial,f.asset,op,mode+1);
+        if(mode==0)c.restorationInspection.reset();
+        if(mode==1)c.restorationInspection->request=0;
+        if(mode==2)++c.restorationInspection->projectEpoch;
+        if(mode==3)++c.restorationInspection->modelRevision;
+        if(mode==4)c.restorationInspection->project=Id::generate();
+        if(mode==5){ProjectCommand acquire{CommandKind::AcquireAutosaveInhibition};acquire.autosaveInhibitionToken=71;acquire.autosaveInhibitionEpoch=f.initial->projectEpoch;submit(*f.controller,acquire);await(*f.controller,[](const auto &s){return s.autosaveInhibitionToken==71;});}
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(refused->io==IoOperation::None&&!refused->restorationInspectionCompleted.job,"Stale/inhibited inspection started I/O");
+    }
+    ProjectCommand release{CommandKind::ReleaseAutosaveInhibition};release.autosaveInhibitionToken=71;release.autosaveInhibitionEpoch=f.initial->projectEpoch;submit(*f.controller,release);
+    await(*f.controller,[](const auto &s){return !s.autosaveInhibitionToken;});
+    for(unsigned mode=0;mode<3;++mode){auto c=inspection(*f.initial,f.asset,op,10+mode);
+        if(mode==0)c.restorationInspection->asset=Id::generate();
+        if(mode==1)c.restorationInspection->operation=Id::generate();
+        if(mode==2)write(f.root/op.str()/"intent.json","{}");
+        submit(*f.controller,std::move(c));auto done=finishInspection(f,10+mode);
+        check(done->restorationInspectionCompleted.error.has_value()&&!done->restorationInspectionCompleted.canonical&&!done->restorationInspectionCompleted.receipt,"Invalid evidence qualified inspection");f.unchanged(*done);
+    }
+    ControllerOptions limited;limited.admission.parserBytes=limited.memoryBytes;Fixture quota(limited);const auto quotaOp=stagedOperation(quota);const auto baseline=quota.controller->memoryResources().reservedBytes;
+    submit(*quota.controller,inspection(*quota.initial,quota.asset,quotaOp));auto denied=finishInspection(quota);
+    check(denied->restorationInspectionCompleted.error==ErrorCode::ResourceLimit&&!denied->restorationInspectionCompleted.canonical,"Inspection bypassed shared parser admission");
+    await(*quota.controller,[&](const auto &){return quota.controller->memoryResources().reservedBytes==baseline;});quota.unchanged(*denied);
+}
+void inspectionPinnedAndClosing(bool closing){
+    std::atomic<bool> reached=false,release=false;ControllerOptions o;o.restorationInspectionBeforeVerify=[&]{reached=true;while(!release)QThread::msleep(1);};
+    Fixture f(o);Release guard{release};const auto op=stagedOperation(f,2);submit(*f.controller,inspection(*f.initial,f.asset,op));
+    await(*f.controller,[&](const auto &s){return reached&&s.io==IoOperation::InspectAssetRestoration;});
+    if(closing){f.controller->requestShutdown();auto held=await(*f.controller,[](const auto &s){return s.closing;});check(!held->closed,"Closing retired inspection before I/O joined");release=true;
+        auto done=await(*f.controller,[](const auto &s){return s.closed;});check(done->restorationInspectionCompleted.error==ErrorCode::Canceled&&!done->restorationInspectionCompleted.canonical,"Closed inspection exposed stale observations");f.unchanged(*done);return;}
+#ifdef _WIN32
+    const auto h=CreateFileW(f.canonical.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+    check(h==INVALID_HANDLE_VALUE,"Controller inspection pin allowed native Windows mutation");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+    release=true;auto done=finishInspection(f);check(!done->restorationInspectionCompleted.error&&done->restorationInspectionCompleted.canonical==RestorationMediaObservation::Verified,"Pinned Windows inspection failed");
+#else
+    auto changed=f.data;changed.back()^=1;write(f.canonical,changed);release=true;auto done=finishInspection(f);
+    check(done->restorationInspectionCompleted.error==ErrorCode::MediaMismatch&&!done->restorationInspectionCompleted.canonical,"Pinned mutation evaded final controller verification");
+#endif
+    f.unchanged(*done);
+}
+void inspectionKeepsAmbiguousLatch(){
+    std::atomic<std::uint64_t> now=0;ControllerOptions o;o.autosaveIntervalMilliseconds=10;o.autosaveNowMilliseconds=[&]{return now.load();};
+    o.restorationTerminalHook=[](std::string &wire,std::size_t){wire="{}\n";};Fixture f(o,true);f.start();auto ambiguous=f.finish();
+    check(ambiguous->assetRestorationNeedsReconciliation&&ambiguous->assetRestorationCompleted.operation.has_value(),"Ambiguous owner fixture absent");
+    const auto op=*ambiguous->assetRestorationCompleted.operation;submit(*f.controller,inspection(*ambiguous,f.asset,op));auto done=finishInspection(f);
+    check(!done->restorationInspectionCompleted.error&&done->restorationInspectionCompleted.canonical==RestorationMediaObservation::Verified&&
+        done->assetRestorationNeedsReconciliation&&!done->autosaveInhibitionToken&&!done->assetRestorationCompleted.published.has_value(),"Inspection cleared latch/token or rewrote publication history");
+    const auto serial=done->errorSerial;submit(*f.controller,{CommandKind::Save});auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+    check(refused->errorCode==ErrorCode::InvalidState&&refused->assetRestorationNeedsReconciliation,"Passive result authorized a project write");
+    now=100000;QThread::msleep(30);check(!std::filesystem::exists(f.root/"project.autosave.json")&&f.controller->snapshot()->io==IoOperation::None,"Inspection enabled timed autosave through latch");f.unchanged(*done);
+}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
