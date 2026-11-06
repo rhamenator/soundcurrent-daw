@@ -371,17 +371,23 @@ void savedInspectionRefusals(){
     check(liveRefused->session==live->session&&liveRefused->io==IoOperation::None&&!liveRefused->restorationInspectionCompleted.job,"Saved selector displaced an accepted model");
     resetCold(f);const auto empty=f.controller->snapshot();
     for(unsigned mode=0;mode<8;++mode){auto c=savedInspection(f,*empty,op);
-        if(mode==0)c.restorationInspection.reset();if(mode==1)c.restorationInspection->request=0;
-        if(mode==2)++c.restorationInspection->projectEpoch;if(mode==3)++c.restorationInspection->modelRevision;
-        if(mode==4)c.path.clear();if(mode==5)c.path="relative-project";if(mode==6)c.path=std::filesystem::path("/"+std::string(4097,'x'));
+        if(mode==0)c.restorationInspection.reset();
+        if(mode==1)c.restorationInspection->request=0;
+        if(mode==2)++c.restorationInspection->projectEpoch;
+        if(mode==3)++c.restorationInspection->modelRevision;
+        if(mode==4)c.path.clear();
+        if(mode==5)c.path="relative-project";
+        if(mode==6)c.path=f.root/std::string(4097,'x');
         if(mode==7)c.kind=CommandKind::InspectAssetRestoration;
         const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
         check(refused->io==IoOperation::None&&!refused->restorationInspectionCompleted.job,"Invalid cold context started I/O");coldOwner(*refused);
     }
     submit(*f.controller,savedInspection(f,*empty,op));auto valid=finishInspection(f);check(!valid->restorationInspectionCompleted.error,"Early cold refusal consumed usable request");
     for(unsigned mode=0;mode<5;++mode){auto c=savedInspection(f,*empty,op,mode+2);
-        if(mode==0)c.restorationInspection->project=Id::generate();if(mode==1)c.restorationInspection->asset=Id::generate();
-        if(mode==2)c.restorationInspection->operation=Id::generate();if(mode==3)c.path=f.owned.path/"absent-root";
+        if(mode==0)c.restorationInspection->project=Id::generate();
+        if(mode==1)c.restorationInspection->asset=Id::generate();
+        if(mode==2)c.restorationInspection->operation=Id::generate();
+        if(mode==3)c.path=f.owned.path/"absent-root";
         if(mode==4)write(f.root/"project.json","{}");
         const auto before=physical(f.root);submit(*f.controller,std::move(c));auto denied=finishInspection(f,mode+2);const auto &r=denied->restorationInspectionCompleted;
         check(r.error.has_value()&&r.savedManifest&&!r.ambiguityReleased&&!r.canonical&&!r.staged&&!r.receipt&&!r.sourceBytes,"Invalid cold evidence returned qualified observations");
