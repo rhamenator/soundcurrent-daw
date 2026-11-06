@@ -214,5 +214,120 @@ void inspectionKeepsAmbiguousLatch(){
     now=100000;QThread::msleep(30);check(!std::filesystem::exists(f.root/"project.autosave.json")&&f.controller->snapshot()->io==IoOperation::None,"Inspection enabled timed autosave through latch");f.unchanged(*done);
 }
 
+ProjectCommand reconciliation(const ControllerSnapshot &s,const Asset &asset,const Id &op,std::uint64_t request=1){
+    auto c=inspection(s,asset,op,request);c.kind=CommandKind::ReconcileAssetRestoration;return c;
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+ControllerOptions ambiguousOptions(){ControllerOptions o;o.restorationTerminalHook=[](std::string &wire,std::size_t){wire="{}\n";};return o;}
+void historical(const AssetRestorationCompletion &a,const AssetRestorationCompletion &b){
+    check(a.request==b.request&&a.job==b.job&&a.operation==b.operation&&a.childPid==b.childPid&&a.childExit==b.childExit&&
+        a.permitSent==b.permitSent&&a.canonicalVerified==b.canonicalVerified&&a.needsReconciliation==b.needsReconciliation&&
+        a.published==b.published&&a.receiptPublished==b.receiptPublished&&a.postCommitFlushFailed==b.postCommitFlushFailed&&
+        a.durability==b.durability&&a.error==b.error,"Reconciliation rewrote historical publication facts");
+}
+void reconciliationSuccess(){
+    std::atomic<std::uint64_t> now=0,clockCalls=0;auto o=ambiguousOptions();o.autosaveIntervalMilliseconds=10;
+    o.autosaveNowMilliseconds=[&]{++clockCalls;return now.load();};Fixture f(o,true);f.start();auto original=f.finish();
+    check(original->assetRestorationNeedsReconciliation&&!original->assetRestorationCompleted.published,"No original ambiguous publication");
+    const auto op=*original->assetRestorationCompleted.operation;const auto intent=bytes(f.root/op.str()/"intent.json"),receipt=bytes(f.root/op.str()/"receipt.json");
+    submit(*f.controller,inspection(*original,f.asset,op));auto observed=finishInspection(f);
+    check(observed->assetRestorationNeedsReconciliation&&!observed->restorationInspectionCompleted.ambiguityReleased,"Passive inspection released live guard");
+    for(unsigned mode=0;mode<6;++mode){auto c=reconciliation(*observed,f.asset,op,2);
+        if(mode==0)c.restorationInspection->asset=Id::generate();
+        if(mode==1)c.restorationInspection->operation=Id::generate();
+        if(mode==2)c.restorationInspection->project=Id::generate();
+        if(mode==3)++c.restorationInspection->projectEpoch;
+        if(mode==4)++c.restorationInspection->modelRevision;
+        if(mode==5)c.restorationInspection->request=1;
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(refused->assetRestorationNeedsReconciliation&&refused->io==IoOperation::None&&refused->restorationInspectionCompleted.job==observed->restorationInspectionCompleted.job,"Wrong original owner acquired reconciliation");historical(refused->assetRestorationCompleted,original->assetRestorationCompleted);
+    }
+    submit(*f.controller,reconciliation(*observed,f.asset,op,2));auto done=finishInspection(f,2);const auto &r=done->restorationInspectionCompleted;
+    check(!r.error&&r.ambiguityReleased&&!done->assetRestorationNeedsReconciliation&&r.canonical==RestorationMediaObservation::Verified&&
+        r.request==2&&r.job>observed->restorationInspectionCompleted.job&&r.projectEpoch==done->projectEpoch&&r.modelRevision==done->modelRevision,"Fresh reconciliation did not release exact live guard");
+    historical(done->assetRestorationCompleted,original->assetRestorationCompleted);f.unchanged(*done);
+    check(bytes(f.canonical)==f.data&&bytes(f.root/op.str()/"intent.json")==intent&&bytes(f.root/op.str()/"receipt.json")==receipt,"Reconciliation changed physical evidence");
+    const auto serial=done->errorSerial;submit(*f.controller,reconciliation(*done,f.asset,op,3));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+    check(!refused->assetRestorationNeedsReconciliation&&refused->restorationInspectionCompleted.job==r.job,"Unlatched reconciliation started");
+    const auto calls=clockCalls.load();now=100000;await(*f.controller,[&](const auto &s){return clockCalls.load()>calls&&s.autosavedRevision==s.modelRevision;});
+    check(std::filesystem::exists(f.root/"project.autosave.json")&&bytes(f.root/"project.json")==f.manifest,"Reconciliation did not restore timed autosave independently");
+    submit(*f.controller,{CommandKind::Save});auto saved=await(*f.controller,[](const auto &s){return !s.dirty&&s.io==IoOperation::None;});
+    check(ProjectStore(f.root).load()==*saved->session,"Explicit save did not resume after reconciliation");
+    submit(*f.controller,{CommandKind::Undo});auto undone=await(*f.controller,[&](const auto &s){return s.modelRevision>saved->modelRevision;});
+    check(undone->dirty&&!undone->assetRestorationNeedsReconciliation,"Undo history unavailable after live release");
+}
+void reconciliationFailures(){
+    for(unsigned mode=0;mode<8;++mode){auto o=ambiguousOptions();if(mode==7)o.admission.parserBytes=o.memoryBytes;
+        Fixture f(o,true);f.start();auto original=f.finish();const auto op=*original->assetRestorationCompleted.operation;const auto dir=f.root/op.str();
+        if(mode<2){submit(*f.controller,inspection(*original,f.asset,op));auto inspected=finishInspection(f);check(!inspected->restorationInspectionCompleted.error,"Prior observation fixture failed");}
+        if(mode==0||mode==2){check(std::filesystem::remove(f.canonical),"Could not remove canonical after publication");if(mode==2)write(dir/"media.partial",f.data);}
+        if(mode==1){auto altered=f.data;altered.back()^=1;write(f.canonical,altered);}
+        if(mode==3)write(dir/"intent.json","{}");
+        if(mode==4)write(dir/"receipt.json","{}");
+        if(mode==5){auto manifest=nlohmann::json::parse(f.manifest);manifest["name"]="Externally changed";write(f.root/"project.json",manifest.dump());}
+        if(mode==6){auto receipt=nlohmann::json::parse(bytes(dir/"receipt.json"));receipt["project"]=Id::generate().str();write(dir/"receipt.json",receipt.dump());}
+        const auto canonical=bytes(f.canonical),intent=bytes(dir/"intent.json"),receipt=bytes(dir/"receipt.json"),manifest=bytes(f.root/"project.json");
+        const auto baseline=f.controller->memoryResources().reservedBytes;
+        submit(*f.controller,reconciliation(*original,f.asset,op,2));auto denied=finishInspection(f,2);const auto &r=denied->restorationInspectionCompleted;
+        check(r.error.has_value()&&!r.ambiguityReleased&&!r.canonical&&!r.receipt&&denied->assetRestorationNeedsReconciliation&&!denied->autosaveInhibitionToken,"Unqualified physical state released guard");
+        if(mode==7)check(r.error==ErrorCode::ResourceLimit,"Reconciliation bypassed shared parser budget");
+        historical(denied->assetRestorationCompleted,original->assetRestorationCompleted);
+        check(denied->session==original->session&&denied->modelRevision==original->modelRevision&&denied->savedRevision==original->savedRevision&&denied->root==original->root,"Failed reconciliation changed model");
+        check(bytes(f.canonical)==canonical&&bytes(dir/"intent.json")==intent&&bytes(dir/"receipt.json")==receipt&&bytes(f.root/"project.json")==manifest,"Failed reconciliation changed evidence");
+        await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+        const auto serial=denied->errorSerial;submit(*f.controller,{CommandKind::Save});auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(refused->assetRestorationNeedsReconciliation,"Failed reconciliation enabled save");
+        if(mode==5){write(f.root/"project.json",f.manifest);submit(*f.controller,reconciliation(*original,f.asset,op,3));auto recovered=finishInspection(f,3);check(recovered->restorationInspectionCompleted.ambiguityReleased&&!recovered->assetRestorationNeedsReconciliation,"Restored manifest could not be freshly reconciled");}
+    }
+    Fixture clean;const auto op=stagedOperation(clean,2);submit(*clean.controller,reconciliation(*clean.initial,clean.asset,op));auto refused=await(*clean.controller,[](const auto &s){return s.restorationInspectionRejected.request==1;});
+    check(!refused->assetRestorationNeedsReconciliation&&!refused->restorationInspectionCompleted.job,"Unbound operation created reconciliation");
+}
+void reconciliationAvailableWithoutReceipt(){
+    Fixture f(ambiguousOptions());f.start();auto original=f.finish();const auto op=*original->assetRestorationCompleted.operation;
+    const auto dir=f.root/op.str();const auto intent=bytes(dir/"intent.json");
+    check(std::filesystem::remove(f.canonical),"Could not remove original canonical fixture");
+    check(std::filesystem::remove(dir/"receipt.json"),"Could not remove final receipt fixture");
+    std::error_code ignored;std::filesystem::remove(dir/"receipt.partial",ignored);
+    write(f.canonical,f.data); // Another actor can supply exact expected bytes; no publication attribution.
+    submit(*f.controller,reconciliation(*original,f.asset,op));auto done=finishInspection(f);
+    check(!done->restorationInspectionCompleted.error&&done->restorationInspectionCompleted.ambiguityReleased&&
+        done->restorationInspectionCompleted.receipt==RestorationReceiptObservation::Missing&&!done->assetRestorationNeedsReconciliation,
+        "Current canonical availability incorrectly required a final receipt");
+    check(bytes(f.canonical)==f.data&&bytes(dir/"intent.json")==intent&&!std::filesystem::exists(dir/"receipt.json")&&
+        !std::filesystem::exists(dir/"receipt.partial"),"Reconciliation fabricated publication records");
+    historical(done->assetRestorationCompleted,original->assetRestorationCompleted);f.unchanged(*done);
+}
+void reconciliationPinnedCancelClose(unsigned mode){
+    std::atomic<bool> reached=false,release=false;auto o=ambiguousOptions();o.restorationInspectionBeforeVerify=[&]{reached=true;while(!release)QThread::msleep(1);};
+    Fixture f(o,true);Release guard{release};f.start();auto original=f.finish();const auto op=*original->assetRestorationCompleted.operation;
+    submit(*f.controller,reconciliation(*original,f.asset,op));auto held=await(*f.controller,[&](const auto &s){return reached&&s.io==IoOperation::InspectAssetRestoration;});
+    check(held->assetRestorationNeedsReconciliation&&!held->autosaveInhibitionToken,"Reconciliation lost exclusive original guard");
+    for(const auto kind:{CommandKind::Save,CommandKind::Undo,CommandKind::Autosave,CommandKind::RestoreAsset,CommandKind::InspectAssetRestoration,CommandKind::ReconcileAssetRestoration}){
+        auto c=reconciliation(*held,f.asset,op,2);c.kind=kind;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(refused->io==IoOperation::InspectAssetRestoration&&refused->assetRestorationNeedsReconciliation,"Competitor stole reconciliation");}
+    if(mode==0){ProjectCommand cancel{CommandKind::CancelAssetRestorationInspection};cancel.restorationInspectionJob=held->restorationInspectionJob+1;const auto serial=f.controller->snapshot()->errorSerial;
+        submit(*f.controller,cancel);auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(refused->io==IoOperation::InspectAssetRestoration,"Wrong cancellation revoked reconciliation");
+        cancel.restorationInspectionJob=held->restorationInspectionJob;submit(*f.controller,cancel);
+        ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=523;submit(*f.controller,barrier);await(*f.controller,[](const auto &s){return s.lastBarrier==523;});}
+    if(mode==1){f.controller->requestShutdown();auto closing=await(*f.controller,[](const auto &s){return s.closing;});check(!closing->closed,"Closed before audit owner retired");}
+    if(mode==2){
+#ifdef _WIN32
+        const auto h=CreateFileW(f.canonical.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+        check(h==INVALID_HANDLE_VALUE,"Reconciliation pin allowed Windows mutation");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+#else
+        auto changed=f.data;changed.back()^=1;write(f.canonical,changed);
+#endif
+    }
+    release=true;auto done=mode==1?await(*f.controller,[](const auto &s){return s.closed;}):finishInspection(f);
+    const auto &r=done->restorationInspectionCompleted;
+#ifdef _WIN32
+    const bool allowed=mode==2;
+#else
+    const bool allowed=false;
+#endif
+    if(allowed)check(!r.error&&r.ambiguityReleased&&!done->assetRestorationNeedsReconciliation,"Pinned canonical did not qualify on Windows");
+    else check(r.error.has_value()&&!r.ambiguityReleased&&!r.canonical&&done->assetRestorationNeedsReconciliation,"Cancel/close/mutation released reconciliation guard");
+    if(mode<2)check(r.error==ErrorCode::Canceled,"Canceled reconciliation reported wrong outcome");
+    historical(done->assetRestorationCompleted,original->assetRestorationCompleted);f.unchanged(*done);
+}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

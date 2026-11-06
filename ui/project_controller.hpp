@@ -41,6 +41,7 @@ enum class CommandKind {
     RestoreAsset,
     CancelAssetRestoration,
     InspectAssetRestoration,
+    ReconcileAssetRestoration,
     CancelAssetRestorationInspection
 };
 struct StructuralGuard {
@@ -146,6 +147,7 @@ struct RestorationInspectionCompletion {
     std::uint64_t request=0,job=0,projectEpoch=0,modelRevision=0,sourceBytes=0;
     std::array<char,36> project{},asset{},operation{};
     std::array<char,64> manifestSha256{};
+    bool ambiguityReleased=false; // Fresh live reconciliation only; never historical publication attribution.
     std::optional<RestorationMediaObservation> canonical,staged;
     std::optional<RestorationReceiptObservation> receipt;
     std::optional<ErrorCode> error;
