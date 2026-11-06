@@ -728,5 +728,64 @@ void savedSourceFileBinding(){
     check(physical(f.root)==originalProject&&bytes(f.source)==originalSource,"Native source qualification changed saved evidence/source");coldOwner(*f.controller->snapshot());
 }
 
+
+void ownedStagingAudit(unsigned mode){
+    Fixture f;const auto originalOperation=stagedOperation(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto original=physical(f.root);const auto originalSource=bytes(f.source);const auto operation=Id::generate();
+    const auto otherRoot=f.owned.path/"other-native-project";
+    if(mode==3)std::filesystem::copy(f.root,otherRoot,std::filesystem::copy_options::recursive);
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,originalOperation,1024,memory);
+        const auto manifestHash=audit.manifestSha256();const auto oldContext=audit.intent().context;
+        auto scope=mode==1?memory.child(64*1024*1024,"Other live stage scope"):memory;
+        ApprovedMediaRoot selected(f.source.parent_path(),scope,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+        auto asset=f.asset;if(mode==2)asset.id=Id::generate();
+        const AssetRestorationContext current{f.initial->projectEpoch,f.initial->modelRevision,543+mode};
+        auto prepared=PreparedAssetRestoration::prepare(source,mode==3?otherRoot:f.root,asset,current,1024,{},operation);
+        const PreparedAssetRestoration *active=&prepared;std::optional<PreparedAssetRestoration> moved;
+        if(mode==4){moved.emplace(std::move(prepared));sourceRefuses([&]{audit.reverifyAfterOwnedStaging(prepared);});active=&*moved;}
+        const auto usage=memory.usage();
+        if(mode==5){std::stop_source stop;stop.request_stop();sourceRefuses([&]{audit.reverifyAfterOwnedStaging(*active,stop.get_token());},ErrorCode::Canceled);}
+        if(mode==6){memory.configure(usage.reservedBytes);sourceRefuses([&]{audit.reverifyAfterOwnedStaging(*active);},ErrorCode::ResourceLimit);memory.configure(usage.limitBytes);}
+        if(mode==7)std::filesystem::create_directory(f.root/"unrelated-after-stage");
+        bool pinned=false;
+        if(mode==8||mode==9){const auto file=f.root/(mode==8?operation:originalOperation).str()/"media.partial";
+#ifdef _WIN32
+            const auto h=CreateFileW(file.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+            check(h==INVALID_HANDLE_VALUE,"Owned/original Windows stage allowed mutation");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);pinned=true;
+#else
+            auto changed=f.data;changed.back()^=1;write(file,changed);
+#endif
+        }
+        if(mode==10){auto stale=current;++stale.request;sourceRefuses([&]{prepared.publish(asset,stale);});}
+        if(mode==11){const auto from=f.root/operation.str()/"intent.json",to=f.root/operation.str()/"retired-intent.json";
+#ifdef _WIN32
+            check(!MoveFileExW(from.c_str(),to.c_str(),0),"Live Windows intent name could be replaced");pinned=true;
+#else
+            std::filesystem::rename(from,to);const auto encoded=encodeAssetRestorationRecord(prepared.record(),AssetRestorationPhase::Planned,memory);write(from,std::string(encoded.bytes()));
+#endif
+        }
+        if(mode==12){auto late=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,originalOperation,1024,memory);
+            sourceRefuses([&]{late.reverifyAfterOwnedStaging(*active);},ErrorCode::MediaMismatch);late.reverify();++checks;}
+        const bool qualifies=mode==0||mode==4||mode==5||mode==6||mode==12||pinned;
+        if(qualifies){audit.reverifyAfterOwnedStaging(*active);++checks;
+            sourceRefuses([&]{audit.reverify();},ErrorCode::MediaMismatch);
+            audit.reverifyAfterOwnedStaging(*active);++checks;
+        }else sourceRefuses([&]{audit.reverifyAfterOwnedStaging(*active);},mode==1||mode==10?ErrorCode::InvalidState:ErrorCode::MediaMismatch);
+        if(mode==3){audit.reverify();++checks;}
+        check(memory.usage().reservedBytes==usage.reservedBytes&&memory.usage().owners==usage.owners,"Owned transition verification leaked admission credit");
+        check(audit.manifestSha256()==manifestHash&&audit.intent().context==oldContext,"Typed stage proof rebased historical audit/owner metadata");
+        check(!std::filesystem::exists(f.canonical),"Read-only staging audit published canonical media");
+        for(const auto &[name,value]:original){
+#ifndef _WIN32
+            if(mode==9&&name==std::filesystem::path(originalOperation.str())/"media.partial")continue;
+#endif
+            const auto path=f.root/name;check(value=="directory"?std::filesystem::is_directory(path):"file:"+bytes(path)==value,"Owned proof changed original saved evidence");
+        }
+        check(bytes(f.source)==originalSource,"Owned audit changed selected source bytes");f.unchanged(*f.controller->snapshot());
+    }
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Owned audit/stage native credits outlived retirement");
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -71,6 +71,11 @@ bool RestorationAudit::ownedBy(ResourceLedger memory) const {return memory.owns(
 void RestorationAudit::reverify(std::stop_token stop) {
     auto &s=state();poll(stop);
     require(s.root.directoryStamp()==s.stamp,"Restoration audit directory changed",ErrorCode::MediaMismatch);
+    reverifyFiles(stop);
+    require(s.root.directoryStamp()==s.stamp,"Restoration audit directory changed",ErrorCode::MediaMismatch);poll(stop);
+}
+void RestorationAudit::reverifyFiles(std::stop_token stop) {
+    auto &s=state();poll(stop);
     for(std::size_t i=0;i<s.files.size();++i) {
         poll(stop);
         if(s.files[i]) {
@@ -82,7 +87,21 @@ void RestorationAudit::reverify(std::stop_token stop) {
         if(now)require(now->size()==s.files[i]->size() && now->digest(stop)==s.hashes[i],
             "Restoration audit named bytes changed",ErrorCode::MediaMismatch);
     }
-    require(s.root.directoryStamp()==s.stamp,"Restoration audit directory changed",ErrorCode::MediaMismatch);poll(stop);
+}
+void RestorationAudit::reverifyAfterOwnedStaging(const PreparedAssetRestoration &prepared,std::stop_token stop) {
+    auto &s=state();poll(stop);const auto &record=prepared.record();
+    require(record.ownedBy(s.memory),"Owned restoration stage admission scope mismatch");
+    const auto &fresh=record.data();const auto &original=intent();
+    require(fresh.operation!=original.operation && fresh.asset==original.asset && fresh.relativePath==original.relativePath &&
+        fresh.content.bytes==original.content.bytes && fresh.content.sha256==original.content.sha256 &&
+        fresh.frames==original.frames && fresh.rate==original.rate && fresh.layout==original.layout,
+        "Owned restoration stage differs from original saved asset",ErrorCode::MediaMismatch);
+    auto planned=encodeAssetRestorationRecord(record,AssetRestorationPhase::Planned,s.memory,stop);
+    const auto verify=[&]{prepared.stageForAudit().verifyRestorationParentTransition(s.stamp,s.root.directoryStamp(),
+        original.content,planned.bytes(),s.memory,stop);};
+    verify();reverifyFiles(stop);verify();poll(stop);
+    // The original stamp/fingerprint stays unchanged. A generic reverify must
+    // still reject the root mutation, even after this typed proof succeeds.
 }
 namespace {
 std::unique_ptr<RestorationAuditState> inspectState(const std::filesystem::path &root,const Id &project,const Id &asset,

@@ -6,6 +6,7 @@ namespace soundcurrent::daw {
 struct StagedMediaState;
 class MediaProvenance;
 class PreparedAssetRestoration;
+class RestorationAudit;
 class OwnedInspectionProtocol;
 struct CheckedMediaBytes {
     std::uint64_t bytes = 0;
@@ -51,6 +52,9 @@ class StagedMedia {
     friend MediaCommitOutcome commitStagedMedia(StagedMedia &,const MediaProvenance &,
         std::stop_token,const StageObserver &);
     friend class PreparedAssetRestoration;
+    friend class RestorationAudit;
+    void verifyRestorationParentTransition(ApprovedDirectoryStamp before,ApprovedDirectoryStamp current,
+        CheckedMediaBytes,std::string_view plannedIntent,ResourceLedger,std::stop_token) const;
     static StagedMedia prepareRestorationStage(ApprovedMediaFile &,const std::filesystem::path &,
         CheckedMediaBytes,std::uint64_t,Id,const OwnedInspectionProtocol &,std::stop_token,const StageObserver &);
     MediaCommitOutcome restoreMissing(std::string_view,const OwnedInspectionProtocol &,const OwnedInspectionProtocol &,
