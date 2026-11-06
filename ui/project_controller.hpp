@@ -41,6 +41,7 @@ enum class CommandKind {
     RestoreAsset,
     CancelAssetRestoration,
     InspectAssetRestoration,
+    InspectSavedAssetRestoration,
     ReconcileAssetRestoration,
     CancelAssetRestorationInspection
 };
@@ -147,6 +148,7 @@ struct RestorationInspectionCompletion {
     std::uint64_t request=0,job=0,projectEpoch=0,modelRevision=0,sourceBytes=0;
     std::array<char,36> project{},asset{},operation{};
     std::array<char,64> manifestSha256{};
+    bool savedManifest=false; // Passive pre-open selection, never an accepted model.
     bool ambiguityReleased=false; // Fresh live reconciliation only; never historical publication attribution.
     std::optional<RestorationMediaObservation> canonical,staged;
     std::optional<RestorationReceiptObservation> receipt;
