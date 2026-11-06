@@ -28,6 +28,8 @@ class RestorationAudit {
   private:
     friend RestorationAudit inspectAssetRestoration(const std::filesystem::path &,const Id &,const Asset &,
         const Id &,std::uint64_t,ResourceLedger,ProjectBudget,std::stop_token);
+    friend RestorationAudit inspectSavedAssetRestoration(const std::filesystem::path &,const Id &,const Id &,
+        const Id &,std::uint64_t,ResourceLedger,ProjectBudget,std::stop_token);
     explicit RestorationAudit(std::unique_ptr<RestorationAuditState>);
     RestorationAuditState &state() const;
     std::unique_ptr<RestorationAuditState> state_;
@@ -35,5 +37,11 @@ class RestorationAudit {
 // Explicit trusted root/project/asset/operation and size budgets. Historical
 // intent/receipt tokens are compared as evidence, never used as current tokens.
 RestorationAudit inspectAssetRestoration(const std::filesystem::path &,const Id &project,const Asset &,
+    const Id &operation,std::uint64_t maximumMediaBytes,ResourceLedger,ProjectBudget = {},std::stop_token = {});
+// Pre-open observation only: resolve the selected asset descriptor from this
+// pinned, strictly decoded saved manifest. No accepted Session is required, and
+// unrelated missing media do not prevent inspection. The descriptor is passive
+// evidence, NOT checked-audio, model-adoption or current-owner authority.
+RestorationAudit inspectSavedAssetRestoration(const std::filesystem::path &,const Id &project,const Id &asset,
     const Id &operation,std::uint64_t maximumMediaBytes,ResourceLedger,ProjectBudget = {},std::stop_token = {});
 } // namespace soundcurrent::daw
