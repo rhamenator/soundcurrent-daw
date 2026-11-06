@@ -222,7 +222,16 @@ class IoWorker : public QThread {
                             !checked->childPid || checked->childExit!=0 || !checked->report || checked->replacement)
                             throw ProjectError(ErrorCode::InvalidState,"Saved source checker owner did not complete");
                         if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
-                        auto protocol=copySavedRestorationSourceProtocol(ticket,audit,*checked->report,context,checked->childPid,*next.restorationMemory,owned.stop);
+                        // Reapprove the current explicit selection after the checker
+                        // has retired its own handles; metadata alone cannot reopen it.
+                        ApprovedMediaRoot sourceRoot(owned.selectedSource.parent_path(),*next.restorationMemory,{1});
+                        auto source=sourceRoot.openSelectedFilename(owned.selectedSource.filename(),options.restorationInspectionMaximumBytes,owned.stop);
+                        verifySavedRestorationSourceFile(ticket,audit,*checked->report,context,checked->childPid,source,*next.restorationMemory,owned.stop);
+                        // The verifier above binds this immutable report both before
+                        // and after source hashing. Copy its exact admitted bytes
+                        // without a redundant third full saved-media audit pass.
+                        auto protocol=checked->report->copyProtocol(*next.restorationMemory,owned.stop);
+                        source.verifyUnchanged();
                         if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
                             throw ProjectError(ErrorCode::Canceled,"Saved source preparation canceled");
                         observed.checkedSourceSha256=checked->report->audio().sourceSha256;

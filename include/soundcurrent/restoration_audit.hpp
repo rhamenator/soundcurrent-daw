@@ -86,4 +86,13 @@ void verifySavedRestorationSourceReport(const SavedRestorationSourceTicket &,Res
 // grants no source/destination access, staging, model adoption or publication.
 OwnedInspectionProtocol copySavedRestorationSourceProtocol(const SavedRestorationSourceTicket &,RestorationAudit &,
     const WaveCheckReport &,SavedRestorationSourceContext,std::size_t observedPid,ResourceLedger,std::stop_token = {});
+// I/O-only qualification of a freshly approved explicit source handle against
+// the current saved owner and completed checker. No pathname reopen or decode;
+// the actual checker must already have decoded finite audio. Re-hashes the
+// entire bounded pinned source and re-verifies source and saved evidence after
+// hashing. The serialized caller retains the native handle and must revalidate
+// before later use. This grants no staging/publication/model-adoption authority.
+void verifySavedRestorationSourceFile(const SavedRestorationSourceTicket &,RestorationAudit &,
+    const WaveCheckReport &,SavedRestorationSourceContext,std::size_t observedPid,ApprovedMediaFile &,
+    ResourceLedger,std::stop_token = {},const std::function<void()> &beforeChunk = {});
 } // namespace soundcurrent::daw

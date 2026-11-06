@@ -656,6 +656,7 @@ void savedPreparationCancelClose(unsigned mode){
         auto changed=f.data;changed.back()^=1;write(staged,changed);
 #endif
     }
+    if(mode==5){auto changed=f.data;changed.back()^=1;write(f.source,changed);}
     const auto before=physical(f.root);release=true;auto done=(mode==1||mode==3)?await(*f.controller,[](const auto &s){return s.closed;}):finishInspection(f);
     const auto &r=done->restorationInspectionCompleted;
 #ifdef _WIN32
@@ -665,7 +666,8 @@ void savedPreparationCancelClose(unsigned mode){
 #endif
     if(qualifies)check(!r.error&&r.sourcePrepared&&done->restorationPreparedSource==r.job,"Pinned Windows source preparation failed");
     else check(r.error.has_value()&&!r.sourcePrepared&&!r.canonical&&!done->restorationPreparedSource,"Canceled/changed source owner returned readiness");
-    if(mode!=4)check(r.error==ErrorCode::Canceled,"Source cancel/close reported wrong result");
+    if(mode<4)check(r.error==ErrorCode::Canceled,"Source cancel/close reported wrong result");
+    if(mode==5)check(r.error==ErrorCode::MediaMismatch,"Source changed after checker reap qualified readiness");
     if(mode>=2)check(r.checkerPid&&r.checkerExit==0,"Terminal/final cancellation lost actual reaped checker facts");
     check(physical(f.root)==before,"Source cancellation/final verification changed evidence");coldOwner(*done);
 #ifdef _WIN32
@@ -674,5 +676,57 @@ void savedPreparationCancelClose(unsigned mode){
 #endif
 }
 
+
+void savedSourceFileBinding(){
+    Fixture f;const auto operation=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto originalProject=physical(f.root);const auto originalSource=bytes(f.source);
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,operation,1024,memory);
+        const auto nativeName=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(nativeName.data()),nativeName.size());
+        const SavedRestorationSourceContext context{0,0,539,1};SavedRestorationSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);
+         check(checker.submitReplacement(f.source)==Admission::Accepted,"Fresh source-file checker refused");checked=finishSource(checker);}
+        check(checked->job==1&&checked->phase==WaveCheckPhase::Complete&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,
+            "Source-file fixture lacks actual completed/reaped checker");
+        const auto &report=*checked->report;const auto pid=checked->childPid;
+        auto verify=[&](ApprovedMediaFile &source,std::stop_token stop={},const std::function<void()> &hook={}){
+            verifySavedRestorationSourceFile(ticket,audit,report,context,pid,source,memory,stop,hook);};
+        {
+            ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+            const auto before=memory.usage();unsigned chunks=0;verify(source,{},[&]{++chunks;});
+            check(chunks==1&&selected.openFiles()==1&&source.ownedBy(memory),"Saved native source was not hashed/retained under its original owner");
+            check(memory.usage().reservedBytes==before.reservedBytes&&memory.usage().owners==before.owners,"Native source qualification leaked work credit");
+            auto stale=context;++stale.request;bool read=false;
+            sourceRefuses([&]{verifySavedRestorationSourceFile(ticket,audit,report,stale,pid,source,memory,{},[&]{read=true;});});
+            check(!read,"Stale source owner reached native hashing");
+            sourceRefuses([&]{verifySavedRestorationSourceFile(ticket,audit,report,context,pid+1,source,memory);});
+            std::stop_source canceled;canceled.request_stop();sourceRefuses([&]{verify(source,canceled.get_token());},ErrorCode::Canceled);
+            std::stop_source mid;sourceRefuses([&]{verify(source,mid.get_token(),[&]{mid.request_stop();});},ErrorCode::Canceled);
+            check(memory.usage().reservedBytes==before.reservedBytes&&memory.usage().owners==before.owners,"Canceled source read leaked work credit");
+            memory.configure(before.reservedBytes);sourceRefuses([&]{verify(source);},ErrorCode::ResourceLimit);memory.configure(before.limitBytes);
+            check(memory.usage().reservedBytes==before.reservedBytes&&memory.usage().owners==before.owners,"Unadmitted source qualification leaked credit");
+            auto moved=std::move(source);sourceRefuses([&]{verify(source);});verify(moved);++checks;
+        }
+        for(unsigned kind=0;kind<2;++kind){ResourceLedger foreign(1024*1024,"Foreign source files");auto sibling=memory.child(1024*1024,"Sibling source files");
+            auto scope=kind?sibling:foreign;ApprovedMediaRoot selected(f.source.parent_path(),scope,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+            check(source.ownedBy(scope)&&!source.ownedBy(memory),"Native source scope confused with another ledger");sourceRefuses([&]{verify(source);});}
+        for(unsigned kind=0;kind<2;++kind){auto different=f.data;if(kind==0)different.back()^=1;else different+='x';write(f.source,different);
+            {ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+             sourceRefuses([&]{verify(source);},ErrorCode::MediaMismatch);}
+            write(f.source,f.data);
+        }
+        {
+            ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+            bool changed=false;sourceRefuses([&]{verify(source,{},[&]{write(f.canonical,f.data);changed=true;});},ErrorCode::MediaMismatch);
+            check(changed,"Final saved audit mutation was not exercised during source hash");
+            check(bytes(f.source)==originalSource,"Source qualification changed source bytes");
+            check(std::filesystem::remove(f.canonical),"Cannot retire intentional saved visibility mutation");
+        }
+    }
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved native source owners outlived their credit");
+    check(physical(f.root)==originalProject&&bytes(f.source)==originalSource,"Native source qualification changed saved evidence/source");coldOwner(*f.controller->snapshot());
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<5;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -36,6 +36,7 @@ class ApprovedMediaFile {
     std::size_t chargedBytes() const;
     // Shared control/I/O admission scope for work performed on this owned file.
     ResourceLedger resourceLedger() const;
+    bool ownedBy(ResourceLedger) const;
   private:
     friend class ApprovedMediaRoot;
     explicit ApprovedMediaFile(std::unique_ptr<ApprovedMediaFileState>);

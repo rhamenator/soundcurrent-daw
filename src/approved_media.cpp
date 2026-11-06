@@ -238,6 +238,10 @@ ApprovedMediaFile::~ApprovedMediaFile()=default;
 std::uint64_t ApprovedMediaFile::size() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->initial.size; }
 std::size_t ApprovedMediaFile::chargedBytes() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->lease.bytes(); }
 ResourceLedger ApprovedMediaFile::resourceLedger() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->root->resources; }
+bool ApprovedMediaFile::ownedBy(ResourceLedger memory) const {
+    require(bool(state_),"Retired approved media",ErrorCode::InvalidState);
+    return memory.owns(state_->lease) && memory.owns(state_->root->lease);
+}
 void ApprovedMediaFile::verifyUnchanged() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);require(information(state_->file)==state_->initial,"Approved media changed during reading",ErrorCode::MediaMismatch); }
 void ApprovedMediaFile::readAt(std::uint64_t offset,std::span<char> target,std::stop_token stop) {
     poll(stop);const auto length=size();require(target.size()<=65536 && offset<=length && target.size()<=length-offset,
