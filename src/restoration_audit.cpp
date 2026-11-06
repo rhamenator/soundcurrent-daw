@@ -184,4 +184,20 @@ OwnedInspectionProtocol copySavedRestorationSourceProtocol(const SavedRestoratio
     verifySavedRestorationSourceReport(ticket,audit,report,context,pid,memory,stop);
     return report.copyProtocol(memory,stop);
 }
+void verifySavedRestorationSourceFile(const SavedRestorationSourceTicket &ticket,RestorationAudit &audit,
+    const WaveCheckReport &report,SavedRestorationSourceContext context,std::size_t pid,ApprovedMediaFile &source,
+    ResourceLedger memory,std::stop_token stop,const std::function<void()> &beforeChunk) {
+    poll(stop);require(source.ownedBy(memory),"Saved source file admission scope mismatch");
+    verifySavedRestorationSourceReport(ticket,audit,report,context,pid,memory,stop);
+    const auto &audio=report.audio();
+    require(source.size()==audio.sourceBytes,"Saved source file extent differs from checked source",ErrorCode::MediaMismatch);
+    source.verifyUnchanged();
+    require(source.digest(stop,beforeChunk)==audio.sourceSha256,
+        "Saved source file differs from checked content",ErrorCode::MediaMismatch);
+    source.verifyUnchanged();
+    // The bounded read can take time. Check current saved evidence and owner
+    // again after it, rather than relying on the audit from before the read.
+    verifySavedRestorationSourceReport(ticket,audit,report,context,pid,memory,stop);
+    source.verifyUnchanged();poll(stop);
+}
 } // namespace soundcurrent::daw
