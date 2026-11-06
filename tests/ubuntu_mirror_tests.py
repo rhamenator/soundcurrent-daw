@@ -38,6 +38,42 @@ class MirrorTests(unittest.TestCase):
             text = 'deb ' + uri + ' noble main\n'
             self.assertEqual(mirror.rewrite(text, False), text)
 
+    def test_reviewed_runner_mirror_list_uri(self):
+        for deb822, original in [(True, 'Types: deb\nURIs: mirror+file:/etc/apt/apt-mirrors.txt\nSuites: noble noble-updates noble-backports noble-security\nComponents: main universe\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n'),
+                                 (False, 'deb [arch=amd64 signed-by=/keys/ubuntu.gpg] mirror+file:/etc/apt/apt-mirrors.txt noble main\n')]:
+            expected = original.replace(mirror.MIRROR_LIST, mirror.PRIMARY)
+            counts = dict(primaryUriTokens=0, replacedMirrorListUris=0)
+            self.assertEqual(mirror.rewrite(original, deb822, counts), expected)
+            self.assertEqual(counts, dict(primaryUriTokens=1, replacedMirrorListUris=1))
+            self.assertEqual(mirror.rewrite(expected, deb822), expected)
+        for uri in ('mirror+file:/etc/apt/foreign.txt', 'mirror+file:/etc/apt/apt-mirrors.txt.other',
+                    'mirror+http://azure.archive.ubuntu.com/ubuntu'):
+            text = 'URIs: ' + uri + '\n'
+            self.assertEqual(mirror.rewrite(text, True), text)
+
+    def test_indirect_runner_file_and_no_silent_layout_noop(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); directory = root / 'sources.list.d'; directory.mkdir()
+            path = directory / 'ubuntu.sources'
+            original = b'URIs: mirror+file:/etc/apt/apt-mirrors.txt\nSuites: noble noble-security\nSigned-By: /keys/ubuntu.gpg\n'
+            path.write_bytes(original)
+            # The mirror-list file itself is never opened, followed or modified.
+            mirror_list = root / 'apt-mirrors.txt'; mirror_list.write_bytes(b'unrelated untouched bytes')
+            result = mirror.prepare(root)
+            self.assertEqual(result['changedFiles'], 1)
+            self.assertEqual(result['replacedMirrorListUris'], 1)
+            self.assertEqual(result['primaryUriTokens'], 1)
+            self.assertEqual(mirror_list.read_bytes(), b'unrelated untouched bytes')
+            self.assertEqual(path.read_bytes(), original.replace(mirror.MIRROR_LIST.encode(), mirror.PRIMARY.encode()))
+            again = mirror.prepare(root)
+            self.assertEqual(again['changedFiles'], 0)
+            self.assertEqual(again['primaryUriTokens'], 1)
+            self.assertEqual(again['replacedMirrorListUris'], 0)
+            path.write_bytes(b'# URIs: https://archive.ubuntu.com/ubuntu\nURIs: mirror+file:/etc/apt/foreign.txt\n')
+            before = path.read_bytes()
+            with self.assertRaisesRegex(ValueError, 'No approved primary'): mirror.prepare(root)
+            self.assertEqual(path.read_bytes(), before)
+
     def test_non_uri_fields_and_paragraph_boundaries(self):
         for text in ('# URIs: http://azure.archive.ubuntu.com/ubuntu\n',
                      'Signed-By: http://azure.archive.ubuntu.com/ubuntu\n',

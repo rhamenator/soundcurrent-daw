@@ -4,12 +4,20 @@
 from pathlib import Path
 import argparse, hashlib, json, os, re, stat
 
-AZURE = re.compile(r'(?<!\S)https?://azure\.archive\.ubuntu\.com/ubuntu(/?)(?!\S)')
+ARCHIVE_URI = re.compile(r'(?<!\S)(?:https?://azure\.archive\.ubuntu\.com/ubuntu(/?)|mirror\+file:/etc/apt/apt-mirrors\.txt)(?!\S)')
+MIRROR_LIST = 'mirror+file:/etc/apt/apt-mirrors.txt'
 PRIMARY = 'https://archive.ubuntu.com/ubuntu'
 
 
-def rewrite(text, deb822):
+def rewrite(text, deb822, evidence=None):
     """Change URI fields only; preserve suites, keys, options and comments."""
+    def translated(body):
+        updated = ARCHIVE_URI.sub(lambda m: PRIMARY + (m[1] or ''), body)
+        if evidence is not None:
+            evidence['replacedMirrorListUris'] += sum(token == MIRROR_LIST for token in body.split())
+            evidence['primaryUriTokens'] += sum(token in (PRIMARY, PRIMARY + '/') for token in updated.split())
+        return updated
+
     output = []
     uri_continuation = False
     for line in text.splitlines(keepends=True):
@@ -39,9 +47,9 @@ def rewrite(text, deb822):
                 output.append(line)
                 continue
             prefix, uri, rest = match.groups()
-            output.append(prefix + AZURE.sub(lambda m: PRIMARY + m[1], uri) + rest + separator + comment)
+            output.append(prefix + translated(uri) + rest + separator + comment)
             continue
-        output.append(prefix + AZURE.sub(lambda m: PRIMARY + m[1], body) + separator + comment)
+        output.append(prefix + translated(body) + separator + comment)
     return ''.join(output)
 
 
@@ -64,16 +72,21 @@ def prepare(root):
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
             raise ValueError('APT source must be a plain unshared file')
         original = path.read_bytes()
-        updated = rewrite(original.decode('utf-8'), path.suffix == '.sources').encode('utf-8')
-        rows.append(dict(path=str(path.relative_to(root)), changed=updated != original,
+        counts = dict(replacedMirrorListUris=0, primaryUriTokens=0)
+        updated = rewrite(original.decode('utf-8'), path.suffix == '.sources', counts).encode('utf-8')
+        rows.append(dict(path=str(path.relative_to(root)), changed=updated != original, **counts,
                          beforeSha256=hashlib.sha256(original).hexdigest(),
                          afterSha256=hashlib.sha256(updated).hexdigest()))
         if original != updated:
             changes.append((path, updated))
+    if not any(row['primaryUriTokens'] for row in rows):
+        raise ValueError('No approved primary Ubuntu archive URI; runner source layout needs review')
     for path, updated in changes:
         path.write_bytes(updated)  # Preserve the existing file's owner and mode.
     return dict(format='sc-ci-ubuntu-mirror-v1', changedFiles=len(changes), files=rows,
-                packageAuthentication='unchanged', primary=PRIMARY)
+                packageAuthentication='unchanged', primary=PRIMARY,
+                primaryUriTokens=sum(row['primaryUriTokens'] for row in rows),
+                replacedMirrorListUris=sum(row['replacedMirrorListUris'] for row in rows))
 
 
 def main():
