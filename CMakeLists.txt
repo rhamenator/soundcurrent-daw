@@ -55,6 +55,8 @@ target_link_libraries(sc-comp-processing-plan PUBLIC sc-comp-handle-pcm sc-posit
 if(BUILD_TESTING)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
   add_test(NAME ci-shard-coverage COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/ci_shard_tests.py)
+  add_test(NAME ci-ubuntu-mirror-policy COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/ubuntu_mirror_tests.py)
+  set_tests_properties(ci-ubuntu-mirror-policy PROPERTIES TIMEOUT 30)
   add_executable(sc-exact-processing-grid-tests tests/exact_processing_grid_tests.cpp)
   target_link_libraries(sc-exact-processing-grid-tests PRIVATE sc-positioned-resampling)
   target_include_directories(sc-exact-processing-grid-tests SYSTEM PRIVATE third_party)
