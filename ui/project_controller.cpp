@@ -52,14 +52,17 @@ Session retainLoop(const Session &s,const LoopTakeRetention &r,const std::string
     return withLoopTakeLanes(s,r.take->context.intent,r.take->sources,r.first,r.count,name,r.allowPartial,budget);
 }
 
+enum class InspectionPurpose { AcceptedAsset, Reconcile, SavedManifest };
 struct InspectionJobData {
     ResourceLease lease; // Request bytes retire before their admitted credit.
     RestorationInspectionRequest input;
+    std::filesystem::path selectedRoot; // Retires before the shared request credit.
     std::uint64_t job;
     std::stop_token stop;
-    bool reconcile;
-    InspectionJobData(ResourceLease grant,const RestorationInspectionRequest &request,std::uint64_t id,std::stop_token token,bool reconciliation)
-        :lease(std::move(grant)),input(request),job(id),stop(token),reconcile(reconciliation) {}
+    InspectionPurpose purpose;
+    InspectionJobData(ResourceLease grant,const RestorationInspectionRequest &request,std::uint64_t id,std::stop_token token,
+        InspectionPurpose kind,std::filesystem::path root={})
+        :lease(std::move(grant)),input(request),selectedRoot(std::move(root)),job(id),stop(token),purpose(kind) {}
 };
 struct IoJob {
     IoOperation operation = IoOperation::None;
@@ -157,12 +160,17 @@ class IoWorker : public QThread {
                 else if (next.operation == IoOperation::InspectAssetRestoration) {
                     const auto &owned=*next.inspection;const auto &request=owned.input;
                     if(owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Restoration inspection canceled");
-                    const auto asset=std::find_if(next.session->assets.begin(),next.session->assets.end(),
-                        [&](const Asset &a){return a.id==request.asset;});
-                    if(asset==next.session->assets.end())throw ProjectError(ErrorCode::InvalidState,"Inspection asset is absent from accepted model");
-                    auto audit=inspectAssetRestoration(next.root,next.session->id,*asset,request.operation,
-                        options.restorationInspectionMaximumBytes,*next.restorationMemory,options.admission,owned.stop);
-                    if(owned.reconcile && (!next.inspectionSavedModel || audit.manifest()!=*next.inspectionSavedModel ||
+                    auto audit=[&] {
+                        if(owned.purpose==InspectionPurpose::SavedManifest)
+                            return inspectSavedAssetRestoration(owned.selectedRoot,request.project,request.asset,request.operation,
+                                options.restorationInspectionMaximumBytes,*next.restorationMemory,options.admission,owned.stop);
+                        const auto asset=std::find_if(next.session->assets.begin(),next.session->assets.end(),
+                            [&](const Asset &a){return a.id==request.asset;});
+                        if(asset==next.session->assets.end())throw ProjectError(ErrorCode::InvalidState,"Inspection asset is absent from accepted model");
+                        return inspectAssetRestoration(next.root,next.session->id,*asset,request.operation,
+                            options.restorationInspectionMaximumBytes,*next.restorationMemory,options.admission,owned.stop);
+                    }();
+                    if(owned.purpose==InspectionPurpose::Reconcile && (!next.inspectionSavedModel || audit.manifest()!=*next.inspectionSavedModel ||
                         audit.canonical()!=RestorationMediaObservation::Verified))
                         throw ProjectError(ErrorCode::MediaMismatch,"Reconciliation needs the saved manifest and verified canonical media");
                     if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
@@ -173,7 +181,7 @@ class IoWorker : public QThread {
                     const auto uuid=[](const Id &id){std::array<char,36> bytes{};
                         if(id.str().size()!=bytes.size())throw ProjectError(ErrorCode::InvalidId,"Invalid inspection identity");
                         std::copy(id.str().begin(),id.str().end(),bytes.begin());return bytes;};
-                    value.project=uuid(next.session->id);value.asset=uuid(audit.intent().asset);value.operation=uuid(audit.intent().operation);
+                    value.project=uuid(audit.manifest().id);value.asset=uuid(audit.intent().asset);value.operation=uuid(audit.intent().operation);
                     value.manifestSha256=audit.manifestSha256();value.sourceBytes=audit.intent().content.bytes;
                     value.canonical=audit.canonical();value.staged=audit.staged();value.receipt=audit.receipt();
                     // Audit/native pins and passive manifest retire here on I/O,
@@ -420,21 +428,34 @@ struct ProjectController::State : QThread {
             command.kind!=CommandKind::InspectAssetRestoration && command.kind!=CommandKind::ReconcileAssetRestoration))
             throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
         switch (command.kind) {
+        case CommandKind::InspectSavedAssetRestoration:
         case CommandKind::InspectAssetRestoration:
         case CommandKind::ReconcileAssetRestoration: {
             const bool reconcile=command.kind==CommandKind::ReconcileAssetRestoration;
-            requireModel();
+            const bool saved=command.kind==CommandKind::InspectSavedAssetRestoration;
+            if(saved) {
+                if(model || view.session || !view.root.empty() || command.path.empty() || !command.path.is_absolute() ||
+                    command.path.native().size()>4096)
+                    throw ProjectError(ErrorCode::InvalidState,"Saved inspection needs an empty controller and selected absolute root");
+            } else requireModel();
             if(!command.restorationInspection || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
                 lastInspectionJob==std::numeric_limits<std::uint64_t>::max())
                 throw ProjectError(ErrorCode::InvalidState,"Restoration inspection owner cannot be acquired");
             const auto &request=*command.restorationInspection;
-            if(!request.request || request.request<=lastInspectionRequest || request.project!=model->id ||
+            if(!request.request || request.request<=lastInspectionRequest || (!saved && request.project!=model->id) ||
                 request.projectEpoch!=view.projectEpoch || request.modelRevision!=view.modelRevision)
                 throw ProjectError(ErrorCode::InvalidState,"Stale restoration inspection owner");
             if(reconcile && (!view.assetRestorationNeedsReconciliation || !reconciliation.matches(request) || !savedModel))
                 throw ProjectError(ErrorCode::InvalidState,"Reconciliation differs from the original ambiguous owner");
             const auto jobId=lastInspectionJob+1;std::stop_source cancel;
-            auto owned=std::make_shared<const InspectionJobData>(memory.reserve(sizeof(InspectionJobData)+4096),request,jobId,cancel.get_token(),reconcile);
+            PayloadCharge metadata("Restoration inspection request",SIZE_MAX);metadata.add(sizeof(InspectionJobData)+4096);
+            // Capture the explicitly selected path in the admitted owner, never
+            // in view.root. Its native storage retires before this owner's credit.
+            if(saved){metadata.add(command.path.native().capacity(),sizeof(std::filesystem::path::value_type)*8);
+                metadata.add(sizeof(std::filesystem::path::value_type)*8);}
+            auto owned=std::make_shared<const InspectionJobData>(memory.reserve(metadata.bytes()),request,jobId,cancel.get_token(),
+                saved ? InspectionPurpose::SavedManifest : reconcile ? InspectionPurpose::Reconcile : InspectionPurpose::AcceptedAsset,
+                saved ? std::move(command.path) : std::filesystem::path{});
             IoJob job{IoOperation::InspectAssetRestoration,view.root,view.session,view.modelRevision};
             job.projectEpoch=view.projectEpoch;job.inspection=std::move(owned);job.restorationMemory=memory;
             if(reconcile)job.inspectionSavedModel=savedModel;
@@ -894,6 +915,7 @@ struct ProjectController::State : QThread {
         if(result.job.operation==IoOperation::InspectAssetRestoration) {
             const auto &owned=*result.job.inspection;const auto &request=owned.input;
             auto value=result.inspection;value.request=request.request;value.job=owned.job;
+            value.savedManifest=owned.purpose==InspectionPurpose::SavedManifest;
             value.projectEpoch=result.job.projectEpoch;value.modelRevision=result.job.revision;
             value.error=result.error;
             QMutexLocker permission(&io.restorationPermitMutex);
@@ -901,7 +923,7 @@ struct ProjectController::State : QThread {
             else if(view.restorationInspectionJob!=owned.job || view.projectEpoch!=result.job.projectEpoch ||
                 view.modelRevision!=result.job.revision || view.root!=result.job.root || view.session!=result.job.session)
                 value.error=ErrorCode::InvalidState;
-            if(!value.error && owned.reconcile) {
+            if(!value.error && owned.purpose==InspectionPurpose::Reconcile) {
                 if(!view.assetRestorationNeedsReconciliation || !reconciliation.matches(request) ||
                     savedModel!=result.job.inspectionSavedModel || value.canonical!=RestorationMediaObservation::Verified)
                     value.error=ErrorCode::InvalidState;
@@ -1130,7 +1152,7 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
-                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::ReconcileAssetRestoration)
+                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,e.code(),"Restoration inspection owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,e.code(),"Restoration owner refused"};
@@ -1157,7 +1179,7 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
-                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::ReconcileAssetRestoration)
+                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,ErrorCode::Io,"Restoration inspection owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,ErrorCode::Io,"Restoration owner refused"};

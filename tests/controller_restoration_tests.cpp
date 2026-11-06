@@ -8,6 +8,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <map>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -329,5 +330,135 @@ void reconciliationPinnedCancelClose(unsigned mode){
     historical(done->assetRestorationCompleted,original->assetRestorationCompleted);f.unchanged(*done);
 }
 
+ProjectCommand savedInspection(const Fixture &f,const ControllerSnapshot &empty,const Id &op,std::uint64_t request=1){
+    ProjectCommand c{CommandKind::InspectSavedAssetRestoration};c.path=f.root;
+    c.restorationInspection=RestorationInspectionRequest{f.initial->session->id,f.asset.id,op,empty.projectEpoch,empty.modelRevision,request};return c;
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+void coldOwner(const ControllerSnapshot &s){
+    check(!s.session&&s.root.empty()&&!s.projectEpoch&&!s.modelRevision&&!s.savedRevision&&!s.dirty&&
+        !s.autosaveInhibitionToken&&!s.assetRestorationNeedsReconciliation,"Saved inspection adopted a project or owner");
+}
+void resetCold(Fixture &f,ControllerOptions o={}){f.controller.reset();f.controller=std::make_unique<ProjectController>(std::move(o));coldOwner(*f.controller->snapshot());}
+auto physical(const std::filesystem::path &root){
+    std::map<std::filesystem::path,std::string> result;
+    for(const auto &e:std::filesystem::recursive_directory_iterator(root)){
+        check(!e.is_symlink(),"Unexpected cold inspection fixture link");result.emplace(e.path().lexically_relative(root),e.is_directory()?"directory":"file:"+bytes(e.path()));}
+    return result;
+}
+void savedInspectionStates(){
+    for(unsigned mode=0;mode<4;++mode){Fixture f;const auto op=stagedOperation(f,mode);
+        auto saved=decodeProject(f.manifest);auto other=f.asset;other.id=Id::generate();other.relativePath="media/unrelated-missing.wav";saved.assets.push_back(other);
+        f.manifest=encodeProject(saved);write(f.root/"project.json",f.manifest);resetCold(f);const auto baseline=f.controller->memoryResources().reservedBytes;
+        const auto empty=f.controller->snapshot();const auto before=physical(f.root);submit(*f.controller,savedInspection(f,*empty,op));auto done=finishInspection(f);const auto &r=done->restorationInspectionCompleted;
+        check(!r.error&&r.savedManifest&&!r.ambiguityReleased&&r.request==1&&r.job&&r.projectEpoch==0&&r.modelRevision==0,"Cold inspection result/owner correlation failed");
+        check(r.canonical==(mode>=2?RestorationMediaObservation::Verified:RestorationMediaObservation::Missing)&&
+            r.staged==(mode>=2?RestorationMediaObservation::Missing:RestorationMediaObservation::Verified)&&
+            r.receipt==(mode==0?RestorationReceiptObservation::Missing:mode==2?RestorationReceiptObservation::Final:RestorationReceiptObservation::Partial),"Cold inspection physical truth differs");
+        check(r.sourceBytes==52&&std::string(r.project.begin(),r.project.end())==saved.id.str()&&std::string(r.asset.begin(),r.asset.end())==f.asset.id.str()&&
+            std::string(r.operation.begin(),r.operation.end())==op.str(),"Cold selector identity/extent lost");coldOwner(*done);
+        check(physical(f.root)==before,"Cold inspection wrote evidence");await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+        ProjectCommand open{CommandKind::Open};open.path=f.root;const auto serial=done->errorSerial;submit(*f.controller,open);
+        auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial&&s.io==IoOperation::None;});
+        check(refused->errorCode==ErrorCode::MissingMedia&&refused->restorationInspectionCompleted.job==r.job,"Cold observations bypassed strict open or destroyed completion");coldOwner(*refused);
+        submit(*f.controller,savedInspection(f,*refused,op));auto replay=await(*f.controller,[&](const auto &s){return s.restorationInspectionRejected.request==1;});
+        check(replay->restorationInspectionRejected.error==ErrorCode::InvalidState&&replay->restorationInspectionCompleted.job==r.job,"Cold request replayed across failed open");
+        submit(*f.controller,savedInspection(f,*replay,op,2));auto fresh=finishInspection(f,2);check(!fresh->restorationInspectionCompleted.error&&fresh->restorationInspectionCompleted.job>r.job,"Fresh cold inspection could not reacquire owner");coldOwner(*fresh);
+    }
+}
+void savedInspectionRefusals(){
+    Fixture f;const auto op=stagedOperation(f);const auto live=f.controller->snapshot();submit(*f.controller,savedInspection(f,*live,op));
+    auto liveRefused=await(*f.controller,[](const auto &s){return s.restorationInspectionRejected.request==1;});
+    check(liveRefused->session==live->session&&liveRefused->io==IoOperation::None&&!liveRefused->restorationInspectionCompleted.job,"Saved selector displaced an accepted model");
+    resetCold(f);const auto empty=f.controller->snapshot();
+    for(unsigned mode=0;mode<8;++mode){auto c=savedInspection(f,*empty,op);
+        if(mode==0)c.restorationInspection.reset();
+        if(mode==1)c.restorationInspection->request=0;
+        if(mode==2)++c.restorationInspection->projectEpoch;
+        if(mode==3)++c.restorationInspection->modelRevision;
+        if(mode==4)c.path.clear();
+        if(mode==5)c.path="relative-project";
+        if(mode==6)c.path=f.root/std::string(4097,'x');
+        if(mode==7)c.kind=CommandKind::InspectAssetRestoration;
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(refused->io==IoOperation::None&&!refused->restorationInspectionCompleted.job,"Invalid cold context started I/O");coldOwner(*refused);
+    }
+    submit(*f.controller,savedInspection(f,*empty,op));auto valid=finishInspection(f);check(!valid->restorationInspectionCompleted.error,"Early cold refusal consumed usable request");
+    for(unsigned mode=0;mode<5;++mode){auto c=savedInspection(f,*empty,op,mode+2);
+        if(mode==0)c.restorationInspection->project=Id::generate();
+        if(mode==1)c.restorationInspection->asset=Id::generate();
+        if(mode==2)c.restorationInspection->operation=Id::generate();
+        if(mode==3)c.path=f.owned.path/"absent-root";
+        if(mode==4)write(f.root/"project.json","{}");
+        const auto before=physical(f.root);submit(*f.controller,std::move(c));auto denied=finishInspection(f,mode+2);const auto &r=denied->restorationInspectionCompleted;
+        check(r.error.has_value()&&r.savedManifest&&!r.ambiguityReleased&&!r.canonical&&!r.staged&&!r.receipt&&!r.sourceBytes,"Invalid cold evidence returned qualified observations");
+        check(physical(f.root)==before,"Cold refusal changed physical evidence");coldOwner(*denied);
+    }
+    write(f.root/"project.json",f.manifest);ControllerOptions quota;quota.admission.parserBytes=quota.memoryBytes;resetCold(f,quota);
+    const auto baseline=f.controller->memoryResources().reservedBytes;submit(*f.controller,savedInspection(f,*f.controller->snapshot(),op));auto denied=finishInspection(f);
+    check(denied->restorationInspectionCompleted.error==ErrorCode::ResourceLimit&&denied->restorationInspectionCompleted.savedManifest&&!denied->restorationInspectionCompleted.canonical,"Cold parser bypassed shared ledger");
+    await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;coldOwner(*denied);
+    ControllerOptions tiny;tiny.memoryBytes=128;resetCold(f,tiny);submit(*f.controller,savedInspection(f,*f.controller->snapshot(),op));
+    auto noOwner=await(*f.controller,[](const auto &s){return s.restorationInspectionRejected.request==1;});
+    check(noOwner->restorationInspectionRejected.error==ErrorCode::ResourceLimit&&noOwner->io==IoOperation::None&&!noOwner->restorationInspectionCompleted.job,"Unadmitted cold request started I/O");coldOwner(*noOwner);
+}
+void savedInspectionThenExplicitOpen(){
+    Fixture f;const auto op=stagedOperation(f,2);resetCold(f);const auto empty=f.controller->snapshot();
+    submit(*f.controller,savedInspection(f,*empty,op));auto observed=finishInspection(f);coldOwner(*observed);
+    const auto job=observed->restorationInspectionCompleted.job;ProjectCommand open{CommandKind::Open};open.path=f.root;submit(*f.controller,open);
+    auto opened=await(*f.controller,[](const auto &s){return s.session&&s.io==IoOperation::None;});
+    check(opened->root==f.root&&opened->projectEpoch>empty->projectEpoch&&*opened->session==decodeProject(f.manifest),"Explicit Open failed normal project adoption");
+    check(opened->restorationInspectionCompleted.job==job&&opened->restorationInspectionCompleted.savedManifest,"Explicit Open rewrote passive provenance");
+    const auto serial=opened->errorSerial;submit(*f.controller,inspection(*opened,f.asset,op));auto replay=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+    check(replay->restorationInspectionRejected.request==1&&replay->restorationInspectionCompleted.job==job&&replay->io==IoOperation::None,"Successful Open reset consumed cold request namespace");
+    auto fresh=inspection(*opened,f.asset,op,2);fresh.path=f.owned.path/"unrelated-selected-root";submit(*f.controller,std::move(fresh));auto live=finishInspection(f,2);
+    check(!live->restorationInspectionCompleted.error&&!live->restorationInspectionCompleted.savedManifest&&!live->restorationInspectionCompleted.ambiguityReleased&&
+        live->restorationInspectionCompleted.projectEpoch==opened->projectEpoch&&live->restorationInspectionCompleted.modelRevision==opened->modelRevision&&
+        live->restorationInspectionCompleted.canonical==RestorationMediaObservation::Verified,"Live inspection used passive owner/root or lost provenance");
+    check(live->session==opened->session&&live->root==opened->root&&bytes(f.root/"project.json")==f.manifest,"Inspection changed explicitly opened project");
+}
+void savedInspectionCancelClose(unsigned mode){
+    std::atomic<bool> reached=false,release=false;ControllerOptions o;
+    const bool preIo=mode==0||mode==4;const auto gate=[&]{reached=true;while(!release)QThread::msleep(1);};
+    if(preIo)o.beforeIo=gate;else o.restorationInspectionBeforeVerify=gate;
+    Fixture f;const auto op=stagedOperation(f,2);resetCold(f,o);Release guard{release};
+    const auto empty=f.controller->snapshot();submit(*f.controller,savedInspection(f,*empty,op));auto held=await(*f.controller,[&](const auto &s){return reached&&s.io==IoOperation::InspectAssetRestoration;});coldOwner(*held);
+    for(const auto kind:{CommandKind::Create,CommandKind::Open,CommandKind::Save,CommandKind::Parameter,CommandKind::CancelGesture,CommandKind::Undo,CommandKind::Redo,
+        CommandKind::AttachRecording,CommandKind::Routing,CommandKind::Monitoring,CommandKind::Structural,CommandKind::HistoryLimits,CommandKind::SnapshotLimits,
+        CommandKind::MemoryLimits,CommandKind::Autosave,CommandKind::AcquireAutosaveInhibition,CommandKind::ReleaseAutosaveInhibition,CommandKind::AutosavePolicy,
+        CommandKind::InspectAutosave,CommandKind::RestoreAutosave,CommandKind::RestoreAsset,CommandKind::InspectAssetRestoration,CommandKind::InspectSavedAssetRestoration,
+        CommandKind::ReconcileAssetRestoration,CommandKind::CancelAssetRestoration}){
+        auto c=savedInspection(f,*empty,op,2);c.kind=kind;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));
+        auto denied=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(denied->errorCode==ErrorCode::InvalidState&&denied->io==IoOperation::InspectAssetRestoration,"Competing command stole cold I/O");coldOwner(*denied);
+    }
+    if(mode<2){ProjectCommand cancel{CommandKind::CancelAssetRestorationInspection};cancel.restorationInspectionJob=held->restorationInspectionJob+1;
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,cancel);auto wrong=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(wrong->io==IoOperation::InspectAssetRestoration,"Wrong cancel revoked cold inspection");
+        cancel.restorationInspectionJob=held->restorationInspectionJob;submit(*f.controller,cancel);
+        ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=529;submit(*f.controller,barrier);await(*f.controller,[](const auto &s){return s.lastBarrier==529;});}
+    if(mode==2||mode==4){f.controller->requestShutdown();auto closing=await(*f.controller,[](const auto &s){return s.closing;});check(!closing->closed,"Cold inspection retired before I/O join");}
+    if(mode==3){
+#ifdef _WIN32
+        const auto h=CreateFileW(f.canonical.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+        check(h==INVALID_HANDLE_VALUE,"Cold audit pin allowed Windows mutation");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+#else
+        auto changed=f.data;changed.back()^=1;write(f.canonical,changed);
+#endif
+    }
+    const auto before=physical(f.root);release=true;auto done=(mode==2||mode==4)?await(*f.controller,[](const auto &s){return s.closed;}):finishInspection(f);
+    const auto &r=done->restorationInspectionCompleted;check(r.savedManifest&&!r.ambiguityReleased,"Cold completion lost passive provenance");coldOwner(*done);
+#ifdef _WIN32
+    const bool qualified=mode==3;
+#else
+    const bool qualified=false;
+#endif
+    if(qualified)check(!r.error&&r.canonical==RestorationMediaObservation::Verified,"Pinned Windows cold audit did not qualify");
+    else check(r.error.has_value()&&!r.canonical&&!r.receipt,"Cold cancel/close/mutation exposed observations");
+    if(mode!=3)check(r.error==ErrorCode::Canceled,"Cold cancellation reported wrong outcome");
+    check(physical(f.root)==before,"Cold completion changed evidence");
+#ifdef _WIN32
+    const auto h=CreateFileW(f.canonical.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+    check(h!=INVALID_HANDLE_VALUE,"Cold native pin outlived I/O completion/join");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+#endif
+}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
