@@ -561,5 +561,118 @@ void savedSourceDifferentContent(){
     sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,audit,*different->report,context,different->childPid,memory);},ErrorCode::MediaMismatch);coldOwner(*f.controller->snapshot());
 }
 
+ProjectCommand prepareSaved(const Fixture &f,const ControllerSnapshot &empty,const Id &op,std::uint64_t request=1){
+    auto c=savedInspection(f,empty,op,request);c.kind=CommandKind::PrepareSavedRestorationSource;c.restorationSource=f.source;return c;
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+void savedPreparationSuccess(){
+    std::atomic<std::size_t> observedPid=0;std::atomic<unsigned> calls=0;ControllerOptions o;
+    o.restorationSourceReportHook=[&](std::string &wire,std::size_t pid){wire=" "+wire+"\r\n";observedPid=pid;++calls;};
+    Fixture f;const auto op=stagedOperation(f);resetCold(f,o);const auto baseline=f.controller->memoryResources().reservedBytes;
+    const auto initial=f.controller->snapshot();const auto before=physical(f.root);submit(*f.controller,prepareSaved(f,*initial,op));auto done=finishInspection(f);const auto &r=done->restorationInspectionCompleted;
+    check(!r.error&&r.sourcePrepared&&r.savedManifest&&!r.ambiguityReleased&&r.checkerJob==1&&r.checkerPid==observedPid&&r.checkerExit==0&&
+        done->restorationPreparedSource==r.job&&calls==1,"Controller saved preparation lacked actual checker/job/private readiness");
+    check(std::string(r.checkedSourceSha256.begin(),r.checkedSourceSha256.end())==f.asset.sha256&&r.sourceBytes==52&&
+        r.canonical==RestorationMediaObservation::Missing&&r.staged==RestorationMediaObservation::Verified,"Prepared source identity/observations differ");
+    check(f.controller->memoryResources().reservedBytes>baseline,"Private admitted source preparation was not retained");coldOwner(*done);
+    auto invalid=prepareSaved(f,*done,op,2);invalid.restorationSource="relative.wav";const auto serial=done->errorSerial;submit(*f.controller,std::move(invalid));
+    auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(refused->restorationPreparedSource==r.job&&refused->restorationInspectionCompleted.job==r.job,"Early source refusal destroyed private preparation");
+    ProjectCommand open{CommandKind::Open};open.path=f.root;submit(*f.controller,open);auto missing=await(*f.controller,[&](const auto &s){return s.errorSerial>refused->errorSerial&&s.io==IoOperation::None;});
+    check(missing->errorCode==ErrorCode::MissingMedia&&!missing->restorationPreparedSource&&missing->restorationInspectionCompleted.sourcePrepared,"Source preparation bypassed strict Open or retained stale live readiness");
+    await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;coldOwner(*missing);
+    submit(*f.controller,prepareSaved(f,*missing,op,2));auto fresh=finishInspection(f,2);
+    check(!fresh->restorationInspectionCompleted.error&&fresh->restorationPreparedSource==fresh->restorationInspectionCompleted.job&&
+        fresh->restorationInspectionCompleted.job>r.job&&calls==2,"Fresh preparation did not bind a new actual dispatch");
+    submit(*f.controller,savedInspection(f,*fresh,op,3));auto observed=finishInspection(f,3);
+    check(!observed->restorationInspectionCompleted.error&&!observed->restorationInspectionCompleted.sourcePrepared&&!observed->restorationPreparedSource,"New inspection retained obsolete source preparation");
+    await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+    submit(*f.controller,prepareSaved(f,*observed,op,4));auto again=finishInspection(f,4);check(again->restorationInspectionCompleted.sourcePrepared&&calls==3,"Refused source request consumed the fresh namespace");
+    auto changed=f.data;changed.back()^=1;write(f.source,changed);submit(*f.controller,prepareSaved(f,*again,op,5));auto mismatch=finishInspection(f,5);
+    check(mismatch->restorationInspectionCompleted.error==ErrorCode::MediaMismatch&&!mismatch->restorationInspectionCompleted.sourcePrepared&&!mismatch->restorationPreparedSource&&
+        mismatch->restorationInspectionCompleted.checkerPid&&mismatch->restorationInspectionCompleted.checkerExit==0,"New source check trusted stale prepared bytes or lost honest child facts");
+    await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+    check(physical(f.root)==before,"Source preparation wrote project/journal/media");coldOwner(*mismatch);
+}
+void savedPreparationRefusals(){
+    Fixture f;const auto op=stagedOperation(f);resetCold(f);const auto empty=f.controller->snapshot();
+    for(unsigned mode=0;mode<6;++mode){auto c=prepareSaved(f,*empty,op);
+        if(mode==0)c.restorationSource.clear();
+        if(mode==1)c.restorationSource="relative.wav";
+        if(mode==2)c.restorationSource=f.root/std::string(4097,'x');
+        if(mode==3)++c.restorationInspection->projectEpoch;
+        if(mode==4)++c.restorationInspection->modelRevision;
+        if(mode==5)c.restorationInspection->request=0;
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        check(refused->io==IoOperation::None&&!refused->restorationInspectionCompleted.job&&!refused->restorationPreparedSource,"Invalid source preparation started I/O");coldOwner(*refused);
+    }
+    for(unsigned mode=0;mode<3;++mode){auto c=prepareSaved(f,*empty,op,mode+1);
+        if(mode==0)c.restorationInspection->project=Id::generate();
+        if(mode==1)c.restorationInspection->asset=Id::generate();
+        if(mode==2)c.restorationInspection->operation=Id::generate();
+        submit(*f.controller,std::move(c));auto denied=finishInspection(f,mode+1);
+        check(denied->restorationInspectionCompleted.error.has_value()&&!denied->restorationInspectionCompleted.checkerPid&&!denied->restorationPreparedSource,"Foreign saved target launched a source checker");coldOwner(*denied);
+    }
+    ControllerOptions limited;limited.admission.parserBytes=limited.memoryBytes;resetCold(f,limited);submit(*f.controller,prepareSaved(f,*f.controller->snapshot(),op));auto quota=finishInspection(f);
+    check(quota->restorationInspectionCompleted.error==ErrorCode::ResourceLimit&&!quota->restorationInspectionCompleted.checkerPid&&!quota->restorationPreparedSource,"Unadmitted saved audit launched checker");coldOwner(*quota);
+    for(unsigned mode=0;mode<5;++mode){ControllerOptions o;
+        if(mode==2)o.restorationSourceReportHook=[](std::string &wire,std::size_t){wire="{}\n";};
+        if(mode==3)o.restorationSourceReportHook=[](std::string &wire,std::size_t){auto j=nlohmann::json::parse(wire);j["sourceSha256"]=std::string(64,'b');wire=j.dump(-1,' ',true)+"\n";};
+        if(mode==4)o.restorationSourceDeadlineMilliseconds=0;
+        resetCold(f,o);auto c=prepareSaved(f,*f.controller->snapshot(),op);
+        if(mode==0)c.restorationSource=f.owned.path/"missing-selected.wav";
+        if(mode==1)write(f.source,"bad WAVE source");else write(f.source,f.data);
+        const auto before=physical(f.root);submit(*f.controller,std::move(c));auto denied=finishInspection(f);const auto &r=denied->restorationInspectionCompleted;
+        check(r.error.has_value()&&!r.sourcePrepared&&!r.canonical&&!r.receipt&&!r.sourceBytes&&!denied->restorationPreparedSource,"Invalid source/report/policy qualified preparation");
+        if(mode<4)check(r.checkerJob==1&&r.checkerPid&&r.checkerExit.has_value(),"Source failure lost observed/reaped child identity");
+        if(mode==2)check(r.error==ErrorCode::InvalidState&&r.checkerExit==0,"Malformed checker report became a source preparation");
+        if(mode==3)check(r.error==ErrorCode::MediaMismatch&&r.checkerExit==0,"Changed checker identity qualified a source preparation");
+        check(physical(f.root)==before,"Source refusal changed project evidence");coldOwner(*denied);
+    }
+}
+void savedPreparationCancelClose(unsigned mode){
+    std::atomic<bool> reached=false,release=false;ControllerOptions o;const auto gate=[&]{reached=true;while(!release)QThread::msleep(1);};
+    if(mode==0)o.beforeIo=gate;
+    if(mode==1)o.restorationSourceBeforeSpawn=gate;
+    if(mode==2)o.restorationSourceBeforeTerminal=gate;
+    if(mode>=3)o.restorationInspectionBeforeVerify=gate;
+    Fixture f;const auto op=stagedOperation(f);resetCold(f,o);Release guard{release};const auto empty=f.controller->snapshot();
+    submit(*f.controller,prepareSaved(f,*empty,op));auto held=await(*f.controller,[&](const auto &s){return reached&&s.io==IoOperation::InspectAssetRestoration;});
+    check(!held->restorationPreparedSource&&!held->restorationInspectionCompleted.sourcePrepared,"Source preparation escaped terminal/final verification barrier");coldOwner(*held);
+    for(const auto kind:{CommandKind::Create,CommandKind::Open,CommandKind::Save,CommandKind::Parameter,CommandKind::Undo,CommandKind::Redo,CommandKind::Autosave,
+        CommandKind::HistoryLimits,CommandKind::SnapshotLimits,CommandKind::MemoryLimits,CommandKind::AcquireAutosaveInhibition,CommandKind::ReleaseAutosaveInhibition,
+        CommandKind::RestoreAsset,CommandKind::InspectAssetRestoration,CommandKind::InspectSavedAssetRestoration,CommandKind::PrepareSavedRestorationSource,CommandKind::ReconcileAssetRestoration}){
+        auto c=prepareSaved(f,*empty,op,2);c.kind=kind;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));
+        auto denied=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(denied->io==IoOperation::InspectAssetRestoration&&!denied->restorationPreparedSource,"Competing command stole saved source owner");coldOwner(*denied);
+    }
+    if(mode==0||mode==2){ProjectCommand cancel{CommandKind::CancelAssetRestorationInspection};cancel.restorationInspectionJob=held->restorationInspectionJob+1;
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,cancel);auto wrong=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(wrong->io==IoOperation::InspectAssetRestoration,"Wrong source cancel revoked actual job");
+        cancel.restorationInspectionJob=held->restorationInspectionJob;submit(*f.controller,cancel);ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=537;submit(*f.controller,barrier);await(*f.controller,[](const auto &s){return s.lastBarrier==537;});}
+    if(mode==1||mode==3){f.controller->requestShutdown();auto closing=await(*f.controller,[](const auto &s){return s.closing;});check(!closing->closed,"Closed before source checker/audit joined");}
+    const auto staged=f.root/op.str()/"media.partial";
+    if(mode==4){
+#ifdef _WIN32
+        const auto h=CreateFileW(staged.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+        check(h==INVALID_HANDLE_VALUE,"Source preparation audit allowed Windows stage mutation");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+#else
+        auto changed=f.data;changed.back()^=1;write(staged,changed);
+#endif
+    }
+    const auto before=physical(f.root);release=true;auto done=(mode==1||mode==3)?await(*f.controller,[](const auto &s){return s.closed;}):finishInspection(f);
+    const auto &r=done->restorationInspectionCompleted;
+#ifdef _WIN32
+    const bool qualifies=mode==4;
+#else
+    const bool qualifies=false;
+#endif
+    if(qualifies)check(!r.error&&r.sourcePrepared&&done->restorationPreparedSource==r.job,"Pinned Windows source preparation failed");
+    else check(r.error.has_value()&&!r.sourcePrepared&&!r.canonical&&!done->restorationPreparedSource,"Canceled/changed source owner returned readiness");
+    if(mode!=4)check(r.error==ErrorCode::Canceled,"Source cancel/close reported wrong result");
+    if(mode>=2)check(r.checkerPid&&r.checkerExit==0,"Terminal/final cancellation lost actual reaped checker facts");
+    check(physical(f.root)==before,"Source cancellation/final verification changed evidence");coldOwner(*done);
+#ifdef _WIN32
+    const auto h=CreateFileW(staged.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+    check(h!=INVALID_HANDLE_VALUE,"Source preparation native pin outlived I/O completion");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+#endif
+}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<5;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

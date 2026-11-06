@@ -52,17 +52,27 @@ Session retainLoop(const Session &s,const LoopTakeRetention &r,const std::string
     return withLoopTakeLanes(s,r.take->context.intent,r.take->sources,r.first,r.count,name,r.allowPartial,budget);
 }
 
-enum class InspectionPurpose { AcceptedAsset, Reconcile, SavedManifest };
+enum class InspectionPurpose { AcceptedAsset, Reconcile, SavedManifest, SavedSource };
 struct InspectionJobData {
     ResourceLease lease; // Request bytes retire before their admitted credit.
     RestorationInspectionRequest input;
-    std::filesystem::path selectedRoot; // Retires before the shared request credit.
+    std::filesystem::path selectedRoot,selectedSource; // Retire before the shared request credit.
     std::uint64_t job;
     std::stop_token stop;
     InspectionPurpose purpose;
     InspectionJobData(ResourceLease grant,const RestorationInspectionRequest &request,std::uint64_t id,std::stop_token token,
-        InspectionPurpose kind,std::filesystem::path root={})
-        :lease(std::move(grant)),input(request),selectedRoot(std::move(root)),job(id),stop(token),purpose(kind) {}
+        InspectionPurpose kind,std::filesystem::path root={},std::filesystem::path source={})
+        :lease(std::move(grant)),input(request),selectedRoot(std::move(root)),selectedSource(std::move(source)),job(id),stop(token),purpose(kind) {}
+};
+struct SavedSourcePreparation {
+    ResourceLease lease; // All metadata/protocol owners retire before this grant.
+    std::shared_ptr<const InspectionJobData> request;
+    SavedRestorationSourceTicket ticket;
+    std::shared_ptr<const WaveCheckSnapshot> checked;
+    OwnedInspectionProtocol protocol;
+    SavedSourcePreparation(ResourceLease grant,std::shared_ptr<const InspectionJobData> owner,
+        SavedRestorationSourceTicket binding,std::shared_ptr<const WaveCheckSnapshot> report,OwnedInspectionProtocol bytes)
+        :lease(std::move(grant)),request(std::move(owner)),ticket(std::move(binding)),checked(std::move(report)),protocol(std::move(bytes)) {}
 };
 struct IoJob {
     IoOperation operation = IoOperation::None;
@@ -86,6 +96,7 @@ struct IoResult {
     IoJob job;
     RestorationProcessResult restoration;
     RestorationInspectionCompletion inspection;
+    std::shared_ptr<const SavedSourcePreparation> prepared;
     std::shared_ptr<const Session> loaded;
     std::optional<ErrorCode> error;
     std::string diagnostic;
@@ -161,7 +172,7 @@ class IoWorker : public QThread {
                     const auto &owned=*next.inspection;const auto &request=owned.input;
                     if(owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Restoration inspection canceled");
                     auto audit=[&] {
-                        if(owned.purpose==InspectionPurpose::SavedManifest)
+                        if(owned.purpose==InspectionPurpose::SavedManifest || owned.purpose==InspectionPurpose::SavedSource)
                             return inspectSavedAssetRestoration(owned.selectedRoot,request.project,request.asset,request.operation,
                                 options.restorationInspectionMaximumBytes,*next.restorationMemory,options.admission,owned.stop);
                         const auto asset=std::find_if(next.session->assets.begin(),next.session->assets.end(),
@@ -173,8 +184,54 @@ class IoWorker : public QThread {
                     if(owned.purpose==InspectionPurpose::Reconcile && (!next.inspectionSavedModel || audit.manifest()!=*next.inspectionSavedModel ||
                         audit.canonical()!=RestorationMediaObservation::Verified))
                         throw ProjectError(ErrorCode::MediaMismatch,"Reconciliation needs the saved manifest and verified canonical media");
-                    if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
-                    audit.reverify(owned.stop);
+                    if(owned.purpose==InspectionPurpose::SavedSource) {
+                        WaveCheckOptions policy;policy.memory=*next.restorationMemory;
+                        policy.maximumSourceBytes=options.restorationInspectionMaximumBytes;
+                        policy.deadlineMilliseconds=options.restorationSourceDeadlineMilliseconds;
+                        policy.beforeSpawn=options.restorationSourceBeforeSpawn;policy.afterChild=options.restorationSourceReportHook;
+                        policy.beforeTerminalPublish=options.restorationSourceBeforeTerminal;
+                        if(!options.restorationSourceCheckerProgram.empty()) {
+                            const auto path=options.restorationSourceCheckerProgram.u8string();
+                            policy.program=QString::fromUtf8(reinterpret_cast<const char *>(path.data()),static_cast<qsizetype>(path.size()));
+                        }
+                        // This checker is private to this one I/O dispatch. No
+                        // other thread can enqueue work on it. Its first job is
+                        // assigned under the existing checker admission mutex.
+                        WaveCheckController checker(std::move(policy));const auto idle=checker.snapshot();
+                        if(idle->job || idle->busy || idle->closed)throw ProjectError(ErrorCode::InvalidState,"Saved checker owner is not fresh");
+                        const auto name=owned.selectedSource.filename().u8string();
+                        const std::string relative(reinterpret_cast<const char *>(name.data()),name.size());
+                        const SavedRestorationSourceContext context{next.projectEpoch,next.revision,request.request,idle->job+1};
+                        SavedRestorationSourceTicket ticket(audit,relative,context,*next.restorationMemory,owned.stop);
+                        if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
+                            throw ProjectError(ErrorCode::Canceled,"Saved source preparation canceled");
+                        if(checker.submitReplacement(owned.selectedSource)!=Admission::Accepted)
+                            throw ProjectError(ErrorCode::InvalidState,"Saved checker admission refused");
+                        std::shared_ptr<const WaveCheckSnapshot> checked;
+                        for(;;) {
+                            checked=checker.snapshot();if(!checked->busy)break;
+                            if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())checker.requestCancel();
+                            QThread::msleep(10);
+                        }
+                        auto &observed=finished.inspection;observed.checkerJob=checked->job;
+                        observed.checkerPid=checked->childPid;observed.checkerExit=checked->childExit;
+                        if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
+                            throw ProjectError(ErrorCode::Canceled,"Saved source preparation canceled");
+                        if(checked->error)throw ProjectError(*checked->error,"Saved source checker refused selection");
+                        if(checked->job!=context.job || checked->phase!=WaveCheckPhase::Complete || checked->closed ||
+                            !checked->childPid || checked->childExit!=0 || !checked->report || checked->replacement)
+                            throw ProjectError(ErrorCode::InvalidState,"Saved source checker owner did not complete");
+                        if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
+                        auto protocol=copySavedRestorationSourceProtocol(ticket,audit,*checked->report,context,checked->childPid,*next.restorationMemory,owned.stop);
+                        if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
+                            throw ProjectError(ErrorCode::Canceled,"Saved source preparation canceled");
+                        observed.checkedSourceSha256=checked->report->audio().sourceSha256;
+                        finished.prepared=std::make_shared<const SavedSourcePreparation>(next.restorationMemory->reserve(sizeof(SavedSourcePreparation)+4096),
+                            next.inspection,std::move(ticket),std::move(checked),std::move(protocol));
+                    } else {
+                        if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
+                        audit.reverify(owned.stop);
+                    }
                     if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
                         throw ProjectError(ErrorCode::Canceled,"Restoration inspection canceled");
                     auto &value=finished.inspection;
@@ -301,6 +358,7 @@ struct ProjectController::State : QThread {
     std::uint64_t lastAutosaveInhibitionToken = 0;
     std::uint64_t lastRestorationRequest=0,lastRestorationJob=0;
     std::uint64_t lastInspectionRequest=0,lastInspectionJob=0;
+    std::shared_ptr<const SavedSourcePreparation> preparedSource;
     struct LatchedRestorationBinding {
         bool valid=false;
         std::array<char,36> project{},asset{},operation{};
@@ -344,6 +402,10 @@ struct ProjectController::State : QThread {
         view.errorCode = code;
         view.diagnostic = std::move(detail);
         ++view.errorSerial;
+    }
+    void startIo(IoJob job) {
+        io.startJob(std::move(job)); // Refusal leaves the previous private preparation intact.
+        preparedSource.reset();view.restorationPreparedSource=0;
     }
     void requireModel() const {
         if (!model)
@@ -428,15 +490,20 @@ struct ProjectController::State : QThread {
             command.kind!=CommandKind::InspectAssetRestoration && command.kind!=CommandKind::ReconcileAssetRestoration))
             throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
         switch (command.kind) {
+        case CommandKind::PrepareSavedRestorationSource:
         case CommandKind::InspectSavedAssetRestoration:
         case CommandKind::InspectAssetRestoration:
         case CommandKind::ReconcileAssetRestoration: {
             const bool reconcile=command.kind==CommandKind::ReconcileAssetRestoration;
-            const bool saved=command.kind==CommandKind::InspectSavedAssetRestoration;
+            const bool source=command.kind==CommandKind::PrepareSavedRestorationSource;
+            const bool saved=source || command.kind==CommandKind::InspectSavedAssetRestoration;
             if(saved) {
                 if(model || view.session || !view.root.empty() || command.path.empty() || !command.path.is_absolute() ||
                     command.path.native().size()>4096)
                     throw ProjectError(ErrorCode::InvalidState,"Saved inspection needs an empty controller and selected absolute root");
+                if(source && (command.restorationSource.empty() || !command.restorationSource.is_absolute() ||
+                    command.restorationSource.native().size()>4096))
+                    throw ProjectError(ErrorCode::InvalidState,"Saved preparation needs an explicit absolute source");
             } else requireModel();
             if(!command.restorationInspection || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
                 lastInspectionJob==std::numeric_limits<std::uint64_t>::max())
@@ -453,16 +520,18 @@ struct ProjectController::State : QThread {
             // in view.root. Its native storage retires before this owner's credit.
             if(saved){metadata.add(command.path.native().capacity(),sizeof(std::filesystem::path::value_type)*8);
                 metadata.add(sizeof(std::filesystem::path::value_type)*8);}
+            if(source){metadata.add(command.restorationSource.native().capacity(),sizeof(std::filesystem::path::value_type)*8);
+                metadata.add(sizeof(std::filesystem::path::value_type)*8);}
             auto owned=std::make_shared<const InspectionJobData>(memory.reserve(metadata.bytes()),request,jobId,cancel.get_token(),
-                saved ? InspectionPurpose::SavedManifest : reconcile ? InspectionPurpose::Reconcile : InspectionPurpose::AcceptedAsset,
-                saved ? std::move(command.path) : std::filesystem::path{});
+                source ? InspectionPurpose::SavedSource : saved ? InspectionPurpose::SavedManifest : reconcile ? InspectionPurpose::Reconcile : InspectionPurpose::AcceptedAsset,
+                saved ? std::move(command.path) : std::filesystem::path{},source ? std::move(command.restorationSource) : std::filesystem::path{});
             IoJob job{IoOperation::InspectAssetRestoration,view.root,view.session,view.modelRevision};
             job.projectEpoch=view.projectEpoch;job.inspection=std::move(owned);job.restorationMemory=memory;
             if(reconcile)job.inspectionSavedModel=savedModel;
             QMutexLocker permission(&io.restorationPermitMutex);
             if(closing.load(std::memory_order_acquire))throw ProjectError(ErrorCode::Canceled,"Restoration inspection closing");
             io.inspectionStop=std::move(cancel);
-            io.startJob(std::move(job));
+            startIo(std::move(job));
             lastInspectionJob=jobId;lastInspectionRequest=request.request;
             view.restorationInspectionJob=jobId;view.io=IoOperation::InspectAssetRestoration;
             break;
@@ -490,7 +559,7 @@ struct ProjectController::State : QThread {
             job.restorationContext={{view.projectEpoch,view.modelRevision,input.request,input.checked->job},jobId,token};
             job.restorationMemory=memory;
             io.restorationCancel.store(false,std::memory_order_release);
-            io.startJob(std::move(job));
+            startIo(std::move(job));
             lastAutosaveInhibitionToken=token;lastRestorationJob=jobId;lastRestorationRequest=input.request;
             view.autosaveInhibitionToken=token;view.assetRestorationJob=jobId;view.io=IoOperation::RestoreAsset;
             break;
@@ -513,7 +582,7 @@ struct ProjectController::State : QThread {
             job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
             job.autosaveReviewRequest = review.request; job.projectEpoch = view.projectEpoch;
             job.autosaveRestoreRequest = command.autosaveRestoreRequest;
-            io.startJob(std::move(job));view.io = IoOperation::RestoreAutosave;
+            startIo(std::move(job));view.io = IoOperation::RestoreAutosave;
             break;
         }
         case CommandKind::InspectAutosave: {
@@ -524,7 +593,7 @@ struct ProjectController::State : QThread {
             job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
             job.autosaveReviewRequest = command.autosaveReviewRequest;
             job.projectEpoch = view.projectEpoch;
-            io.startJob(std::move(job));
+            startIo(std::move(job));
             view.autosaveReview = {};
             view.io = IoOperation::InspectAutosave;
             break;
@@ -593,7 +662,7 @@ struct ProjectController::State : QThread {
             OperationWork work(*this);
             work.admit(0);
             commitGesture();
-            io.startJob(std::move(job));
+            startIo(std::move(job));
             view.io = command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
             break;
         }
@@ -632,7 +701,7 @@ struct ProjectController::State : QThread {
                                    "Finish project I/O and the active gesture before autosave");
             OperationWork work(*this);
             work.admit(0);
-            io.startJob({IoOperation::Autosave, view.root, view.session, view.modelRevision});
+            startIo({IoOperation::Autosave, view.root, view.session, view.modelRevision});
             view.io = IoOperation::Autosave;
             break;
         }
@@ -644,7 +713,7 @@ struct ProjectController::State : QThread {
             if (view.io != IoOperation::None)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "A project operation is already active");
-            io.startJob({IoOperation::Save, view.root, view.session, view.modelRevision});
+            startIo({IoOperation::Save, view.root, view.session, view.modelRevision});
             view.io = IoOperation::Save;
             break;
         }
@@ -883,7 +952,7 @@ struct ProjectController::State : QThread {
             job.retainedTake = command.retainedTake;
             job.retainedLoop = command.retainedLoop;
             job.takeName = command.name;
-            io.startJob(std::move(job));
+            startIo(std::move(job));
             view.io = IoOperation::AttachRecording;
             history->acceptPreflight(preflightPeak);
             break;
@@ -915,7 +984,7 @@ struct ProjectController::State : QThread {
         if(result.job.operation==IoOperation::InspectAssetRestoration) {
             const auto &owned=*result.job.inspection;const auto &request=owned.input;
             auto value=result.inspection;value.request=request.request;value.job=owned.job;
-            value.savedManifest=owned.purpose==InspectionPurpose::SavedManifest;
+            value.savedManifest=owned.purpose==InspectionPurpose::SavedManifest || owned.purpose==InspectionPurpose::SavedSource;
             value.projectEpoch=result.job.projectEpoch;value.modelRevision=result.job.revision;
             value.error=result.error;
             QMutexLocker permission(&io.restorationPermitMutex);
@@ -929,7 +998,13 @@ struct ProjectController::State : QThread {
                     value.error=ErrorCode::InvalidState;
                 else {view.assetRestorationNeedsReconciliation=false;reconciliation={};value.ambiguityReleased=true;}
             }
+            if(!value.error && owned.purpose==InspectionPurpose::SavedSource) {
+                if(!result.prepared || result.prepared->request!=result.job.inspection)
+                    value.error=ErrorCode::InvalidState;
+                else {preparedSource=std::move(result.prepared);view.restorationPreparedSource=owned.job;value.sourcePrepared=true;}
+            }
             if(value.error) {
+                value.sourcePrepared=false;value.checkedSourceSha256={};
                 value.ambiguityReleased=false;
                 value.canonical.reset();value.staged.reset();value.receipt.reset();value.sourceBytes=0;value.manifestSha256={};
                 error(*value.error,"Restoration inspection failed");
@@ -1114,7 +1189,7 @@ struct ProjectController::State : QThread {
                     view.dirty, view.modelRevision, view.autosavedRevision)) {
                 OperationWork work(*this);
                 work.admit(0);
-                io.startJob({IoOperation::Autosave, view.root, view.session, view.modelRevision});
+                startIo({IoOperation::Autosave, view.root, view.session, view.modelRevision});
                 view.io = IoOperation::Autosave;
                 publish();
             }
@@ -1152,7 +1227,7 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
-                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::ReconcileAssetRestoration)
+                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,e.code(),"Restoration inspection owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,e.code(),"Restoration owner refused"};
@@ -1179,7 +1254,7 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
-                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::ReconcileAssetRestoration)
+                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,ErrorCode::Io,"Restoration inspection owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,ErrorCode::Io,"Restoration owner refused"};
@@ -1217,6 +1292,7 @@ struct ProjectController::State : QThread {
         view.closing = true;
         publish();
         io.stopWorker();
+        preparedSource.reset();view.restorationPreparedSource=0;
         // An already-published save still needs to be reported honestly on close.
         if (auto result = io.takeResult())
             finishIo(std::move(*result));
