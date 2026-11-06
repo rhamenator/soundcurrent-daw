@@ -84,17 +84,18 @@ void RestorationAudit::reverify(std::stop_token stop) {
     }
     require(s.root.directoryStamp()==s.stamp,"Restoration audit directory changed",ErrorCode::MediaMismatch);poll(stop);
 }
-RestorationAudit inspectAssetRestoration(const std::filesystem::path &root,const Id &project,const Asset &expected,
-    const Id &operation,std::uint64_t maximum,ResourceLedger memory,ProjectBudget budget,std::stop_token stop) {
+namespace {
+std::unique_ptr<RestorationAuditState> inspectState(const std::filesystem::path &root,const Id &project,const Id &asset,
+    const Asset *bound,const Id &operation,std::uint64_t maximum,ResourceLedger memory,ProjectBudget budget,std::stop_token stop) {
     poll(stop);require(maximum>0 && maximum<=static_cast<std::uint64_t>(INT64_MAX),"Invalid restoration audit media budget",ErrorCode::InvalidParameter);
     require(budget.encodedBytes>0 && budget.encodedBytes<=maxProjectBytes,"Invalid restoration audit manifest budget",ErrorCode::InvalidParameter);
     // Bound copied name banks before allocation; all record/path validation is
     // still performed by native opens and strict decoders below.
-    require(expected.relativePath.size()<=1024,"Restoration audit path limit",ErrorCode::ResourceLimit);
+    if(bound)require(bound->relativePath.size()<=1024,"Restoration audit path limit",ErrorCode::ResourceLimit);
     auto grant=memory.reserve(sizeof(RestorationAuditState)+8192);
     auto s=std::make_unique<RestorationAuditState>(std::move(grant),memory,root);
     const auto prefix=operation.str()+"/";
-    s->names={"project.json",prefix+"intent.json",prefix+"receipt.partial",prefix+"receipt.json",prefix+"media.partial",expected.relativePath};
+    s->names={"project.json",prefix+"intent.json",prefix+"receipt.partial",prefix+"receipt.json",prefix+"media.partial",""};
     s->maximum={budget.encodedBytes,assetRestorationRecordMaximumBytes,assetRestorationRecordMaximumBytes,
         assetRestorationRecordMaximumBytes,maximum,maximum};
     s->files[0].emplace(s->root.open(s->names[0],s->maximum[0],stop));
@@ -105,8 +106,12 @@ RestorationAudit inspectAssetRestoration(const std::filesystem::path &root,const
         s->manifest=snapshots.adopt(decodeProject(s->manifestBytes->bytes(),budget),std::move(stateGrant));poll(stop);
     }
     require(s->manifest->id==project,"Restoration audit project identity mismatch");
-    const auto found=std::find_if(s->manifest->assets.begin(),s->manifest->assets.end(),[&](const Asset &a){return a.id==expected.id;});
-    require(found!=s->manifest->assets.end() && sameAsset(*found,expected),"Restoration audit saved asset mismatch");
+    const auto found=std::find_if(s->manifest->assets.begin(),s->manifest->assets.end(),[&](const Asset &a){return a.id==asset;});
+    require(found!=s->manifest->assets.end(),"Restoration audit saved asset is absent");
+    if(bound)require(sameAsset(*found,*bound),"Restoration audit saved asset mismatch");
+    const auto &expected=*found; // Owned by the admitted passive manifest, never the intent record.
+    require(expected.relativePath.size()<=1024,"Restoration audit path limit",ErrorCode::ResourceLimit);
+    s->names[5]=expected.relativePath;
     s->files[1].emplace(s->root.open(s->names[1],s->maximum[1],stop));
     {
         auto raw=read(*s->files[1],memory,stop);s->intent.emplace(decodeAssetRestorationRecord(raw.bytes(),memory,stop));
@@ -132,6 +137,17 @@ RestorationAudit inspectAssetRestoration(const std::filesystem::path &root,const
             "Restoration audit media bytes mismatch",ErrorCode::MediaMismatch);
     }
     for(std::size_t i=0;i<s->files.size();++i)if(s->files[i])s->hashes[i]=s->files[i]->digest(stop);
-    RestorationAudit audit(std::move(s));audit.reverify(stop);return audit;
+    return s;
+}
+} // namespace
+RestorationAudit inspectAssetRestoration(const std::filesystem::path &root,const Id &project,const Asset &expected,
+    const Id &operation,std::uint64_t maximum,ResourceLedger memory,ProjectBudget budget,std::stop_token stop) {
+    RestorationAudit audit(inspectState(root,project,expected.id,&expected,operation,maximum,memory,budget,stop));
+    audit.reverify(stop);return audit;
+}
+RestorationAudit inspectSavedAssetRestoration(const std::filesystem::path &root,const Id &project,const Id &asset,
+    const Id &operation,std::uint64_t maximum,ResourceLedger memory,ProjectBudget budget,std::stop_token stop) {
+    RestorationAudit audit(inspectState(root,project,asset,nullptr,operation,maximum,memory,budget,stop));
+    audit.reverify(stop);return audit;
 }
 } // namespace soundcurrent::daw

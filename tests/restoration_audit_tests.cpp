@@ -59,7 +59,7 @@ int main() {
         const auto bytes=wave();check(bytes.size()==52,"Independent WAVE extent");write(fixture/"input/source.wav",bytes);
         ResourceLedger memory(32*1024*1024,"Restoration audit qualification");
         ProjectBudget budget;budget.encodedBytes=65536;budget.parserBytes=2*1024*1024;budget.state.memoryBudgetBytes=2*1024*1024;
-        {
+        for(const bool savedManifest:{false,true}) {
             ApprovedMediaRoot sourceRoot(fixture/"input",memory);auto source=sourceRoot.open("source.wav",1024);
             Asset asset;asset.relativePath="media/été-Κиїв/nested/take.wav";asset.frames=4;asset.layout={LayoutKind::Mono,1};
             const auto sha=source.digest();asset.sha256.assign(sha.begin(),sha.end());
@@ -69,7 +69,8 @@ int main() {
             const AssetRestorationContext context{11,0,21};
             auto root=[&]{const auto p=fixture/Id::generate().str();std::filesystem::create_directory(p);
                 write(p/"project.json",encodeProject(model,budget));return p;};
-            auto audit=[&](const std::filesystem::path &p,const Id &operation){return inspectAssetRestoration(p,model.id,asset,operation,1024,memory,budget);};
+            auto audit=[&](const std::filesystem::path &p,const Id &operation){return savedManifest ? inspectSavedAssetRestoration(p,model.id,asset.id,operation,1024,memory,budget) :
+                inspectAssetRestoration(p,model.id,asset,operation,1024,memory,budget);};
             // Warm native/hash/decoder runtime before lifetime accounting.
             {
                 const auto p=root();const auto op=Id::generate();
@@ -138,6 +139,29 @@ int main() {
             refuses([&]{inspectAssetRestoration(project,model.id,asset,operation,32,memory,budget);},ErrorCode::ResourceLimit);
             refuses([&]{inspectAssetRestoration(project,model.id,asset,operation,1024,ResourceLedger(64),budget);},ErrorCode::ResourceLimit);
             std::stop_source stop;stop.request_stop();refuses([&]{inspectAssetRestoration(project,model.id,asset,operation,1024,memory,budget,stop.get_token());},ErrorCode::Canceled);
+            // Pre-open selectors and budgets are trusted call inputs, never inferred from an intent.
+            refuses([&]{inspectSavedAssetRestoration(project,Id::generate(),asset.id,operation,1024,memory,budget);});
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,Id::generate(),operation,1024,memory,budget);});
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,unrelated.id,operation,1024,memory,budget);});
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,asset.id,operation,32,memory,budget);},ErrorCode::ResourceLimit);
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,asset.id,operation,1024,ResourceLedger(64),budget);},ErrorCode::ResourceLimit);
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,asset.id,operation,1024,memory,budget,stop.get_token());},ErrorCode::Canceled);
+            auto tiny=budget;tiny.encodedBytes=1;
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,asset.id,operation,1024,memory,tiny);},ErrorCode::ResourceLimit);
+            tiny=budget;tiny.parserBytes=memory.usage().limitBytes;
+            refuses([&]{inspectSavedAssetRestoration(project,model.id,asset.id,operation,1024,memory,tiny);},ErrorCode::ResourceLimit);
+            const auto noManifest=root();const auto noManifestOp=Id::generate();
+            {auto prepared=PreparedAssetRestoration::prepare(source,noManifest,asset,context,1024,{},noManifestOp);}
+            check(std::filesystem::remove(noManifest/"project.json"),"Missing-manifest fixture removal failed");
+            const auto journalOnly=tree(noManifest);
+            refuses([&]{inspectSavedAssetRestoration(noManifest,model.id,asset.id,noManifestOp,1024,memory,budget);},ErrorCode::MissingMedia);
+            check(tree(noManifest)==journalOnly,"Journal-only inspection synthesized a manifest");
+            const auto inconsistent=root();const auto inconsistentOp=Id::generate();
+            {auto prepared=PreparedAssetRestoration::prepare(source,inconsistent,asset,context,1024,{},inconsistentOp);}
+            auto changedModel=model;changedModel.assets.front().frames=3;
+            write(inconsistent/"project.json",encodeProject(changedModel,budget));const auto inconsistentBefore=tree(inconsistent);
+            refuses([&]{inspectSavedAssetRestoration(inconsistent,model.id,asset.id,inconsistentOp,1024,memory,budget);});
+            check(tree(inconsistent)==inconsistentBefore,"Saved descriptor mismatch changed physical evidence");
             const auto stagedBad=root();const auto stagedOp=Id::generate();
             {auto prepared=PreparedAssetRestoration::prepare(source,stagedBad,asset,context,1024,{},stagedOp);}
             auto badStage=bytes;badStage.back()^=1;write(stagedBad/stagedOp.str()/"media.partial",badStage);
@@ -183,7 +207,7 @@ int main() {
             check(memory.usage().reservedBytes==baseline.reservedBytes && memory.usage().owners==baseline.owners && handles()==nativeBaseline,"Refusal/native audit leaked");
         }
         check(memory.usage().reservedBytes==0 && memory.usage().owners==0,"Final audit credit leak");
-        std::filesystem::remove_all(fixture);std::cout<<checks<<" native read-only restoration audit checks passed\n";return 0;
+        std::filesystem::remove_all(fixture);std::cout<<checks<<" native read-only restoration audit checks passed (accepted-asset and saved-manifest selectors)\n";return 0;
     }catch(const std::exception &e) {
         std::cerr<<e.what()<<'\n';const auto path=fixture.generic_u8string();std::cerr<<"Retained restoration fixture ";
         std::cerr.write(reinterpret_cast<const char *>(path.data()),static_cast<std::streamsize>(path.size()));std::cerr<<'\n';return 1;
