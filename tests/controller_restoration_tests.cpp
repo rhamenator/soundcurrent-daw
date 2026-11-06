@@ -460,5 +460,106 @@ void savedInspectionCancelClose(unsigned mode){
 #endif
 }
 
+template<class F>void sourceRefuses(F f,ErrorCode code=ErrorCode::InvalidState){
+    bool caught=false;try{f();}catch(const ProjectError &e){caught=true;check(e.code()==code,"Unexpected saved source binding refusal");}
+    check(caught,"Invalid saved source binding admitted");
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+auto finishSource(WaveCheckController &c){const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(15);
+    while(c.snapshot()->busy){if(std::chrono::steady_clock::now()>end)throw std::runtime_error("Saved source checker deadline");QThread::msleep(1);}return c.snapshot();}
+WaveCheckReport savedSourceReport(ResourceLedger memory,nlohmann::json wire,std::size_t pid){
+    const auto relative=wire.at("relative").get<std::string>();
+    return decodeWaveCheckReport(OwnedInspectionProtocol(memory.reserve(waveReportMaximumBytes*2),wire.dump(-1,' ',true)),relative,pid,1024,memory,
+        memory.reserve(waveReportValueCharge),memory.reserve(waveReportParserCharge));
+}
+void savedSourceBinding(){
+    Fixture f;const auto op=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto before=physical(f.root);const auto sourceBefore=bytes(f.source);const auto u=f.source.filename().u8string();
+    const std::string name(reinterpret_cast<const char *>(u.data()),u.size());const SavedRestorationSourceContext context{0,0,77,1};
+    {
+        std::optional<RestorationAudit> audit;auto inspect=[&]{return inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,op,1024,memory);};
+        audit.emplace(inspect());SavedRestorationSourceTicket ticket(*audit,name,context,memory);
+        std::string captured;std::shared_ptr<const WaveCheckSnapshot> checked;
+        {
+            WaveCheckOptions options;options.memory=memory;options.afterChild=[&](std::string &wire,std::size_t){wire=" "+wire+"\r\n";captured=wire;};
+            WaveCheckController checker(options);check(checker.submitReplacement(f.source)==Admission::Accepted,"Fresh saved source checker refused");
+            check(checker.snapshot()->job==context.job,"Saved source owner did not use actual admitted job");checked=finishSource(checker);
+            check(checked->phase==WaveCheckPhase::Complete&&!checked->error&&checked->report&&checked->childPid&&checked->childExit==0&&!checked->replacement,
+                "Real cold source checker did not complete/reap independently of accepted model");
+        } // Original checker/controller retired; exact checked report remains admitted.
+        const auto &report=*checked->report;const auto pid=checked->childPid;
+        verifySavedRestorationSourceReport(ticket,*audit,report,context,pid,memory);++checks;
+        {auto protocol=copySavedRestorationSourceProtocol(ticket,*audit,report,context,pid,memory);
+         check(protocol.bytes()==captured&&protocol.ownedBy(memory),"Saved source handoff reconstructed checker bytes or lost credit");}
+        for(unsigned field=0;field<4;++field){auto stale=context;
+            if(field==0)++stale.projectEpoch;
+            if(field==1)++stale.modelRevision;
+            if(field==2)++stale.request;
+            if(field==3)++stale.job;
+            sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,report,stale,pid,memory);});
+            sourceRefuses([&]{copySavedRestorationSourceProtocol(ticket,*audit,report,stale,pid,memory);});}
+        for(const auto wrong:{std::size_t(0),pid+1})sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,report,context,wrong,memory);});
+        for(unsigned mode=0;mode<2;++mode){auto invalid=context;if(mode==0)invalid.request=0;else invalid.job=0;
+            sourceRefuses([&]{SavedRestorationSourceTicket denied(*audit,name,invalid,memory);});}
+        for(const auto &invalid:{std::string{},std::string(1025,'x'),std::string("bad\0name",8)})
+            sourceRefuses([&]{SavedRestorationSourceTicket denied(*audit,invalid,context,memory);},ErrorCode::InvalidParameter);
+        ResourceLedger foreign(1024ULL*1024*1024,"Foreign saved source scope");sourceRefuses([&]{SavedRestorationSourceTicket denied(*audit,name,context,foreign);});
+        sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,report,context,pid,foreign);});
+        {auto other=savedSourceReport(foreign,nlohmann::json::parse(captured),pid);
+         sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,other,context,pid,memory);});}
+        {auto other=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,op,1024,foreign);
+         sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,other,report,context,pid,memory);});}
+        auto sibling=memory.child(1024*1024,"Other saved source scope");sourceRefuses([&]{copySavedRestorationSourceProtocol(ticket,*audit,report,context,pid,sibling);});
+        std::stop_source canceled;canceled.request_stop();
+        sourceRefuses([&]{SavedRestorationSourceTicket denied(*audit,name,context,memory,canceled.get_token());},ErrorCode::Canceled);
+        sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,report,context,pid,memory,canceled.get_token());},ErrorCode::Canceled);
+        sourceRefuses([&]{copySavedRestorationSourceProtocol(ticket,*audit,report,context,pid,memory,canceled.get_token());},ErrorCode::Canceled);
+        for(unsigned field=0;field<6;++field){auto wire=nlohmann::json::parse(captured);
+            if(field==0)wire["sourceBytes"]=53;
+            if(field==1)wire["sourceSha256"]=std::string(64,'b');
+            if(field==2){wire["frames"]=3;wire["decodedFrames"]=3;}
+            if(field==3)wire["rateHz"]=44100;
+            if(field==4){wire["channels"]=2;wire["encodingId"]=1;wire["bitsPerSample"]=8;}
+            if(field==5)wire["relative"]="other-selected.wav";
+            auto different=savedSourceReport(memory,wire,pid);
+            sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,different,context,pid,memory);},field==5?ErrorCode::InvalidState:ErrorCode::MediaMismatch);
+        }
+        {auto same=inspect();verifySavedRestorationSourceReport(ticket,same,report,context,pid,memory);++checks;}
+        const auto clone=f.owned.path/"same-bytes-other-directory";std::filesystem::copy(f.root,clone,std::filesystem::copy_options::recursive);
+        {auto other=inspectSavedAssetRestoration(clone,f.initial->session->id,f.asset.id,op,1024,memory);
+         check(physical(clone)==before,"Clone binding fixture differs in bytes");sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,other,report,context,pid,memory);});}
+        const auto usage=memory.usage();memory.configure(usage.reservedBytes+waveReportMaximumBytes*2-1);
+        sourceRefuses([&]{copySavedRestorationSourceProtocol(ticket,*audit,report,context,pid,memory);},ErrorCode::ResourceLimit);
+        check(memory.usage().reservedBytes==usage.reservedBytes&&memory.usage().owners==usage.owners,"Failed saved handoff leaked shared credit");memory.configure(usage.limitBytes);
+        auto moved=std::move(ticket);sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,*audit,report,context,pid,memory);});
+        verifySavedRestorationSourceReport(moved,*audit,report,context,pid,memory);++checks;
+        audit.reset(); // Release Windows pins before intentionally changing saved evidence.
+        for(unsigned mode=0;mode<3;++mode){
+            audit.emplace(inspect());SavedRestorationSourceTicket prior(*audit,name,context,memory);audit.reset();
+            const auto intentPath=f.root/op.str()/"intent.json";const auto oldIntent=bytes(intentPath);
+            if(mode==0){auto manifest=nlohmann::json::parse(f.manifest);manifest["name"]="Changed after selection";write(f.root/"project.json",manifest.dump());}
+            if(mode==1){auto intent=nlohmann::json::parse(oldIntent);intent["request"]=999;write(intentPath,intent.dump());}
+            if(mode==2)write(f.canonical,f.data);
+            {auto changed=inspect();sourceRefuses([&]{copySavedRestorationSourceProtocol(prior,changed,report,context,pid,memory);});}
+            if(mode==0)write(f.root/"project.json",f.manifest);
+            if(mode==1)write(intentPath,oldIntent);
+            if(mode==2)check(std::filesystem::remove(f.canonical),"Cannot restore saved visibility fixture");
+        }
+        auto raw=nlohmann::json::parse(captured);auto retiring=savedSourceReport(memory,raw,pid);auto retained=std::move(retiring);
+        audit.emplace(inspect());SavedRestorationSourceTicket final(*audit,name,context,memory);
+        sourceRefuses([&]{verifySavedRestorationSourceReport(final,*audit,retiring,context,pid,memory);});
+        verifySavedRestorationSourceReport(final,*audit,retained,context,pid,memory);++checks;
+    }
+    await(*f.controller,[&](const auto &){return memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners;});++checks;
+    check(physical(f.root)==before&&bytes(f.source)==sourceBefore,"Saved source qualification changed evidence/source");coldOwner(*f.controller->snapshot());
+}
+void savedSourceDifferentContent(){
+    Fixture f;const auto op=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,op,1024,memory);
+    const auto u=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(u.data()),u.size());SavedRestorationSourceContext context{0,0,91,1};
+    SavedRestorationSourceTicket ticket(audit,name,context,memory);auto altered=f.data;altered.back()^=1;write(f.source,altered);
+    WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);check(checker.submitReplacement(f.source)==Admission::Accepted,"Different actual source checker refused");
+    const auto different=finishSource(checker);check(different->phase==WaveCheckPhase::Complete&&different->report&&different->childPid&&different->childExit==0,"Different finite WAVE did not complete actual checker");
+    sourceRefuses([&]{verifySavedRestorationSourceReport(ticket,audit,*different->report,context,different->childPid,memory);},ErrorCode::MediaMismatch);coldOwner(*f.controller->snapshot());
+}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
