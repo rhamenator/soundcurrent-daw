@@ -42,6 +42,7 @@ enum class CommandKind {
     CancelAssetRestoration,
     InspectAssetRestoration,
     InspectSavedAssetRestoration,
+    PrepareSavedRestorationSource,
     ReconcileAssetRestoration,
     CancelAssetRestorationInspection
 };
@@ -109,6 +110,7 @@ struct ProjectCommand {
     std::uint64_t restorationJob=0; // Cancel only; exact current dispatch identity.
     std::optional<RestorationInspectionRequest> restorationInspection;
     std::uint64_t restorationInspectionJob=0; // Cancel only, exact active dispatch.
+    std::filesystem::path restorationSource; // Explicit selected file for saved-source preparation only.
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
@@ -148,6 +150,11 @@ struct RestorationInspectionCompletion {
     std::uint64_t request=0,job=0,projectEpoch=0,modelRevision=0,sourceBytes=0;
     std::array<char,36> project{},asset{},operation{};
     std::array<char,64> manifestSha256{};
+    std::uint64_t checkerJob=0;
+    std::size_t checkerPid=0;
+    std::optional<int> checkerExit;
+    bool sourcePrepared=false; // Historical completion; live private readiness is separate.
+    std::array<char,64> checkedSourceSha256{};
     bool savedManifest=false; // Passive pre-open selection, never an accepted model.
     bool ambiguityReleased=false; // Fresh live reconciliation only; never historical publication attribution.
     std::optional<RestorationMediaObservation> canonical,staged;
@@ -196,6 +203,7 @@ struct ControllerSnapshot {
     RestorationInspectionCompletion restorationInspectionCompleted;
     AttachmentCompletion restorationInspectionRejected;
     std::uint64_t restorationInspectionJob=0;
+    std::uint64_t restorationPreparedSource=0; // Live opaque ID; never publication permission.
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -208,6 +216,10 @@ struct ControllerOptions {
     // Trusted application policy, never selected by project/worker metadata.
     std::filesystem::path restorationWorkerProgram = {};
     unsigned restorationDeadlineMilliseconds=20000;
+    std::filesystem::path restorationSourceCheckerProgram = {};
+    unsigned restorationSourceDeadlineMilliseconds=20000;
+    std::function<void()> restorationSourceBeforeSpawn = {},restorationSourceBeforeTerminal = {};
+    std::function<void(std::string &,std::size_t)> restorationSourceReportHook = {};
     std::function<void()> restorationInspectionBeforeVerify = {}; // Trusted I/O qualification seam.
     std::uint64_t restorationInspectionMaximumBytes=1024ULL*1024*1024;
     std::function<void()> restorationBeforePermit = {},restorationAfterPermit = {};
