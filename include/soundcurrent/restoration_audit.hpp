@@ -78,6 +78,9 @@ class SavedRestorationSourceTicket {
         SavedRestorationSourceContext,std::size_t observedPid,ResourceLedger,std::stop_token = {}) const;
     static SavedRestorationSourceTicket fromControlProtocol(std::string_view,RestorationAudit &,const WaveCheckReport &,
         SavedRestorationSourceContext current,std::size_t observedPid,ResourceLedger,std::stop_token = {});
+    // Compare an independently held native root with the ORIGINAL stamp.
+    // Read-only metadata check, never a native-owner/publication capability.
+    void verifyRootStamp(ApprovedDirectoryStamp,ResourceLedger) const;
     SavedRestorationSourceTicket(SavedRestorationSourceTicket &&) noexcept=default;
     SavedRestorationSourceTicket(const SavedRestorationSourceTicket &)=delete;
   private:

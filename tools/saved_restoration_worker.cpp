@@ -6,6 +6,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <set>
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+#include <thread>
+#include <chrono>
+#endif
 #include <nlohmann/json.hpp>
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -55,7 +59,16 @@ nlohmann::json request(std::string_view bytes){
 }
 int main(int argc,char **argv){bool stagingMayExist=false;try{
     std::uint64_t memoryBytes=512*1024*1024,sourceLimit=1024ULL*1024*1024;bool memorySeen=false,limitSeen=false;
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+    std::string fixtureMode="pause";bool fixtureModeSeen=false;
+#endif
     for(int i=1;i<argc;++i){const std::string_view arg=argv[i];
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+        if(arg=="--fixture-mode") {
+            check(!fixtureModeSeen && i+1<argc,"Invalid saved fixture option");fixtureMode=argv[++i];fixtureModeSeen=true;
+            check(fixtureMode=="pause"||fixtureMode=="stdout-overflow"||fixtureMode=="stderr-overflow"||fixtureMode=="nonzero"||fixtureMode=="empty"||fixtureMode=="stderr-success","Invalid saved fixture mode");continue;
+        }
+#endif
 
         check(i+1<argc && ((arg=="--memory-bytes" && !memorySeen)||(arg=="--maximum-source-bytes" && !limitSeen)),"Invalid restoration worker options",ErrorCode::InvalidParameter);
         const std::string_view text=argv[++i];std::uint64_t n=0;const auto parsed=std::from_chars(text.data(),text.data()+text.size(),n);
@@ -66,6 +79,14 @@ int main(int argc,char **argv){bool stagingMayExist=false;try{
     ResourceLedger memory(static_cast<std::size_t>(memoryBytes),"Saved staging worker payload");
     auto frameBank=memory.reserve(requestMaximum+readyMaximum*2);auto parser=memory.reserve(requestMaximum*32);
     const auto raw=line(requestMaximum);check(std::cin.get()==std::char_traits<char>::eof(),"Trailing saved worker input");const auto j=request(raw);
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+    // Foreign-child refusal scenarios read the exact request/EOF, touch no roots.
+    if(fixtureMode=="stdout-overflow"){std::cout<<std::string(65536,'x')<<std::flush;return 0;}
+    if(fixtureMode=="stderr-overflow"){std::cerr<<std::string(65536,'x')<<std::flush;return 0;}
+    if(fixtureMode=="nonzero")return 7;
+    if(fixtureMode=="empty")return 0;
+    if(fixtureMode=="stderr-success"){std::cerr<<"fixture diagnostic\n"<<std::flush;return 0;}
+#endif
     const auto maximum=integer(j.at("maximumBytes"));check(maximum&&maximum<=sourceLimit,"Saved worker source policy exceeded",ErrorCode::ResourceLimit);
     check(integer(j.at("workerPid"))==pid(),"Saved worker request belongs to another process");
     for(const auto *key:{"project","asset","historyOperation","operation"})check(j.at(key).is_string(),"Invalid saved worker identifier");
@@ -82,7 +103,15 @@ int main(int argc,char **argv){bool stagingMayExist=false;try{
     auto control=unhex(j.at("sourceControlHex"),savedSourceControlMaximumBytes);
     auto ticket=SavedRestorationSourceTicket::fromControlProtocol(control,audit,report,current.source,static_cast<std::size_t>(checkPid),memory);
     ApprovedMediaRoot approved(selectedRoot,memory,{1});auto source=approved.openSelectedFilename(leaf,maximum);
-    stagingMayExist=true;auto stage=SavedRestorationStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum);
+    StageObserver observer;
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+    // Dedicated qualification target only, never in the production executable.
+    observer=[](StageBoundary at,std::uint64_t){if(at==StageBoundary::BeforeWrite){
+        std::cerr<<"sc-saved-midstage\n"<<std::flush;
+        for(;;)std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }};
+#endif
+    stagingMayExist=true;auto stage=SavedRestorationStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum,{}, {},observer);
     stage.reverify();auto record=encodeSavedRestorationRecord(stage.record(),SavedRestorationPhase::Planned,memory);
     const auto result=nlohmann::json({{"protocol","sc-saved-staging-result-v1"},{"workerPid",pid()},{"published",false},{"recordHex",hex(record.bytes())}}).dump();
     check(result.size()<=readyMaximum,"Saved staging result exceeds bank");std::cout<<result<<std::endl;return std::cout?0:1;

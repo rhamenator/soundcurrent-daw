@@ -27,4 +27,9 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &,
     const Session &,const std::filesystem::path &,RestorationOwnerContext,
     const ControllerOptions &,ResourceLedger,const std::atomic<bool> &closing,
     const std::atomic<bool> &cancel,QMutex &permissionMutex);
+SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest &original,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedRestorationSourceTicket &,const WaveCheckSnapshot &,std::uint64_t preparationJob,
+    std::uint64_t request,std::uint64_t job,const ControllerOptions &,ResourceLedger,
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel);
 }

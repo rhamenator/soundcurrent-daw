@@ -313,6 +313,10 @@ std::string controlUnhex(const nlohmann::json &j,std::size_t maximum){require(j.
         throw ProjectError(ErrorCode::InvalidState,"Invalid saved control hex");};
     std::string out;out.reserve(v.size()/2);for(std::size_t n=0;n<v.size();n+=2)out+=char((digit(v[n])<<4)|digit(v[n+1]));return out;}
 }
+void SavedRestorationSourceTicket::verifyRootStamp(ApprovedDirectoryStamp actual,ResourceLedger memory) const {
+    require(memory.owns(lease_),"Saved source root stamp scope mismatch");
+    require(actual==root_,"Saved source original destination changed",ErrorCode::MediaMismatch);
+}
 OwnedInspectionProtocol SavedRestorationSourceTicket::copyControlProtocol(RestorationAudit &audit,const WaveCheckReport &report,
     SavedRestorationSourceContext current,std::size_t pid,ResourceLedger memory,std::stop_token stop) const {
     poll(stop);verifySavedRestorationSourceReport(*this,audit,report,current,pid,memory,stop);
