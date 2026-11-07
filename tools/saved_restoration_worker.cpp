@@ -6,6 +6,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <set>
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+#include <thread>
+#include <chrono>
+#endif
 #include <nlohmann/json.hpp>
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -82,7 +86,15 @@ int main(int argc,char **argv){bool stagingMayExist=false;try{
     auto control=unhex(j.at("sourceControlHex"),savedSourceControlMaximumBytes);
     auto ticket=SavedRestorationSourceTicket::fromControlProtocol(control,audit,report,current.source,static_cast<std::size_t>(checkPid),memory);
     ApprovedMediaRoot approved(selectedRoot,memory,{1});auto source=approved.openSelectedFilename(leaf,maximum);
-    stagingMayExist=true;auto stage=SavedRestorationStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum);
+    StageObserver observer;
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+    // Dedicated qualification target only, never in the production executable.
+    observer=[](StageBoundary at,std::uint64_t){if(at==StageBoundary::BeforeWrite){
+        std::cerr<<"sc-saved-midstage\n"<<std::flush;
+        for(;;)std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }};
+#endif
+    stagingMayExist=true;auto stage=SavedRestorationStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum,{}, {},observer);
     stage.reverify();auto record=encodeSavedRestorationRecord(stage.record(),SavedRestorationPhase::Planned,memory);
     const auto result=nlohmann::json({{"protocol","sc-saved-staging-result-v1"},{"workerPid",pid()},{"published",false},{"recordHex",hex(record.bytes())}}).dump();
     check(result.size()<=readyMaximum,"Saved staging result exceeds bank");std::cout<<result<<std::endl;return std::cout?0:1;

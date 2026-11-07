@@ -10,6 +10,7 @@
 #include <array>
 #include <chrono>
 #include <set>
+#include <thread>
 namespace soundcurrent::daw::ui {
 namespace {
 void check(bool ok,const char *text,ErrorCode code=ErrorCode::InvalidState) {if(!ok)throw ProjectError(code,text);}
@@ -135,23 +136,46 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
     const std::atomic<bool> &closing,const std::atomic<bool> &cancel) {
     SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
     QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
-    const auto begun=std::chrono::steady_clock::now();
+    const auto now=[&]()->std::uint64_t {return options.savedStagingNowMilliseconds?options.savedStagingNowMilliseconds():
+        static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());};
+    const auto begun=now();std::uint64_t allowance=options.savedStagingDeadlineMilliseconds;
+    const auto expired=[&]() noexcept {try{const auto current=now();return current<begun || current-begun>=allowance;}catch(...){return true;}};
     const auto poll=[&]{check(!closing.load(std::memory_order_acquire)&&!cancel.load(std::memory_order_acquire),"Saved staging canceled",ErrorCode::Canceled);
-        check(std::chrono::steady_clock::now()-begun<std::chrono::milliseconds(options.savedStagingDeadlineMilliseconds),"Saved staging deadline",ErrorCode::Io);};
+        check(!expired(),"Saved staging deadline",ErrorCode::Io);};
+    std::stop_source workStop;const auto stop=workStop.get_token();std::jthread watchdog;
     try {
         poll();check(options.savedStagingDeadlineMilliseconds && requestId && job && preparationJob && checked.report && checked.childPid &&
             checked.childExit==0 && checked.phase==WaveCheckPhase::Complete && !checked.error && !checked.closed && !checked.replacement && checked.job,
             "Saved staging private checker is not complete");
+        const auto sourceBytes=checked.report->audio().sourceBytes;
+        check(sourceBytes && sourceBytes<=options.restorationInspectionMaximumBytes && allowance &&
+            allowance<=options.savedStagingMaximumDeadlineMilliseconds,"Saved staging deadline policy invalid");
+        const auto mib=sourceBytes/(1024*1024)+(sourceBytes%(1024*1024)!=0);
+        const auto per=options.savedStagingMillisecondsPerMiB;const auto remaining=options.savedStagingMaximumDeadlineMilliseconds-allowance;
+        const auto extra=per && mib>remaining/per?remaining:mib*static_cast<std::uint64_t>(per);
+        allowance+=extra; // Saturated before multiplication; no untrusted extent overflow.
+        poll();
         bank=memory.reserve(childCredit+3*1024*1024); // Logical child/frame admission, not an RSS sandbox.
+        watchdog=std::jthread([&](std::stop_token retired){
+            while(!retired.stop_requested()) {
+                try {if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)||expired()){workStop.request_stop();return;}}
+                catch(...){workStop.request_stop();return;}
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            }
+        }); // Bridges cancel/close/deadline to every native audit/hash chunk, not just whole passes.
         const SavedRestorationSourceContext context{original.projectEpoch,original.modelRevision,original.request,checked.job};
-        auto audit=inspectSavedAssetRestoration(root,original.project,original.asset,original.operation,options.restorationInspectionMaximumBytes,memory,options.admission);
-        auto control=ticket.copyControlProtocol(audit,*checked.report,context,checked.childPid,memory);
-        auto report=checked.report->copyProtocol(memory);
-        {ApprovedMediaRoot approved(source.parent_path(),memory,{1});auto current=approved.openSelectedFilename(source.filename(),options.restorationInspectionMaximumBytes);
-         verifySavedRestorationSourceFile(ticket,audit,*checked.report,context,checked.childPid,current,memory);}
+        auto audit=inspectSavedAssetRestoration(root,original.project,original.asset,original.operation,options.restorationInspectionMaximumBytes,memory,options.admission,stop);
+        auto control=ticket.copyControlProtocol(audit,*checked.report,context,checked.childPid,memory,stop);
+        auto report=checked.report->copyProtocol(memory,stop);
+        {ApprovedMediaRoot approved(source.parent_path(),memory,{1});auto current=approved.openSelectedFilename(source.filename(),options.restorationInspectionMaximumBytes,stop);
+         verifySavedRestorationSourceFile(ticket,audit,*checked.report,context,checked.childPid,current,memory,stop,[&]{
+             poll();if(options.savedStagingBeforeSourceChunk)options.savedStagingBeforeSourceChunk();poll();});}
         const auto asset=std::find_if(audit.manifest().assets.begin(),audit.manifest().assets.end(),[&](const auto &a){return a.id==original.asset;});
         check(asset!=audit.manifest().assets.end(),"Saved stage asset disappeared");
-        ApprovedMediaRoot destination(root,memory,{2}); // Retain original native destination identity through the child.
+        if(options.savedStagingBeforeDestination)options.savedStagingBeforeDestination();
+        poll();ApprovedMediaRoot destination(root,memory,{2});
+        ticket.verifyRootStamp(destination.directoryStamp(),memory);audit.reverify(stop); // No pathname reopen may reset the original identity.
+
         const auto operation=Id::generate();out.operation=operation;
         if(options.savedStagingBeforeSpawn)options.savedStagingBeforeSpawn();
         poll();
@@ -186,14 +210,15 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         const auto drain=[&]{
             child.setReadChannel(QProcess::StandardError);
             while(child.bytesAvailable()){check(errorUsed<errors.size(),"Saved staging stderr overflow",ErrorCode::ResourceLimit);
-                const auto n=child.read(errors.data()+errorUsed,static_cast<qint64>(errors.size()-errorUsed));check(n>=0,"Saved staging stderr",ErrorCode::Io);if(!n)break;errorUsed+=static_cast<std::size_t>(n);}
+                const auto n=child.read(errors.data()+errorUsed,static_cast<qint64>(errors.size()-errorUsed));check(n>=0,"Saved staging stderr",ErrorCode::Io);if(!n)break;errorUsed+=static_cast<std::size_t>(n);
+                if(options.savedStagingDiagnosticHook)options.savedStagingDiagnosticHook(std::string_view(errors.data(),errorUsed));}
             child.setReadChannel(QProcess::StandardOutput);
             while(child.bytesAvailable()){check(output.size()<32768,"Saved staging stdout overflow",ErrorCode::ResourceLimit);std::array<char,4096> chunk{};
                 const auto n=child.read(chunk.data(),static_cast<qint64>(std::min(chunk.size(),32768-output.size())));check(n>=0,"Saved staging stdout",ErrorCode::Io);if(!n)break;output.append(chunk.data(),static_cast<std::size_t>(n));}
         };
         while(child.state()!=QProcess::NotRunning){child.waitForReadyRead(20);drain();
         poll();}
-        out.childExit=child.exitCode();out.reaped=out.childPid!=0;bank.resize(bank.bytes()-childCredit);drain();
+        out.childExit=child.exitCode();out.reaped=out.childPid!=0;out.normalExit=child.exitStatus()==QProcess::NormalExit;bank.resize(bank.bytes()-childCredit);drain();
         poll();
         check(out.reaped && child.exitStatus()==QProcess::NormalExit && out.childExit==0 && !errorUsed,"Saved staging child refused",ErrorCode::Io);
         if(options.savedStagingBeforeTerminal)options.savedStagingBeforeTerminal();
@@ -203,23 +228,24 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         check(!output.empty() && output.find('\n')==output.size()-1,"Saved staging terminal framing");
         const auto terminal=frame(output,{"protocol","workerPid","published","recordHex"});
         check(terminal.at("protocol")=="sc-saved-staging-result-v1" && integer(terminal.at("workerPid"))==out.childPid && !boolean(terminal.at("published")),"Saved staging terminal identity");
-        auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex")),memory);
+        auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex")),memory,stop);
         const auto &audio=checked.report->audio();CheckedMediaBytes content{audio.sourceBytes,audio.sourceSha256};
-        verifySavedRestorationRecord(record,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory);out.recordVerified=true;
+        verifySavedRestorationRecord(record,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory,stop);out.recordVerified=true;
         // Independent read after native exclusive writer handles have retired.
         // This is evidence, never native owner reconstruction/publication permission.
-        auto staged=destination.open(operation.str()+"/media.partial",options.restorationInspectionMaximumBytes);
-        check(staged.size()==content.bytes && staged.digest({},poll)==content.sha256,"Saved staging bytes differ",ErrorCode::MediaMismatch);staged.verifyUnchanged();
+        auto staged=destination.open(operation.str()+"/media.partial",options.restorationInspectionMaximumBytes,stop);
+        check(staged.size()==content.bytes && staged.digest(stop,poll)==content.sha256,"Saved staging bytes differ",ErrorCode::MediaMismatch);staged.verifyUnchanged();
         poll();
-        auto intentFile=destination.open(operation.str()+"/intent.json",savedRestorationRecordMaximumBytes);
-        std::string intentBytes(static_cast<std::size_t>(intentFile.size()),'\0');intentFile.readAt(0,std::span(intentBytes));
-        auto intentRecord=decodeSavedRestorationRecord(intentBytes,memory);verifySavedRestorationRecord(intentRecord,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory);
+        auto intentFile=destination.open(operation.str()+"/intent.json",savedRestorationRecordMaximumBytes,stop);
+        std::string intentBytes(static_cast<std::size_t>(intentFile.size()),'\0');intentFile.readAt(0,std::span(intentBytes),stop);
+        auto intentRecord=decodeSavedRestorationRecord(intentBytes,memory,stop);verifySavedRestorationRecord(intentRecord,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory,stop);
         intentFile.verifyUnchanged();
         poll();out.stagedBytesVerified=true;
-    }catch(const ProjectError &e){out.error=e.code();}catch(const std::exception &){out.error=ErrorCode::Io;}
-    if(child.state()!=QProcess::NotRunning){child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
-    if(out.childPid){out.childExit=child.exitCode();out.reaped=true;} // Actual QProcess retirement on every launched-child path.
+    }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled && !closing.load(std::memory_order_acquire) && !cancel.load(std::memory_order_acquire) && expired())out.error=ErrorCode::Io;}catch(const std::exception &){out.error=ErrorCode::Io;}
+    if(child.state()!=QProcess::NotRunning){out.killed=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    if(out.childPid){out.childExit=child.exitCode();out.reaped=true;out.normalExit=child.exitStatus()==QProcess::NormalExit;} // Actual QProcess retirement on every launched-child path.
     if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
+    watchdog.request_stop();if(watchdog.joinable())watchdog.join();
     return out;
 }
 

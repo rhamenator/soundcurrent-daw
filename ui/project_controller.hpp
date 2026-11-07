@@ -171,6 +171,8 @@ struct SavedStagingCompletion {
     std::size_t childPid=0;
     std::optional<int> childExit;
     bool reaped=false,requestSent=false,stagingMayExist=false,recordVerified=false,stagedBytesVerified=false;
+    std::optional<bool> normalExit; // Present only after an actually reaped child; exitCode alone is not normal-exit proof.
+    bool killed=false;
     std::optional<ErrorCode> error;
 };
 struct ControllerSnapshot {
@@ -241,7 +243,12 @@ struct ControllerOptions {
     std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
     std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
     std::filesystem::path savedStagingWorkerProgram = {};
-    unsigned savedStagingDeadlineMilliseconds=20000;
+    unsigned savedStagingDeadlineMilliseconds=20000; // Base, unchanged for small selections when size allowance is disabled.
+    unsigned savedStagingMillisecondsPerMiB=1000; // Additional trusted I/O allowance from checked source extent.
+    std::uint64_t savedStagingMaximumDeadlineMilliseconds=30*60*1000;
+    std::function<std::uint64_t()> savedStagingNowMilliseconds = {}; // Qualification clock, never untrusted metadata.
+    std::function<void()> savedStagingBeforeSourceChunk = {},savedStagingBeforeDestination = {};
+    std::function<void(std::string_view)> savedStagingDiagnosticHook = {}; // Qualification only.
     std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};
     std::function<void(std::string &,std::size_t)> savedStagingTerminalHook = {};
     HistoryBudget historyBudget{};

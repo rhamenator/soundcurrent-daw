@@ -11,16 +11,30 @@ The serialized I/O worker revalidates the ORIGINAL private source ticket against
 a fresh native saved audit, the actual completed/reaped source checker and a
 freshly approved explicit source handle. It exports the original control proof,
 never substitutes a newer fingerprint, and retains the original approved native
-destination identity through child retirement. A new operation and staging job
+destination identity through child retirement. Its independently observed stamp
+is compared with the ORIGINAL private ticket before spawn; a pathname reopen
+cannot silently select a newer root. A new operation and staging job
 are independent of historical intent fields. No accepted Session is fabricated.
 
 The real shared saved-staging child receives an exact bounded request only after
 its PID is independently observed by QProcess. The parent closes stdin, drains
 bounded stdout/stderr, checks cancellation/close/deadline on its I/O thread, and
-kills/reaps the actual child on every failure path. Admission reserves the
+kills/reaps the actual child on every failure path. A joined watchdog bridges
+cancellation, closing and the deadline into the stop token passed to every native
+audit, proof revalidation, report copy, selected-source hash and post-stage read.
+The source hash also checks the policy before each chunk. A full hash pass is not
+an uninterruptible unit; only an individual native syscall remains cooperative.
+The watchdog is retired before any captured owner or credit. Admission reserves the
 512 MiB child policy plus framing/parser credit in the parent's same ledger and
 scope. Native filesystem I/O remains cooperative around OS calls; this admission
 is not a process RSS sandbox or a guarantee about an uninterruptible OS call.
+The trusted deadline policy adds 1,000 milliseconds per started MiB of checked
+source to the 20,000 millisecond base, saturating safely at the configured
+30-minute maximum. A 1 GiB selection therefore has 17 minutes 24 seconds for all
+parent/child work rather than the small-file base alone. This is a bounded policy,
+not a claim that every storage device or maximum-size file has been qualified.
+Qualification can disable the size allowance and use an independently controlled
+clock to exercise expiry without requiring a fast host to reach a spawn seam.
 
 Only a normal zero-exit, reaped child with one strict bounded planned-record
 response can qualify. The parent compares the record and persisted intent with
@@ -35,7 +49,10 @@ inside the shared native child.
 Once a child actually starts, staging-may-exist stays conservative even before
 the request is sent. A missing, malformed or truncated reply, overflow, cancellation,
 deadline, crash or closed pipe must never prove no files were created. The parent
-retains honest PID/exit/reap/request facts and partial files for inspection. It
+retains honest PID/exit/reap/request facts and partial files for inspection.
+Reported QProcess normal/crash status and a separate parent-killed flag are
+retained; exitCode alone, even zero, never establishes normal completion.
+Pre-spawn refusals report that no child started instead of claiming partial files. It
 does not erase staging, publish canonical media, write publication receipts,
 release accepted-model reconciliation, adopt a project or bypass strict Open.
 
