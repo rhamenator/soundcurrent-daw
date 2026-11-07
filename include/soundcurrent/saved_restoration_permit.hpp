@@ -5,6 +5,8 @@
 namespace soundcurrent::daw {
 inline constexpr std::size_t savedRestorationPermitMaximumBytes=65536;
 inline constexpr std::size_t savedRestorationPermitWorkCharge=savedRestorationPermitMaximumBytes*32;
+inline constexpr std::size_t savedRestorationReadyMaximumBytes=32768;
+inline constexpr std::size_t savedRestorationReadyWorkCharge=savedRestorationReadyMaximumBytes*32;
 class SavedRestorationPublicationPermit;
 // Native I/O only: keeps the SAME preverified original dispatch and live stage.
 // No construction from a saved record, DTO, stdout or exited stage.
@@ -17,6 +19,9 @@ class DispatchedSavedRestoration {
     DispatchedSavedRestoration(DispatchedSavedRestoration &&) noexcept=default;
     DispatchedSavedRestoration(const DispatchedSavedRestoration &)=delete;
     const SavedRestorationRecord &record() const {return stage_.record();}
+    // v2 groundwork: reverify the same live native stage before advertising it.
+    // No EOF/IPC loop or permission is implied; v1 stays stage-only.
+    OwnedInspectionProtocol ready(const SavedRestorationOwnerView &,std::size_t actualWorkerPid,std::stop_token = {});
   private:
     friend class SavedRestorationPublicationPermit;
     DispatchedSavedRestoration(SavedRestorationDispatchTicket,SavedRestorationStage,ResourceLedger);
@@ -26,6 +31,10 @@ class DispatchedSavedRestoration {
     ResourceLedger memory_;
     bool attempted_=false;
 };
+// Planned metadata only. Parent supplies original dispatch/current owner/actual
+// observed PID; decoded READY cannot recreate a live stage or authorize publish.
+SavedRestorationRecord decodeSavedRestorationReady(std::string_view,const SavedRestorationDispatchTicket &,
+    const SavedRestorationOwnerView &,std::size_t observedWorkerPid,ResourceLedger,std::stop_token = {});
 // Parent supplies its CURRENT serialized owner and independently observed child
 // PID. Encoding after READY checks captured metadata, not an unchanged root stamp
 // invalidated by this child's own staging. Live child revalidates native proof.

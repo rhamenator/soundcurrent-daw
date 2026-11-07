@@ -32,6 +32,8 @@ class SavedRestorationDispatchTicket {
         const WaveCheckReport &,std::size_t actualCheckerPid,ResourceLedger,std::stop_token = {}) const;
   private:
     friend class DispatchedSavedRestoration;
+    friend SavedRestorationRecord decodeSavedRestorationReady(std::string_view,
+        const SavedRestorationDispatchTicket &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token);
     friend OwnedInspectionProtocol encodeSavedRestorationPublicationPermit(const SavedRestorationDispatchTicket &,
         const SavedRestorationRecord &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token);
     void verifyOwner(const SavedRestorationOwnerView &,ResourceLedger,std::stop_token) const;
