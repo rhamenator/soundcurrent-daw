@@ -376,6 +376,18 @@ void savedDispatchOwner(const SavedRestorationOwnerView &owner,ResourceLedger me
     require(owner.root.is_absolute() && owner.root.native().size()<=4096 &&
         owner.root.native().find(std::filesystem::path::value_type(0))==owner.root.native().npos,
         "Invalid saved dispatch root");
+#ifdef _WIN32
+    // Reject lone UTF-16 surrogates before toolchain-dependent path conversion.
+    const auto &units=owner.root.native();
+    for(std::size_t i=0;i<units.size();++i) {
+        const auto unit=static_cast<unsigned>(units[i]);
+        if(unit>=0xd800 && unit<=0xdbff) {
+            require(i+1<units.size(),"Unpaired saved dispatch high surrogate");
+            const auto low=static_cast<unsigned>(units[++i]);
+            require(low>=0xdc00 && low<=0xdfff,"Invalid saved dispatch surrogate pair");
+        } else require(unit<0xdc00 || unit>0xdfff,"Unpaired saved dispatch low surrogate");
+    }
+#endif
     auto conversionCredit=memory.reserve(16384); // Admit worst-case UTF-8 conversion before allocation.
     std::u8string u;
     try {u=owner.root.u8string();}
