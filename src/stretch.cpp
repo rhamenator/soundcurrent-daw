@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/comp_playback_state.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <algorithm>
 #include <numeric>
@@ -94,6 +95,24 @@ Frame scaleStretchFrame(Frame frame,std::uint64_t n,std::uint64_t d,bool ceiling
     if (negative && value==std::uint64_t(INT64_MAX)+1) return INT64_MIN;
     return negative ? -Frame(value) : Frame(value);
 }
+SourceIntervalRatio sourceIntervalRatio(SourcePosition output, SourcePosition input) {
+    output=canonical(output); input=canonical(input);
+    require(output.frame || output.fraction, "Output interval has zero duration");
+    require(input.frame || input.fraction, "Input interval has zero duration");
+    if(output==input)return {1,1};
+    const auto improper=[](SourcePosition p) {
+        require(std::uint64_t(p.frame)<=(UINT64_MAX-p.fraction)/p.denominator,
+                "Source interval ratio exceeds exact representation");
+        return std::uint64_t(p.frame)*p.denominator+p.fraction;
+    };
+    auto on=improper(output), in=improper(input);
+    auto od=output.denominator, id=input.denominator;
+    const auto a=std::gcd(on,in); on/=a; in/=a;
+    const auto b=std::gcd(id,od); id/=b; od/=b;
+    require(on<=UINT64_MAX/id && in<=UINT64_MAX/od,
+            "Source interval scale exceeds exact representation");
+    return {on*id,in*od};
+}
 SourcePosition scaleSourcePosition(SourcePosition p,std::uint64_t n,std::uint64_t d) {
     p=canonical(p);require(n && d,"Invalid stretch coordinate scale");
     const auto ratioGcd=std::gcd(n,d);n/=ratioGcd;d/=ratioGcd;
@@ -127,6 +146,18 @@ bool sourcePositionLess(SourcePosition a,SourcePosition b) {
     if(a.frame!=b.frame)return a.frame<b.frame;
     const auto left=multiply(a.fraction,b.denominator),right=multiply(b.fraction,a.denominator);
     return left.high!=right.high?left.high<right.high:left.low<right.low;
+}
+SourcePosition addSourcePosition(SourcePosition a,SourcePosition b) {
+    a=canonical(a);b=canonical(b);
+    const auto reduced=a.denominator/std::gcd(a.denominator,b.denominator);
+    require(reduced<=UINT64_MAX/b.denominator,"Source-position sum denominator overflow");
+    const auto denominator=reduced*b.denominator;
+    const auto left=a.fraction*(denominator/a.denominator),right=b.fraction*(denominator/b.denominator);
+    const bool carry=left>=denominator-right;
+    const auto remainder=carry?left-(denominator-right):left+right;
+    require(b.frame<=INT64_MAX-a.frame && (!carry || a.frame+b.frame<INT64_MAX),
+            "Source-position sum frame overflow");
+    return canonical({a.frame+b.frame+Frame(carry),remainder,denominator});
 }
 SourcePosition subtractSourcePosition(SourcePosition a,SourcePosition b) {
     a=canonical(a);b=canonical(b);require(!sourcePositionLess(a,b),"Negative source-position interval");
@@ -170,6 +201,9 @@ SourcePosition stretchOutputToSource(const ClipStretchAnchor &p,SourcePosition o
     require(before>=0 && source.frame>=before,"Position precedes retained nominal raw span");source.frame-=before;
     require(!sourcePositionLess({p.sourceFrames,0,1},source),"Position exceeds retained nominal raw span");return source;
 }
+SourcePosition stretchOutputToRaw(const ClipStretchAnchor &p,SourcePosition output) {
+    return addSourcePosition(p.sourceOrigin,stretchOutputToSource(p,output));
+}
 StretchGeometry stretchGeometry(const ClipStretchAnchor &p,Frame available) {
     validateStretchProcessor(p.processor,p.settings,p.context,p.warp);
     require(canonicalStretchSettings(p.settings)==p.settings,"Stretch settings must be canonical");
@@ -205,7 +239,7 @@ void validateClipStretch(const ClipStretchAnchor &p,const Asset &source,const As
 }
 void validateStretchClipWindow(const Clip &c,const Asset &source,const Asset &rendered,std::uint32_t projectRate) {
     require(c.stretch.has_value(),"Missing stretch window anchor");
-    if(!c.stretch->context && !c.stretch->warp)return;
+    if(c.compHandles || (!c.stretch->context && !c.stretch->warp))return;
     const auto g=stretchGeometry(*c.stretch,source.frames);
     const auto map=clipSourceMap(c,rendered.sampleRate,projectRate);
     require(!sourcePositionLess(map.at(0),g.visibleBegin) && sourcePositionLess(map.at(c.lengthFrames-1),g.visibleEnd),
@@ -213,6 +247,8 @@ void validateStretchClipWindow(const Clip &c,const Asset &source,const Asset &re
 }
 ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
     validate(s);const auto &c=find(find(s.tracks,track).clips,clip);
+    require(!c.compHandles,"Processed comp handles require paired regeneration",ErrorCode::UnsupportedSchema);
+    require(!findCompPlaybackSource(s,c.assetId),"Assembled comp audio requires source-aware paired regeneration",ErrorCode::UnsupportedSchema);
     const auto &current=find(s.assets,c.assetId);
     ClipStretchPlan result{track,c,{}, {}};
     if(c.stretch) {
@@ -237,6 +273,7 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
     auto &destination=find(clips,e.clip);
     auto c=destination;
     require(c==e.expected,"Clip changed before stretch adoption",ErrorCode::InvalidState);
+    require(!c.compHandles,"Processed comp handles require paired regeneration",ErrorCode::UnsupportedSchema);
     const auto plan=prepareClipStretch(s,e.track,e.clip,e.value.settings,e.value.context,e.value.warp);
     auto intended=plan.anchor;intended.renderKey=e.value.renderKey;
     require(plan.source==e.source && intended==e.value,"Stretch raw anchor changed before adoption",ErrorCode::InvalidState);

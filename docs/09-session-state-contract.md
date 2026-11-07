@@ -84,3 +84,12 @@ and reject new keys. Strict values and semantic SetLoop/Undo conflict checks are
 described in [checkpoint173](173-desktop-loop-playback.md). Opening saved state
 never activates audio. Ordinary export and automatic loop recording are separate
 explicit intents; this schema adds no implicit repeat/record policy.
+
+## Portable comp recovery references
+
+[Schema 1.21](276-project-comp-references.md) adds project-owned operation UUID and
+selection SHA-256 references only when present. These use strict fields, global
+UUID uniqueness and state/parser/history budgets. Older encodings remain unchanged
+for projects without references. Saved digests bind immutable sidecars; missing or
+invalid jobs remain recovery conditions and cannot authorize comp adoption.
+Registration/removal is undoable and does not start, terminate or delete a worker.

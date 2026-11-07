@@ -1,0 +1,7 @@
+{
+  "path": "pngs/11951867573/build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-1-review.png",
+  "sha256": "c76289e2aa0d60698d778649412403238b4e33657f70f402406fc3aea7f4e9a5",
+  "inspected": true,
+  "observation": "Native 48 kHz generation 1 Review shows current Audio verified status and enabled Apply reviewed audio; no stale previous Transition applied message. Text and controls fit the captured window.",
+  "physicalAudio": false
+}

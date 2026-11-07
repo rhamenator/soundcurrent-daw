@@ -1,0 +1,64 @@
+{
+  "run": 38582997256,
+  "head": "35433e9ce9222fbb95f40bc4f6a6ef22ab679904",
+  "originalResultsRetained": true,
+  "jobs": [
+    {
+      "id": 115917504913,
+      "name": "Linux desktop and synthetic tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 115917505683,
+      "name": "Windows desktop import and localization tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 115917505889,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115917506034,
+      "name": "Windows native packet ownership tests",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11905061198,
+      "name": "windows-media-build-review",
+      "size_in_bytes": 438050,
+      "digest": "sha256:19f5153ae49eb169ba0a5cb37d247244cc3391c600d7de4b95df9665a64914d7"
+    },
+    {
+      "id": 11904873143,
+      "name": "linux-synthetic-test-log",
+      "size_in_bytes": 37058,
+      "digest": "sha256:4cbe136786fda635dc4682edf6919c47317bd13bdd9ed5c888fe6f354e7fc096"
+    },
+    {
+      "id": 11904776698,
+      "name": "windows-preview-build-inputs",
+      "size_in_bytes": 123737184,
+      "digest": "sha256:1e87da59e4a348f5d7f1df9c0fd42244cee6f801a3524c4f7d850a0afaa540f3"
+    },
+    {
+      "id": 11904612357,
+      "name": "windows-native-packet-unit-log",
+      "size_in_bytes": 34319590,
+      "digest": "sha256:459d76530978583d9ba1f7d25295787aa161fe594518e4c8a222d7854f8d1485"
+    },
+    {
+      "id": 11904582009,
+      "name": "windows-desktop-import-test-log",
+      "size_in_bytes": 59794,
+      "digest": "sha256:26d1a7a5bf70b419ac94a727514a35631d865ea393d7351df122958360125dfc"
+    }
+  ],
+  "localOriginalArchiveRoot": ".cache/comp-processing-recipes/pr194-permission-review",
+  "independentBundleAudit": "bundle-audit.json",
+  "nativeAudioQualified": false,
+  "installerPrepared": false,
+  "newRecipeWindowsExecuted": false
+}

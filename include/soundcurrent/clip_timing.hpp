@@ -12,6 +12,14 @@ class SourceFrameMap {
                    Frame sourceOrigin = 0, ClipPlaybackRate = {});
     SourceFrameMap(std::uint32_t sourceRate, std::uint32_t projectRate, SourcePosition,
                    ClipPlaybackRate = {});
+    // Worker-side grid independent of project/playback settings. Sample i is
+    // origin + i * exactSourceSpan / processingFrames; at(processingFrames)
+    // is the exclusive raw endpoint, even when that endpoint is fractional.
+    // Reduced step components must fit uint32 and step remains 1/192..192,
+    // the existing positioned kernel's admitted effective rate range.
+    static SourceFrameMap processingGrid(SourcePosition origin,
+                                         SourcePosition exactSourceSpan,
+                                         Frame processingFrames);
     SourcePosition at(Frame projectOffset) const;
     SourceFrameMap advanced(Frame projectOffset) const;
     SourceFrameMap translated(Frame signedProjectOffset) const;

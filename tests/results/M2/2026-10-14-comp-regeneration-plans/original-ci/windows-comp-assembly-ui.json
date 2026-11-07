@@ -1,0 +1,491 @@
+{
+  "inputWorkflow": {
+    "workerSha256": "d98a6c398e2cee740d64adead51ccb4e27a89c03aa25cc7703962cc793719dc1",
+    "processes": [
+      {
+        "kind": "prepare",
+        "pid": 7212,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 9380,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 5556,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 9868,
+        "exitCode": 0,
+        "seconds": 0.25363880000008976,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 5148,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 3368,
+        "exitCode": 0,
+        "seconds": 0.26440279999997074,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 5840,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 9132,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 9760,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 4884,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 5736,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 6104,
+        "exitCode": 0,
+        "seconds": 0.30510180000010223,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 6380,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 1784,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 1584,
+        "exitCode": 0,
+        "seconds": 0.34599600000001374,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 9504,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 6608,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 5948,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 208,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 7876,
+        "exitCode": 0,
+        "seconds": 0.2573021999999128,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 9120,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 9384,
+        "exitCode": 0,
+        "seconds": 0.2823845000000347,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 8424,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 1464,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 5544,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 2828,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 2776,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 6968,
+        "exitCode": 0,
+        "seconds": 0.3355908000000909,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 5436,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 6676,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 6036,
+        "exitCode": 0,
+        "seconds": 0.3784017999998923,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 9308,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 6172,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 1332,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 1288,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 1608,
+        "exitCode": 0,
+        "seconds": 0.33912230000009913,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 7892,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 5944,
+        "exitCode": 0,
+        "seconds": 0.3452887999999348,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 6408,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 8736,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 5124,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 3628,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 3412,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 6988,
+        "exitCode": 0,
+        "seconds": 0.43511790000002293,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 7204,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 3728,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 5064,
+        "exitCode": 0,
+        "seconds": 0.46881200000007084,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 5360,
+        "exitCode": 0
+      }
+    ],
+    "reports": [
+      {
+        "checks": 98561,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 98272,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 98200,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 1,
+            "exactSamples": 49188,
+            "fragment": 0,
+            "frames": 24602,
+            "peakLinear": 3.6371512413024902,
+            "sha256": "785cc8d30d179ec8bb50a99ac17750939c9d95e05aac5947ba3af5a70ee03ca8",
+            "spanSha256": "4b7594a82271254ce3e9a2108f2eb4b00da5c14f3d97dfe46d47a7dcb64a616b"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 1,
+            "exactSamples": 49188,
+            "fragment": 1,
+            "frames": 24602,
+            "peakLinear": 3.6371512413024902,
+            "sha256": "ff76762856d23bac04e09a6a26e02befd225498cd21a757d2ca2b1577bcf9f6b",
+            "spanSha256": "c86076ed55470f2294b2407c93d1c8d5e182f1f46204c0056b9014a973fd2dfa"
+          }
+        ]
+      },
+      {
+        "checks": 71563,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 0,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 71228,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 35702,
+            "fragment": 0,
+            "frames": 17859,
+            "peakLinear": 4.117021560668945,
+            "sha256": "18e55586a85626f49ad388593f4bbf7f35bdf274a3c34150bf34969f550b2e37",
+            "spanSha256": "bb5020bfe318f135d0342432d51d044ef6a282799ecff663e2f1bfc2b0021772"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 35702,
+            "fragment": 1,
+            "frames": 17859,
+            "peakLinear": 4.117021560668945,
+            "sha256": "75f07e9cfc1ad04b78c41f92278d99766a8e30382d2df594e11b238e25e5853d",
+            "spanSha256": "feb962d8008fe3637b91b94c770d9ab89a4a97ddd7c9af5b4aa0193d6fc59f14"
+          }
+        ]
+      },
+      {
+        "checks": 32961,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 0,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 32664,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 16420,
+            "fragment": 0,
+            "frames": 8218,
+            "peakLinear": 3.8511574268341064,
+            "sha256": "58e7e35ca366ffc514f8ce4cfcb472f52ed7175c52de2648e13ee900a6aaf88d",
+            "spanSha256": "db835cea1547e235e664b0993941c1517f2d8928f2a65955da7f1f8191c43ce1"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 16420,
+            "fragment": 1,
+            "frames": 8218,
+            "peakLinear": 3.8511574268341064,
+            "sha256": "61bd4f1081c90650d0857a79811d84e1367aa37a006df83ce6e88f387acd2829",
+            "spanSha256": "38119561704f19f46091c2a29611278d230ea892eaf76ae8bdfc1ad2f40c93ef"
+          }
+        ]
+      }
+    ],
+    "completedWorkers": 6,
+    "physicalFragments": 2,
+    "postSrcFragments": 4,
+    "completedNominalWorkers": 6,
+    "nominalWorkerSha256": "57b2ed03bed5f80274c15405c0a29f9022ba3fd75c607b0373d1a836e097269e",
+    "ownedNominalWorkflowQualified": true,
+    "nominalBinaryBoundByProtocol": false,
+    "qualityAdmission": false,
+    "modelAdoptionChanged": false
+  },
+  "controllerProcesses": [
+    {
+      "pid": 8632,
+      "exitCode": 0
+    },
+    {
+      "pid": 10020,
+      "exitCode": 0
+    },
+    {
+      "pid": 6232,
+      "exitCode": 0
+    }
+  ],
+  "reports": [
+    {
+      "cases": [
+        {
+          "asynchronousClose": true,
+          "case": 0,
+          "exportFileSha256": "1657f2c0d2ca9a15060f170325714782ff0f29f309ff172cf12da380ff833659",
+          "exportFrames": 35666,
+          "exportPeak": 4.117021560668945,
+          "rawAndForeignLedgerRefused": true,
+          "reviewed": true,
+          "undoRedoSaveReopen": true
+        }
+      ],
+      "checks": 22,
+      "executorSha256": "c37b7a6c134688321254fe5bc2c65736d50cdb4a003196a5d95dcbe368cec2a5",
+      "mainWindowIntegrated": true,
+      "physicalAudio": false,
+      "qualityAdmission": false
+    },
+    {
+      "cases": [
+        {
+          "asynchronousClose": true,
+          "case": 0,
+          "exportFileSha256": "e7165fcded595d7ec6ba4bc9ccd9ac27235ef451a02396949608490e3b0049b2",
+          "exportFrames": 49152,
+          "exportPeak": 3.6371512413024902,
+          "rawAndForeignLedgerRefused": true,
+          "reviewed": true,
+          "undoRedoSaveReopen": true
+        },
+        {
+          "asynchronousClose": true,
+          "case": 1,
+          "changedFileRefused": true,
+          "reviewed": true
+        },
+        {
+          "asynchronousClose": true,
+          "case": 2,
+          "reviewed": true,
+          "sameRootReopenRefused": true
+        },
+        {
+          "asynchronousClose": true,
+          "case": 3,
+          "closeCanceledWithoutEdit": true,
+          "guiTicks": 15,
+          "reviewed": true
+        }
+      ],
+      "checks": 43,
+      "executorSha256": "c37b7a6c134688321254fe5bc2c65736d50cdb4a003196a5d95dcbe368cec2a5",
+      "mainWindowIntegrated": true,
+      "physicalAudio": false,
+      "qualityAdmission": false
+    },
+    {
+      "cases": [
+        {
+          "asynchronousClose": true,
+          "case": 0,
+          "exportFileSha256": "3eb17415915801a85b4e3125b2119f32d53cbd64112decf644dd12c0cadf342c",
+          "exportFrames": 16384,
+          "exportPeak": 3.8511574268341064,
+          "rawAndForeignLedgerRefused": true,
+          "reviewed": true,
+          "undoRedoSaveReopen": true
+        }
+      ],
+      "checks": 22,
+      "executorSha256": "c37b7a6c134688321254fe5bc2c65736d50cdb4a003196a5d95dcbe368cec2a5",
+      "mainWindowIntegrated": true,
+      "physicalAudio": false,
+      "qualityAdmission": false
+    }
+  ]
+}

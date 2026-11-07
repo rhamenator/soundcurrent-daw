@@ -1,0 +1,19 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 4580281,
+  "sha256": "5db32b9a43d848a7acb17754898f165a0446b122be925a158bbd617982955559",
+  "entries": 1715,
+  "sourceHead": "97e9ecdc32cfaddca03e4c8df9829fbdcb68c0aa",
+  "linuxTestsPassed": 27,
+  "installedWorkflowPassed": true,
+  "normalApplicationsLauncherQualified": true,
+  "renderMilliseconds": 4316,
+  "bitExactIndependentExport": true,
+  "sourceArchiveVerified": true,
+  "sourceArchiveFiles": 8101,
+  "binariesIncluded": false,
+  "privatePreferencesIncluded": false,
+  "physicalAudio": false,
+  "vmUsed": false,
+  "cleanInstallQualified": false
+}

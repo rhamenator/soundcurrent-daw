@@ -122,6 +122,41 @@ for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wa
     assert p.stat().st_mode&0o777==0o755
     assert len(builder.verify_staged_install(stage,source,binary))==11
 assert (stage/'usr/share/applications/soundcurrent-daw.desktop').stat().st_mode&0o777==0o644
+
+marker=source/'include/soundcurrent/comp_transition_preparation.hpp';marker.parent.mkdir(parents=True,exist_ok=True);marker.write_text('fixture marker')
+comp_worker=binary.parent/'sc-comp-span-worker';comp_worker.write_bytes(b'qualified comp worker')
+refuse('missing-comp-worker')
+comp_installed=stage/'usr/bin/sc-comp-span-worker';comp_installed.write_bytes(comp_worker.read_bytes())
+builder.normalize_staged_permissions(stage)
+assert len(builder.verify_staged_install(stage,source,binary))==12
+comp_installed.write_bytes(b'stale comp worker');refuse('stale-comp-worker')
+comp_installed.write_bytes(comp_worker.read_bytes());comp_installed.chmod(0o644);refuse('non-executable-comp-worker')
+comp_installed.chmod(0o755)
+assert len(builder.verify_staged_install(stage,source,binary))==12
+print('Comp payload: missing/stale/non-executable helper refused; matching helper accepted.')
+
+# A waveform-enabled source tree must ship the exact real worker, executable.
+(source/'ui/timeline_waveforms.cpp').write_text('fixture marker')
+wave_worker=binary.parent/'sc-waveform-worker';wave_worker.write_bytes(b'qualified waveform worker')
+wave_qualification={'executable_sha256':{'sc-waveform-worker':builder.digest(wave_worker)}}
+builder.qualify_waveform_worker(wave_qualification,wave_worker)
+for qualification in ({}, {'executable_sha256':{}}, {'executable_sha256':{'sc-waveform-worker':'0'*64}}):
+    try:builder.qualify_waveform_worker(qualification,wave_worker)
+    except RuntimeError:pass
+    else:raise AssertionError('Untested waveform helper accepted')
+wave_worker.write_bytes(b'changed after qualification')
+try:builder.qualify_waveform_worker(wave_qualification,wave_worker)
+except RuntimeError:pass
+else:raise AssertionError('Changed waveform helper accepted')
+wave_worker.write_bytes(b'qualified waveform worker')
+refuse('missing-waveform-worker')
+wave_installed=stage/'usr/bin/sc-waveform-worker';wave_installed.write_bytes(wave_worker.read_bytes())
+builder.normalize_staged_permissions(stage)
+builder.verify_staged_install(stage,source,binary)
+wave_installed.write_bytes(b'stale waveform worker');refuse('stale-waveform-worker')
+wave_installed.write_bytes(wave_worker.read_bytes())
+print('Waveform desktop payload: exact executable worker required.')
+
 # Verify Debian preserves the normalized mode, independently of input byte hashes.
 control=stage/'DEBIAN';control.mkdir()
 (control/'control').write_text('Package: sc-permission-fixture\nVersion: 1\nArchitecture: all\nMaintainer: Test <test@example.invalid>\nDescription: owned permission fixture\n')
@@ -135,5 +170,7 @@ builder.verify_payload_mode(extracted/'usr/bin/sc-import-inspect-worker','usr/bi
 builder.verify_payload_mode(extracted/'usr/bin/sc-approved-wave-probe','usr/bin/sc-approved-wave-probe')
 builder.verify_payload_mode(extracted/'usr/bin/sc-media-import-worker','usr/bin/sc-media-import-worker')
 builder.verify_payload_mode(extracted/'usr/bin/sc-stretch-render-worker','usr/bin/sc-stretch-render-worker')
+builder.verify_payload_mode(extracted/'usr/bin/sc-comp-span-worker','usr/bin/sc-comp-span-worker')
 builder.verify_payload_mode(extracted/'usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt','usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt')
-print('PASS: all five executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')
+builder.verify_payload_mode(extracted/'usr/bin/sc-waveform-worker','usr/bin/sc-waveform-worker')
+print('PASS: all seven executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')

@@ -44,6 +44,8 @@ class ManualRecordingPanel final : public QGroupBox {
     std::optional<ManualControlPreparation> prepared_;
     std::vector<Id> barrierArms_;
     int barrierSeconds_ = 0, barrierReserve_ = 0;
+    std::uint64_t autosaveToken_ = 0, autosaveEpoch_ = 0, barrierError_ = 0;
+    bool autosaveAcquiring_ = false, autosaveReleasing_ = false, barrierQueued_ = false;
     std::uint64_t barrier_ = 0, pending_ = 0, nextTake_ = 0, activeTake_ = 0;
     std::uint64_t punchPending_ = 0, stopToken_ = 0, epoch_ = 0, errorSeen_ = 0;
     std::uint64_t followed_ = 0, inventoryRevision_ = 0;

@@ -34,6 +34,12 @@ class ProjectStore {
         : root_(std::move(root)), budget_(budget) {}
     SaveResult save(const Session &, const SaveOptions &options = {}) const;
     Session load() const;
+    // Control/I/O only, one separate recoverable generation. Requires an existing
+    // canonical project with matching identity; never rotates manual snapshots.
+    Durability saveAutosave(const Session &, const SaveOptions &options = {}) const;
+    // Explicit recovery only. Canonical identity and all snapshot media must
+    // validate; a corrupt/missing canonical manifest is not silently bypassed.
+    Session loadAutosave() const;
     // Control/I/O only: verify owned media without publishing a project generation.
     void verifyMedia(const Session &, const std::function<void()> &beforeRead = {}) const;
     Session loadPrevious() const; // Explicit recovery; never silently substitutes.

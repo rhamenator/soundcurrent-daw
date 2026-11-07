@@ -11,6 +11,8 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
+#include <numbers>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -47,6 +49,10 @@ int run(const std::vector<std::string> &args){try{
     Asset raw;raw.id=Id(request.at("assetId").get<std::string>());raw.relativePath=request.at("relative");raw.sha256=request.at("sha256");raw.sampleRate=request.at("rate");raw.frames=request.at("sourceFrames");const auto channels=request.at("channels").get<std::uint32_t>();raw.layout={channels==1?LayoutKind::Mono:channels==2?LayoutKind::Stereo:LayoutKind::Discrete,channels};
     auto s=makeOneTrackSession("Editable derived stretch","Audio",raw.sampleRate);s.assets={raw};s.tracks[0].layout=raw.layout;s.tracks[0].eq={};
     Clip c;c.assetId=raw.id;c.sourceFrame=request.at("first");c.sourceTiming={request.at("firstFraction"),request.at("firstDenominator")};c.lengthFrames=request.at("frames");s.tracks[0].clips={c};
+    TakeLane retained;retained.name="Raw take — Ελληνικά";retained.captureEndFrame=c.lengthFrames;
+    auto originalTake=c;originalTake.id=Id::generate();retained.clips={originalTake};
+    c.takeOrigin=ClipTakeOrigin{s.tracks[0].id,retained.id,originalTake.id};
+    s.tracks[0].clips={c};s.tracks[0].takeLanes={retained};
     const auto original=s;StretchSettings settings{request.at("timeNumerator"),request.at("timeDenominator"),request.at("pitchMilliCents"),request.at("formantPreserved")};
     std::optional<WarpSettings> warp;if(request.contains("warp"))warp=warp_codec::decode(request.at("warp"),c.lengthFrames,stretchOutputFrames(c.lengthFrames,settings),8*1024*1024);
     auto plan=prepareClipStretch(s,s.tracks[0].id,c.id,settings,{},warp);StretchRenderPolicy policy;policy.deadlineMilliseconds=10000;
@@ -57,6 +63,23 @@ int run(const std::vector<std::string> &args){try{
         auto verified=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
         check(verified.edit().rendered.relativePath==relative && (warp?verified.peak()>0:verified.peak()>1),"Parent returned wrong owned artifact/headroom");
         auto refusal=[&](auto action){try {action();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Unverified stretch completion accepted");};
+        // Portability: verify either producer's metric without rewriting PCM or
+        // weakening the existing grant, digest, geometry and source checks.
+        for(const char *metric:{"address-space","process-commit"}) {
+            auto portable=receipt;portable["memoryMetric"]=metric;
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<portable.dump();}
+            auto reviewed=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
+            check(reviewed.edit().value==verified.edit().value && reviewed.edit().rendered==verified.edit().rendered,
+                  "Producer memory metric changed the portable stretch edit");
+            portable["sampleSha256"]=std::string(64,'f');
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<portable.dump();}
+            refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+        }
+        for(const nlohmann::json &metric:{nlohmann::json("resident-set"),nlohmann::json(""),nlohmann::json(nullptr),nlohmann::json(1),nlohmann::json(true),nlohmann::json::array(),nlohmann::json::object()}) {
+            auto bad=receipt;bad["memoryMetric"]=metric;
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<bad.dump();}
+            refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+        }
         for(unsigned mode=0;mode<(warp?24u:20u);++mode) {
             auto bad=receipt;
             if(mode==0) bad["renderKey"]=std::string(64,'f');
@@ -113,6 +136,39 @@ int run(const std::vector<std::string> &args){try{
     ResourceLedger ledger(128*1024*1024,"Derived workflow");rt_audit::reset();auto expected=live(root,s,0,asset.frames,37,ledger);check(!ledger.usage().reservedBytes,"Derived reader grant retained");
     check(live(root,s,0,asset.frames,511,ledger)==expected,"Callback partitions changed derived audio");
     auto split=s;applySessionEdits(split,{SplitClip{s.tracks[0].id,c.id,Id::generate(),4097}});check(live(root,split,0,asset.frames,127,ledger)==expected,"Derived split restarted stretch phase");
+    auto comp=split;const auto beforeHandles=comp;EditHistory compHistory(comp);
+    const auto outgoing=comp.tracks[0].clips[0].id,incoming=comp.tracks[0].clips[1].id;
+    for(const auto curve:{ClipFadeCurve::Linear,ClipFadeCurve::Smoothstep,ClipFadeCurve::EqualPower}) {
+        check(compHistory.structural({PrepareCompTransition{s.tracks[0].id,outgoing,incoming,4071,4123,curve}}),
+              "Verified native render handles were refused");
+        const auto applied=comp;
+        check(comp.assets==s.assets && comp.tracks[0].takeLanes==s.tracks[0].takeLanes &&
+              hashMediaFile(path)==asset.sha256 && hashMediaFile(root/utf8Path(raw.relativePath))==raw.sha256,
+              "Native handle preparation changed original/derived bytes or retained lanes");
+        const auto actual=live(root,comp,0,asset.frames,127,ledger);
+        check(actual==live(root,comp,0,asset.frames,511,ledger),"Native comp partitions differ");
+        for(Frame f=0;f<asset.frames;++f)for(std::uint32_t ch=0;ch<channels;++ch) {
+            double gain=1;
+            if(f>=4071 && f<4123 && curve==ClipFadeCurve::EqualPower) {
+                const auto phase=double(f-4071)/51;
+                gain=std::sin(phase*std::numbers::pi/2)+std::cos(phase*std::numbers::pi/2);
+            }
+            const auto index=std::size_t(f)*channels+ch;
+            check(std::abs(double(actual[index])-double(expected[index])*gain)<1e-5,
+                  "Independent whole-PCM native comp law differs");
+        }
+        std::filesystem::create_directory(root/"exports");ExportSpec compSpec(s.tracks[0].id);
+        compSpec.endFrame=asset.frames;compSpec.blockFrames=37;ExportOptions compOptions;compOptions.resources=ledger;
+        const auto filename="comp-"+operation.str()+"-"+std::to_string(int(curve))+".wav";
+        exportTrackWav(root,comp,root/"exports"/filename,compSpec,compOptions);
+        ApprovedMediaRoot approvedComp(root,ledger);auto compFile=approvedComp.open("exports/"+filename,16*1024*1024);
+        std::vector<float> exportedComp;
+        validateApprovedWave(compFile,{}, {},[&](std::uint64_t,std::span<const double> samples){for(auto v:samples)exportedComp.push_back(float(v));});
+        check(exportedComp==actual,"Verified rendered comp live/export PCM differ");
+        ProjectStore(root).save(comp);check(ProjectStore(root).load()==comp,"Verified comp save/reopen changed state");
+        check(compHistory.undo() && comp==beforeHandles && compHistory.redo() && comp==applied &&
+              compHistory.undo() && comp==beforeHandles,"Native rendered comp Undo/Redo not atomic");
+    }
     auto suffix=live(root,s,257,asset.frames,113,ledger);check(std::equal(suffix.begin(),suffix.end(),expected.begin()+257*channels),"Derived seek changed waveform");
     auto crop=s;applySessionEdits(crop,{CropClip{s.tracks[0].id,c.id,37,37,asset.frames-37}});check(live(root,crop,37,asset.frames,113,ledger)==std::vector<float>(expected.begin()+37*channels,expected.end()),"Derived crop restarted processor");
     std::filesystem::create_directory(root/"exports");ExportSpec spec(s.tracks[0].id);spec.endFrame=asset.frames;spec.blockFrames=127;ExportOptions options;options.resources=ledger;

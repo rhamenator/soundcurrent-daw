@@ -46,16 +46,15 @@ int main(int argc,char **argv) {
             check(!media->snapshot()->childPid && !media->snapshot()->selection,"Opening checklist accessed media automatically");
             check(!media->copySnapshot()->childPid && !media->copyChecked(0,root),"Opening checklist or unchecked row copied media");
             check(!inspector.inspect(file),"A different source was admitted under a live media dialog");
-            table->selectRow(0);unsigned pulses=0;QTimer heartbeat;heartbeat.setInterval(1);QObject::connect(&heartbeat,&QTimer::timeout,[&]{++pulses;});heartbeat.start();
-            check(media->checkReference(0,corpus),"Explicit media folder/reference not admitted");wait([&]{return !media->snapshot()->busy;});heartbeat.stop();
-            check(pulses>0,"GUI stopped servicing events during media work");
+            table->selectRow(0);
+            check(media->checkReference(0,corpus),"Explicit media folder/reference not admitted");wait([&]{return !media->snapshot()->busy;});
             check(media->snapshot()->phase==WaveCheckPhase::Complete && media->snapshot()->report->audio().frames==96000,"Actual corpus media not validated");
             auto *copy=media->findChild<QPushButton *>(QStringLiteral("copyCheckedMedia"));
             wait([&]{return copy && copy->isEnabled();});
             const auto destination=root/"owned-copies";std::filesystem::create_directory(destination);
-            pulses=0;heartbeat.start();check(media->copyChecked(0,destination),"Desktop checked copy refused");
-            wait([&]{return !media->copySnapshot()->busy;});heartbeat.stop();const auto copied=media->copySnapshot();
-            check(pulses>0 && copied->phase==MediaCopyPhase::Committed && copied->childPid && copied->childExit==0,"Actual desktop copy blocked events or lost commit");
+            check(media->copyChecked(0,destination),"Desktop checked copy refused");
+            wait([&]{return !media->copySnapshot()->busy;});const auto copied=media->copySnapshot();
+            check(copied->phase==MediaCopyPhase::Committed && copied->childPid && copied->childExit==0,"Actual desktop copy lost commit");
             wait([&]{return table->model()->data(table->model()->index(0,5)).toString()==QStringLiteral("Verified copy");});
             check(media->width()<=media->screen()->availableGeometry().width() && media->height()<=media->screen()->availableGeometry().height(),"Copy status exceeds display");
             const auto operation=destination/copied->selection->operation.str();
@@ -111,7 +110,13 @@ int main(int argc,char **argv) {
                 check(liveCopy.checkReplacement(0,ownedSource),"Live copy source not checked");wait([&]{return !liveCopy.snapshot()->busy;});
                 auto *button=liveCopy.findChild<QPushButton *>(QStringLiteral("copyCheckedMedia"));wait([&]{return button->isEnabled();});
                 check(liveCopy.copyChecked(0,destination),"Live copy not admitted");const auto id=liveCopy.copySnapshot()->selection->operation;
-                wait([&]{return liveCopy.copySnapshot()->childPid && std::filesystem::exists(destination/(id.str()+".ready"));});
+                wait([&]{const auto s=liveCopy.copySnapshot();return s->busy && s->childPid && !s->childExit && std::filesystem::exists(destination/(id.str()+".ready"));});
+                // A fast successful task can finish before a platform timer is
+                // due. Measure GUI dispatch while the owned held child is active.
+                unsigned pulses=0;QTimer heartbeat;heartbeat.setTimerType(Qt::PreciseTimer);heartbeat.setInterval(1);
+                QObject::connect(&heartbeat,&QTimer::timeout,[&]{const auto s=liveCopy.copySnapshot();if(s->busy && s->childPid && !s->childExit)++pulses;});
+                heartbeat.start();wait([&]{return pulses>=2;});heartbeat.stop();
+                check(liveCopy.copySnapshot()->busy && !liveCopy.copySnapshot()->childExit,"Copy heartbeat was observed after retirement");
                 QElapsedTimer closeTime;closeTime.start();liveCopy.close();check(closeTime.elapsed()<100 && liveCopy.isVisible(),"Live-copy close blocked or retired a running child");
                 wait([&]{return liveCopy.retired() && !liveCopy.isVisible();});
                 check(liveCopy.copySnapshot()->childExit.has_value() && liveCopy.copySnapshot()->phase==MediaCopyPhase::RecoveryRequired,"Closing UI discarded uncertain committed outcome");
@@ -129,7 +134,11 @@ int main(int argc,char **argv) {
 #endif
                 ImportMediaDialog live(nullptr,inspector.snapshot()->report,slow);live.show();
                 check(live.checkReference(0,corpus),"Live close fixture refused");
-                wait([&]{return live.snapshot()->childPid!=0;});
+                wait([&]{const auto s=live.snapshot();return s->busy && s->childPid && !s->childExit;});
+                unsigned pulses=0;QTimer heartbeat;heartbeat.setTimerType(Qt::PreciseTimer);heartbeat.setInterval(1);
+                QObject::connect(&heartbeat,&QTimer::timeout,[&]{const auto s=live.snapshot();if(s->busy && s->childPid && !s->childExit)++pulses;});
+                heartbeat.start();wait([&]{return pulses>=2;});heartbeat.stop();
+                check(live.snapshot()->busy && !live.snapshot()->childExit,"Media heartbeat was observed after retirement");
                 QElapsedTimer closeTime;closeTime.start();live.close();
                 check(closeTime.elapsed()<100 && live.isVisible(),"Live close blocked GUI or retired child prematurely");
                 wait([&]{return live.retired() && !live.isVisible();});

@@ -1,0 +1,23 @@
+{
+  "originalRun": 38689906853,
+  "measuredTests": 201,
+  "protectedRepeatedDesktopMeasuredSeconds": 147.62,
+  "newSamplingTestsEstimatedSeconds": {
+    "protected-core-sampling": 1.72,
+    "protected-core-sampling-oracle": 0.74
+  },
+  "shards": 3,
+  "estimatedSeconds": [
+    608.2299999999997,
+    608.2199999999998,
+    608.22
+  ],
+  "counts": [
+    68,
+    67,
+    68
+  ],
+  "coverageExactlyOnce": true,
+  "jobDeadlineMinutes": 30,
+  "testDeadlinesUnchanged": true
+}

@@ -1,0 +1,434 @@
+{
+  "format": "sc-comp-clocked-repeat-ui-index-v1",
+  "sourceHead": "a0ff84da1e77e648502f9a278215a924801de73e",
+  "archive": "acceptance.zip",
+  "bytes": 51716591,
+  "sha256": "7e33f1555668d62eeef88b1263421af6a1827ed9d207c1b563c3f6df56d94f4c",
+  "originalFiles": 10222,
+  "uniquePayloads": 2129,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "a0ff84da1e77e648502f9a278215a924801de73e",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "a0ff84da1e77e648502f9a278215a924801de73e",
+        "seconds": 377.2146725730272,
+        "selected": [
+          "desktop-comp-clocked-protected-repeated-transition",
+          "desktop-comp-clocked-uniform-repeated-transition",
+          "desktop-comp-repeated-transition",
+          "desktop-comp-protected-repeated-transition"
+        ],
+        "receipt": ".cache/comp-clocked-repeat-ui/qualified-Release-sij0zyrp/result.json",
+        "runs": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-ui-evidence/run-35b0zka2",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-repeat-ui-evidence/run-4zcgtuoe"
+        ],
+        "counters": {
+          "adoptions": 6,
+          "workers": 10,
+          "mixedRetained": 2,
+          "failureCloseCases": 5,
+          "clockedPcm": 665448,
+          "unchangedPcm": 280132,
+          "liveExportPcm": 295920
+        },
+        "sourceAndBinariesUnchanged": true,
+        "exports": [
+          {
+            "kind": "protected",
+            "generation": 0,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-0-reopened.wav",
+            "sha256": "55bdb7413431e5924ca464389c550bace1de141aa704997b2a23defd8142d00a",
+            "sampleSha256": "8ff29808e7be26fb95c1d561ceaab73502e099665d03d120f6685e01d61c81d4",
+            "samples": 15488,
+            "peak": 5.5167012214660645
+          },
+          {
+            "kind": "protected",
+            "generation": 1,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-1-reopened.wav",
+            "sha256": "07bb9699ad477d4e63c2dde73a0d9b3f0953dad5009eb4a2939b0517534ddbf8",
+            "sampleSha256": "265700523e8e8f6fe836694cdf2015b0d624de45645cff77442b03fe584b6a6f",
+            "samples": 11488,
+            "peak": 5.590811729431152
+          },
+          {
+            "kind": "protected",
+            "generation": 2,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-2-reopened.wav",
+            "sha256": "587a0cbfb8e7144af23bc7d6d0029eac50f7ea7a1a7d7ab81d2086a46ae5ed8a",
+            "sampleSha256": "5682046ed6e99553435a9845feb1ab879031f589eaa1bbce2f0b6236d1eab519",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          },
+          {
+            "kind": "uniform",
+            "generation": 0,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-0-reopened.wav",
+            "sha256": "9e66e3399753104dad3d497d9d6120b614bc8993fa031c96875094b77a297304",
+            "sampleSha256": "a8f96878db428e4090d1978453dce779a5f6cc5e5a3a43d77c9e24d77a9202a0",
+            "samples": 40256,
+            "peak": 157.29908752441406
+          },
+          {
+            "kind": "uniform",
+            "generation": 1,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-1-reopened.wav",
+            "sha256": "4543f40bc0e4e96d015fae3b533ce0c88cac5d13aee895a3c3e21f01790026aa",
+            "sampleSha256": "75fa41ff2d1326e76f232d88e17f5727fcc132ce0ba74fee72c064298c1a820d",
+            "samples": 21488,
+            "peak": 5.590811729431152
+          },
+          {
+            "kind": "uniform",
+            "generation": 2,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-2-reopened.wav",
+            "sha256": "3129fe1fe5b98211279a28564564bf514b92300c9ce69f1fd49baa89b3aaf5a6",
+            "sampleSha256": "9bf175ce67650e65c8016c82b8c7043257b9c438acb1fe4b01c6049229c39308",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          }
+        ],
+        "screenshots": [
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-0-applied.png",
+            "sha256": "0eccc29f566defd3f27f4b15bdee7ecd31807036f5378ea63ce6387e6e22da0f"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-1-applied.png",
+            "sha256": "dffbe5781ea6c847796b5be99396f97c2be3923ae33d27744290fa5a3c76b966"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-1-create.png",
+            "sha256": "29dfb2afa1b4f0c01c5199bf36db3bf669360f9e98970d7d34944457bb8e8106"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-1-review.png",
+            "sha256": "bf9bd9d5166a7aca34511f021257d01c14cfeb248b350c9273f02fa5b6ba5c36"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-2-applied.png",
+            "sha256": "98cfabf14558a1be8f209f921e6990dc6a7b39708b93b0d1337a6a5540d21614"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-2-create.png",
+            "sha256": "2058604f6f51d50f5025b5e2eb1d05b1093d7eedfda94d57063c5d2349b1721e"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-0/generation-2-review.png",
+            "sha256": "31edb70bbb42cff7e783cd87b791dd7eaeb23141939ebbddaef4d6dbae0e38c4"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-1/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-2/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-3/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-4/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-4/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-5/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3bxgquz4/case-48000-protected/case-5/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-0-applied.png",
+            "sha256": "e7ef62e2d7fb0f9592175572f3939b3060adeab0ef604b404d801902bd5ff2b1"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-0-create.png",
+            "sha256": "51c984e9533ea3d3a31609cbd491ce9a920fa9db31e25c529993004c2d6d49e4"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-1-applied.png",
+            "sha256": "41d6b4af24a2c44d9525d340853f04e6baf6c68b01477935ff493e3998dd6942"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-1-create.png",
+            "sha256": "a3143e6c1d4ab9d4847946f1d2a6d660ee3efb1d7f4d1cfaf48b75c3240417d5"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-1-review.png",
+            "sha256": "bf9bd9d5166a7aca34511f021257d01c14cfeb248b350c9273f02fa5b6ba5c36"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-2-applied.png",
+            "sha256": "98cfabf14558a1be8f209f921e6990dc6a7b39708b93b0d1337a6a5540d21614"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-2-create.png",
+            "sha256": "2058604f6f51d50f5025b5e2eb1d05b1093d7eedfda94d57063c5d2349b1721e"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-repeat-ui-evidence/run-3ilhf2zw/case-48000-uniform/case-0/generation-2-review.png",
+            "sha256": "31edb70bbb42cff7e783cd87b791dd7eaeb23141939ebbddaef4d6dbae0e38c4"
+          }
+        ],
+        "observations": 11,
+        "maximumStageMilliseconds": 8693,
+        "legacyProtectedExportHashesUnchanged": 9
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "a0ff84da1e77e648502f9a278215a924801de73e",
+        "seconds": 287.33175064297393,
+        "selected": [
+          "desktop-comp-clocked-protected-repeated-transition",
+          "desktop-comp-clocked-uniform-repeated-transition"
+        ],
+        "receipt": ".cache/comp-clocked-repeat-ui/qualified-Debug-tm3ybhrc/result.json",
+        "runs": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h"
+        ],
+        "counters": {
+          "adoptions": 6,
+          "workers": 10,
+          "mixedRetained": 2,
+          "failureCloseCases": 5,
+          "clockedPcm": 665448,
+          "unchangedPcm": 280132,
+          "liveExportPcm": 295920
+        },
+        "sourceAndBinariesUnchanged": true,
+        "exports": [
+          {
+            "kind": "uniform",
+            "generation": 0,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-0-reopened.wav",
+            "sha256": "9e66e3399753104dad3d497d9d6120b614bc8993fa031c96875094b77a297304",
+            "sampleSha256": "a8f96878db428e4090d1978453dce779a5f6cc5e5a3a43d77c9e24d77a9202a0",
+            "samples": 40256,
+            "peak": 157.29908752441406
+          },
+          {
+            "kind": "uniform",
+            "generation": 1,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-1-reopened.wav",
+            "sha256": "4543f40bc0e4e96d015fae3b533ce0c88cac5d13aee895a3c3e21f01790026aa",
+            "sampleSha256": "75fa41ff2d1326e76f232d88e17f5727fcc132ce0ba74fee72c064298c1a820d",
+            "samples": 21488,
+            "peak": 5.590811729431152
+          },
+          {
+            "kind": "uniform",
+            "generation": 2,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-2-reopened.wav",
+            "sha256": "3129fe1fe5b98211279a28564564bf514b92300c9ce69f1fd49baa89b3aaf5a6",
+            "sampleSha256": "9bf175ce67650e65c8016c82b8c7043257b9c438acb1fe4b01c6049229c39308",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          },
+          {
+            "kind": "protected",
+            "generation": 0,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-0-reopened.wav",
+            "sha256": "55bdb7413431e5924ca464389c550bace1de141aa704997b2a23defd8142d00a",
+            "sampleSha256": "8ff29808e7be26fb95c1d561ceaab73502e099665d03d120f6685e01d61c81d4",
+            "samples": 15488,
+            "peak": 5.5167012214660645
+          },
+          {
+            "kind": "protected",
+            "generation": 1,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-1-reopened.wav",
+            "sha256": "07bb9699ad477d4e63c2dde73a0d9b3f0953dad5009eb4a2939b0517534ddbf8",
+            "sampleSha256": "265700523e8e8f6fe836694cdf2015b0d624de45645cff77442b03fe584b6a6f",
+            "samples": 11488,
+            "peak": 5.590811729431152
+          },
+          {
+            "kind": "protected",
+            "generation": 2,
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-2-reopened.wav",
+            "sha256": "587a0cbfb8e7144af23bc7d6d0029eac50f7ea7a1a7d7ab81d2086a46ae5ed8a",
+            "sampleSha256": "5682046ed6e99553435a9845feb1ab879031f589eaa1bbce2f0b6236d1eab519",
+            "samples": 103600,
+            "peak": 5.590811729431152
+          }
+        ],
+        "screenshots": [
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-0-applied.png",
+            "sha256": "e7ef62e2d7fb0f9592175572f3939b3060adeab0ef604b404d801902bd5ff2b1"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-0-create.png",
+            "sha256": "51c984e9533ea3d3a31609cbd491ce9a920fa9db31e25c529993004c2d6d49e4"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-1-applied.png",
+            "sha256": "41d6b4af24a2c44d9525d340853f04e6baf6c68b01477935ff493e3998dd6942"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-1-create.png",
+            "sha256": "a3143e6c1d4ab9d4847946f1d2a6d660ee3efb1d7f4d1cfaf48b75c3240417d5"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-1-review.png",
+            "sha256": "bf9bd9d5166a7aca34511f021257d01c14cfeb248b350c9273f02fa5b6ba5c36"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-2-applied.png",
+            "sha256": "98cfabf14558a1be8f209f921e6990dc6a7b39708b93b0d1337a6a5540d21614"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-2-create.png",
+            "sha256": "2058604f6f51d50f5025b5e2eb1d05b1093d7eedfda94d57063c5d2349b1721e"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-1v6sg4xe/case-48000-uniform/case-0/generation-2-review.png",
+            "sha256": "31edb70bbb42cff7e783cd87b791dd7eaeb23141939ebbddaef4d6dbae0e38c4"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-0-applied.png",
+            "sha256": "0eccc29f566defd3f27f4b15bdee7ecd31807036f5378ea63ce6387e6e22da0f"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-1-applied.png",
+            "sha256": "dffbe5781ea6c847796b5be99396f97c2be3923ae33d27744290fa5a3c76b966"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-1-create.png",
+            "sha256": "29dfb2afa1b4f0c01c5199bf36db3bf669360f9e98970d7d34944457bb8e8106"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-1-review.png",
+            "sha256": "bf9bd9d5166a7aca34511f021257d01c14cfeb248b350c9273f02fa5b6ba5c36"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-2-applied.png",
+            "sha256": "98cfabf14558a1be8f209f921e6990dc6a7b39708b93b0d1337a6a5540d21614"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-2-create.png",
+            "sha256": "2058604f6f51d50f5025b5e2eb1d05b1093d7eedfda94d57063c5d2349b1721e"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-0/generation-2-review.png",
+            "sha256": "31edb70bbb42cff7e783cd87b791dd7eaeb23141939ebbddaef4d6dbae0e38c4"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-1/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-2/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-3/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-4/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-4/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-5/generation-0-create.png",
+            "sha256": "f5bf85fb22732832ca33d8fb0d43226a1346a7cf6790b3f33b30c7d4bf84ea29"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-repeat-ui-evidence/run-jliblj9h/case-48000-protected/case-5/generation-0-review.png",
+            "sha256": "d84f5e702455fb0a6135e2e89f823f039aa64f2ef87454bd9c957464b93dfe9b"
+          }
+        ],
+        "observations": 11,
+        "maximumStageMilliseconds": 21757,
+        "legacyProtectedExportHashesUnchanged": 0
+      }
+    ],
+    "allSixExportFilesEqualAcrossBuilds": true,
+    "actualSpeedControl": true,
+    "unchangedRoundedRatePreservesExactRational": true,
+    "actualRepeatedDesktop": true,
+    "nativeRuntime": false,
+    "physicalAudio": false,
+    "qualityAdmission": false
+  },
+  "pathFixAcceptance": {
+    "sourceHead": "5964bdc3f7eaf9e8d9887cb7e8efeede8bb00ca0",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "5964bdc3f7eaf9e8d9887cb7e8efeede8bb00ca0",
+        "seconds": 50.648228386067785,
+        "receipt": ".cache/comp-clocked-repeat-ui/qualified-path-Release-dalhmo8i/result.json",
+        "tests": [
+          "comp-clocked-protected-paired-production",
+          "comp-clocked-protected-history-worker",
+          "native-media-long-path"
+        ],
+        "sourceAndBinariesUnchanged": true
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "5964bdc3f7eaf9e8d9887cb7e8efeede8bb00ca0",
+        "seconds": 141.09009113896172,
+        "receipt": ".cache/comp-clocked-repeat-ui/qualified-path-Debug-wxc8owo7/result.json",
+        "tests": [
+          "comp-clocked-protected-paired-production",
+          "comp-clocked-protected-history-worker",
+          "native-media-long-path"
+        ],
+        "sourceAndBinariesUnchanged": true
+      }
+    ],
+    "mingwSyntaxExitCode": 0,
+    "mingwFiles": {
+      "tests/comp_assembly_job_tests.cpp": "4eff2c37a5d08e90a42e39a6e887f67a42200b9d4ff25f80704f95c9c72d8d3d",
+      "tests/native_media_path_tests.cpp": "80170df272ef22e6ee95536d9eb909ee7f5c6588593cdd409e9b829d1afdc83f"
+    },
+    "onlyInspectionFixturesChangedSinceDesktopQualification": true,
+    "nativeRuntimeFixQualified": false
+  },
+  "nativeRuntime": false,
+  "qualityAdmission": false
+}

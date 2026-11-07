@@ -1,0 +1,178 @@
+{
+  "checkpoint": 262,
+  "source_head": "e5ab0be7c7a80842d7ad3f46d27f6401bc01cc9d",
+  "source_tree": "5f0b28555b138fa2c2fc1175194393fd29099be9",
+  "scope": "Offscreen English font guard and test-only disk boundary observations; metadata-only handle feasibility",
+  "linux_ui_checks": 165,
+  "linux_owned_startup_checks": 5932791,
+  "linux_catalog_tests_passed": 2,
+  "metadata_only_envelope_checks": 136,
+  "original_ci": {
+    "run": 38480424472,
+    "source_head": "c005535c38347c444972827ebd0643110554e974",
+    "conclusion": "failure",
+    "failed_tests": [
+      "desktop-paired-crossfade",
+      "native-monitor-startup"
+    ],
+    "retained_archives": {
+      "linux-synthetic-test-log-original.zip": {
+        "bytes": 36289,
+        "sha256": "1252efaaec1ec873f4a97070cf637a8a637ed42f01b542855a8d868dbb651538"
+      },
+      "windows-desktop-import-test-log-original.zip": {
+        "bytes": 43480,
+        "sha256": "8d980033341c186d69fa0692d1cee9851d45665ae6a74bdb8751768e63de19f1"
+      },
+      "windows-native-packet-unit-log-original.zip": {
+        "bytes": 34654666,
+        "sha256": "b408c7b439e66c9335aeadbb4d8e80505cb2f2fcfc483ba1eccf6e027a022e63"
+      },
+      "windows-media-build-review-original.zip": {
+        "bytes": 438050,
+        "sha256": "e786819cedcf967c6bbb433543d9a33b18667e75459cbe8e02f855dfa34e6bf6"
+      }
+    }
+  },
+  "replacement_ci": {
+    "run": 38483626019,
+    "source_head": "e5ab0be7c7a80842d7ad3f46d27f6401bc01cc9d",
+    "status_at_recording": "in_progress",
+    "url": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/38483626019"
+  },
+  "physical_endpoints_used": false,
+  "installer_qualified": false,
+  "missing_handles_rendered": false,
+  "windows_desktop_qualified": false,
+  "full_daw_parity_complete": false,
+  "archive": {
+    "bytes": 97691,
+    "sha256": "2ee436e4332fae3a058107c97faa288e79a7844bf38a414d81fdd9fbf899746c",
+    "entries": {
+      "build.log": {
+        "bytes": 25188,
+        "sha256": "2a6f0ff7ae52e88ff4ebd79cf2ff8b67f33ff2f2f3b37f989be692dea6bec7e3"
+      },
+      "command-0.log": {
+        "bytes": 502,
+        "sha256": "64677e62c31efe2c4fc59ef079cf79545d5d6b4400a528a2cdcc1b5f4a4e3e24"
+      },
+      "command-1.log": {
+        "bytes": 9865,
+        "sha256": "4daf657cade36dc3bb9ce4d9fbe38a5658d9ee0c5c9922f9a0c7583983bc3c6a"
+      },
+      "command-2.log": {
+        "bytes": 393,
+        "sha256": "d114208952b0c7013bd944059d04c7926bc6f4b9da64609f2c9a83bdf14347eb"
+      },
+      "envelope-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "envelope-qualification.json": {
+        "bytes": 1658,
+        "sha256": "5b13f8a9a63b4a6c6ee9b81a376b7b612fa53b9bda60b305210ab6dc241982ad"
+      },
+      "envelope-tests.log": {
+        "bytes": 84,
+        "sha256": "6fb05088da42108d5936025163d4a8841d8f7223943a5b9b0b34930d8c93372a"
+      },
+      "linux-dialog/default.png": {
+        "bytes": 18395,
+        "sha256": "dca8174f2c4009a559aafdf588ee1010af95ba5fdf861d813ffc5bf12df3b083"
+      },
+      "linux-dialog/small.png": {
+        "bytes": 14931,
+        "sha256": "57e386b1fe013f85210ca559fe82f3990bbddce0f978f96d639b7297deceb456"
+      },
+      "linux-owned-recording/2db95f28-b29c-4e4b-89e2-0bbbe1971ca2/journal.json": {
+        "bytes": 906,
+        "sha256": "85f27bbac9877d8fd003396f4e7f14a99aee3e3561c9d1e5ac4ad731d9238b56"
+      },
+      "linux-owned-recording/2db95f28-b29c-4e4b-89e2-0bbbe1971ca2/native-run.json": {
+        "bytes": 7389,
+        "sha256": "f5a88d4b16669175ec954769b2b069ac78c75ce88a95558d0e890b85c65c1a9b"
+      },
+      "linux-owned-recording/2db95f28-b29c-4e4b-89e2-0bbbe1971ca2/observed.json": {
+        "bytes": 944,
+        "sha256": "c48076f1e86296d91af4043a965713b7e20247e4235d07ce54d6b1ac40cfd3c0"
+      },
+      "local-qualification.json": {
+        "bytes": 2405,
+        "sha256": "e9d2703a6284b46a435d64fdbfa9d9e309b7d8a51f1fdf02960d08a32aeb5e8a"
+      },
+      "metadata-only-prototype/comp_handle_plan.cpp": {
+        "bytes": 11271,
+        "sha256": "f824ca068d93526b4b6b2e1f73a9226cc85c49830043a0816abd09f81027142c"
+      },
+      "metadata-only-prototype/comp_handle_plan.hpp": {
+        "bytes": 1741,
+        "sha256": "a53cf2012281cd088bf864b6330d708a05848e1385003b51e132caa14b7b0dbb"
+      },
+      "metadata-only-prototype/tests.cpp": {
+        "bytes": 9244,
+        "sha256": "79318c2cb110d66f5096f0f8a5c94fb23b788fb6e4402ca479876a99789d1bb4"
+      },
+      "original-ci/artifacts-original.json": {
+        "bytes": 2998,
+        "sha256": "882db0b209d546ab1eba57b9d0cdc6c030e45d833822ebf59f52df043899e931"
+      },
+      "original-ci/default.png": {
+        "bytes": 3970,
+        "sha256": "f84b503809045689839843b6bbd92a588d8df644a8162f5b00991441129730ae"
+      },
+      "original-ci/jobs-original.json": {
+        "bytes": 14599,
+        "sha256": "93772bda12390cb9c6395d001e0bec0ba5174c7ac6faf2d51ae82c28ccd53d09"
+      },
+      "original-ci/native-owner-failure-evidence/0586fac2-c635-41f2-8058-ca4d7cae40c1/journal.json": {
+        "bytes": 904,
+        "sha256": "b66306dcf6d449b476d5b1ec1d9f561dbee025a952f4a0595bcf88d54d7e78fb"
+      },
+      "original-ci/native-owner-failure-evidence/0586fac2-c635-41f2-8058-ca4d7cae40c1/native-run.json": {
+        "bytes": 5221,
+        "sha256": "c5f361d101ae8182a85c9bec23cbbd4e8b17000b6beaab5292dc3f632fd54ec5"
+      },
+      "original-ci/native-owner-failure-evidence/0586fac2-c635-41f2-8058-ca4d7cae40c1/observed.json": {
+        "bytes": 526,
+        "sha256": "4b18caed92dcacae1d8a4ce1f1f96ee5dc5eb5fa220898656a04f947d3c9eec5"
+      },
+      "original-ci/native-owner-failure-evidence/5c3093d5-c5bd-4631-a5f3-56c7707da0bf/journal.json": {
+        "bytes": 906,
+        "sha256": "a3ca938165d776eb5ee1f0eca03a27f3c63c38a8e20a26f9493940ada33496c8"
+      },
+      "original-ci/native-owner-failure-evidence/5c3093d5-c5bd-4631-a5f3-56c7707da0bf/native-run.json": {
+        "bytes": 7389,
+        "sha256": "6aad774a5ebbe73b2d5d6a9290da99f9c963422ea23db5ba1811b7cb46a458d0"
+      },
+      "original-ci/native-owner-failure-evidence/5c3093d5-c5bd-4631-a5f3-56c7707da0bf/observed.json": {
+        "bytes": 533,
+        "sha256": "8810fb49edf6704c138ffe1475d21fa548a9e860abfd80ce6716cce720f2d035"
+      },
+      "original-ci/run-original.json": {
+        "bytes": 13789,
+        "sha256": "479efdc276dfaf9afc4a7ab6575e87bfdbf2678329f99bf059dc155c0cf7bc04"
+      },
+      "original-ci/small.png": {
+        "bytes": 3332,
+        "sha256": "dfd030434ac892f17548ef4431f5dc2872e1129343d6d9f783ccd88916d60f49"
+      },
+      "original-ci/windows-desktop-import-test-log-LastTest.log": {
+        "bytes": 22244,
+        "sha256": "2a658465de132fe7072cbacfc4d29910fc718267d22c61631ec2e6256d02c178"
+      },
+      "original-ci/windows-desktop-import-test-log-LastTestsFailed.log": {
+        "bytes": 29,
+        "sha256": "1c5a2d895b77831672ed81180a834838e1df7c56c8aed2d5b1ca8796a1167a10"
+      },
+      "original-ci/windows-native-packet-unit-log-LastTest.log": {
+        "bytes": 234229,
+        "sha256": "5fcf1ae1d93f51641be2ebff06a24c22c3c50a4bf8b6a0b658e970c42366cb6d"
+      },
+      "original-ci/windows-native-packet-unit-log-LastTestsFailed.log": {
+        "bytes": 27,
+        "sha256": "da917d5dcf4cb18d2421d84050fb32b988d869af503a0852d9fab551f0887bb9"
+      }
+    }
+  }
+}

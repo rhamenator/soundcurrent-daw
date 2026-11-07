@@ -120,6 +120,29 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         auto adopted=original;EditHistory history(adopted);check(history.structural({reviewed->result->edit()}),"Reviewed restart result not adoptable");
         check(inspectStretchSelection(source->root,adopted,*retained,memory,l).status==StretchRecoveryStatus::Attached,"Attached job appeared new");
         ProjectStore(source->root).save(adopted);check(inspectStretchSelection(source->root,ProjectStore(source->root).load(),*retained,memory,l).status==StretchRecoveryStatus::Attached,"Saved attachment lost classification");
+        {
+            auto versioned=adopted;EditHistory versions(versioned);
+            check(versions.structural({CreateTrackVersion{track,"Blank — Ελληνικά","Rendered — Україна",false}}),"Empty version was not created");
+            check(versioned.tracks[0].clips.empty(),"Inactive render fixture still has active clips");
+            const auto inactive=versioned.tracks[0].inactiveVersions[0].identity.id;
+            const auto retainedState=versioned;
+            const auto rendered=source->root/utf8Path(reviewed->result->edit().rendered.relativePath);
+            const auto renderedHash=hashMediaFile(rendered);
+            ProjectStore store(source->root);store.save(versioned);
+            auto loaded=store.load();check(loaded==versioned,"Inactive render changed on reopen");
+            const auto entry=inspectStretchSelection(source->root,loaded,*retained,memory,l);
+            check(entry.status==StretchRecoveryStatus::Attached && !entry.verified,"Inactive render offered for adoption or marked stale");
+            auto held=rendered;held+=".held";std::filesystem::rename(rendered,held);
+            refuses([&]{store.verifyMedia(loaded);});
+            std::filesystem::rename(held,rendered);store.verifyMedia(loaded);
+            check(hashMediaFile(rendered)==renderedHash,"Missing-media restoration changed inactive render");
+            check(versions.structural({RemoveTrackVersion{track,inactive}}),"Inactive version removal failed");
+            check(inspectStretchSelection(source->root,versioned,*retained,memory,l).status==StretchRecoveryStatus::Stale,"Unreferenced render still classified attached");
+            check(hashMediaFile(rendered)==renderedHash,"Version removal deleted or modified media");
+            check(versions.undo() && versioned==retainedState,"Version removal Undo lost inactive media reference");
+            check(inspectStretchSelection(source->root,versioned,*retained,memory,l).status==StretchRecoveryStatus::Attached,"Undo did not restore inactive attachment");
+            check(read(manifest)==pristine,"Version recovery modified original manifest");
+        }
         check(history.undo() && inspectStretchSelection(source->root,adopted,*retained,memory,l).status==StretchRecoveryStatus::Ready,"Undo did not restore recoverable job");
         ProjectStore(source->root).save(original);
         auto stale=original;stale.tracks[0].clips[0].startFrame++;

@@ -2,6 +2,7 @@
 #include <soundcurrent/wave_validation.hpp>
 #include <charconv>
 #include <iostream>
+#include <optional>
 #include <nlohmann/json.hpp>
 #include <vector>
 #ifdef _WIN32
@@ -16,14 +17,16 @@ using namespace soundcurrent::daw;
 int run(const std::vector<std::string> &args) {
     const bool selected=args.size()>1 && args[1]=="--desktop-file";
     const bool desktop=selected || (args.size()>1 && args[1]=="--desktop-check");
-    const std::size_t start=desktop ? 2 : 1;
-    const char *protocol=desktop ? "sc-approved-wave-validation-v2" : "sc-approved-wave-validation-v1";
+    const bool matching=args.size()>1 && args[1]=="--match-asset";
+    const std::size_t start=(desktop || matching) ? 2 : 1;
+    const char *protocol=matching ? "sc-asset-replacement-check-v1" : desktop ? "sc-approved-wave-validation-v2" : "sc-approved-wave-validation-v1";
     try {
         if (args.size()==2 && args[1]=="--help") {
             std::cout<<"sc-approved-wave-probe --root ABSOLUTE_DIRECTORY --relative PORTABLE_REFERENCE --maximum-bytes N\n"
+                     <<"Exact asset check: prefix --match-asset and append --asset-sha256 SHA256 --asset-frames N --asset-rate N --asset-channels N. No project or file is changed.\n"
                      <<"Desktop: prefix --desktop-check for a reference, or --desktop-file for an explicitly selected native basename.\n";return 0;
         }
-        if (args.size()!=start+6 || args[start]!="--root" || args[start+2]!="--relative" || args[start+4]!="--maximum-bytes" ||
+        if (args.size()!=start+(matching ? 14 : 6) || args[start]!="--root" || args[start+2]!="--relative" || args[start+4]!="--maximum-bytes" ||
             args[start+1].size()>4096 || !validUtf8(args[start+1]))
             throw ProjectError(ErrorCode::InvalidParameter,"Invalid approved WAVE check arguments");
         std::uint64_t maximum=0;const auto &raw=args[start+5];
@@ -37,7 +40,20 @@ int run(const std::vector<std::string> &args) {
         ApprovedMediaRoot root(path,resources,{1});auto file=selected ?
             root.openSelectedFilename(std::filesystem::path(std::u8string(reinterpret_cast<const char8_t *>(name.data()),name.size())),maximum) :
             root.open(name,maximum);
-        const auto result=validateApprovedWave(file);
+        std::optional<Asset> expected;
+        if (matching) {
+            if (args[start+6]!="--asset-sha256" || args[start+8]!="--asset-frames" ||
+                args[start+10]!="--asset-rate" || args[start+12]!="--asset-channels" || args[start+7].size()!=64)
+                throw ProjectError(ErrorCode::InvalidParameter,"Invalid expected asset arguments");
+            const auto number=[](const std::string &text,auto &value) {
+                const auto parsed=std::from_chars(text.data(),text.data()+text.size(),value);
+                if (parsed.ec!=std::errc{} || parsed.ptr!=text.data()+text.size() || !value)
+                    throw ProjectError(ErrorCode::InvalidParameter,"Invalid expected asset number");
+            };
+            expected.emplace();expected->sha256=args[start+7];number(args[start+9],expected->frames);
+            number(args[start+11],expected->sampleRate);number(args[start+13],expected->layout.channels);
+        }
+        const auto result=matching ? verifyAssetReplacement(file,*expected) : validateApprovedWave(file);
         auto report=nlohmann::json({{"protocol",protocol},{"complete",true},
             {"relative",args[start+3]},{"sourceBytes",result.sourceBytes},
             {"sourceSha256",std::string(result.sourceSha256.data(),result.sourceSha256.size())},
@@ -46,6 +62,7 @@ int run(const std::vector<std::string> &args) {
             {"extensible",result.extensible},{"encodingId",static_cast<unsigned>(result.encoding)},
             {"bitsPerSample",result.bitsPerSample},{"channelMask",result.channelMask},{"peakLinear",result.peak},
             {"bytesRead",result.bytesRead},{"ioOperations",result.ioOperations}});
+        if (matching) report["matchesAsset"]=true;
         if (desktop) {
 #ifdef _WIN32
             report["workerPid"]=GetCurrentProcessId();

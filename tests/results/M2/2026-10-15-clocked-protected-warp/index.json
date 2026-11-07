@@ -1,0 +1,418 @@
+{
+  "format": "sc-clocked-protected-warp-index-v1",
+  "sourceHead": "8178da52839a45fe075a63a08a862727ebb568f4",
+  "archive": "acceptance.zip",
+  "bytes": 675178,
+  "sha256": "ef60fc22f182b385e13e78c5bbacb9d7c5d4c9a5c320137357c2a3e62ab005ac",
+  "originalFiles": 152,
+  "uniquePayloads": 110,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "retainedFailedQualifications": [
+      {
+        "path": ".cache/clocked-protected-warp/qualified-Sanitized-0u_lsjaw/result.json",
+        "sourceHead": "8178da52839a45fe075a63a08a862727ebb568f4",
+        "configuration": "Sanitized",
+        "exitCode": 8,
+        "seconds": 186.22268692497164,
+        "sourceAndBinariesUnchanged": true
+      },
+      {
+        "path": ".cache/clocked-protected-warp/qualified-Sanitized-i8pfalr6/result.json",
+        "sourceHead": "0d57e517fe7677a9585ae6354346fe6a7699d40e",
+        "configuration": "Sanitized",
+        "exitCode": 8,
+        "seconds": 185.92368881695438,
+        "sourceAndBinariesUnchanged": true
+      }
+    ],
+    "sourceHead": "8178da52839a45fe075a63a08a862727ebb568f4",
+    "rows": [
+      {
+        "configuration": "Release",
+        "configureCommand": null,
+        "environment": {},
+        "sourceHead": "8178da52839a45fe075a63a08a862727ebb568f4",
+        "seconds": 30.21084127901122,
+        "selected": [
+          "clocked-protected-warp",
+          "wide-processing-grid",
+          "wide-processing-grid-oracle",
+          "protected-core-sampling",
+          "protected-core-sampling-oracle",
+          "exact-processing-grid",
+          "processing-grid-fraction-oracle",
+          "positioned-resampling-kernel"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "renderer": {
+          "allCreditsReleased": true,
+          "checks": 1142952,
+          "cropComparedSamples": 29694,
+          "maximumBufferedFrames": 1381,
+          "maximumPitchErrorHz": 0.018229304180806594,
+          "peak": 2.549762725830078,
+          "protectedComparedSamples": 22624,
+          "qualityAdmission": false,
+          "rows": [
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 45159,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1380,
+              "outputRate": 44100,
+              "peak": 2.549628734588623
+            },
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 49152,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1023,
+              "outputRate": 48000,
+              "peak": 2.5496227741241455
+            },
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 98304,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1056,
+              "outputRate": 96000,
+              "peak": 2.549762725830078
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 45159,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1381,
+              "outputRate": 44100,
+              "peak": 2.5495381355285645
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 49152,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1303,
+              "outputRate": 48000,
+              "peak": 2.5495994091033936
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 98304,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1056,
+              "outputRate": 96000,
+              "peak": 2.5495994091033936
+            },
+            {
+              "compressed": true,
+              "fractional": true,
+              "frames": 24576,
+              "gapFrames": 23297,
+              "maximumBufferedFrames": 1282,
+              "outputRate": 48000,
+              "peak": 2.5040030479431152
+            }
+          ],
+          "workerIntegrated": false
+        },
+        "wideGrid": {
+          "checks": 5917,
+          "legacyOverloadBitExact": true,
+          "maximumAnalyticError": 3.2195473487206527e-07,
+          "projectFormatChanged": false,
+          "samples": 28673
+        },
+        "preparedCore": {
+          "allCreditsReleased": true,
+          "checks": 137142,
+          "fullQualityAdmission": false,
+          "integerBitExactSamples": 14080,
+          "maximumAnalyticError": 3.769772867201482e-07,
+          "peak": 2.499999761581421,
+          "samples": 119394,
+          "workerIntegrated": false
+        },
+        "oracle": {
+          "cases": 37,
+          "exactAssertions": 257,
+          "fixtureSha256": "9e92ead96332413da2e434143a95e98fdcb00ca4384ce8c8fff59c6daa5e8ec8",
+          "sourceSha256": "e1719ea242005d8ee20d0edd958ee3dff953b70cb84ce225365374714cf4ff47",
+          "exitCode": 0
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/protected-core-sampling-evidence/run-hxgenlyq",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/exact-processing-grid-evidence/run-ore80abr"
+        ]
+      },
+      {
+        "configuration": "Debug",
+        "configureCommand": null,
+        "environment": {},
+        "sourceHead": "8178da52839a45fe075a63a08a862727ebb568f4",
+        "seconds": 124.77339191595092,
+        "selected": [
+          "clocked-protected-warp",
+          "wide-processing-grid",
+          "wide-processing-grid-oracle",
+          "protected-core-sampling",
+          "protected-core-sampling-oracle",
+          "exact-processing-grid",
+          "processing-grid-fraction-oracle",
+          "positioned-resampling-kernel"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "renderer": {
+          "allCreditsReleased": true,
+          "checks": 1142952,
+          "cropComparedSamples": 29694,
+          "maximumBufferedFrames": 1381,
+          "maximumPitchErrorHz": 0.018229304180806594,
+          "peak": 2.549762725830078,
+          "protectedComparedSamples": 22624,
+          "qualityAdmission": false,
+          "rows": [
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 45159,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1380,
+              "outputRate": 44100,
+              "peak": 2.549628734588623
+            },
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 49152,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1023,
+              "outputRate": 48000,
+              "peak": 2.5496227741241455
+            },
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 98304,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1056,
+              "outputRate": 96000,
+              "peak": 2.549762725830078
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 45159,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1381,
+              "outputRate": 44100,
+              "peak": 2.5495381355285645
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 49152,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1303,
+              "outputRate": 48000,
+              "peak": 2.5495994091033936
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 98304,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1056,
+              "outputRate": 96000,
+              "peak": 2.5495994091033936
+            },
+            {
+              "compressed": true,
+              "fractional": true,
+              "frames": 24576,
+              "gapFrames": 23297,
+              "maximumBufferedFrames": 1282,
+              "outputRate": 48000,
+              "peak": 2.5040030479431152
+            }
+          ],
+          "workerIntegrated": false
+        },
+        "wideGrid": {
+          "checks": 5917,
+          "legacyOverloadBitExact": true,
+          "maximumAnalyticError": 3.2195473487206527e-07,
+          "projectFormatChanged": false,
+          "samples": 28673
+        },
+        "preparedCore": {
+          "allCreditsReleased": true,
+          "checks": 137142,
+          "fullQualityAdmission": false,
+          "integerBitExactSamples": 14080,
+          "maximumAnalyticError": 3.769772867201482e-07,
+          "peak": 2.499999761581421,
+          "samples": 119394,
+          "workerIntegrated": false
+        },
+        "oracle": {
+          "cases": 37,
+          "exactAssertions": 257,
+          "fixtureSha256": "80b68acecb737899aa4b57bfcd71788d6dd85b0d71e611a51d56ea9f99fc86d8",
+          "sourceSha256": "e1719ea242005d8ee20d0edd958ee3dff953b70cb84ce225365374714cf4ff47",
+          "exitCode": 0
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/protected-core-sampling-evidence/run-f7xb8n6m",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/exact-processing-grid-evidence/run-_wdufew_"
+        ]
+      },
+      {
+        "configuration": "Sanitized",
+        "configureCommand": [
+          "cmake",
+          "-S",
+          "/home/rich/dev/soundcurrent-daw",
+          "-B",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DSC_BUILD_MEDIA=ON",
+          "-DSC_BUILD_DESKTOP=OFF",
+          "-DCMAKE_CXX_FLAGS=-O1 -fsanitize=address,undefined -fno-omit-frame-pointer",
+          "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
+        ],
+        "environment": {
+          "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+          "UBSAN_OPTIONS": "halt_on_error=1"
+        },
+        "sourceHead": "8178da52839a45fe075a63a08a862727ebb568f4",
+        "seconds": 155.99991704407148,
+        "selected": [
+          "clocked-protected-warp",
+          "wide-processing-grid",
+          "wide-processing-grid-oracle",
+          "protected-core-sampling",
+          "protected-core-sampling-oracle"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "renderer": {
+          "allCreditsReleased": true,
+          "checks": 1142952,
+          "cropComparedSamples": 29694,
+          "maximumBufferedFrames": 1381,
+          "maximumPitchErrorHz": 0.018229304180806594,
+          "peak": 2.549762725830078,
+          "protectedComparedSamples": 22624,
+          "qualityAdmission": false,
+          "rows": [
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 45159,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1380,
+              "outputRate": 44100,
+              "peak": 2.549628734588623
+            },
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 49152,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1023,
+              "outputRate": 48000,
+              "peak": 2.5496227741241455
+            },
+            {
+              "compressed": false,
+              "fractional": false,
+              "frames": 98304,
+              "gapFrames": 47872,
+              "maximumBufferedFrames": 1056,
+              "outputRate": 96000,
+              "peak": 2.549762725830078
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 45159,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1381,
+              "outputRate": 44100,
+              "peak": 2.5495381355285645
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 49152,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1303,
+              "outputRate": 48000,
+              "peak": 2.5495994091033936
+            },
+            {
+              "compressed": false,
+              "fractional": true,
+              "frames": 98304,
+              "gapFrames": 47873,
+              "maximumBufferedFrames": 1056,
+              "outputRate": 96000,
+              "peak": 2.5495994091033936
+            },
+            {
+              "compressed": true,
+              "fractional": true,
+              "frames": 24576,
+              "gapFrames": 23297,
+              "maximumBufferedFrames": 1282,
+              "outputRate": 48000,
+              "peak": 2.5040030479431152
+            }
+          ],
+          "workerIntegrated": false
+        },
+        "wideGrid": {
+          "checks": 5917,
+          "legacyOverloadBitExact": true,
+          "maximumAnalyticError": 3.2195473487206527e-07,
+          "projectFormatChanged": false,
+          "samples": 28673
+        },
+        "preparedCore": {
+          "allCreditsReleased": true,
+          "checks": 137142,
+          "fullQualityAdmission": false,
+          "integerBitExactSamples": 14080,
+          "maximumAnalyticError": 3.769772867201482e-07,
+          "peak": 2.499999761581421,
+          "samples": 119394,
+          "workerIntegrated": false
+        },
+        "oracle": {
+          "cases": 37,
+          "exactAssertions": 257,
+          "fixtureSha256": "0e56a6a3180a4e1757930523085a850f0abf26e9c31c6814d0f10fffa98dab1f",
+          "sourceSha256": "e1719ea242005d8ee20d0edd958ee3dff953b70cb84ce225365374714cf4ff47",
+          "exitCode": 0
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/protected-core-sampling-evidence/run-bsqhuh50",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/exact-processing-grid-evidence/run-3l6u9_i1"
+        ]
+      }
+    ],
+    "allWideOracleResponsesMatch": true,
+    "nativeWindowsRuntime": false,
+    "workerIntegrated": false,
+    "qualityAdmission": false
+  },
+  "workerIntegrated": false,
+  "fullQualityAdmission": false
+}

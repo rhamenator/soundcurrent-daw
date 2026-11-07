@@ -1,0 +1,2703 @@
+[
+  {
+    "artifact": "linux-synthetic-test-log",
+    "path": "comp-regeneration-source-evidence/run-wtmiarx6/report.json",
+    "report": {
+      "inputs": {
+        "inputWorkflow": {
+          "workerSha256": "b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055",
+          "processes": [
+            {
+              "kind": "prepare",
+              "pid": 7283,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-prepare",
+              "pid": 7284,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-ready",
+              "pid": 7290,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-worker",
+              "pid": 7285,
+              "exitCode": 0,
+              "seconds": 0.4186436480000566,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "nominal-ready",
+              "pid": 7296,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-worker",
+              "pid": 7291,
+              "exitCode": 0,
+              "seconds": 0.40256903099998453,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "nominal-adopt",
+              "pid": 7297,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7298,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7299,
+              "exitCode": 0
+            },
+            {
+              "kind": "unready",
+              "pid": 7300,
+              "exitCode": 0
+            },
+            {
+              "kind": "start",
+              "pid": 7306,
+              "exitCode": 0
+            },
+            {
+              "kind": "worker",
+              "pid": 7301,
+              "exitCode": 0,
+              "seconds": 0.4997750530000076,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "unready",
+              "pid": 7307,
+              "exitCode": 0
+            },
+            {
+              "kind": "start",
+              "pid": 7313,
+              "exitCode": 0
+            },
+            {
+              "kind": "worker",
+              "pid": 7308,
+              "exitCode": 0,
+              "seconds": 0.6292891020000297,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "verify",
+              "pid": 7314,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7315,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-prepare",
+              "pid": 7316,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-ready",
+              "pid": 7322,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-worker",
+              "pid": 7317,
+              "exitCode": 0,
+              "seconds": 0.5559838679999984,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "nominal-ready",
+              "pid": 7328,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-worker",
+              "pid": 7323,
+              "exitCode": 0,
+              "seconds": 0.41811233700002504,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "nominal-adopt",
+              "pid": 7329,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7330,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7331,
+              "exitCode": 0
+            },
+            {
+              "kind": "unready",
+              "pid": 7332,
+              "exitCode": 0
+            },
+            {
+              "kind": "start",
+              "pid": 7338,
+              "exitCode": 0
+            },
+            {
+              "kind": "worker",
+              "pid": 7333,
+              "exitCode": 0,
+              "seconds": 0.5402290570000332,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "unready",
+              "pid": 7339,
+              "exitCode": 0
+            },
+            {
+              "kind": "start",
+              "pid": 7345,
+              "exitCode": 0
+            },
+            {
+              "kind": "worker",
+              "pid": 7340,
+              "exitCode": 0,
+              "seconds": 0.6810868339999843,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "verify",
+              "pid": 7346,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7347,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-prepare",
+              "pid": 7348,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-ready",
+              "pid": 7354,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-worker",
+              "pid": 7349,
+              "exitCode": 0,
+              "seconds": 0.6351004790000161,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "nominal-ready",
+              "pid": 7360,
+              "exitCode": 0
+            },
+            {
+              "kind": "nominal-worker",
+              "pid": 7355,
+              "exitCode": 0,
+              "seconds": 0.6018531329999632,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "nominal-adopt",
+              "pid": 7361,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7362,
+              "exitCode": 0
+            },
+            {
+              "kind": "prepare",
+              "pid": 7363,
+              "exitCode": 0
+            },
+            {
+              "kind": "unready",
+              "pid": 7364,
+              "exitCode": 0
+            },
+            {
+              "kind": "start",
+              "pid": 7370,
+              "exitCode": 0
+            },
+            {
+              "kind": "worker",
+              "pid": 7365,
+              "exitCode": 0,
+              "seconds": 0.8022781580000355,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "unready",
+              "pid": 7371,
+              "exitCode": 0
+            },
+            {
+              "kind": "start",
+              "pid": 7377,
+              "exitCode": 0
+            },
+            {
+              "kind": "worker",
+              "pid": 7372,
+              "exitCode": 0,
+              "seconds": 0.8789666620000389,
+              "retirementPending": false,
+              "observationTimedOut": false
+            },
+            {
+              "kind": "verify",
+              "pid": 7378,
+              "exitCode": 0
+            }
+          ],
+          "reports": [
+            {
+              "checks": 98561,
+              "firQualityQualified": false,
+              "modelAdoptionChanged": false,
+              "nominalBinaryBoundByProtocol": false,
+              "ownedNominalWorkflowQualified": true,
+              "physicalSamplesCompared": 98272,
+              "postSrcLiveOverlayImplemented": false,
+              "projectSamplesCompared": 98200,
+              "qualityAdmission": false,
+              "sides": [
+                {
+                  "blendedSamples": 16,
+                  "curveMaximumError": 0.0,
+                  "domain": 1,
+                  "exactSamples": 49188,
+                  "fragment": 0,
+                  "frames": 24602,
+                  "peakLinear": 3.6371512413024902,
+                  "sha256": "130221da54ca2c345b83d4d190de6452147cfb40535670d36edfc869bcf43eea",
+                  "spanSha256": "9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6"
+                },
+                {
+                  "blendedSamples": 16,
+                  "curveMaximumError": 0.0,
+                  "domain": 1,
+                  "exactSamples": 49188,
+                  "fragment": 1,
+                  "frames": 24602,
+                  "peakLinear": 3.6371512413024902,
+                  "sha256": "aa032a3a96be465d1163ad2d0e2d3f92c7ab00a210fac11253ad28c0899b9a36",
+                  "spanSha256": "d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24"
+                }
+              ]
+            },
+            {
+              "checks": 71563,
+              "firQualityQualified": false,
+              "modelAdoptionChanged": false,
+              "nominalBinaryBoundByProtocol": false,
+              "ownedNominalWorkflowQualified": true,
+              "physicalSamplesCompared": 0,
+              "postSrcLiveOverlayImplemented": false,
+              "projectSamplesCompared": 71228,
+              "qualityAdmission": false,
+              "sides": [
+                {
+                  "blendedSamples": 16,
+                  "curveMaximumError": 0.0,
+                  "domain": 2,
+                  "exactSamples": 35702,
+                  "fragment": 0,
+                  "frames": 17859,
+                  "peakLinear": 4.117021560668945,
+                  "sha256": "a877f146ce10f7333735c9b1a602b80682e4395ab5edac8145c7dfe4901de63c",
+                  "spanSha256": "247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a"
+                },
+                {
+                  "blendedSamples": 16,
+                  "curveMaximumError": 0.0,
+                  "domain": 2,
+                  "exactSamples": 35702,
+                  "fragment": 1,
+                  "frames": 17859,
+                  "peakLinear": 4.117021560668945,
+                  "sha256": "cddd9680d2a1d414d3cca863f15636b15c7d2a98796383f849d263a2eb4b77d4",
+                  "spanSha256": "cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e"
+                }
+              ]
+            },
+            {
+              "checks": 32961,
+              "firQualityQualified": false,
+              "modelAdoptionChanged": false,
+              "nominalBinaryBoundByProtocol": false,
+              "ownedNominalWorkflowQualified": true,
+              "physicalSamplesCompared": 0,
+              "postSrcLiveOverlayImplemented": false,
+              "projectSamplesCompared": 32664,
+              "qualityAdmission": false,
+              "sides": [
+                {
+                  "blendedSamples": 16,
+                  "curveMaximumError": 0.0,
+                  "domain": 2,
+                  "exactSamples": 16420,
+                  "fragment": 0,
+                  "frames": 8218,
+                  "peakLinear": 3.8511574268341064,
+                  "sha256": "23dcb64ea36a166fa33710402927e6c606682374aee2ae4b7708b6cc321a51f6",
+                  "spanSha256": "28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32"
+                },
+                {
+                  "blendedSamples": 16,
+                  "curveMaximumError": 0.0,
+                  "domain": 2,
+                  "exactSamples": 16420,
+                  "fragment": 1,
+                  "frames": 8218,
+                  "peakLinear": 3.8511574268341064,
+                  "sha256": "386c06778bd41adb88854b3bb6ff79a2cc6e2d1ed6e04a3d3264e67bb0da8259",
+                  "spanSha256": "60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44"
+                }
+              ]
+            }
+          ],
+          "completedWorkers": 6,
+          "physicalFragments": 2,
+          "postSrcFragments": 4,
+          "completedNominalWorkers": 6,
+          "nominalWorkerSha256": "afb015a2aaf9eb1894f34d35174b11a995a3a0a3b4becac28e0f8164ab2c8ea8",
+          "ownedNominalWorkflowQualified": true,
+          "nominalBinaryBoundByProtocol": false,
+          "qualityAdmission": false,
+          "modelAdoptionChanged": false
+        },
+        "publicationProcesses": [
+          {
+            "pid": 7379,
+            "exitCode": 0,
+            "root": "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/comp-regeneration-source-evidence/run-wtmiarx6/inputs/run-nncznx45/inputs/run-zy29jhzk/case-44100/project-\u00e9-\u65e5\u672c"
+          },
+          {
+            "pid": 7384,
+            "exitCode": 0,
+            "root": "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/comp-regeneration-source-evidence/run-wtmiarx6/inputs/run-nncznx45/inputs/run-zy29jhzk/case-48000/project-\u00e9-\u65e5\u672c"
+          },
+          {
+            "pid": 7385,
+            "exitCode": 0,
+            "root": "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/comp-regeneration-source-evidence/run-wtmiarx6/inputs/run-nncznx45/inputs/run-zy29jhzk/case-96000/project-\u00e9-\u65e5\u672c"
+          }
+        ],
+        "reports": [
+          {
+            "actualPowerLossTested": false,
+            "adoption": {
+              "exportBlockFrames": 127,
+              "exportFileSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+              "exportPeak": 4.117021560668945,
+              "exportSampleSha256": "c2c9143ad551c584229fe3d2069549fadf8eece79f876ff1a48f342148ab7016",
+              "liveCallbackFrames": 193,
+              "liveCoreSamples": 71332,
+              "liveEqualsExport": true,
+              "mainWindow": false,
+              "physicalAudio": false,
+              "registeredProjectRestored": true,
+              "savedReopened": true,
+              "schema": "1.23",
+              "undoRedo": true
+            },
+            "canceledJobs": 1,
+            "checks": 291,
+            "comparedSamples": 71436,
+            "completedJobs": 1,
+            "executorSha256": "931610d058ab26f74260533d993ae07ba7b881489909aebd03f8dd3daa4fe4e6",
+            "interruptedJobs": 2,
+            "jobs": [
+              {
+                "case": "complete",
+                "operation": "47f2d143-5eaa-4d74-ad50-772ed7c5607c",
+                "requestDigest": "e60ee594eb59450c566f31b566ed6a6b44d44a3bdf5a069d2c2db034554bf6ab"
+              },
+              {
+                "case": "after-close",
+                "operation": "d347b3b4-69bc-435e-ae6b-3c1012e837e9",
+                "requestDigest": "6dd654cd4397ce11d5ee1320668b5ed2d7af821ed8241a2d3f9a734cc70355b6"
+              },
+              {
+                "case": "cancel-after-first-file",
+                "operation": "9593304e-3288-4d96-9fdf-4162ea9f7da0",
+                "requestDigest": "f4eba0772c2e67ac1f2e1fb5de45706f6395c0a8e21c1101d99b9a77b2b20ff9"
+              },
+              {
+                "case": "before-completion",
+                "operation": "845855df-290e-41ad-9698-3e340068010e",
+                "requestDigest": "ae23106bc023b7b30a63fa87ed495bde4ef62fa638d490d02d1fa28029812105"
+              },
+              {
+                "case": "precancel",
+                "operation": "c722684f-cf03-43d5-baef-4f539c6c3572",
+                "requestDigest": "99687c6d6d76f59ba9ff825059c55a1bec0fbeba44064e0c447cb345a786360a"
+              }
+            ],
+            "modelAdoptionChanged": true,
+            "osMemoryCeilingClaimed": false,
+            "qualityAdmission": false,
+            "requestReferenceInProject": true,
+            "requestSidecarReopenRelocation": true,
+            "sourceBasedFullPcmRefusal": true
+          },
+          {
+            "actualPowerLossTested": false,
+            "adoption": {
+              "exportBlockFrames": 127,
+              "exportFileSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+              "exportPeak": 3.6371512413024902,
+              "exportSampleSha256": "be451893d986e0f36c1ab7ede4464379edd9c02df51200d18f838ab10b609e09",
+              "liveCallbackFrames": 193,
+              "liveCoreSamples": 98304,
+              "liveEqualsExport": true,
+              "mainWindow": false,
+              "physicalAudio": false,
+              "registeredProjectRestored": true,
+              "savedReopened": true,
+              "schema": "1.23",
+              "undoRedo": true
+            },
+            "canceledJobs": 1,
+            "checks": 361,
+            "comparedSamples": 98408,
+            "completedJobs": 1,
+            "executorSha256": "931610d058ab26f74260533d993ae07ba7b881489909aebd03f8dd3daa4fe4e6",
+            "interruptedJobs": 2,
+            "jobs": [
+              {
+                "case": "complete",
+                "operation": "a3458661-bb6f-4bdb-a1d1-ebdf409b6304",
+                "requestDigest": "e37197b542117bfab819def93b6320b0efedb479d4b19335578133369dc800f7"
+              },
+              {
+                "case": "after-close",
+                "operation": "b132b6aa-6517-4578-af20-372a8fcac677",
+                "requestDigest": "b80d61120eca44cfc4d6e802c857710a7253eeb6411789c18ae39ca148d3f492"
+              },
+              {
+                "case": "cancel-after-first-file",
+                "operation": "516ac065-b7f2-4fc8-9361-b2c9038b0f26",
+                "requestDigest": "ced71f9df2fe11678f6b0b31bd31b646b2c212e67bb91d8ed0c2ec0c9c5e326f"
+              },
+              {
+                "case": "before-completion",
+                "operation": "1a104802-8020-4f97-a4dc-c47089f85d4d",
+                "requestDigest": "c1dd134c844a84ccacef3e182c65a1aa87dadb238f56fbec0817fa756268dd48"
+              },
+              {
+                "case": "precancel",
+                "operation": "bc759ce3-59db-4f0c-b0d0-c046ae34ad35",
+                "requestDigest": "8a177264dfbe18c875c990cafba0dbe16fe50bc4319a7715073f0689d8067e45"
+              }
+            ],
+            "modelAdoptionChanged": true,
+            "osMemoryCeilingClaimed": false,
+            "qualityAdmission": false,
+            "requestReferenceInProject": true,
+            "requestSidecarReopenRelocation": true,
+            "sourceBasedFullPcmRefusal": true
+          },
+          {
+            "actualPowerLossTested": false,
+            "adoption": {
+              "exportBlockFrames": 127,
+              "exportFileSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+              "exportPeak": 3.8511574268341064,
+              "exportSampleSha256": "2b9c5829d3cc5965376e58c27296012a8796498f4c770034c5bd8e38f7b7a588",
+              "liveCallbackFrames": 193,
+              "liveCoreSamples": 32768,
+              "liveEqualsExport": true,
+              "mainWindow": false,
+              "physicalAudio": false,
+              "registeredProjectRestored": true,
+              "savedReopened": true,
+              "schema": "1.23",
+              "undoRedo": true
+            },
+            "canceledJobs": 1,
+            "checks": 191,
+            "comparedSamples": 32872,
+            "completedJobs": 1,
+            "executorSha256": "931610d058ab26f74260533d993ae07ba7b881489909aebd03f8dd3daa4fe4e6",
+            "interruptedJobs": 2,
+            "jobs": [
+              {
+                "case": "complete",
+                "operation": "5f2db58d-3698-42e6-82dd-ef1a5fca62ca",
+                "requestDigest": "c89d3149097913454b93b207626c723150ded4ff996f9b1cc68d91055737b635"
+              },
+              {
+                "case": "after-close",
+                "operation": "9aa54958-69e0-46e5-a71d-981516273767",
+                "requestDigest": "ab5b21f9ce6fe7c57a49828e65813af7b59f9bdf13f43f23dc9937d8f7323817"
+              },
+              {
+                "case": "cancel-after-first-file",
+                "operation": "f4171c60-1232-4ee0-81b4-7775380e1f0a",
+                "requestDigest": "1820bfecf682cae6d1cf90d069e8356650c15ca06af60b66b775ddcf69ff8bfc"
+              },
+              {
+                "case": "before-completion",
+                "operation": "d940cb4a-4f96-43f1-8e8e-9283d6b2de42",
+                "requestDigest": "4727ff19aad541f02b9536e2ea7582d89aeb3b0ae2dfa12bec3e9eae88ab82be"
+              },
+              {
+                "case": "precancel",
+                "operation": "490adbef-f0c1-4d38-9283-a5bd60f24d35",
+                "requestDigest": "28324de57c6102c90365c085ba85cd4d420bf245450d2d508ce471a043107f9e"
+              }
+            ],
+            "modelAdoptionChanged": true,
+            "osMemoryCeilingClaimed": false,
+            "qualityAdmission": false,
+            "requestReferenceInProject": true,
+            "requestSidecarReopenRelocation": true,
+            "sourceBasedFullPcmRefusal": true
+          }
+        ],
+        "runningImageProbe": {
+          "pid": 7387,
+          "exitCode": 0,
+          "originalSha256": "931610d058ab26f74260533d993ae07ba7b881489909aebd03f8dd3daa4fe4e6",
+          "before": "931610d058ab26f74260533d993ae07ba7b881489909aebd03f8dd3daa4fe4e6",
+          "after": "931610d058ab26f74260533d993ae07ba7b881489909aebd03f8dd3daa4fe4e6",
+          "replacementPathSha256": "92d8bb698343fe47dbdad7908b0e909d4f05267e90637f8eea1a860e036254ad",
+          "runningInodeHashPreserved": true
+        },
+        "actualPowerLossTested": false,
+        "qualityAdmission": false,
+        "modelAdoptionChanged": true
+      },
+      "resolverProcesses": [
+        {
+          "pid": 7391,
+          "exitCode": 0
+        },
+        {
+          "pid": 7392,
+          "exitCode": 0
+        },
+        {
+          "pid": 7393,
+          "exitCode": 0
+        }
+      ],
+      "reports": [
+        {
+          "actualAdoptedSourceCases": [
+            {
+              "artifactRate": 48000,
+              "closureRecords": 2,
+              "currentFrames": 17859,
+              "fractionalPositionsCompared": 17859,
+              "side": 0,
+              "sourceRate": 44100
+            },
+            {
+              "artifactRate": 48000,
+              "closureRecords": 2,
+              "currentFrames": 17859,
+              "fractionalPositionsCompared": 17859,
+              "side": 1,
+              "sourceRate": 44100
+            }
+          ],
+          "checks": 43741,
+          "fileVerification": false,
+          "joinedMemoryReleased": true,
+          "legacyRecipes": 2,
+          "metadataOnlyAdditionalGenerations": 3,
+          "mixedAdmissionRefused": true,
+          "newRendering": false,
+          "plannedRecipes": 4,
+          "qualityAdmission": false,
+          "stateUnchanged": true
+        },
+        {
+          "actualAdoptedSourceCases": [
+            {
+              "artifactRate": 48000,
+              "closureRecords": 2,
+              "currentFrames": 24602,
+              "fractionalPositionsCompared": 24602,
+              "side": 0,
+              "sourceRate": 48000
+            },
+            {
+              "artifactRate": 48000,
+              "closureRecords": 2,
+              "currentFrames": 24602,
+              "fractionalPositionsCompared": 24602,
+              "side": 1,
+              "sourceRate": 48000
+            }
+          ],
+          "checks": 60202,
+          "fileVerification": false,
+          "joinedMemoryReleased": true,
+          "legacyRecipes": 2,
+          "metadataOnlyAdditionalGenerations": 3,
+          "mixedAdmissionRefused": true,
+          "newRendering": false,
+          "plannedRecipes": 4,
+          "qualityAdmission": false,
+          "stateUnchanged": true
+        },
+        {
+          "actualAdoptedSourceCases": [
+            {
+              "artifactRate": 48000,
+              "closureRecords": 2,
+              "currentFrames": 8218,
+              "fractionalPositionsCompared": 8218,
+              "side": 0,
+              "sourceRate": 96000
+            },
+            {
+              "artifactRate": 48000,
+              "closureRecords": 2,
+              "currentFrames": 8218,
+              "fractionalPositionsCompared": 8218,
+              "side": 1,
+              "sourceRate": 96000
+            }
+          ],
+          "checks": 20204,
+          "fileVerification": false,
+          "joinedMemoryReleased": true,
+          "legacyRecipes": 2,
+          "metadataOnlyAdditionalGenerations": 3,
+          "mixedAdmissionRefused": true,
+          "newRendering": false,
+          "plannedRecipes": 4,
+          "qualityAdmission": false,
+          "stateUnchanged": true
+        }
+      ]
+    }
+  },
+  {
+    "artifact": "linux-synthetic-test-log",
+    "path": "comp-assembly-controller-evidence/run-s68420_4/report.json",
+    "report": {
+      "inputWorkflow": {
+        "workerSha256": "b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055",
+        "processes": [
+          {
+            "kind": "prepare",
+            "pid": 10308,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 10309,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10315,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10310,
+            "exitCode": 0,
+            "seconds": 0.39658088999999563,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10321,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10316,
+            "exitCode": 0,
+            "seconds": 0.4404900380000072,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 10323,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10324,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10325,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 10326,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10332,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10327,
+            "exitCode": 0,
+            "seconds": 0.4939809290000312,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 10333,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10339,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10334,
+            "exitCode": 0,
+            "seconds": 0.6231616119999899,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10340,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10341,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 10342,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10348,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10343,
+            "exitCode": 0,
+            "seconds": 0.5302119409999477,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10354,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10349,
+            "exitCode": 0,
+            "seconds": 0.45303705000003447,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 10355,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10356,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10357,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 10358,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10364,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10359,
+            "exitCode": 0,
+            "seconds": 0.5354330059999484,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 10365,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10371,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10366,
+            "exitCode": 0,
+            "seconds": 0.68512434999991,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10372,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10373,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 10374,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10380,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10375,
+            "exitCode": 0,
+            "seconds": 0.5932021560000749,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10386,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10381,
+            "exitCode": 0,
+            "seconds": 0.719570185000066,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 10387,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10388,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10389,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 10390,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10396,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10391,
+            "exitCode": 0,
+            "seconds": 0.7291457510000328,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 10397,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10403,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10398,
+            "exitCode": 0,
+            "seconds": 0.8927681769999936,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10404,
+            "exitCode": 0
+          }
+        ],
+        "reports": [
+          {
+            "checks": 98561,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 98272,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 98200,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 1,
+                "exactSamples": 49188,
+                "fragment": 0,
+                "frames": 24602,
+                "peakLinear": 3.6371512413024902,
+                "sha256": "130221da54ca2c345b83d4d190de6452147cfb40535670d36edfc869bcf43eea",
+                "spanSha256": "9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 1,
+                "exactSamples": 49188,
+                "fragment": 1,
+                "frames": 24602,
+                "peakLinear": 3.6371512413024902,
+                "sha256": "aa032a3a96be465d1163ad2d0e2d3f92c7ab00a210fac11253ad28c0899b9a36",
+                "spanSha256": "d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24"
+              }
+            ]
+          },
+          {
+            "checks": 71563,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 0,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 71228,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 35702,
+                "fragment": 0,
+                "frames": 17859,
+                "peakLinear": 4.117021560668945,
+                "sha256": "a877f146ce10f7333735c9b1a602b80682e4395ab5edac8145c7dfe4901de63c",
+                "spanSha256": "247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 35702,
+                "fragment": 1,
+                "frames": 17859,
+                "peakLinear": 4.117021560668945,
+                "sha256": "cddd9680d2a1d414d3cca863f15636b15c7d2a98796383f849d263a2eb4b77d4",
+                "spanSha256": "cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e"
+              }
+            ]
+          },
+          {
+            "checks": 32961,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 0,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 32664,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 16420,
+                "fragment": 0,
+                "frames": 8218,
+                "peakLinear": 3.8511574268341064,
+                "sha256": "23dcb64ea36a166fa33710402927e6c606682374aee2ae4b7708b6cc321a51f6",
+                "spanSha256": "28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 16420,
+                "fragment": 1,
+                "frames": 8218,
+                "peakLinear": 3.8511574268341064,
+                "sha256": "386c06778bd41adb88854b3bb6ff79a2cc6e2d1ed6e04a3d3264e67bb0da8259",
+                "spanSha256": "60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44"
+              }
+            ]
+          }
+        ],
+        "completedWorkers": 6,
+        "physicalFragments": 2,
+        "postSrcFragments": 4,
+        "completedNominalWorkers": 6,
+        "nominalWorkerSha256": "afb015a2aaf9eb1894f34d35174b11a995a3a0a3b4becac28e0f8164ab2c8ea8",
+        "ownedNominalWorkflowQualified": true,
+        "nominalBinaryBoundByProtocol": false,
+        "qualityAdmission": false,
+        "modelAdoptionChanged": false
+      },
+      "controllerProcesses": [
+        {
+          "pid": 10406,
+          "exitCode": 0
+        },
+        {
+          "pid": 10411,
+          "exitCode": 0
+        },
+        {
+          "pid": 10452,
+          "exitCode": 0
+        }
+      ],
+      "reports": [
+        {
+          "cases": [
+            {
+              "case": 0,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 71436,
+                "stale": false
+              },
+              "guiTicks": 795,
+              "joinedMemoryReleased": true,
+              "reuse": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 71436,
+                "stale": false
+              },
+              "review": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 71436,
+                "stale": false
+              },
+              "stages": 5,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": true,
+                "recovery": 4,
+                "samples": 71436,
+                "stale": false
+              }
+            }
+          ],
+          "checks": 14,
+          "executorSha256": "f61d853a7c1423dc795c19f288ea83ac84ddf75df8f3d84399423b075a3f9041",
+          "hardDeadline": false,
+          "liveProjectController": true,
+          "mainWindowIntegrated": false,
+          "modelAudioAdoption": false,
+          "osIsolation": false
+        },
+        {
+          "cases": [
+            {
+              "case": 0,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 98408,
+                "stale": false
+              },
+              "guiTicks": 658,
+              "joinedMemoryReleased": true,
+              "reuse": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 98408,
+                "stale": false
+              },
+              "review": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 98408,
+                "stale": false
+              },
+              "stages": 5,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": true,
+                "recovery": 4,
+                "samples": 98408,
+                "stale": false
+              }
+            },
+            {
+              "case": 1,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": null,
+                "phase": 6,
+                "published": false,
+                "recovery": 3,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 113,
+              "joinedMemoryReleased": true,
+              "review": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 6,
+                "published": false,
+                "recovery": 3,
+                "samples": null,
+                "stale": false
+              },
+              "stages": 1,
+              "terminal": {
+                "canceled": true,
+                "closed": false,
+                "error": 7,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 2,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": true
+              },
+              "guiTicks": 114,
+              "joinedMemoryReleased": true,
+              "stages": 1,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": true
+              }
+            },
+            {
+              "case": 3,
+              "closed": {
+                "canceled": true,
+                "closed": true,
+                "error": 7,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 113,
+              "joinedMemoryReleased": true,
+              "stages": 1,
+              "terminal": {
+                "canceled": true,
+                "closed": true,
+                "error": 7,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 4,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": true
+              },
+              "guiTicks": 113,
+              "joinedMemoryReleased": true,
+              "stages": 1,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": true
+              }
+            },
+            {
+              "case": 5,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": true
+              },
+              "guiTicks": 113,
+              "joinedMemoryReleased": true,
+              "stages": 1,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": true
+              }
+            },
+            {
+              "case": 6,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 2,
+              "joinedMemoryReleased": true,
+              "stages": 0,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 1,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 7,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 8,
+                "phase": 7,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 0,
+              "joinedMemoryReleased": true,
+              "stages": 0,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 8,
+                "phase": 7,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 8,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 98408,
+                "stale": false
+              },
+              "guiTicks": 444,
+              "joinedMemoryReleased": true,
+              "review": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 98408,
+                "stale": false
+              },
+              "stages": 5,
+              "terminal": {
+                "canceled": true,
+                "closed": false,
+                "error": 7,
+                "phase": 6,
+                "published": true,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 9,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": null,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 109,
+              "joinedMemoryReleased": true,
+              "retry": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": false
+              },
+              "stages": 2,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 4,
+                "phase": 6,
+                "published": false,
+                "recovery": 2,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 10,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 6,
+                "phase": 7,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 2,
+              "joinedMemoryReleased": true,
+              "stages": 0,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 6,
+                "phase": 7,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 11,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": 6,
+                "phase": 6,
+                "published": false,
+                "recovery": 0,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 9,
+              "joinedMemoryReleased": true,
+              "stages": 0,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": 6,
+                "phase": 6,
+                "published": false,
+                "recovery": 0,
+                "samples": null,
+                "stale": false
+              }
+            },
+            {
+              "case": 12,
+              "closed": {
+                "canceled": true,
+                "closed": true,
+                "error": 7,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              },
+              "guiTicks": 7,
+              "joinedMemoryReleased": true,
+              "stages": 0,
+              "terminal": {
+                "canceled": true,
+                "closed": false,
+                "error": 7,
+                "phase": 6,
+                "published": false,
+                "recovery": null,
+                "samples": null,
+                "stale": false
+              }
+            }
+          ],
+          "checks": 143,
+          "executorSha256": "f61d853a7c1423dc795c19f288ea83ac84ddf75df8f3d84399423b075a3f9041",
+          "hardDeadline": false,
+          "liveProjectController": true,
+          "mainWindowIntegrated": false,
+          "modelAudioAdoption": false,
+          "osIsolation": false
+        },
+        {
+          "cases": [
+            {
+              "case": 0,
+              "closed": {
+                "canceled": false,
+                "closed": true,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 32872,
+                "stale": false
+              },
+              "guiTicks": 787,
+              "joinedMemoryReleased": true,
+              "reuse": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 32872,
+                "stale": false
+              },
+              "review": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": false,
+                "recovery": 4,
+                "samples": 32872,
+                "stale": false
+              },
+              "stages": 5,
+              "terminal": {
+                "canceled": false,
+                "closed": false,
+                "error": null,
+                "phase": 5,
+                "published": true,
+                "recovery": 4,
+                "samples": 32872,
+                "stale": false
+              }
+            }
+          ],
+          "checks": 14,
+          "executorSha256": "f61d853a7c1423dc795c19f288ea83ac84ddf75df8f3d84399423b075a3f9041",
+          "hardDeadline": false,
+          "liveProjectController": true,
+          "mainWindowIntegrated": false,
+          "modelAudioAdoption": false,
+          "osIsolation": false
+        }
+      ]
+    }
+  },
+  {
+    "artifact": "linux-synthetic-test-log",
+    "path": "comp-assembly-ui-evidence/run-e5fs_o8m/report.json",
+    "report": {
+      "inputWorkflow": {
+        "workerSha256": "b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055",
+        "processes": [
+          {
+            "kind": "prepare",
+            "pid": 9902,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 9903,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 9909,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 9904,
+            "exitCode": 0,
+            "seconds": 0.5408973700000388,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 9915,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 9910,
+            "exitCode": 0,
+            "seconds": 0.5007072089999838,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 9916,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9917,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9918,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 9919,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 9925,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 9920,
+            "exitCode": 0,
+            "seconds": 0.4736994660000846,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 9926,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 9932,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 9927,
+            "exitCode": 0,
+            "seconds": 0.5947711100000106,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 9933,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9934,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 9935,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 9941,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 9936,
+            "exitCode": 0,
+            "seconds": 0.5155011420000619,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 9947,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 9942,
+            "exitCode": 0,
+            "seconds": 0.5433973829999559,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 9948,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9949,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9950,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 9951,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 9957,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 9952,
+            "exitCode": 0,
+            "seconds": 0.5314870109999674,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 9959,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 9965,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 9960,
+            "exitCode": 0,
+            "seconds": 0.6965920569999753,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 9966,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9971,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 9972,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 9978,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 9973,
+            "exitCode": 0,
+            "seconds": 0.7233348209999804,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 9984,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 9979,
+            "exitCode": 0,
+            "seconds": 0.737005990000057,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 9985,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9986,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 9987,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 9988,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 9994,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 9989,
+            "exitCode": 0,
+            "seconds": 0.7603658540000424,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 9995,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10001,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 9996,
+            "exitCode": 0,
+            "seconds": 0.834617632000004,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10002,
+            "exitCode": 0
+          }
+        ],
+        "reports": [
+          {
+            "checks": 98561,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 98272,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 98200,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 1,
+                "exactSamples": 49188,
+                "fragment": 0,
+                "frames": 24602,
+                "peakLinear": 3.6371512413024902,
+                "sha256": "130221da54ca2c345b83d4d190de6452147cfb40535670d36edfc869bcf43eea",
+                "spanSha256": "9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 1,
+                "exactSamples": 49188,
+                "fragment": 1,
+                "frames": 24602,
+                "peakLinear": 3.6371512413024902,
+                "sha256": "aa032a3a96be465d1163ad2d0e2d3f92c7ab00a210fac11253ad28c0899b9a36",
+                "spanSha256": "d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24"
+              }
+            ]
+          },
+          {
+            "checks": 71563,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 0,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 71228,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 35702,
+                "fragment": 0,
+                "frames": 17859,
+                "peakLinear": 4.117021560668945,
+                "sha256": "a877f146ce10f7333735c9b1a602b80682e4395ab5edac8145c7dfe4901de63c",
+                "spanSha256": "247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 35702,
+                "fragment": 1,
+                "frames": 17859,
+                "peakLinear": 4.117021560668945,
+                "sha256": "cddd9680d2a1d414d3cca863f15636b15c7d2a98796383f849d263a2eb4b77d4",
+                "spanSha256": "cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e"
+              }
+            ]
+          },
+          {
+            "checks": 32961,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 0,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 32664,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 16420,
+                "fragment": 0,
+                "frames": 8218,
+                "peakLinear": 3.8511574268341064,
+                "sha256": "23dcb64ea36a166fa33710402927e6c606682374aee2ae4b7708b6cc321a51f6",
+                "spanSha256": "28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 16420,
+                "fragment": 1,
+                "frames": 8218,
+                "peakLinear": 3.8511574268341064,
+                "sha256": "386c06778bd41adb88854b3bb6ff79a2cc6e2d1ed6e04a3d3264e67bb0da8259",
+                "spanSha256": "60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44"
+              }
+            ]
+          }
+        ],
+        "completedWorkers": 6,
+        "physicalFragments": 2,
+        "postSrcFragments": 4,
+        "completedNominalWorkers": 6,
+        "nominalWorkerSha256": "afb015a2aaf9eb1894f34d35174b11a995a3a0a3b4becac28e0f8164ab2c8ea8",
+        "ownedNominalWorkflowQualified": true,
+        "nominalBinaryBoundByProtocol": false,
+        "qualityAdmission": false,
+        "modelAdoptionChanged": false
+      },
+      "controllerProcesses": [
+        {
+          "pid": 10003,
+          "exitCode": 0
+        },
+        {
+          "pid": 10023,
+          "exitCode": 0
+        },
+        {
+          "pid": 10076,
+          "exitCode": 0
+        }
+      ],
+      "reports": [
+        {
+          "cases": [
+            {
+              "asynchronousClose": true,
+              "case": 0,
+              "exportFileSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+              "exportFrames": 35666,
+              "exportPeak": 4.117021560668945,
+              "rawAndForeignLedgerRefused": true,
+              "reviewed": true,
+              "undoRedoSaveReopen": true
+            }
+          ],
+          "checks": 22,
+          "executorSha256": "bf8419a376a2e279610466d37350c2e325d056a9c01fcfc629a857007c30aea5",
+          "mainWindowIntegrated": true,
+          "physicalAudio": false,
+          "qualityAdmission": false
+        },
+        {
+          "cases": [
+            {
+              "asynchronousClose": true,
+              "case": 0,
+              "exportFileSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+              "exportFrames": 49152,
+              "exportPeak": 3.6371512413024902,
+              "rawAndForeignLedgerRefused": true,
+              "reviewed": true,
+              "undoRedoSaveReopen": true
+            },
+            {
+              "asynchronousClose": true,
+              "case": 1,
+              "changedFileRefused": true,
+              "reviewed": true
+            },
+            {
+              "asynchronousClose": true,
+              "case": 2,
+              "reviewed": true,
+              "sameRootReopenRefused": true
+            },
+            {
+              "asynchronousClose": true,
+              "case": 3,
+              "closeCanceledWithoutEdit": true,
+              "guiTicks": 15,
+              "reviewed": true
+            }
+          ],
+          "checks": 43,
+          "executorSha256": "bf8419a376a2e279610466d37350c2e325d056a9c01fcfc629a857007c30aea5",
+          "mainWindowIntegrated": true,
+          "physicalAudio": false,
+          "qualityAdmission": false
+        },
+        {
+          "cases": [
+            {
+              "asynchronousClose": true,
+              "case": 0,
+              "exportFileSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+              "exportFrames": 16384,
+              "exportPeak": 3.8511574268341064,
+              "rawAndForeignLedgerRefused": true,
+              "reviewed": true,
+              "undoRedoSaveReopen": true
+            }
+          ],
+          "checks": 22,
+          "executorSha256": "bf8419a376a2e279610466d37350c2e325d056a9c01fcfc629a857007c30aea5",
+          "mainWindowIntegrated": true,
+          "physicalAudio": false,
+          "qualityAdmission": false
+        }
+      ]
+    }
+  },
+  {
+    "artifact": "linux-synthetic-test-log",
+    "path": "comp-transition-ui-evidence/run-2wj5wdy9/report.json",
+    "report": {
+      "inputWorkflow": {
+        "workerSha256": "b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055",
+        "processes": [
+          {
+            "kind": "prepare",
+            "pid": 10094,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 10095,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10101,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10096,
+            "exitCode": 0,
+            "seconds": 0.4500664089999873,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10107,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10102,
+            "exitCode": 0,
+            "seconds": 0.42822826500002975,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 10108,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10109,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10110,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 10111,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10117,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10112,
+            "exitCode": 0,
+            "seconds": 0.47577940300004684,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 10118,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10124,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10119,
+            "exitCode": 0,
+            "seconds": 0.6222733249999237,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10125,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10126,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 10127,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10133,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10128,
+            "exitCode": 0,
+            "seconds": 0.39477431499994964,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10139,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10134,
+            "exitCode": 0,
+            "seconds": 0.49912131800010684,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 10140,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10141,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10142,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 10143,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10149,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10144,
+            "exitCode": 0,
+            "seconds": 0.5203102980000267,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 10150,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10156,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10151,
+            "exitCode": 0,
+            "seconds": 0.6454324499999302,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10157,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10158,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-prepare",
+            "pid": 10159,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10165,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10160,
+            "exitCode": 0,
+            "seconds": 0.6662295109999832,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-ready",
+            "pid": 10171,
+            "exitCode": 0
+          },
+          {
+            "kind": "nominal-worker",
+            "pid": 10166,
+            "exitCode": 0,
+            "seconds": 0.6247836180000377,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "nominal-adopt",
+            "pid": 10172,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10173,
+            "exitCode": 0
+          },
+          {
+            "kind": "prepare",
+            "pid": 10174,
+            "exitCode": 0
+          },
+          {
+            "kind": "unready",
+            "pid": 10175,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10181,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10176,
+            "exitCode": 0,
+            "seconds": 0.7123991380000234,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "unready",
+            "pid": 10182,
+            "exitCode": 0
+          },
+          {
+            "kind": "start",
+            "pid": 10188,
+            "exitCode": 0
+          },
+          {
+            "kind": "worker",
+            "pid": 10183,
+            "exitCode": 0,
+            "seconds": 0.8463501029999634,
+            "retirementPending": false,
+            "observationTimedOut": false
+          },
+          {
+            "kind": "verify",
+            "pid": 10189,
+            "exitCode": 0
+          }
+        ],
+        "reports": [
+          {
+            "checks": 98561,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 98272,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 98200,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 1,
+                "exactSamples": 49188,
+                "fragment": 0,
+                "frames": 24602,
+                "peakLinear": 3.6371512413024902,
+                "sha256": "130221da54ca2c345b83d4d190de6452147cfb40535670d36edfc869bcf43eea",
+                "spanSha256": "9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 1,
+                "exactSamples": 49188,
+                "fragment": 1,
+                "frames": 24602,
+                "peakLinear": 3.6371512413024902,
+                "sha256": "aa032a3a96be465d1163ad2d0e2d3f92c7ab00a210fac11253ad28c0899b9a36",
+                "spanSha256": "d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24"
+              }
+            ]
+          },
+          {
+            "checks": 71563,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 0,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 71228,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 35702,
+                "fragment": 0,
+                "frames": 17859,
+                "peakLinear": 4.117021560668945,
+                "sha256": "a877f146ce10f7333735c9b1a602b80682e4395ab5edac8145c7dfe4901de63c",
+                "spanSha256": "247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 35702,
+                "fragment": 1,
+                "frames": 17859,
+                "peakLinear": 4.117021560668945,
+                "sha256": "cddd9680d2a1d414d3cca863f15636b15c7d2a98796383f849d263a2eb4b77d4",
+                "spanSha256": "cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e"
+              }
+            ]
+          },
+          {
+            "checks": 32961,
+            "firQualityQualified": false,
+            "modelAdoptionChanged": false,
+            "nominalBinaryBoundByProtocol": false,
+            "ownedNominalWorkflowQualified": true,
+            "physicalSamplesCompared": 0,
+            "postSrcLiveOverlayImplemented": false,
+            "projectSamplesCompared": 32664,
+            "qualityAdmission": false,
+            "sides": [
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 16420,
+                "fragment": 0,
+                "frames": 8218,
+                "peakLinear": 3.8511574268341064,
+                "sha256": "23dcb64ea36a166fa33710402927e6c606682374aee2ae4b7708b6cc321a51f6",
+                "spanSha256": "28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32"
+              },
+              {
+                "blendedSamples": 16,
+                "curveMaximumError": 0.0,
+                "domain": 2,
+                "exactSamples": 16420,
+                "fragment": 1,
+                "frames": 8218,
+                "peakLinear": 3.8511574268341064,
+                "sha256": "386c06778bd41adb88854b3bb6ff79a2cc6e2d1ed6e04a3d3264e67bb0da8259",
+                "spanSha256": "60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44"
+              }
+            ]
+          }
+        ],
+        "completedWorkers": 6,
+        "physicalFragments": 2,
+        "postSrcFragments": 4,
+        "completedNominalWorkers": 6,
+        "nominalWorkerSha256": "afb015a2aaf9eb1894f34d35174b11a995a3a0a3b4becac28e0f8164ab2c8ea8",
+        "ownedNominalWorkflowQualified": true,
+        "nominalBinaryBoundByProtocol": false,
+        "qualityAdmission": false,
+        "modelAdoptionChanged": false
+      },
+      "controllerProcesses": [
+        {
+          "pid": 10191,
+          "exitCode": 0
+        },
+        {
+          "pid": 10211,
+          "exitCode": 0
+        },
+        {
+          "pid": 10286,
+          "exitCode": 0
+        }
+      ],
+      "reports": [
+        {
+          "actualNewJobCreation": true,
+          "cases": [
+            {
+              "actualTimelineDialog": true,
+              "asynchronousClose": true,
+              "case": 0,
+              "exportFileSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+              "exportFrames": 35666,
+              "exportPeak": 4.117021560668945,
+              "newChildren": [
+                {
+                  "exitCode": 0,
+                  "pid": 10207,
+                  "reaped": true,
+                  "stderr": "",
+                  "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"6562df65-88b6-4ff9-a2ec-14a4efa1b1a0\",\"outputFrames\":24611,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[24611,24612],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16407,1,3],\"recipeDigest\":\"9bc4507fc7e81a6d3d1c0741de4a77607920b46a3faee580c3b91873aa5fa496\",\"requestDigest\":\"eb7ecd1162b96fae8e0285c23b135eec788dd059f13de210fc41b7bcb684b1bd\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\"}\n{\"audioSha256\":\"247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"6562df65-88b6-4ff9-a2ec-14a4efa1b1a0\",\"outputFrames\":24611,\"payloadPeakBytes\":92548321,\"peakLinear\":4.213526248931885,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[24611,24612],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16407,1,3],\"recipeDigest\":\"9bc4507fc7e81a6d3d1c0741de4a77607920b46a3faee580c3b91873aa5fa496\",\"requestDigest\":\"eb7ecd1162b96fae8e0285c23b135eec788dd059f13de210fc41b7bcb684b1bd\",\"sampleSha256\":\"25f71d0af6d772c886d4b527cabc1e4fe3f2cbc2f24bc4be227b6cbee8158e9b\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\",\"writtenFrames\":24611}\n"
+                },
+                {
+                  "exitCode": 0,
+                  "pid": 10209,
+                  "reaped": true,
+                  "stderr": "",
+                  "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"e2a7464d-8e4c-4056-9ebf-d11f6d759445\",\"outputFrames\":24612,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32744,1,7],\"rawSpan\":[16408,0,1],\"recipeDigest\":\"9bc4507fc7e81a6d3d1c0741de4a77607920b46a3faee580c3b91873aa5fa496\",\"requestDigest\":\"9948902e775e86d15a10ffa7fd40c07b2eac7a4bbf1aac3e9f9b141f13fb2c9b\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\"}\n{\"audioSha256\":\"cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"e2a7464d-8e4c-4056-9ebf-d11f6d759445\",\"outputFrames\":24612,\"payloadPeakBytes\":92548321,\"peakLinear\":3.650193214416504,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32744,1,7],\"rawSpan\":[16408,0,1],\"recipeDigest\":\"9bc4507fc7e81a6d3d1c0741de4a77607920b46a3faee580c3b91873aa5fa496\",\"requestDigest\":\"9948902e775e86d15a10ffa7fd40c07b2eac7a4bbf1aac3e9f9b141f13fb2c9b\",\"sampleSha256\":\"bab45c16ee4bf3b3a7714d787e842dce018f5c4a8b9feccfcbe0146961b67e72\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\",\"writtenFrames\":24612}\n"
+                }
+              ],
+              "noAudioBeforeApply": true,
+              "stage": 6,
+              "undoRedoSaveReopen": true
+            }
+          ],
+          "checks": 48,
+          "executorSha256": "912b940c3f7cb3b3fe5d78cc8e0475c402ae180389c04d7ce8089a1f35ad1bb9",
+          "physicalAudio": false,
+          "qualityAdmission": false
+        },
+        {
+          "actualNewJobCreation": true,
+          "cases": [
+            {
+              "actualTimelineDialog": true,
+              "asynchronousClose": true,
+              "case": 0,
+              "exportFileSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+              "exportFrames": 49152,
+              "exportPeak": 3.6371512413024902,
+              "newChildren": [
+                {
+                  "exitCode": 0,
+                  "pid": 10227,
+                  "reaped": true,
+                  "stderr": "",
+                  "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"77e14da5-b58e-4eb2-a646-eb22e0f2bfe6\",\"outputFrames\":24602,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"00bd0807f01c96e7bdeab1ff2d0ade41b39364c0fd7c269a85369ddf36b9735f\",\"requestDigest\":\"01569a32f02d58d6cf286555f0ca3ad2777c5a03f6d1a6b9e1f4b6aa6835f803\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\"}\n{\"audioSha256\":\"9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"77e14da5-b58e-4eb2-a646-eb22e0f2bfe6\",\"outputFrames\":24602,\"payloadPeakBytes\":92548305,\"peakLinear\":3.832740068435669,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"00bd0807f01c96e7bdeab1ff2d0ade41b39364c0fd7c269a85369ddf36b9735f\",\"requestDigest\":\"01569a32f02d58d6cf286555f0ca3ad2777c5a03f6d1a6b9e1f4b6aa6835f803\",\"sampleSha256\":\"a3caa1a8763320b397ccb43b4e91af8e30df2f284b45d502d73bf263bf227d45\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\",\"writtenFrames\":24602}\n"
+                },
+                {
+                  "exitCode": 0,
+                  "pid": 10229,
+                  "reaped": true,
+                  "stderr": "",
+                  "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"59195472-5e68-45e0-9528-e2cc9b301877\",\"outputFrames\":24602,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32750,17,21],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"00bd0807f01c96e7bdeab1ff2d0ade41b39364c0fd7c269a85369ddf36b9735f\",\"requestDigest\":\"afc451052794498b994f78403649e820e233fcf0e9f31ad1a768bcd34af87dcc\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\"}\n{\"audioSha256\":\"d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"59195472-5e68-45e0-9528-e2cc9b301877\",\"outputFrames\":24602,\"payloadPeakBytes\":92548305,\"peakLinear\":3.781710624694824,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32750,17,21],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"00bd0807f01c96e7bdeab1ff2d0ade41b39364c0fd7c269a85369ddf36b9735f\",\"requestDigest\":\"afc451052794498b994f78403649e820e233fcf0e9f31ad1a768bcd34af87dcc\",\"sampleSha256\":\"684b8dca11611545f1b95df4f12ac3aaf8135514bd80e26d3a2f45d73edb789a\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\",\"writtenFrames\":24602}\n"
+                }
+              ],
+              "noAudioBeforeApply": true,
+              "stage": 6,
+              "undoRedoSaveReopen": true
+            },
+            {
+              "asynchronousClose": true,
+              "case": 1,
+              "guiTicks": 3,
+              "noChildLaunch": true,
+              "stage": 8
+            },
+            {
+              "asynchronousClose": true,
+              "case": 2,
+              "guiTicks": 3,
+              "noChildLaunch": true,
+              "stage": 7
+            },
+            {
+              "asynchronousClose": true,
+              "case": 3,
+              "guiTicks": 3,
+              "noChildLaunch": true,
+              "stage": 7
+            },
+            {
+              "asynchronousClose": true,
+              "case": 4,
+              "noChildLaunch": true,
+              "stage": 7
+            },
+            {
+              "asynchronousClose": true,
+              "case": 5,
+              "noChildLaunch": true,
+              "saveFailureRetainsAtomicRefsWithoutAudio": true,
+              "stage": 7
+            }
+          ],
+          "checks": 84,
+          "executorSha256": "912b940c3f7cb3b3fe5d78cc8e0475c402ae180389c04d7ce8089a1f35ad1bb9",
+          "physicalAudio": false,
+          "qualityAdmission": false
+        },
+        {
+          "actualNewJobCreation": true,
+          "cases": [
+            {
+              "actualTimelineDialog": true,
+              "asynchronousClose": true,
+              "case": 0,
+              "exportFileSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+              "exportFrames": 16384,
+              "exportPeak": 3.8511574268341064,
+              "newChildren": [
+                {
+                  "exitCode": 0,
+                  "pid": 10302,
+                  "reaped": true,
+                  "stderr": "",
+                  "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"70a73d3f-a978-493b-b4e0-7cb718a13d8d\",\"outputFrames\":24652,\"pitchMilliCents\":700007,\"processingFrames\":16435,\"processingStep\":[49304,49305],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16434,2,3],\"recipeDigest\":\"30176d094fcb09dd7d18eaadee98bb2828ac3993056767a6f724cacf71621d50\",\"requestDigest\":\"7f909370f056f1d84120549362d4c31a3e8040df7ffa40c4b6abb55e77766483\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\"}\n{\"audioSha256\":\"28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"70a73d3f-a978-493b-b4e0-7cb718a13d8d\",\"outputFrames\":24652,\"payloadPeakBytes\":92548253,\"peakLinear\":3.757596492767334,\"pitchMilliCents\":700007,\"processingFrames\":16435,\"processingStep\":[49304,49305],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16434,2,3],\"recipeDigest\":\"30176d094fcb09dd7d18eaadee98bb2828ac3993056767a6f724cacf71621d50\",\"requestDigest\":\"7f909370f056f1d84120549362d4c31a3e8040df7ffa40c4b6abb55e77766483\",\"sampleSha256\":\"265122741f70b3e6eee5b5102d278a4c1dff8690a982a62929788ec188ca2d7d\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\",\"writtenFrames\":24652}\n"
+                },
+                {
+                  "exitCode": 0,
+                  "pid": 10304,
+                  "reaped": true,
+                  "stderr": "",
+                  "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"f0265c1f-8c0f-490e-a7a9-8749218ff208\",\"outputFrames\":24654,\"pitchMilliCents\":700007,\"processingFrames\":16436,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32716,1,7],\"rawSpan\":[16436,0,1],\"recipeDigest\":\"30176d094fcb09dd7d18eaadee98bb2828ac3993056767a6f724cacf71621d50\",\"requestDigest\":\"062d74c7f661ac5bc8846d8c1affd036893ad47bdf6f28bf0e9f11a3beede957\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\"}\n{\"audioSha256\":\"60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"b2390ed0c0c9e512205e3840edd6123670eca98febf91eebe2dfaa84bb9b6055\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"f0265c1f-8c0f-490e-a7a9-8749218ff208\",\"outputFrames\":24654,\"payloadPeakBytes\":92548253,\"peakLinear\":3.8946380615234375,\"pitchMilliCents\":700007,\"processingFrames\":16436,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32716,1,7],\"rawSpan\":[16436,0,1],\"recipeDigest\":\"30176d094fcb09dd7d18eaadee98bb2828ac3993056767a6f724cacf71621d50\",\"requestDigest\":\"062d74c7f661ac5bc8846d8c1affd036893ad47bdf6f28bf0e9f11a3beede957\",\"sampleSha256\":\"8b924f390acbdb28b9a83c144a911dda7b907df40bf206731ba8c2a87623b578\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\",\"writtenFrames\":24654}\n"
+                }
+              ],
+              "noAudioBeforeApply": true,
+              "stage": 6,
+              "undoRedoSaveReopen": true
+            }
+          ],
+          "checks": 48,
+          "executorSha256": "912b940c3f7cb3b3fe5d78cc8e0475c402ae180389c04d7ce8089a1f35ad1bb9",
+          "physicalAudio": false,
+          "qualityAdmission": false
+        }
+      ]
+    }
+  }
+]

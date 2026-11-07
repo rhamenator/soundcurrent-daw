@@ -1,0 +1,151 @@
+{
+  "checkpoint": 263,
+  "source_head": "7bf51409c16ac2869621d1151ea1389ce6da7ef9",
+  "source_tree": "eab3da26f607e361400cb3d715b75f624dc82dad",
+  "scope": "Framework-independent immutable metadata planning for raw/rendered retained comp handles; no generated audio or admission",
+  "linux_selected_gates_passed": 8,
+  "elapsed_seconds": 1.51,
+  "planner_checks": 156,
+  "existing_comp_transition_checks": 6807,
+  "stretch_state_checks": 152,
+  "session_checks": 135,
+  "resource_checks": 44,
+  "prior_font_fix_ci": {
+    "source_head": "e5ab0be7c7a80842d7ad3f46d27f6401bc01cc9d",
+    "run": 38483626019,
+    "conclusion": "success",
+    "jobs_passed": 4,
+    "desktop_checks": 165,
+    "desktop_resolved_font": "Arial",
+    "native_tests_passed": 90,
+    "linux_tests_passed": 165,
+    "recording_delay_original_cause_established": false,
+    "retained_archives": {
+      "linux-synthetic-test-log-original.zip": {
+        "bytes": 36236,
+        "sha256": "f283562dd80669653febb7e5226ae1e25abe1d8092e75053f274c517541f747a"
+      },
+      "windows-desktop-import-test-log-original.zip": {
+        "bytes": 59843,
+        "sha256": "aa06ea6c669471fa2068508ac19dbaa3621ab8b615116f544b84c908dcc33062"
+      },
+      "windows-native-packet-unit-log-original.zip": {
+        "bytes": 34319330,
+        "sha256": "bb6f25abe286849fe69dbd0dbeaa1cec413ea0d6b4131a2e67d4597a1d351e0d"
+      },
+      "windows-media-build-review-original.zip": {
+        "bytes": 438050,
+        "sha256": "d8734db48ef5e41af8badf4d9211c3e7b8e2f9c42fb846e47f34f129bc9fde4c"
+      },
+      "windows-preview-build-inputs-original.zip": {
+        "bytes": 123624599,
+        "sha256": "0d046758ecf27803e10eb47f14300d7a6a0ba4d9232dea24db776cf9b1ebdea9"
+      }
+    }
+  },
+  "current_planner_ci": {
+    "source_head": "7bf51409c16ac2869621d1151ea1389ce6da7ef9",
+    "run": 38485663885,
+    "status_at_recording": "in_progress",
+    "url": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/38485663885"
+  },
+  "plan_actual_render": false,
+  "physical_endpoints_used": false,
+  "current_windows_planner_qualified": false,
+  "installer_qualified": false,
+  "full_daw_parity_complete": false,
+  "archive": {
+    "bytes": 104569,
+    "sha256": "f3729a146775718c52fea38371fb52470c8708a05adb50d67ed0831c0905e409",
+    "entries": {
+      "LastTest.log": {
+        "bytes": 7398,
+        "sha256": "dbfa2f7d5942562f6f307e1dcccbb18a013d7e6ada96ea898634b1cc5ae6d52c"
+      },
+      "build.log": {
+        "bytes": 2530,
+        "sha256": "bcd384a4bbf60bd1d81dd3313f1cce49acee14e6a1789dd8fe6314100acf915a"
+      },
+      "font-fix-ci/artifacts-original.json": {
+        "bytes": 3743,
+        "sha256": "6c810f3925ff77b07b03f908203437125bf3450f25b0bb20a542027cb8b365b4"
+      },
+      "font-fix-ci/bundle-byte-audit.json": {
+        "bytes": 948,
+        "sha256": "5ef536dc2d6a072dccd0303834b2f91677228fdff6ade12918ec9a79588666c6"
+      },
+      "font-fix-ci/default.png": {
+        "bytes": 13317,
+        "sha256": "50700f5a80262a8b66dcc98f1dd17b6ead5eb67f6b7c8208a5c886a2e2c22925"
+      },
+      "font-fix-ci/jobs-original.json": {
+        "bytes": 14599,
+        "sha256": "4e967d765a34e7936aca5f87a573cc8cfdca7adbcb694c872483d9fbb3641532"
+      },
+      "font-fix-ci/linux-synthetic-test-log-LastTest.log": {
+        "bytes": 320452,
+        "sha256": "d9265725bb1b7b1ad8b2fc47f0f43341f0b0a52c915bcfe20959814862de775e"
+      },
+      "font-fix-ci/native-owner-failure-evidence/c2a2e672-480f-490a-839d-3fd082e6bc79/journal.json": {
+        "bytes": 906,
+        "sha256": "7ec89fa095011e26918d7b9d0a3160d4f8278d67768629700f27b164df761558"
+      },
+      "font-fix-ci/native-owner-failure-evidence/c2a2e672-480f-490a-839d-3fd082e6bc79/native-run.json": {
+        "bytes": 7389,
+        "sha256": "55f55121f28ef55b0c25e67e26ffa3718d80c8483eeacf02e1cb6e0e8da740a9"
+      },
+      "font-fix-ci/native-owner-failure-evidence/c2a2e672-480f-490a-839d-3fd082e6bc79/observed.json": {
+        "bytes": 957,
+        "sha256": "2f2d1935e769e3bf25ca1c6453a5a6c3da529d5313e46a61621b5878395b1e98"
+      },
+      "font-fix-ci/run-original.json": {
+        "bytes": 13786,
+        "sha256": "d8e8b9ac507f4bd2156ee7d572bf258dccdd43eb87b3332fcb3c382386a0b9e9"
+      },
+      "font-fix-ci/small.png": {
+        "bytes": 11250,
+        "sha256": "ec352e28b2bedf16fbfc3b946f0468bd1dd82073a67bfd18ffcf18370c9bb0cc"
+      },
+      "font-fix-ci/windows-desktop-import-test-log-LastTest.log": {
+        "bytes": 22211,
+        "sha256": "2906eb1fe3d0c2b291a21ff50575862728118b4abb2a9602aa160e261c2db5fe"
+      },
+      "font-fix-ci/windows-native-packet-unit-log-LastTest.log": {
+        "bytes": 241457,
+        "sha256": "f3d5233c6a6745f230cbeaf9ed2da37463586e43f7f076b1977642db1d085fbd"
+      },
+      "frozen-tests.log": {
+        "bytes": 1074,
+        "sha256": "f726d0935fcf85146d6ee1dde8cf6240a2624108f4e957db92bccf7bd63f00ad"
+      },
+      "geometry/protected-warp-geometry-evidence/20261013T233531362145Z/summary.json": {
+        "bytes": 473,
+        "sha256": "435d9689f7512eade657f4a3a8662bfef2bd1cc6f626527a9b7d9ee981f1e245"
+      },
+      "geometry/protected-warp-geometry-evidence/20261013T233817404743Z/summary.json": {
+        "bytes": 473,
+        "sha256": "2f14468cdd93f1d4aff940529bd459e7fdecb2df6856f827014718e5955d7279"
+      },
+      "geometry/warp-map-geometry-evidence/run-793b5ed4-7aaa-48f6-9a8a-a2172edc1513/summary.json": {
+        "bytes": 610,
+        "sha256": "69cf302b069cfd68492299ccf4dbfbff9b8660c6a4f0a9039722ebc6359e053c"
+      },
+      "geometry/warp-map-geometry-evidence/run-fdf2b73b-53f9-4428-956e-c31933582693/summary.json": {
+        "bytes": 610,
+        "sha256": "02d4f8aa24cd0d1803d922d4e81d43a98bbffeee7fcd208584aa15cbdcf0a51d"
+      },
+      "pair-overflow-build.log": {
+        "bytes": 157,
+        "sha256": "edb1cafd786ede0311c3b0555c78fd52dc626ef6245f296df3b2f990f3ffd001"
+      },
+      "qualification.json": {
+        "bytes": 2295,
+        "sha256": "22821af033712a155faf0a56bfd49fcc7fee61fadd0b244999e33230d60ccadf"
+      },
+      "tests-first.log": {
+        "bytes": 1074,
+        "sha256": "f04d7f490c2c0fff12e8ab485158a5eb1903b4a798485297eca4bbe71c9f824b"
+      }
+    }
+  }
+}

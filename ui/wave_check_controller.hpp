@@ -14,11 +14,21 @@ struct WaveSelection {
     WaveSelection(ResourceLease grant,std::filesystem::path path,std::string name,std::uint64_t maximum,bool selected)
         :lease(std::move(grant)),root(std::move(path)),relative(std::move(name)),maximumBytes(maximum),selectedFilename(selected) {}
 };
+// Bounded identity only: project paths and native evidence are not copied or
+// treated as candidate-file authority. The ticket and metadata share the owner ledger.
+struct WaveAssetReplacement {
+    ResourceLease lease;
+    Asset identity;
+    AssetReplacementContext context;
+    AssetReplacementTicket ticket;
+    WaveAssetReplacement(const Asset &,AssetReplacementContext,ResourceLedger);
+};
 struct WaveCheckSnapshot {
     WaveCheckPhase phase=WaveCheckPhase::Idle;
     std::uint64_t job=0;
     std::shared_ptr<const WaveSelection> selection;
     std::shared_ptr<const WaveCheckReport> report;
+    std::shared_ptr<const WaveAssetReplacement> replacement;
     std::size_t childPid=0;
     std::optional<int> childExit;
     std::optional<ErrorCode> error;
@@ -32,6 +42,7 @@ struct WaveCheckOptions {
     // Trusted off-thread qualification hooks, never selected by foreign data.
     std::function<void()> beforeSpawn;
     std::function<void(std::string &,std::size_t)> afterChild;
+    std::function<void()> beforeTerminalPublish;
 };
 // Single flight, control/I/O thread only. Child owns approval/opening of the
 // explicitly selected root at job execution, then pins the plain file. A GUI
@@ -42,6 +53,10 @@ class WaveCheckController {
     ~WaveCheckController();
     Admission submit(std::filesystem::path approvedRoot,std::string relative,std::uint64_t maximumBytes=0);
     Admission submitReplacement(std::filesystem::path explicitlySelectedFile,std::uint64_t maximumBytes=0);
+    // Captures the accepted asset identity; assigns the actual admitted job atomically.
+    // Complete means exact content match, not permission to restore a file.
+    Admission submitAssetReplacement(std::filesystem::path explicitlySelectedFile,
+        const ControllerSnapshot &,const Id &asset,std::uint64_t request,std::uint64_t maximumBytes=0);
     void requestCancel() noexcept;
     void requestShutdown() noexcept;
     bool clearResult();
@@ -49,6 +64,17 @@ class WaveCheckController {
   private:
     struct State;
     std::unique_ptr<State> state_;
-    Admission enqueue(std::filesystem::path,std::string,std::uint64_t,bool);
+    Admission enqueue(std::filesystem::path,std::string,std::uint64_t,bool,
+        const Asset * = nullptr,AssetReplacementContext = {});
 };
+// Control-side consumption guard using the CURRENT accepted model and request.
+// No file IO or publication; callers must revalidate before any later adoption.
+void verifyWaveAssetReplacement(const WaveCheckSnapshot &,const ControllerSnapshot &,
+    const Id &asset,std::uint64_t request,ResourceLedger);
+// Worker-side request preparation: recheck the CURRENT accepted replacement,
+// then copy its original strict checker bytes with same-scope credit. Caller
+// must serialize actual project ownership through later child completion.
+OwnedInspectionProtocol copyWaveAssetReplacementProtocol(const WaveCheckSnapshot &,
+    const ControllerSnapshot &,const Id &asset,std::uint64_t request,ResourceLedger,
+    std::stop_token = {});
 } // namespace soundcurrent::daw::ui

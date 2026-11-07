@@ -58,6 +58,7 @@ struct NativeMonitorSnapshot {
     std::uint64_t generation = 0, completedCommands = 0, errorSerial = 0,
         acceptedEqRevision = 0, appliedEqRevision = 0, cancelAcknowledged = 0,
         resultSequence = 0;
+    std::uint64_t completedPrepareGeneration = 0; // Correlates success or refusal, not unrelated commands.
     std::shared_ptr<const std::vector<AudioPort>> ports;
     std::uint64_t inventoryRevision = 0;
     std::optional<ImmediateAcknowledgement> applied;

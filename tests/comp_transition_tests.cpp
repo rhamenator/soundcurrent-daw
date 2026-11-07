@@ -111,5 +111,92 @@ void safety() {
     check(sourcePositionLess({0,1,maximum},{0,1,maximum-1}) &&
           sourcePositionLess({0,maximum-2,maximum-1},{0,maximum-1,maximum}),"Large fractional ordering lost precision");
 }
+void preparedDerivatives() {
+    for(unsigned mode=0;mode<4;++mode) {
+        Fixture f;
+        auto &s=f.session;
+        for(unsigned n=0;n<2;++n) {
+            const auto raw=s.assets[n];
+            auto &c=s.tracks[0].clips[n];
+            ClipStretchAnchor anchor;
+            anchor.sourceAssetId=raw.id;anchor.sourceSha256=raw.sha256;
+            anchor.sourceOrigin={30,1,7};anchor.sourceFrames=512;
+            anchor.settings={3,2,0,true};anchor.renderKey=std::string(64,'e');
+            if(mode==1)anchor.context=StretchContext{12,18};
+            if(mode==2) {
+                WarpSettings warp;warp.protection={8,16,2,8};
+                warp.markers.push_back({Id::generate(),{256,0,1},{384,0,1}});
+                anchor.warp=warp;
+            }
+            anchor.processor=stretchProcessorFor(anchor.settings,anchor.context,anchor.warp);
+            const auto geometry=stretchGeometry(anchor,raw.frames);
+            Asset derived;derived.relativePath="media/derived-"+std::to_string(n)+".wav";
+            derived.sha256=std::string(64,n?'d':'c');derived.frames=geometry.outputFrames;
+            derived.sampleRate=raw.sampleRate;derived.layout=raw.layout;
+            s.assets.push_back(derived);c.assetId=derived.id;c.stretch=anchor;
+            c.sourceFrame=geometry.visibleBegin.frame+c.startFrame;
+            c.sourceTiming={geometry.visibleBegin.fraction,geometry.visibleBegin.denominator};
+            if(mode==3) {
+                auto prior=derived;prior.id=Id::generate();
+                prior.relativePath="media/retained-render-"+std::to_string(n)+".wav";
+                s.assets.push_back(prior);
+                auto &retained=s.tracks[0].takeLanes[n].clips[0];
+                retained.assetId=prior.id;retained.sourceFrame=geometry.visibleBegin.frame;
+                retained.sourceTiming={geometry.visibleBegin.fraction,geometry.visibleBegin.denominator};
+                retained.stretch=anchor;
+            }
+        }
+        validate(s);const auto before=s;EditHistory h(s);
+        check(h.structural({f.edit()}),"Valid prepared derivative handles were refused");
+        const auto after=s;
+        check(after.assets==before.assets && after.tracks[0].takeLanes==before.tracks[0].takeLanes,
+              "Prepared derivative handles changed raw assets or retained lanes");
+        for(unsigned n=0;n<2;++n) {
+            const auto &old=before.tracks[0].clips[n],&now=after.tracks[0].clips[n];
+            check(now.stretch==old.stretch && now.assetId==old.assetId && now.takeOrigin==old.takeOrigin,
+                  "Prepared handles discarded stretch/warp/source provenance");
+            const auto oldMap=clipSourceMap(old,48000,48000),newMap=clipSourceMap(now,48000,48000);
+            for(Frame i=0;i<old.lengthFrames;++i) {
+                const auto a=oldMap.at(i),b=newMap.at(old.startFrame-now.startFrame+i);
+                check(!sourcePositionLess(a,b) && !sourcePositionLess(b,a),"Visible derivative samples moved");
+            }
+        }
+        check(h.undo() && s==before && h.redo() && s==after,"Prepared handles undo/redo changed state");
+        check(decodeProject(encodeProject(after))==after,"Prepared handle state did not reopen");
+        if(mode<2) {
+            const auto raw=stretchOutputToRaw(*after.tracks[0].clips[1].stretch,
+                clipSourceMap(after.tracks[0].clips[1],48000,48000).at(0));
+            check(raw==SourcePosition{183,10,21},"Independent Fraction raw handle origin differs");
+        }
+        const auto reject=[&](Session bad) {
+            validate(bad);const auto unchanged=bad;EditHistory history(bad);const auto resources=history.resources();
+            refuses([&]{history.structural({RenameTrack{f.track,"Must roll back"},f.edit()});});
+            check(bad==unchanged && history.resources()==resources,"Rendered handle refusal partly changed state/history");
+        };
+        auto wrongSource=before;
+        wrongSource.tracks[0].clips[0].stretch->sourceAssetId=before.assets[1].id;
+        wrongSource.tracks[0].clips[0].stretch->sourceSha256=before.assets[1].sha256;
+        refuses([&]{validate(wrongSource);});
+        check(f.session==after,"Invalid source declaration changed canonical state");
+        if(mode==0) {
+            auto shortWindow=before;auto &retained=shortWindow.tracks[0].takeLanes[1].clips[0];
+            retained.sourceFrame=200;retained.startFrame=256;retained.lengthFrames=256;
+            retained.processing.fadeIn={};retained.processing.fadeOut={};reject(shortWindow);
+            auto missing=before;auto &out=missing.tracks[0].clips[0];
+            out.stretch->sourceFrames=256;out.stretch->settings={1,1,0,true};
+            out.stretch->processor=unityStretchProcessorId;
+            missing.assets[2].frames=256;reject(missing);
+        }
+    }
 }
-int main() {try {geometry();groupedRollback();safety();std::cout<<"comp_transition_checks="<<checks<<" exact_source_handles_preserved=true\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+void exactAddition() {
+    check(addSourcePosition({17,1,7},{1150,3,5})==SourcePosition{1167,26,35},"Fraction addition changed raw origin");
+    check(addSourcePosition({INT64_MAX-1,1,2},{0,1,2})==SourcePosition{INT64_MAX,0,1},"Exact addition lost carry");
+    check(addSourcePosition({0,1,UINT64_MAX},{0,1,UINT64_MAX})==SourcePosition{0,2,UINT64_MAX},"Large denominator addition changed precision");
+    refuses([]{addSourcePosition({INT64_MAX,1,2},{0,1,2});});
+    refuses([]{addSourcePosition({0,1,UINT64_MAX},{0,1,UINT64_MAX-1});});
+    refuses([]{addSourcePosition({-1,0,1},{0,0,1});});
+}
+
+}
+int main() {try {geometry();groupedRollback();safety();preparedDerivatives();exactAddition();std::cout<<"comp_transition_checks="<<checks<<" exact_source_handles_preserved=true\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

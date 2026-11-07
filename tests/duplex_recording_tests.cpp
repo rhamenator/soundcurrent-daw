@@ -4,6 +4,7 @@
 #include <sndfile.h>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -345,7 +346,13 @@ void activationFailure() {
 void failureAndRecovery(bool cancel) {
     Directory d;
     auto s = session(d.root, 3);
+    std::array<std::atomic<Frame>, 3> committed{};
     auto a = lanes(s);
+    for (unsigned n = 0; n < a.size(); ++n)
+        a[n].writer.instrumentation = {&committed[n], [](void *context, const RecordingWriterObservation &o) noexcept {
+            if (o.phase == RecordingWriterPhase::JournalPublishEnd)
+                static_cast<std::atomic<Frame> *>(context)->store(o.committedFrames, std::memory_order_release);
+        }};
     if (!cancel)
         a[1].writer.boundary = [](RecordingBoundary b, Frame f) {
             if (b == RecordingBoundary::BeforeAudioWrite && f >= 8192)
@@ -359,8 +366,26 @@ void failureAndRecovery(bool cancel) {
         (void)source.process(run, false);
         pause();
     }
-    if (cancel)
+    if (!cancel) {
+        // This case asserts the disk fault wins, not a control Stop issued
+        // while the independent disk owner still has queued input to drain.
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        while (run.status() != DuplexStatus::CaptureFailed) {
+            check(std::chrono::steady_clock::now() < deadline, "Injected writer fault publication timeout");
+            pause();
+        }
+    }
+    if (cancel) {
+        // This case promises positive recoverable prefixes on every lane.
+        // Playback progress alone does not establish disk-owner publication.
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        for (const auto &frames : committed)
+            while (frames.load(std::memory_order_acquire) == 0) {
+                check(std::chrono::steady_clock::now() < deadline, "Recovery checkpoint publication timeout");
+                pause();
+            }
         run.cancel();
+    }
     else
         run.stop();
     run.checkReader();
@@ -379,6 +404,16 @@ void failureAndRecovery(bool cancel) {
             rejects([&] { (void)run.result(n); });
         const auto job = *run.jobDirectory(n);
         const auto prefix = inspectRecording(job, {}, true);
+        if (!(prefix.committedFrames > 0 && prefix.writerActivityConfirmed &&
+              prefix.timingOrigin == run.timingOrigin())) {
+            const auto capture = run.capture(n);
+            std::cerr << "prefix diagnostic cancel=" << cancel << " lane=" << n
+                      << " committed=" << prefix.committedFrames << " written=" << capture.written
+                      << " captured=" << capture.captured << " inactive=" << prefix.writerActivityConfirmed
+                      << " journalOrigin=" << bool(prefix.timingOrigin)
+                      << " runOrigin=" << bool(run.timingOrigin())
+                      << " originEqual=" << (prefix.timingOrigin == run.timingOrigin()) << '\n';
+        }
         check(prefix.committedFrames > 0 && prefix.writerActivityConfirmed &&
                   prefix.timingOrigin == run.timingOrigin(),
               "Failed/canceled prefix not recoverable");
@@ -392,6 +427,81 @@ void failureAndRecovery(bool cancel) {
         }
     }
     check(ProjectStore(d.root).load() == s, "Failure/cancel/recovery mutated canonical model");
+}
+void diskFaultTerminalOrder(bool faultFirst) {
+    Directory d;
+    const auto s = session(d.root, 3);
+    std::atomic<bool> reached=false,released=false;
+    auto a = lanes(s);
+    a[1].writer.boundary = [&](RecordingBoundary b, Frame frames) {
+        if (b == RecordingBoundary::BeforeAudioWrite && frames >= 512) {
+            reached.store(true,std::memory_order_release);
+            const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+            while (!released.load(std::memory_order_acquire)) {
+                if (std::chrono::steady_clock::now() >= deadline)
+                    throw std::runtime_error("Writer fault barrier timeout");
+                pause();
+            }
+            throw std::runtime_error("ordered-writer-disk");
+        }
+    };
+    DuplexRecordingRun run(d.root,s,plan(s),a,options(3,96000));
+    struct Release {std::atomic<bool> &flag;~Release(){flag.store(true,std::memory_order_release);}} release{released};
+    run.startWriters();Source source(3);const auto origin=source.clock.position;
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+    while (!reached.load(std::memory_order_acquire)) {
+        check(std::chrono::steady_clock::now()<deadline,"Ordered disk fault was not reached");
+        (void)source.process(run,false);
+        // Bound synthetic producer lead while disk checkpoints run; this is
+        // between callbacks, with no disk wait on the audited audio path.
+        while (!reached.load(std::memory_order_acquire)) {
+            bool backlog=false;
+            for (unsigned n=0;n<3;++n) {const auto c=run.capture(n);backlog=backlog || c.captured-c.written>512;}
+            if (!backlog)break;
+            check(std::chrono::steady_clock::now()<deadline,"Ordered disk fixture backlog timeout");pause();
+        }
+    }
+    if (!faultFirst)run.requestStop();
+    released.store(true,std::memory_order_release);
+    if (faultFirst)
+        while (run.status()!=DuplexStatus::CaptureFailed) {
+            check(std::chrono::steady_clock::now()<deadline,"Ordered disk fault not published");pause();
+        }
+    run.stop();
+    original([&]{(void)run.result(1);},"ordered-writer-disk");
+    check(run.status()==(faultFirst ? DuplexStatus::CaptureFailed : DuplexStatus::Stopped),
+          "Late disk error rewrote the first terminal winner");
+    for (unsigned n:{0u,2u})verifyRaw(d.root,run.result(n),origin,(n*7)%3);
+    check(ProjectStore(d.root).load()==s,"Disk terminal ordering changed canonical project");
+}
+void canceledBeforeFirstCheckpoint() {
+    Directory d;
+    const auto s = session(d.root, 3);
+    auto a = lanes(s);
+    a[2].writer.boundary = [](RecordingBoundary b, Frame frames) {
+        if (b == RecordingBoundary::BeforeJournalPublish && frames > 0)
+            throw ProjectError(ErrorCode::Canceled, "Canceled before first journal publication");
+    };
+    DuplexRecordingRun run(d.root, s, plan(s), a, options(3, 96000));
+    run.startWriters();
+    Source source(3);
+    for (unsigned i = 0; i < 4; ++i)
+        (void)source.process(run, false);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+    while (!run.capture(2).writerComplete) {
+        check(std::chrono::steady_clock::now() < deadline, "Early cancellation owner timeout");
+        pause();
+    }
+    run.cancel();
+    const auto job = *run.jobDirectory(2);
+    const auto prefix = inspectRecording(job, {}, true);
+    check(prefix.committedFrames == 0 && prefix.writerActivityConfirmed &&
+              !prefix.timingOrigin && !prefix.finalized,
+          "Early cancellation fabricated a committed prefix");
+    rejects([&] { (void)run.result(2); });
+    rejects([&] { (void)recoverRecording(d.root, job); });
+    check(inspectRecording(job, {}, true) == prefix && ProjectStore(d.root).load() == s,
+          "Empty recovery refusal changed journal or project");
 }
 void readerFailure() {
     Directory d;
@@ -511,6 +621,9 @@ int main() {
         activationFailure();
         failureAndRecovery(false);
         failureAndRecovery(true);
+        canceledBeforeFirstCheckpoint();
+        diskFaultTerminalOrder(false);
+        diskFaultTerminalOrder(true);
         readerFailure();
         destruction();
         canceledCompletedWriters();

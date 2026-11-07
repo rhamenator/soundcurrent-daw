@@ -1,0 +1,10 @@
+{
+  "sourceHead": "258016450f93ebbecd2d62fa8ee6f9f9e60964e0",
+  "archive": "acceptance.zip",
+  "bytes": 6480651,
+  "sha256": "d608e3b71d004d867124d722a3ba90c37f78ba95af83d744f04068a2f7689abd",
+  "files": 57,
+  "crcAndPayloadHashesVerified": true,
+  "privateTransportExcluded": true,
+  "binariesIncluded": false
+}
