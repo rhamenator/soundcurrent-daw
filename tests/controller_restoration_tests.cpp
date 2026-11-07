@@ -883,7 +883,13 @@ void savedControlProtocols(){
     check(physical(f.root)==original,"Control codec changed original project facts");check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Control proof admission leaked");coldOwner(*f.controller->snapshot());
 }
 void savedPublicationPermits(unsigned mode){
-    Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    Fixture f;auto expected=*f.initial->session;
+    if(mode>=19&&mode<=21){f.asset.relativePath="media/a/b/x.wav";
+        for(auto &asset:expected.assets)if(asset.id==f.asset.id)asset.relativePath=f.asset.relativePath;
+        f.canonical=f.root/"media"/"a"/"b"/"x.wav";f.manifest=encodeProject(expected);write(f.root/"project.json",f.manifest);
+        check(std::filesystem::remove_all(f.root/"media")>0,"Cannot prepare absent nested canonical parents");}
+    const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const bool successMode=mode==0||mode==7||mode==8||mode==10||mode==19||mode==25;
     const auto originalManifest=bytes(f.root/"project.json");std::optional<MediaCommitOutcome> committed;std::optional<Id> committedOperation;
     {
         auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
@@ -954,10 +960,19 @@ void savedPublicationPermits(unsigned mode){
             const auto observer=[&](StageBoundary at,std::uint64_t){
                 if(mode==7&&at==StageBoundary::BeforeRestorationReceiptPublish){reached=true;throw ProjectError(ErrorCode::Io,"Qualification receipt failure");}
                 if(mode==8&&at==StageBoundary::AfterCommitBeforeDirectoryFlush){reached=true;canceled.request_stop();}
-                if(at!=StageBoundary::BeforeCommit)return;
+                const auto phase=(mode>=21&&mode<=24)?StageBoundary::BeforeRestorationRename:StageBoundary::BeforeCommit;
+                if(at!=phase)return;
+                if(mode==20||mode==21){reached=true;const auto from=f.root/"media"/"a";std::error_code error;
+                    std::filesystem::rename(from,f.root/"media"/"moved-a",error);if(error)throw ProjectError(ErrorCode::Io,"Native nested parent rename denied");
+                    std::filesystem::create_directory(from);return;}
+                if(mode==22){reached=true;const auto from=f.root/operation.str();std::error_code error;
+                    std::filesystem::rename(from,f.root/"last-edge-stage",error);if(error)throw ProjectError(ErrorCode::Io,"Native last-edge stage rename denied");
+                    std::filesystem::create_directory(from);return;}
+                if(mode==23||mode==24){reached=true;const auto path=mode==23?f.source:f.root/"project.json";
+                    std::ofstream change(path,std::ios::binary|std::ios::trunc);change<<"foreign";change.flush();if(!change)throw ProjectError(ErrorCode::Io,"Native last-edge pin denied write");return;}
                 if(mode==9){reached=true;throw ProjectError(ErrorCode::Canceled,"Qualification precommit stop");}
                 if(mode==13){reached=true;std::error_code error;std::filesystem::rename(f.root,f.owned.path/"moved-project",error);if(error)throw ProjectError(ErrorCode::Io,"Native root rename denied");std::filesystem::create_directory(f.root);return;}
-                if(mode>=14){reached=true;const auto from=mode==14?f.root/operation.str():mode==15?f.root/operation.str()/"intent.json":f.canonical.parent_path();
+                if(mode>=14&&mode<=16){reached=true;const auto from=mode==14?f.root/operation.str():mode==15?f.root/operation.str()/"intent.json":f.canonical.parent_path();
                     const auto to=mode==14?f.root/"moved-operation":mode==15?f.root/operation.str()/"moved-intent.json":f.root/"moved-media";
                     const auto original=mode==15?bytes(from):std::string{};std::error_code error;std::filesystem::rename(from,to,error);
                     if(error)throw ProjectError(ErrorCode::Io,"Native namespace rename denied");
@@ -965,10 +980,14 @@ void savedPublicationPermits(unsigned mode){
                 if(mode>=3&&mode<=6){reached=true;const auto path=mode==3?f.source:mode==4?f.root/"project.json":mode==5?f.canonical:f.root/operation.str()/"media.partial";
                     std::ofstream change(path,std::ios::binary|std::ios::trunc);change<<"foreign";change.flush();if(!change)throw ProjectError(ErrorCode::Io,"Native pin denied qualification write");}
             };
-            if((mode>=3&&mode<=6)||mode==9||mode>=13){bool refused=false;try{permit.publish(prepared,owner,pid,canceled.get_token(),observer);}catch(const ProjectError &e){refused=true;check(e.code()==ErrorCode::Io||e.code()==ErrorCode::MediaMismatch||e.code()==ErrorCode::Canceled,"Unexpected native saved publication refusal");}check(refused&&reached,"Changed native saved publication did not refuse");}
+            if((mode>=3&&mode<=6)||mode==9||(mode>=13&&mode<=16)||(mode>=20&&mode<=24)){bool refused=false;try{permit.publish(prepared,owner,pid,canceled.get_token(),observer);}catch(const ProjectError &e){refused=true;check(e.code()==ErrorCode::Io||e.code()==ErrorCode::MediaMismatch||e.code()==ErrorCode::Canceled,"Unexpected native saved publication refusal");}check(refused&&reached,"Changed native saved publication did not refuse");}
             else if(mode==10){auto moved=std::move(permit);sourceRefuses([&]{permit.publish(prepared,owner,pid);});outcome=moved.publish(prepared,owner,pid);sourceRefuses([&]{moved.publish(prepared,owner,pid);});}
+            else if(mode==25){auto staleContext=owner.context;++staleContext.job;SavedRestorationOwnerView stale{f.root,staleContext};
+                sourceRefuses([&]{permit.publish(prepared,stale,pid);});
+                auto fresh=decodeSavedRestorationPublicationPermit(wire.bytes(),parent,prepared.record(),owner,pid,memory);
+                outcome=fresh.publish(prepared,owner,pid);sourceRefuses([&]{fresh.publish(prepared,owner,pid);});}
             else outcome=permit.publish(prepared,owner,pid,canceled.get_token(),observer);
-            if(mode==0||mode==7||mode==8||mode==10){check(outcome.published,"Saved permit did not report publication");committed=outcome;committedOperation=operation;
+            if(successMode){check(outcome.published,"Saved permit did not report publication");committed=outcome;committedOperation=operation;
                 check(mode==7?(!outcome.receiptPublished&&outcome.postCommitFlushFailed):outcome.receiptPublished,"Saved receipt visibility conflated with publication");
                 if(mode==7||mode==8)check(reached,"Postcommit qualification boundary absent");
 
@@ -978,14 +997,14 @@ void savedPublicationPermits(unsigned mode){
         if(mode==0||(mode>=3&&mode<=10)||mode>=13){auto replay=decodeSavedRestorationPublicationPermit(wire.bytes(),parent,prepared.record(),owner,pid,memory);
             sourceRefuses([&]{replay.publish(prepared,owner,pid);});}
         if(mode==5)check(bytes(f.canonical)=="foreign","Saved publication replaced an independently created target");
-        else if(mode!=0&&mode!=7&&mode!=8&&mode!=10)check(!std::filesystem::exists(f.canonical),"Refused saved permit published canonical bytes");
+        else if(!successMode)check(!std::filesystem::exists(f.canonical),"Refused saved permit published canonical bytes");
         coldOwner(*f.controller->snapshot()); // Disk-side permission never adopts the passive manifest.
         }
     }
     if(committed){check(bytes(f.canonical)==f.data,"Independent canonical bytes differ after native owner retirement");
         if(committed->receiptPublished){auto record=decodeSavedRestorationRecord(bytes(f.root/committedOperation->str()/"receipt.json"),memory);
             check(record.data().phase==SavedRestorationPhase::Published&&record.data().context.workerPid==static_cast<std::uint64_t>(QCoreApplication::applicationPid()),"Saved receipt phase or native PID differs");}
-        check(ProjectStore(f.root).load()==*f.initial->session,"Independently strict Open differs after saved publication");}
+        check(ProjectStore(f.root).load()==expected,"Independently strict Open differs after saved publication");}
     check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved permit/native stage credit leaked");
 }
 void isolatedSavedStage(unsigned mode){
@@ -1459,4 +1478,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<19;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<26;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

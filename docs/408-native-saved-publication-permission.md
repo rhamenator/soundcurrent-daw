@@ -19,7 +19,10 @@ observed checker and worker PIDs.
 Its 64 KiB frame and parser/value storage are admitted before allocation. Unknown,
 duplicate, missing, nested, wrong-type, altered, oversized and non-ASCII input
 refuses. A moved permit cannot publish. A presented permit is consumed before
-validation, and a native stage permits one publication attempt. Native publication
+validation. A pre-attempt refusal (stale owner, PID, quota or cancellation) burns
+that permit but leaves the live stage unattempted; a separately validated fresh
+permission may still enter its single native publication attempt. The v2 parent
+must track these outcomes separately and never infer a spent stage from refusal. Native publication
 checks the process's real OS PID again; historical record fields are not authority.
 
 The original complete root transition is checked before any publication directory
@@ -27,7 +30,10 @@ creation. Immediately before rename, original pinned/named files and source are
 rechecked, and a freshly opened named root must still identify the original held
 native root object. The owned stage directory/intent/media names and every
 canonical destination parent are checked against their held native objects again
-after the precommit observer yields; verification opens never create names.
+after the final pre-rename observer yields, after full hashing and fsync; no
+full-file hash or fsync remains between these final native name checks and rename.
+Verification opens never create names. Freshly created nested canonical paths and
+intermediate-parent swaps are covered alongside existing-directory cases.
 The native staging layer performs exclusive no-overwrite
 rename and separates media visibility, receipt visibility and postcommit durability
 failure. Cancellation after media visibility cannot report that publication did

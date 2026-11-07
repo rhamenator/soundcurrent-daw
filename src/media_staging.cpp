@@ -483,6 +483,10 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
     flush(s.directory);
 #endif
     boundary(observer,StageBoundary::BeforeCommit,s.checked.bytes,stop);
+    verifyRecord(s.intent,intent.bytes(),stop);verifyRecord(pending,receipt.bytes(),stop);
+    require(digest(s.file,s.checked.bytes,stop)==s.checked.sha256,"Restoration staged content changed",ErrorCode::MediaMismatch);
+    flush(s.file);poll(stop);
+    boundary(observer,StageBoundary::BeforeRestorationRename,s.checked.bytes,stop);
     // Observer/cancellation work may have yielded. Reopen EVERY canonical parent
     // without creation and require the names to still select our exact handles.
     const Handle *namedParent=&s.parent;std::size_t index=0,partBegin=0;
@@ -493,9 +497,7 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
         namedParent=&directories[index++];partBegin=end+1;poll(stop);
     }
     require(index==count,"Restoration destination parent count changed",ErrorCode::InvalidState);
-    verifyRecord(s.intent,intent.bytes(),stop);verifyRecord(pending,receipt.bytes(),stop);
-    require(digest(s.file,s.checked.bytes,stop)==s.checked.sha256,"Restoration staged content changed",ErrorCode::MediaMismatch);
-    flush(s.file);poll(stop);restoreRename(s.directory,s.file,*parent,relative.substr(begin));
+    poll(stop);restoreRename(s.directory,s.file,*parent,relative.substr(begin));
     s.committed=true;MediaCommitOutcome outcome;outcome.published=true;
     try {
         if (observer)observer(StageBoundary::AfterCommitBeforeDirectoryFlush,s.checked.bytes);

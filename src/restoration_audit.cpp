@@ -308,21 +308,28 @@ MediaCommitOutcome SavedRestorationStage::publishForPermit(const std::filesystem
     reverify(stop); // Exact ORIGINAL native transition BEFORE publication creates any directories.
     auto intent=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Planned,s.memory,stop);
     auto receipt=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Published,s.memory,stop);
+    std::optional<ApprovedDirectoryStamp> commitRoot;
+    const auto rootProof=[&] {
+        poll(stop);ApprovedMediaRoot named(root,s.memory);
+        const auto original=s.audit.state().stamp,held=s.audit.state().root.directoryStamp(),now=named.directoryStamp();
+        require(original.identity[0]==held.identity[0] && original.identity[1]==held.identity[1] &&
+            now.identity[0]==held.identity[0] && now.identity[1]==held.identity[1],"Saved publication root replaced",ErrorCode::MediaMismatch);
+        s.stage.verifyRestorationPublicationNames(s.memory,stop);return held;
+    };
     const auto guard=[&](StageBoundary at,std::uint64_t bytes) {
         if(observer)observer(at,bytes);
         if(at==StageBoundary::BeforeCommit) {
-            // Canonical directory creation legitimately changes the parent stamp.
-            // Keep the original root OBJECT and all original pinned/named facts;
-            // never replace the original audit with a newly captured fingerprint.
-            poll(stop);ApprovedMediaRoot named(root,s.memory);
-            const auto original=s.audit.state().stamp,held=s.audit.state().root.directoryStamp(),now=named.directoryStamp();
-            require(original.identity[0]==held.identity[0] && original.identity[1]==held.identity[1] &&
-                now.identity[0]==held.identity[0] && now.identity[1]==held.identity[1],"Saved publication root replaced",ErrorCode::MediaMismatch);
-            s.stage.verifyRestorationPublicationNames(s.memory,stop);
-            s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
+            rootProof();s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
             require(s.source.size()==s.record.data().content.bytes && s.source.digest(stop)==s.record.data().content.sha256,
                 "Saved publication source changed",ErrorCode::MediaMismatch);
-            s.stage.verifyRestorationPublicationNames(s.memory,stop);poll(stop);
+            commitRoot=rootProof();poll(stop);
+        }
+        if(at==StageBoundary::BeforeRestorationRename) {
+            // Hashing and fsync are over. Keep ONLY bounded native identity and
+            // metadata checks between this final namespace proof and rename.
+            require(commitRoot && rootProof()==*commitRoot,"Saved publication namespace changed before rename",ErrorCode::MediaMismatch);
+            for(const auto &file:s.audit.state().files)if(file)file->verifyUnchanged();
+            s.source.verifyUnchanged();s.stage.verifyRestorationPublicationNames(s.memory,stop);poll(stop);
         }
     };
     return s.stage.restoreMissing(s.record.data().relativePath,intent,receipt,stop,guard);

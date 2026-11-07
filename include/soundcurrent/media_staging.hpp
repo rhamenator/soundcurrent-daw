@@ -17,7 +17,7 @@ enum class StageBoundary {
     BeforeDirectory, BeforeFile, BeforeWrite, BeforeFileFlush,
     BeforeReadback, BeforeFinalSourceCheck, BeforeDirectoryFlush,
     BeforeIntentWrite, BeforeIntentFlush, BeforeAssetRename, BeforeReceiptWrite,
-    BeforeReceiptFlush, BeforeCommit, AfterCommitBeforeDirectoryFlush, BeforeRestorationReceiptPublish
+    BeforeReceiptFlush, BeforeCommit, AfterCommitBeforeDirectoryFlush, BeforeRestorationReceiptPublish, BeforeRestorationRename
 };
 // Trusted control/test seam only. No callback runs on the audio thread. A
 // callback may throw to exercise failure retirement; foreign input cannot
