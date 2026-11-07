@@ -765,12 +765,19 @@ void savedNativeStage(unsigned mode){
         auto prepare=[&]{return SavedRestorationStage::prepare(std::move(source),mode==4?alternate:f.root,std::move(audit),ticket,
             *checked->report,mode==17?checked->childPid+1:checked->childPid,current,operation,mode==12?1:1024,{},cancel.get_token(),observer);};
         const bool refusal=(mode>=1&&mode<=6)||mode==12||mode==13||mode==14||(mode>=15&&mode<=18);
+        auto expectedBefore=physical(f.root);if(mode==5)expectedBefore.emplace("changed-before-create","directory");
+        const auto alternateBefore=mode==4?physical(alternate):decltype(expectedBefore){};
+        ApprovedMediaRoot witness(f.root,memory,{1});const auto beforeStamp=witness.directoryStamp();
         if(mode==14)memory.configure(memory.usage().reservedBytes);
         if(refusal){bool refused=false;try{auto impossible=prepare();}catch(const ProjectError &){refused=true;}check(refused,"Invalid saved stage qualified");
             if(mode==14)memory.configure(baseline.limitBytes);
             if(mode==5||mode==6)check(boundary,"Saved staging boundary refusal unexercised");
             if(mode!=6)check(!std::filesystem::exists((mode==4?alternate:f.root)/operation.str())||mode==2,
                 "Pre-create saved refusal created an operation");
+            if(mode!=6){check(physical(f.root)==expectedBefore,"Pre-create refusal changed complete project contents");
+                if(mode!=5)check(witness.directoryStamp()==beforeStamp,"Pre-create refusal changed native directory stamp");
+                if(mode==4)check(physical(alternate)==alternateBefore,"Wrong-root refusal changed complete alternate contents");}
+
         }else{
             auto stage=prepare();check(stage.record().data().context==current&&stage.record().data().project==f.initial->session->id&&
                 stage.record().data().operation==operation&&stage.record().data().phase==SavedRestorationPhase::Planned,"Saved stage lost current metadata");

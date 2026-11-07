@@ -5,7 +5,8 @@ the original native saved audit and a freshly approved source file; no accepted
 Session or positive project epoch is fabricated. It binds the original private
 source ticket and completed checker report against independently captured current
 source context and observed checker PID, performs a fresh full finite decode,
-and rechecks that source/report/audit before destination mutation. Its saved
+and rechecks that source/report/audit before destination mutation. The fresh
+decoded content/audio tuple must also equal the original audit before staging. Its saved
 record uses the actual native writer PID and fresh operation, distinct from the
 historical operation. Preparation and staging namespaces remain trusted caller
 inputs, never permissions reconstructed from the record.

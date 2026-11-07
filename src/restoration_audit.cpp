@@ -272,6 +272,9 @@ SavedRestorationStage SavedRestorationStage::prepare(ApprovedMediaFile source,co
     const auto checked=verifyAssetReplacement(source,*found,limits,stop);
     SavedRestorationRecordData data{operation,manifest.id,found->id};data.context=current;data.relativePath=found->relativePath;
     data.content={checked.sourceBytes,checked.sourceSha256};data.frames=found->frames;data.rate=found->sampleRate;data.layout=found->layout;
+    require(data.content.bytes==original.content.bytes && data.content.sha256==original.content.sha256 &&
+        data.frames==original.frames && data.rate==original.rate && data.layout==original.layout,
+        "Fresh saved decode differs from original audit",ErrorCode::MediaMismatch);
     auto record=SavedRestorationRecord::planned(data,memory,stop);
     // A fresh full finite decode is separate from a previous checker report.
     // Recheck that original report/fingerprint and the same native source again.
