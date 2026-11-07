@@ -1128,5 +1128,70 @@ void savedRestorationRecords(){
     check(physical(f.root)==physicalBefore&&bytes(f.source)==originalSource,"Saved-record codec changed files");coldOwner(*f.controller->snapshot());
 }
 
+ProjectCommand stageSaved(std::uint64_t preparation,std::uint64_t request=1){ProjectCommand c{CommandKind::StageSavedRestoration};c.savedPreparationJob=preparation;c.savedStagingRequest=request;return c;}
+void savedControllerStage(unsigned mode){
+    std::atomic<bool> reached=false,release=false;ControllerOptions options;std::filesystem::path mutationRoot;
+    const bool paused=(mode>=1&&mode<=4)||mode==13;
+    auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
+    if(mode==1||mode==2)options.savedStagingBeforeSpawn=hold;
+    if(mode==3||mode==4)options.savedStagingAfterSpawn=hold;
+    if(mode==13)options.savedStagingBeforeTerminal=hold;
+    if(mode==14){options.savedStagingDeadlineMilliseconds=1000;options.savedStagingAfterSpawn=[]{QThread::msleep(1100);};}
+    if(mode==11)options.savedStagingTerminalHook=[&](std::string &wire,std::size_t){auto j=nlohmann::json::parse(wire);auto record=nlohmann::json::parse(savedControlUnhex(j.at("recordHex").get<std::string>()));const auto staged=mutationRoot/record.at("operation").get<std::string>()/"media.partial";auto damaged=bytes(staged);damaged.back()^=1;write(staged,damaged);};
+    if(mode==5){options.savedStagingDeadlineMilliseconds=20;options.savedStagingBeforeSpawn=[]{QThread::msleep(40);};}
+    if(mode==6)options.savedStagingWorkerProgram=std::filesystem::temp_directory_path()/"sc-no-such-saved-worker";
+    if(mode==7)options.savedStagingTerminalHook=[](std::string &wire,std::size_t actual){auto j=nlohmann::json::parse(wire);j["workerPid"]=actual+1;wire=j.dump()+"\n";};
+    if(mode==8)options.savedStagingTerminalHook=[](std::string &wire,std::size_t){wire.clear();};
+    if(mode==12)options.memoryBytes=650*1024*1024;
+    Fixture f;const auto old=stagedOperation(f);mutationRoot=f.root;resetCold(f,options);Release guard{release};const auto baseline=f.controller->memoryResources().reservedBytes;
+    submit(*f.controller,prepareSaved(f,*f.controller->snapshot(),old));auto prepared=finishInspection(f);check(!prepared->restorationInspectionCompleted.error&&prepared->restorationPreparedSource,"Staging fixture did not prepare actual private source");
+    const auto prep=prepared->restorationPreparedSource;const auto before=physical(f.root);
+    if(mode==9){auto changed=f.data;changed.back()^=1;write(f.source,changed);}
+    if(mode==10)std::filesystem::create_directory(f.root/"changed-before-staging");
+    if(mode==0){
+        for(unsigned bad=0;bad<5;++bad){auto c=stageSaved(prep);if(bad==0)c.savedPreparationJob=prep+1;if(bad==1)c.savedStagingRequest=0;
+            if(bad==2)c.path=f.root;
+            if(bad==3)c.restorationSource=f.source;
+            if(bad==4)c.restorationInspection=prepareSaved(f,*prepared,old).restorationInspection;
+            const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,c);auto no=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+            check(no->savedStagingRejected.error==ErrorCode::InvalidState&&no->restorationPreparedSource==prep&&no->io==IoOperation::None,"Invalid saved staging consumed live preparation");coldOwner(*no);}
+    }
+    submit(*f.controller,stageSaved(prep));
+    if(paused){auto held=await(*f.controller,[&](const auto &s){return reached&&s.io==IoOperation::StageSavedRestoration;});
+        check(!held->restorationPreparedSource&&held->savedStagingJob,"Saved staging retained replayable preparation");
+        for(auto kind:{CommandKind::Open,CommandKind::Create,CommandKind::PrepareSavedRestorationSource,CommandKind::StageSavedRestoration,CommandKind::MemoryLimits}){
+            ProjectCommand c{kind};c.savedPreparationJob=prep;c.savedStagingRequest=2;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,c);
+            auto no=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(no->io==IoOperation::StageSavedRestoration&&!no->restorationPreparedSource,"Competing command revoked saved stage owner");coldOwner(*no);}
+        ProjectCommand wrong{CommandKind::CancelSavedRestorationStaging};wrong.savedStagingJob=held->savedStagingJob+1;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,wrong);await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
+        if(mode==2||mode==4){f.controller->requestShutdown();auto shutting=await(*f.controller,[](const auto &s){return s.closing;});check(!shutting->closed,"Saved child/owner retired before I/O join");}
+        else {wrong.savedStagingJob=held->savedStagingJob;submit(*f.controller,wrong);ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=565;submit(*f.controller,barrier);await(*f.controller,[](const auto &s){return s.lastBarrier==565;});}
+        release=true;
+    }
+    const bool close=mode==2||mode==4;
+    auto done=await(*f.controller,[&](const auto &s){return close?s.closed:s.savedStagingCompleted.request==1&&s.io==IoOperation::None;});const auto &r=done->savedStagingCompleted;
+    check(r.request==1&&r.job&&r.preparationJob==prep&&!done->restorationPreparedSource,"Saved staging completion lost private dispatch correlation");coldOwner(*done);
+    check(!std::filesystem::exists(f.canonical)&&bytes(f.root/"project.json")==f.manifest,"Saved stage published/adopted/changed manifest");
+    if(mode==0){check(!r.error&&r.operation&&r.childPid&&r.childExit==0&&r.reaped&&r.requestSent&&r.stagingMayExist&&r.recordVerified&&r.stagedBytesVerified,"Controller saved staging not verified against actual reaped child/bytes");
+        const auto now=physical(f.root);for(const auto &[name,data]:before)check(now.at(name)==data,"Saved staging changed original historical file");
+        check(now.size()==before.size()+3&&bytes(f.root/r.operation->str()/"media.partial")==f.data,"Saved stage did not preserve independently readable partial files");}
+    else {check(r.error.has_value()&&!r.recordVerified&&!r.stagedBytesVerified,"Saved staging failure published qualified result");
+        if(paused)check(r.error==ErrorCode::Canceled,"Canceled saved staging has wrong error");
+        if(mode==12)check(r.error==ErrorCode::ResourceLimit,"Saved stage bypassed parent ledger admission");
+        if(mode==1||mode==2||mode==5||mode==6||mode==9||mode==10||mode==12){check(!r.childPid&&!r.reaped&&!r.stagingMayExist&&!r.requestSent,"Pre-spawn refusal invented child or staging facts");
+            auto expected=before;if(mode==10)expected.emplace("changed-before-staging","directory");check(physical(f.root)==expected,"Pre-spawn saved staging refusal mutated project");}
+        if(mode==14)check(r.error==ErrorCode::Io&&r.childPid&&r.reaped&&r.childExit&&!r.requestSent&&r.stagingMayExist,"Actual live saved child deadline did not kill/reap conservatively");
+        if(mode==3||mode==4)check(r.childPid&&r.reaped&&r.childExit&&!r.requestSent&&r.stagingMayExist,"Canceled actual waiting child was not reaped conservatively");
+        if(mode==13)check(r.error==ErrorCode::Canceled&&r.childPid&&r.reaped&&r.childExit==0&&r.requestSent&&r.stagingMayExist,"Post-exit cancel lost honest staged/reaped evidence");
+        if(mode==11)check(r.error==ErrorCode::MediaMismatch&&r.childPid&&r.reaped&&r.stagingMayExist,"Independent staged corruption escaped parent check");
+        if(mode==7||mode==8)check(r.childPid&&r.childExit==0&&r.reaped&&r.requestSent&&r.stagingMayExist&&r.operation&&std::filesystem::exists(f.root/r.operation->str()/"media.partial"),"Malformed successful child hid partial staging evidence");
+    }
+    if(!close){const auto receipt=r;submit(*f.controller,stageSaved(prep,2));auto replay=await(*f.controller,[](const auto &s){return s.savedStagingRejected.request==2;});
+        check(replay->savedStagingRejected.error==ErrorCode::InvalidState&&replay->savedStagingCompleted.job==receipt.job&&replay->savedStagingCompleted.operation==receipt.operation,"Private saved preparation replayed or rewrote original completion");
+        await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+        ProjectCommand open{CommandKind::Open};open.path=f.root;const auto serial=replay->errorSerial;submit(*f.controller,open);auto refused=await(*f.controller,[&](const auto &s){return s.errorSerial>serial&&s.io==IoOperation::None;});
+        check(refused->errorCode==ErrorCode::MissingMedia,"Stage-only evidence bypassed strict Open");coldOwner(*refused);
+    }
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<15;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

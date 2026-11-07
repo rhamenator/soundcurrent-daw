@@ -91,12 +91,15 @@ struct IoJob {
     std::optional<ResourceLedger> restorationMemory = {};
     std::shared_ptr<const InspectionJobData> inspection = {};
     std::shared_ptr<const Session> inspectionSavedModel = {};
+    std::shared_ptr<const SavedSourcePreparation> savedPreparation = {};
+    std::uint64_t savedStagingRequest=0,savedStagingJob=0;
 };
 struct IoResult {
     IoJob job;
     RestorationProcessResult restoration;
     RestorationInspectionCompletion inspection;
     std::shared_ptr<const SavedSourcePreparation> prepared;
+    SavedStagingCompletion savedStaging;
     std::shared_ptr<const Session> loaded;
     std::optional<ErrorCode> error;
     std::string diagnostic;
@@ -162,7 +165,14 @@ class IoWorker : public QThread {
                 if (closing.load(std::memory_order_acquire))
                     throw ProjectError(ErrorCode::Canceled, "Project operation canceled");
                 ProjectStore store(next.root, options.admission);
-                if (next.operation == IoOperation::RestoreAsset) {
+                if(next.operation==IoOperation::StageSavedRestoration) {
+                    const auto &p=*next.savedPreparation;const auto &original=*p.request;
+                    finished.savedStaging=runSavedStagingProcess(original.input,original.selectedRoot,original.selectedSource,
+                        p.ticket,*p.checked,original.job,next.savedStagingRequest,next.savedStagingJob,options,
+                        *next.restorationMemory,closing,restorationCancel);
+                    finished.error=finished.savedStaging.error;
+                }
+                else if (next.operation == IoOperation::RestoreAsset) {
                     finished.restoration=runRestorationProcess(*next.restoration,*next.session,next.root,
                         next.restorationContext,options,*next.restorationMemory,closing,restorationCancel,restorationPermitMutex);
                     finished.error=finished.restoration.error;
@@ -368,6 +378,7 @@ struct ProjectController::State : QThread {
     std::uint64_t lastRestorationRequest=0,lastRestorationJob=0;
     std::uint64_t lastInspectionRequest=0,lastInspectionJob=0;
     std::shared_ptr<const SavedSourcePreparation> preparedSource;
+    std::uint64_t lastSavedStagingRequest=0,lastSavedStagingJob=0;
     struct LatchedRestorationBinding {
         bool valid=false;
         std::array<char,36> project{},asset{},operation{};
@@ -492,9 +503,9 @@ struct ProjectController::State : QThread {
         return bytes.bytes();
     }
     void execute(ProjectCommand &command) {
-        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration;
+        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration;
         const bool passive=command.kind==CommandKind::Barrier || command.kind==CommandKind::CancelAssetRestoration ||
-            command.kind==CommandKind::CancelAssetRestorationInspection;
+            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging;
         if ((restorationIo && !passive) || (view.assetRestorationNeedsReconciliation && !passive &&
             command.kind!=CommandKind::InspectAssetRestoration && command.kind!=CommandKind::ReconcileAssetRestoration))
             throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
@@ -551,6 +562,27 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState,"Restoration inspection cancellation owner differs");
             {QMutexLocker permission(&io.restorationPermitMutex);io.inspectionStop.request_stop();}
             break;
+        case CommandKind::StageSavedRestoration: {
+            if(model || view.session || !view.root.empty() || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
+                !preparedSource || !command.savedPreparationJob || command.savedPreparationJob!=view.restorationPreparedSource ||
+                command.savedPreparationJob!=preparedSource->request->job || !command.savedStagingRequest ||
+                command.savedStagingRequest<=lastSavedStagingRequest || lastSavedStagingJob==UINT64_MAX ||
+                preparedSource->request->input.projectEpoch!=view.projectEpoch || preparedSource->request->input.modelRevision!=view.modelRevision ||
+                !command.path.empty() || !command.restorationSource.empty() || command.restorationInspection || command.restoration)
+                throw ProjectError(ErrorCode::InvalidState,"Saved stage needs the exact current private preparation");
+            IoJob job{IoOperation::StageSavedRestoration,view.root,view.session,view.modelRevision};job.projectEpoch=view.projectEpoch;
+            job.savedPreparation=preparedSource;job.savedStagingRequest=command.savedStagingRequest;job.savedStagingJob=lastSavedStagingJob+1;
+            job.restorationMemory=memory;
+            QMutexLocker permission(&io.restorationPermitMutex);
+            if(closing.load(std::memory_order_acquire))throw ProjectError(ErrorCode::Canceled,"Saved staging closing");
+            io.restorationCancel.store(false,std::memory_order_release);startIo(std::move(job)); // Consumes private preparation only after dispatch admission.
+            lastSavedStagingRequest=command.savedStagingRequest;++lastSavedStagingJob;
+            view.savedStagingJob=lastSavedStagingJob;view.io=IoOperation::StageSavedRestoration;break;
+        }
+        case CommandKind::CancelSavedRestorationStaging:
+            if(view.io!=IoOperation::StageSavedRestoration || !command.savedStagingJob || command.savedStagingJob!=view.savedStagingJob)
+                throw ProjectError(ErrorCode::InvalidState,"Saved staging cancellation owner differs");
+            {QMutexLocker permission(&io.restorationPermitMutex);io.restorationCancel.store(true,std::memory_order_release);}break;
         case CommandKind::RestoreAsset: {
             requireModel();
             if(!command.restoration || !command.restoration->checked || view.io!=IoOperation::None ||
@@ -1021,6 +1053,17 @@ struct ProjectController::State : QThread {
             view.restorationInspectionCompleted=value;
             return; // No Session/history edits, disk publication or autosave-token release.
         }
+        if(result.job.operation==IoOperation::StageSavedRestoration) {
+            auto value=std::move(result.savedStaging);value.request=result.job.savedStagingRequest;value.job=result.job.savedStagingJob;
+            value.preparationJob=result.job.savedPreparation->request->job;value.error=result.error;
+            if(closing.load(std::memory_order_acquire) || io.restorationCancel.load(std::memory_order_acquire))value.error=ErrorCode::Canceled;
+            else if(view.savedStagingJob!=value.job || view.projectEpoch!=result.job.projectEpoch || view.modelRevision!=result.job.revision ||
+                view.root!=result.job.root || view.session!=result.job.session)value.error=ErrorCode::InvalidState;
+            if(value.error){value.recordVerified=false;value.stagedBytesVerified=false;}
+            view.savedStagingCompleted=std::move(value);
+            if(view.savedStagingCompleted.error)error(*view.savedStagingCompleted.error,"Saved staging requires inspection; partial files retained");
+            return; // Empty controller, no Session/history/autosave/publication ownership granted.
+        }
         if(result.job.operation==IoOperation::RestoreAsset) {
             auto &r=result.restoration;const auto &context=result.job.restorationContext;
             // Establish the live guard and private original owner before diagnostic allocations.
@@ -1238,6 +1281,8 @@ struct ProjectController::State : QThread {
                 } catch (const ProjectError &e) {
                     if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,e.code(),"Restoration inspection owner refused"};
+                    if(command->kind==CommandKind::StageSavedRestoration)
+                        view.savedStagingRejected={command->savedStagingRequest,e.code(),"Saved staging owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,e.code(),"Restoration owner refused"};
                     if (command->kind == CommandKind::AcquireAutosaveInhibition ||
@@ -1265,6 +1310,8 @@ struct ProjectController::State : QThread {
                 } catch (const std::exception &e) {
                     if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,ErrorCode::Io,"Restoration inspection owner refused"};
+                    if(command->kind==CommandKind::StageSavedRestoration)
+                        view.savedStagingRejected={command->savedStagingRequest,ErrorCode::Io,"Saved staging owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,ErrorCode::Io,"Restoration owner refused"};
                     if (command->kind == CommandKind::AcquireAutosaveInhibition ||

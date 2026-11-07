@@ -43,6 +43,8 @@ enum class CommandKind {
     InspectAssetRestoration,
     InspectSavedAssetRestoration,
     PrepareSavedRestorationSource,
+    StageSavedRestoration,
+    CancelSavedRestorationStaging,
     ReconcileAssetRestoration,
     CancelAssetRestorationInspection
 };
@@ -111,10 +113,11 @@ struct ProjectCommand {
     std::optional<RestorationInspectionRequest> restorationInspection;
     std::uint64_t restorationInspectionJob=0; // Cancel only, exact active dispatch.
     std::filesystem::path restorationSource; // Explicit selected file for saved-source preparation only.
+    std::uint64_t savedStagingRequest=0,savedPreparationJob=0,savedStagingJob=0; // Opaque current private owner; no paths or capability DTO.
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -161,6 +164,15 @@ struct RestorationInspectionCompletion {
     std::optional<RestorationReceiptObservation> receipt;
     std::optional<ErrorCode> error;
 };
+// Historical stage-only observations, never publication/current ownership.
+struct SavedStagingCompletion {
+    std::uint64_t request=0,job=0,preparationJob=0;
+    std::optional<Id> operation;
+    std::size_t childPid=0;
+    std::optional<int> childExit;
+    bool reaped=false,requestSent=false,stagingMayExist=false,recordVerified=false,stagedBytesVerified=false;
+    std::optional<ErrorCode> error;
+};
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
@@ -204,6 +216,9 @@ struct ControllerSnapshot {
     AttachmentCompletion restorationInspectionRejected;
     std::uint64_t restorationInspectionJob=0;
     std::uint64_t restorationPreparedSource=0; // Live opaque ID; never publication permission.
+    SavedStagingCompletion savedStagingCompleted;
+    AttachmentCompletion savedStagingRejected;
+    std::uint64_t savedStagingJob=0;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -225,6 +240,10 @@ struct ControllerOptions {
     std::function<void()> restorationBeforePermit = {},restorationAfterPermit = {};
     std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
     std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
+    std::filesystem::path savedStagingWorkerProgram = {};
+    unsigned savedStagingDeadlineMilliseconds=20000;
+    std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};
+    std::function<void(std::string &,std::size_t)> savedStagingTerminalHook = {};
     HistoryBudget historyBudget{};
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.

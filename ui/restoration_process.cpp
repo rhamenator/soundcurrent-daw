@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "restoration_process.hpp"
+#include <soundcurrent/saved_restoration_record.hpp>
 #include <QCoreApplication>
 #include <QProcess>
 #include <QFileInfo>
@@ -73,7 +74,8 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
             while(child.bytesAvailable()){check(output.size()<65536,"Restoration stdout overflow",ErrorCode::ResourceLimit);std::array<char,4096> chunk{};const auto n=child.read(chunk.data(),static_cast<qint64>(std::min(chunk.size(),65536-output.size())));check(n>=0,"Restoration output channel",ErrorCode::Io);if(!n)break;output.append(chunk.data(),static_cast<std::size_t>(n));}
         };
         while(child.state()!=QProcess::NotRunning){
-            child.waitForReadyRead(20);drain();poll();
+            child.waitForReadyRead(20);drain();
+        poll();
             if(!ready && output.find('\n')!=output.npos){
                 const auto at=output.find('\n');std::string wire=output.substr(0,at);output.erase(0,at+1);
                 if(options.restorationReadyHook)options.restorationReadyHook(wire,out.childPid);
@@ -82,7 +84,8 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
                 verifyAssetRestorationRecord(prepared,asset,{context.checked.projectEpoch,context.checked.modelRevision,context.checked.request},operation,AssetRestorationPhase::Planned,memory);
                 if(options.restorationBeforePermit)options.restorationBeforePermit();
                 poll();
-                auto permit=encodeRestorationPublicationPermit(ticket,prepared,owner,out.childPid,memory);poll();
+                auto permit=encodeRestorationPublicationPermit(ticket,prepared,owner,out.childPid,memory);
+        poll();
                 const auto bytes=std::string(permit.bytes())+"\n";
                 // Mark ambiguity before writing: an OS/channel error cannot prove
                 // that no prefix reached this exact child.
@@ -125,4 +128,99 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
     out.needsReconciliation=out.permitSent&&!out.canonicalVerified;
     return out;
 }
+SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest &original,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,std::uint64_t preparationJob,
+    std::uint64_t requestId,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel) {
+    SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
+    QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
+    const auto begun=std::chrono::steady_clock::now();
+    const auto poll=[&]{check(!closing.load(std::memory_order_acquire)&&!cancel.load(std::memory_order_acquire),"Saved staging canceled",ErrorCode::Canceled);
+        check(std::chrono::steady_clock::now()-begun<std::chrono::milliseconds(options.savedStagingDeadlineMilliseconds),"Saved staging deadline",ErrorCode::Io);};
+    try {
+        poll();check(options.savedStagingDeadlineMilliseconds && requestId && job && preparationJob && checked.report && checked.childPid &&
+            checked.childExit==0 && checked.phase==WaveCheckPhase::Complete && !checked.error && !checked.closed && !checked.replacement && checked.job,
+            "Saved staging private checker is not complete");
+        bank=memory.reserve(childCredit+3*1024*1024); // Logical child/frame admission, not an RSS sandbox.
+        const SavedRestorationSourceContext context{original.projectEpoch,original.modelRevision,original.request,checked.job};
+        auto audit=inspectSavedAssetRestoration(root,original.project,original.asset,original.operation,options.restorationInspectionMaximumBytes,memory,options.admission);
+        auto control=ticket.copyControlProtocol(audit,*checked.report,context,checked.childPid,memory);
+        auto report=checked.report->copyProtocol(memory);
+        {ApprovedMediaRoot approved(source.parent_path(),memory,{1});auto current=approved.openSelectedFilename(source.filename(),options.restorationInspectionMaximumBytes);
+         verifySavedRestorationSourceFile(ticket,audit,*checked.report,context,checked.childPid,current,memory);}
+        const auto asset=std::find_if(audit.manifest().assets.begin(),audit.manifest().assets.end(),[&](const auto &a){return a.id==original.asset;});
+        check(asset!=audit.manifest().assets.end(),"Saved stage asset disappeared");
+        ApprovedMediaRoot destination(root,memory,{2}); // Retain original native destination identity through the child.
+        const auto operation=Id::generate();out.operation=operation;
+        if(options.savedStagingBeforeSpawn)options.savedStagingBeforeSpawn();
+        poll();
+        QString program=options.savedStagingWorkerProgram.empty()?QCoreApplication::applicationDirPath()+
+#ifdef _WIN32
+            QStringLiteral("/sc-saved-restoration-worker.exe"):
+#else
+            QStringLiteral("/sc-saved-restoration-worker"):
+#endif
+            QString::fromUtf8(native(options.savedStagingWorkerProgram).c_str());
+        check(QFileInfo(program).isAbsolute(),"Saved staging worker must be absolute");
+        child.setProcessChannelMode(QProcess::SeparateChannels);
+        QObject::connect(&child,&QProcess::started,&child,[&]{out.childPid=static_cast<std::size_t>(child.processId());out.stagingMayExist=true;});
+        child.start(program,{QStringLiteral("--memory-bytes"),QString::number(childCredit),QStringLiteral("--maximum-source-bytes"),QString::number(options.restorationInspectionMaximumBytes)},QIODevice::ReadWrite);
+        while(child.state()==QProcess::Starting){child.waitForStarted(20);
+        poll();}
+        check(child.state()==QProcess::Running && out.childPid,"Saved staging child did not start",ErrorCode::Io);
+        if(options.savedStagingAfterSpawn)options.savedStagingAfterSpawn();
+        poll();
+        const SavedRestorationRecordContext current{context,preparationJob,requestId,job,out.childPid};
+        const auto wire=nlohmann::json({{"protocol","sc-saved-staging-worker-v1"},{"project",original.project.str()},{"asset",original.asset.str()},
+            {"historyOperation",original.operation.str()},{"operation",operation.str()},{"rootHex",hex(native(root))},
+            {"sourceRootHex",hex(native(source.parent_path()))},{"sourceLeafHex",hex(native(source.filename()))},
+            {"sourceControlHex",hex(control.bytes())},{"checkReportHex",hex(report.bytes())},{"checkPid",checked.childPid},
+            {"maximumBytes",options.restorationInspectionMaximumBytes},{"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},
+            {"sourceRequest",context.request},{"sourceJob",context.job},{"preparationJob",preparationJob},{"request",requestId},{"job",job},{"workerPid",out.childPid}}).dump()+"\n";
+        check(wire.size()<=65537,"Saved staging request extent");
+        poll();
+        out.requestSent=true;check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Saved staging input channel",ErrorCode::Io);
+        child.closeWriteChannel(); // The child refuses access to roots before exact EOF.
+        std::string output;output.reserve(32768);std::array<char,32768> errors{};std::size_t errorUsed=0;
+        const auto drain=[&]{
+            child.setReadChannel(QProcess::StandardError);
+            while(child.bytesAvailable()){check(errorUsed<errors.size(),"Saved staging stderr overflow",ErrorCode::ResourceLimit);
+                const auto n=child.read(errors.data()+errorUsed,static_cast<qint64>(errors.size()-errorUsed));check(n>=0,"Saved staging stderr",ErrorCode::Io);if(!n)break;errorUsed+=static_cast<std::size_t>(n);}
+            child.setReadChannel(QProcess::StandardOutput);
+            while(child.bytesAvailable()){check(output.size()<32768,"Saved staging stdout overflow",ErrorCode::ResourceLimit);std::array<char,4096> chunk{};
+                const auto n=child.read(chunk.data(),static_cast<qint64>(std::min(chunk.size(),32768-output.size())));check(n>=0,"Saved staging stdout",ErrorCode::Io);if(!n)break;output.append(chunk.data(),static_cast<std::size_t>(n));}
+        };
+        while(child.state()!=QProcess::NotRunning){child.waitForReadyRead(20);drain();
+        poll();}
+        out.childExit=child.exitCode();out.reaped=out.childPid!=0;bank.resize(bank.bytes()-childCredit);drain();
+        poll();
+        check(out.reaped && child.exitStatus()==QProcess::NormalExit && out.childExit==0 && !errorUsed,"Saved staging child refused",ErrorCode::Io);
+        if(options.savedStagingBeforeTerminal)options.savedStagingBeforeTerminal();
+        poll();
+        if(options.savedStagingTerminalHook)options.savedStagingTerminalHook(output,out.childPid);
+        poll();
+        check(!output.empty() && output.find('\n')==output.size()-1,"Saved staging terminal framing");
+        const auto terminal=frame(output,{"protocol","workerPid","published","recordHex"});
+        check(terminal.at("protocol")=="sc-saved-staging-result-v1" && integer(terminal.at("workerPid"))==out.childPid && !boolean(terminal.at("published")),"Saved staging terminal identity");
+        auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex")),memory);
+        const auto &audio=checked.report->audio();CheckedMediaBytes content{audio.sourceBytes,audio.sourceSha256};
+        verifySavedRestorationRecord(record,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory);out.recordVerified=true;
+        // Independent read after native exclusive writer handles have retired.
+        // This is evidence, never native owner reconstruction/publication permission.
+        auto staged=destination.open(operation.str()+"/media.partial",options.restorationInspectionMaximumBytes);
+        check(staged.size()==content.bytes && staged.digest({},poll)==content.sha256,"Saved staging bytes differ",ErrorCode::MediaMismatch);staged.verifyUnchanged();
+        poll();
+        auto intentFile=destination.open(operation.str()+"/intent.json",savedRestorationRecordMaximumBytes);
+        std::string intentBytes(static_cast<std::size_t>(intentFile.size()),'\0');intentFile.readAt(0,std::span(intentBytes));
+        auto intentRecord=decodeSavedRestorationRecord(intentBytes,memory);verifySavedRestorationRecord(intentRecord,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory);
+        intentFile.verifyUnchanged();
+        poll();out.stagedBytesVerified=true;
+    }catch(const ProjectError &e){out.error=e.code();}catch(const std::exception &){out.error=ErrorCode::Io;}
+    if(child.state()!=QProcess::NotRunning){child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    if(out.childPid){out.childExit=child.exitCode();out.reaped=true;} // Actual QProcess retirement on every launched-child path.
+    if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
+    return out;
+}
+
 }
