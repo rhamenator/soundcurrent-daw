@@ -2,6 +2,7 @@
 #include <soundcurrent/media_staging.hpp>
 #include <soundcurrent/media_provenance.hpp>
 #include "media_hash.hpp"
+#include "native_directory_stamp.hpp"
 #include <algorithm>
 #include <bit>
 #include <optional>
@@ -257,6 +258,7 @@ struct StagedMediaState {
     StageDurability durability=StageDurability::FileFlushed;
     bool hasIntent=false,commitAttempted=false,committed=false,restoration=false;
     Handle parent,directory,file,intent;
+    ApprovedDirectoryStamp parentBefore{},parentAfter{};
     StagedMediaState(ResourceLease l,ResourceLedger ledger,Id id,CheckedMediaBytes bytes)
         :lease(std::move(l)),resources(std::move(ledger)),operation(std::move(id)),relative(operation.str()+"/media.partial"),checked(bytes) {}
 };
@@ -268,6 +270,35 @@ const std::string &StagedMedia::relativePath() const { operation();return state_
 CheckedMediaBytes StagedMedia::checkedBytes() const { operation();return state_->checked; }
 StageDurability StagedMedia::durability() const { operation();return state_->durability; }
 std::size_t StagedMedia::chargedBytes() const { operation();return state_->lease.bytes(); }
+void StagedMedia::verifyRestorationParentTransition(ApprovedDirectoryStamp before,ApprovedDirectoryStamp current,
+    CheckedMediaBytes expected,std::string_view planned,ResourceLedger memory,std::stop_token stop) const {
+    operation();const auto &s=*state_;poll(stop);
+    require(memory.owns(s.lease) && s.restoration && s.hasIntent && !s.commitAttempted && !s.committed,
+        "No current unattempted restoration stage",ErrorCode::InvalidState);
+    require(s.parentBefore==before && s.parentAfter==current && detail::nativeDirectoryStamp(s.parent.value)==s.parentAfter,
+        "Owned staging parent transition changed",ErrorCode::MediaMismatch);
+    require(s.checked.bytes==expected.bytes && s.checked.sha256==expected.sha256,
+        "Owned restoration stage content differs",ErrorCode::MediaMismatch);
+#ifndef _WIN32
+    // Windows operation/file handles deny deletion and replacement. On Linux,
+    // check current names against these exact owned descriptors as well.
+    const auto named=[&](const Handle &parent,const char *name,const Handle &held,bool directory) {
+        struct stat entry{},owner{};
+        require(fstatat(parent.value,name,&entry,AT_SYMLINK_NOFOLLOW)==0 && fstat(held.value,&owner)==0 &&
+            entry.st_dev==owner.st_dev && entry.st_ino==owner.st_ino &&
+            (directory ? S_ISDIR(entry.st_mode) : S_ISREG(entry.st_mode) && owner.st_nlink==1),
+            "Owned restoration stage name changed",ErrorCode::MediaMismatch);
+    };
+    named(s.parent,s.operation.str().c_str(),s.directory,true);
+    named(s.directory,"intent.json",s.intent,false);named(s.directory,"media.partial",s.file,false);
+#endif
+    require(planned.size()<=mediaReceiptMaximumBytes,"Owned intent exceeds admitted audit bank",ErrorCode::InvalidState);
+    auto scratch=memory.reserve(65536+8192+16384);
+    verifyRecord(s.intent,planned,stop);
+    require(digest(s.file,expected.bytes,stop)==expected.sha256,"Owned restoration staged bytes changed",ErrorCode::MediaMismatch);
+    require(detail::nativeDirectoryStamp(s.parent.value)==s.parentAfter,"Owned staging parent changed during audit",ErrorCode::MediaMismatch);
+    poll(stop);
+}
 StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path &parent,
     CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer,const MediaProvenance *origin,bool restoration,const OwnedInspectionProtocol *restorationIntent) {
     poll(stop);
@@ -299,6 +330,7 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
     state->parent.value=::open(parent.c_str(),O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
     require(state->parent.value>=0,"Cannot open plain staging parent");
 #endif
+    state->parentBefore=detail::nativeDirectoryStamp(state->parent.value);
     boundary(observer,StageBoundary::BeforeDirectory,0,stop);
     // Windows must share the held operation directory for handle-relative
     // receipt renames, just as for bound-media publication. DELETE stays denied.
@@ -346,6 +378,7 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
 #ifndef _WIN32
     flush(state->directory);flush(state->parent);state->durability=StageDurability::FileAndDirectoriesFlushed;
 #endif
+    state->parentAfter=detail::nativeDirectoryStamp(state->parent.value);
     poll(stop);return StagedMedia(std::move(state));
 }
 StagedMedia stageVerifiedMedia(ApprovedMediaFile &source,const std::filesystem::path &parent,

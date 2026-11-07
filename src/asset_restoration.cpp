@@ -58,6 +58,9 @@ const Id &PreparedAssetRestoration::operation() const {
 }
 const std::string &PreparedAssetRestoration::stagedRelativePath() const {operation();return state_->stage.relativePath();}
 std::size_t PreparedAssetRestoration::chargedBytes() const {operation();return state_->lease.bytes()+state_->record.chargedBytes()+state_->stage.chargedBytes();}
+const StagedMedia &PreparedAssetRestoration::stageForAudit() const {
+    operation();require(!state_->attempted,"Asset restoration owner already attempted");return state_->stage;
+}
 const AssetRestorationRecord &PreparedAssetRestoration::record() const {operation();return state_->record;}
 MediaCommitOutcome PreparedAssetRestoration::publish(const Asset &current,AssetRestorationContext context,
     std::stop_token stop,const StageObserver &observer) {

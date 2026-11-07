@@ -28,6 +28,11 @@ class RestorationAudit {
     // Checks pinned bytes AND current relative-name observations again. Not an
     // atomic namespace snapshot against hostile same-user directory writers.
     void reverify(std::stop_token = {});
+    // Read-only I/O proof for one live, unattempted restoration stage that
+    // captured this exact parent before/after its exclusive staging work.
+    // Keeps ordinary reverify strict and preserves every original pinned/named
+    // byte. No publication, replay, model adoption or current-controller grant.
+    void reverifyAfterOwnedStaging(const PreparedAssetRestoration &,std::stop_token = {});
   private:
     friend class SavedRestorationSourceTicket;
     friend void verifySavedRestorationSourceReport(const SavedRestorationSourceTicket &,RestorationAudit &,
@@ -38,6 +43,7 @@ class RestorationAudit {
         const Id &,std::uint64_t,ResourceLedger,ProjectBudget,std::stop_token);
     explicit RestorationAudit(std::unique_ptr<RestorationAuditState>);
     RestorationAuditState &state() const;
+    void reverifyFiles(std::stop_token);
     std::unique_ptr<RestorationAuditState> state_;
 };
 // Explicit trusted root/project/asset/operation and size budgets. Historical

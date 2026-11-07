@@ -30,6 +30,8 @@ class PreparedAssetRestoration {
     MediaCommitOutcome publish(const Asset &current,AssetRestorationContext,
         std::stop_token = {},const StageObserver & = {});
   private:
+    friend class RestorationAudit;
+    const StagedMedia &stageForAudit() const;
     explicit PreparedAssetRestoration(std::unique_ptr<AssetRestorationState>);
     std::unique_ptr<AssetRestorationState> state_;
 };
