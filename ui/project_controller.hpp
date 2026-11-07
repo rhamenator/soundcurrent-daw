@@ -48,7 +48,8 @@ enum class CommandKind {
     ReconcileAssetRestoration,
     CancelAssetRestorationInspection,
     PublishSavedRestoration,
-    CancelSavedPublication
+    CancelSavedPublication,
+    ReconcileSavedPublication
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;

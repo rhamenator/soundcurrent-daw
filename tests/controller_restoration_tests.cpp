@@ -1653,6 +1653,81 @@ void savedControllerPublication(unsigned mode){
         }
     }
 }
+void savedControllerReconciliation(unsigned mode){
+    std::atomic<bool> armed=false,reached=false,release=false;ControllerOptions options;std::filesystem::path staged;
+    if(mode==1)options.savedStagingTerminalHook=[](std::string &wire,std::size_t actual){auto j=nlohmann::json::parse(wire);j["workerPid"]=actual+1;wire=j.dump()+"\n";};
+    else options.savedPublicationBeforeFinish=[]{throw ProjectError(ErrorCode::Io,"Qualified ambiguous publication fixture");};
+    options.restorationInspectionBeforeVerify=[&]{if(!armed)return;
+        if(mode==7)write(staged,"foreign");
+        if(mode==8||mode==9){reached=true;while(!release)QThread::msleep(1);}
+        if(mode==10)throw ProjectError(ErrorCode::Io,"Fresh audit qualification failure");};
+    Fixture f;const auto history=stagedOperation(f);resetCold(f,options);Release guard{release};const auto cold=f.controller->snapshot();
+    const auto baseline=f.controller->memoryResources().reservedBytes;
+    // Inspection job and the actual fresh checker job deliberately differ.
+    submit(*f.controller,savedInspection(f,*cold,history,1));check(!finishInspection(f,1)->restorationInspectionCompleted.error,"Preliminary saved inspection failed");
+    submit(*f.controller,prepareSaved(f,*cold,history,2));const auto prepared=finishInspection(f,2);const auto prep=prepared->restorationPreparedSource;
+    check(prep>1&&!prepared->restorationInspectionCompleted.error,"Reconciliation private preparation failed");
+    submit(*f.controller,publishSaved(prep));const auto latched=await(*f.controller,[](const auto &v){return v.savedPublicationCompleted.staging.request==1&&v.io==IoOperation::None;});
+    const auto historical=latched->savedPublicationCompleted;
+    check(latched->savedPublicationNeedsReconciliation&&historical.staging.operation&&historical.staging.error,"Reconciliation fixture did not latch");coldOwner(*latched);
+    if(mode==1)check(!historical.published.has_value(),"Malformed terminal unexpectedly established historical publication");
+    const auto operation=*historical.staging.operation;const auto receipt=f.root/operation.str()/"receipt.json";
+    const auto receiptBytes=bytes(receipt);staged=f.root/operation.str()/"media.partial";
+    auto command=[&](std::uint64_t request=3){ProjectCommand c{CommandKind::ReconcileSavedPublication};
+        c.savedPreparationJob=prep;c.savedPublicationJob=latched->savedPublicationJob;
+        c.restorationInspection=RestorationInspectionRequest{f.initial->session->id,f.asset.id,operation,cold->projectEpoch,cold->modelRevision,request};return c;};
+    if(mode==0){
+        for(unsigned bad=0;bad<12;++bad){auto c=command();
+            if(bad==0)++c.savedPreparationJob;if(bad==1)++c.savedPublicationJob;if(bad==2)c.path=f.root;
+            if(bad==3)c.restorationSource=f.source;if(bad==4)c.restoration=f.input;if(bad==5)c.restorationInspection.reset();
+            if(bad==6)c.restorationInspection->request=2;if(bad==7)c.restorationInspection->operation=history;
+            if(bad==8)c.restorationInspection->asset=Id::generate();if(bad==9)c.restorationInspection->project=Id::generate();
+            if(bad==10)++c.restorationInspection->projectEpoch;if(bad==11)++c.restorationInspection->modelRevision;
+            const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,c);auto denied=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+            check(denied->savedPublicationNeedsReconciliation&&denied->restorationInspectionCompleted.request==2&&denied->savedPublicationCompleted.staging.job==historical.staging.job,"Bad reconciliation spent guard or rewrote completion");
+        }
+        ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=971;submit(*f.controller,barrier);await(*f.controller,[](const auto &v){return v.lastBarrier==971;});
+        ProjectCommand stale{CommandKind::CancelAssetRestorationInspection};stale.restorationInspectionJob=1;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,stale);
+        const auto denied=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});check(denied->savedPublicationNeedsReconciliation,"Stale cancel released guard");
+    }
+    if(mode==0)check(std::filesystem::remove(f.source),"Current audit fixture could not retire original source path");
+    if(mode==1)std::filesystem::remove(receipt);
+    if(mode==2)std::filesystem::rename(receipt,f.root/operation.str()/"receipt.partial");
+    if(mode==3)std::filesystem::remove(f.canonical);
+    if(mode==12)write(f.canonical,"foreign");
+    if(mode==4){auto j=nlohmann::json::parse(receiptBytes);j["sourceJob"]=999;write(receipt,j.dump());}
+    if(mode==5){auto j=nlohmann::json::parse(f.manifest);j["name"]="Changed after preparation";write(f.root/"project.json",j.dump());}
+    if(mode==6){const auto original=f.owned.path/"original-root";std::filesystem::rename(f.root,original);std::filesystem::copy(original,f.root,std::filesystem::copy_options::recursive);}
+    if(mode==11)write(f.root/operation.str()/"receipt.partial",receiptBytes);
+    armed=true;submit(*f.controller,command());
+    if(mode==8||mode==9){auto held=await(*f.controller,[&](const auto &v){return reached&&v.io==IoOperation::InspectAssetRestoration;});
+        if(mode==9)f.controller->requestShutdown();else{ProjectCommand cancel{CommandKind::CancelAssetRestorationInspection};cancel.restorationInspectionJob=held->restorationInspectionJob;submit(*f.controller,cancel);
+            ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=972;submit(*f.controller,barrier);await(*f.controller,[](const auto &v){return v.lastBarrier==972;});}
+        release=true;
+    }
+    auto done=mode==9?await(*f.controller,[](const auto &v){return v.closed;}):finishInspection(f,3);
+    const bool success=mode<=2;
+    check(done->savedPublicationNeedsReconciliation!=success&&done->restorationInspectionCompleted.ambiguityReleased==success,"Fresh current-fact guard release differs");
+    check(done->savedPublicationCompleted.published==historical.published&&done->savedPublicationCompleted.needsReconciliation==historical.needsReconciliation&&
+        done->savedPublicationCompleted.staging.error==historical.staging.error&&done->savedPublicationCompleted.staging.operation==historical.staging.operation,"Fresh reconciliation rewrote historical publication facts");coldOwner(*done);
+    if(success){check(!done->restorationInspectionCompleted.error&&done->restorationInspectionCompleted.canonical==RestorationMediaObservation::Verified,"Fresh current facts missing");
+        await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+        const auto serial=done->errorSerial;submit(*f.controller,command(4));auto replay=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});check(!replay->savedPublicationNeedsReconciliation&&replay->restorationInspectionCompleted.request==3,"Replayed reconciliation created a new guard or changed proof");
+    }else if(mode!=9){check(done->restorationInspectionCompleted.error.has_value(),"Unqualified reconciliation had no error");
+        ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=973;submit(*f.controller,barrier);auto still=await(*f.controller,[](const auto &v){return v.lastBarrier==973;});check(still->savedPublicationNeedsReconciliation,"Later snapshot lost unresolved guard");
+        if(mode==3||mode==4||mode==5||mode==7||mode==10||mode==11||mode==12){
+            armed=false;write(f.canonical,f.data);write(receipt,receiptBytes);write(f.root/"project.json",f.manifest);
+            std::filesystem::remove(staged);std::filesystem::remove(f.root/operation.str()/"receipt.partial");
+            submit(*f.controller,command(4));auto fresh=finishInspection(f,4);
+            check(!fresh->restorationInspectionCompleted.error&&fresh->restorationInspectionCompleted.ambiguityReleased&&!fresh->savedPublicationNeedsReconciliation,
+                "Failure spent original private reconciliation owner or prevented fresh repair");coldOwner(*fresh);
+            check(fresh->savedPublicationCompleted.published==historical.published&&fresh->savedPublicationCompleted.staging.error==historical.staging.error,"Fresh retry changed historical facts");
+            await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+        }
+        f.controller->requestShutdown();await(*f.controller,[](const auto &v){return v.closed;});
+        await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+    }else{await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;}
+}
 void savedControllerStage(unsigned mode){
     std::atomic<bool> reached=false,release=false;ControllerOptions options;std::filesystem::path mutationRoot,sourcePinPath;std::atomic<std::uint64_t> clock=0;std::atomic<unsigned> chunks=0;
     std::atomic<bool> pinsGood=true;std::atomic<unsigned> beforeKill=0,afterReap=0,afterRelease=0;
@@ -1762,4 +1837,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
