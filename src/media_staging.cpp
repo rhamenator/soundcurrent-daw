@@ -300,7 +300,7 @@ void StagedMedia::verifyRestorationParentTransition(ApprovedDirectoryStamp befor
     poll(stop);
 }
 StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path &parent,
-    CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer,const MediaProvenance *origin,bool restoration,const OwnedInspectionProtocol *restorationIntent) {
+    CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer,const MediaProvenance *origin,bool restoration,const OwnedInspectionProtocol *restorationIntent,const ApprovedDirectoryStamp *expectedParent) {
     poll(stop);
     require(parent.is_absolute() && parent.native().size()<=4096 &&
         parent.native().find(std::filesystem::path::value_type(0))==parent.native().npos,
@@ -331,7 +331,10 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
     require(state->parent.value>=0,"Cannot open plain staging parent");
 #endif
     state->parentBefore=detail::nativeDirectoryStamp(state->parent.value);
+    if(expectedParent)require(state->parentBefore==*expectedParent,"Saved staging destination differs from original audit",ErrorCode::MediaMismatch);
     boundary(observer,StageBoundary::BeforeDirectory,0,stop);
+    if(expectedParent)require(detail::nativeDirectoryStamp(state->parent.value)==*expectedParent,
+        "Saved staging destination changed before creation",ErrorCode::MediaMismatch);
     // Windows must share the held operation directory for handle-relative
     // receipt renames, just as for bound-media publication. DELETE stays denied.
     create(state->parent,state->operation.str(),true,state->directory,origin!=nullptr || restoration);
@@ -383,14 +386,14 @@ StagedMedia stageMediaImpl(ApprovedMediaFile &source,const std::filesystem::path
 }
 StagedMedia stageVerifiedMedia(ApprovedMediaFile &source,const std::filesystem::path &parent,
     CheckedMediaBytes checked,std::uint64_t maximum,Id id,std::stop_token stop,const StageObserver &observer) {
-    return stageMediaImpl(source,parent,checked,maximum,std::move(id),stop,observer,nullptr,false,nullptr);
+    return stageMediaImpl(source,parent,checked,maximum,std::move(id),stop,observer,nullptr,false,nullptr,nullptr);
 }
 StagedMedia stageBoundMedia(ApprovedMediaFile &source,const std::filesystem::path &parent,
     const MediaProvenance &origin,std::uint64_t maximum,std::stop_token stop,const StageObserver &observer) {
     require(origin.ownedBy(source.resourceLedger()) && origin.data().phase==MediaReceiptPhase::Planned,
         "Unadmitted or non-planned media intent",ErrorCode::InvalidState);
     const auto &p=origin.data();return stageMediaImpl(source,parent,{p.audio.sourceBytes,p.audio.sourceSha256},maximum,
-        p.operation,stop,observer,&origin,false,nullptr);
+        p.operation,stop,observer,&origin,false,nullptr,nullptr);
 }
 MediaCommitOutcome commitStagedMedia(StagedMedia &owned,const MediaProvenance &origin,std::stop_token stop,const StageObserver &observer) {
     poll(stop);require(bool(owned.state_),"Retired media stage",ErrorCode::InvalidState);auto &state=*owned.state_;
@@ -432,7 +435,12 @@ MediaCommitOutcome commitStagedMedia(StagedMedia &owned,const MediaProvenance &o
 }
 StagedMedia StagedMedia::prepareRestorationStage(ApprovedMediaFile &source,const std::filesystem::path &root,
     CheckedMediaBytes checked,std::uint64_t maximum,Id operation,const OwnedInspectionProtocol &intent,std::stop_token stop,const StageObserver &observer) {
-    return stageMediaImpl(source,root,checked,maximum,std::move(operation),stop,observer,nullptr,true,&intent);
+    return stageMediaImpl(source,root,checked,maximum,std::move(operation),stop,observer,nullptr,true,&intent,nullptr);
+}
+StagedMedia StagedMedia::prepareSavedRestorationStage(ApprovedMediaFile &source,const std::filesystem::path &root,
+    CheckedMediaBytes checked,std::uint64_t maximum,Id operation,const OwnedInspectionProtocol &intent,
+    ApprovedDirectoryStamp before,std::stop_token stop,const StageObserver &observer) {
+    return stageMediaImpl(source,root,checked,maximum,std::move(operation),stop,observer,nullptr,true,&intent,&before);
 }
 MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const OwnedInspectionProtocol &intent,
     const OwnedInspectionProtocol &receipt,std::stop_token stop,const StageObserver &observer) {
