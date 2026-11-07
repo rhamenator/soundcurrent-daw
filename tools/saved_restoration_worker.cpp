@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-#include <soundcurrent/saved_restoration_stage.hpp>
+#include <soundcurrent/saved_restoration_permit.hpp>
 #include <algorithm>
 #include <array>
 #include <charconv>
@@ -22,6 +22,11 @@
 using namespace soundcurrent::daw;
 namespace {
 constexpr std::size_t requestMaximum=65536,readyMaximum=32768;
+#ifdef SC_SAVED_PUBLICATION_WORKER
+constexpr auto requestProtocol="sc-saved-restoration-worker-v2";
+#else
+constexpr auto requestProtocol="sc-saved-staging-worker-v1";
+#endif
 void check(bool good,const char *message,ErrorCode code=ErrorCode::InvalidState){if(!good)throw ProjectError(code,message);}
 std::size_t pid(){
 #ifdef _WIN32
@@ -54,10 +59,21 @@ nlohmann::json request(std::string_view bytes){
     std::set<std::string> seen;auto callback=[&](int depth,nlohmann::json::parse_event_t event,nlohmann::json &v){
         check(depth<=1&&event!=nlohmann::json::parse_event_t::array_start,"Nested saved worker request");
         if(event==nlohmann::json::parse_event_t::key){const auto &k=v.get_ref<const std::string &>();check(std::find(keys.begin(),keys.end(),k)!=keys.end()&&seen.insert(k).second,"Unknown/duplicate saved worker request");}return true;};
-    auto j=nlohmann::json::parse(bytes.begin(),bytes.end(),callback);check(j.is_object()&&seen.size()==keys.size()&&j.at("protocol")=="sc-saved-staging-worker-v1","Incomplete saved worker request");return j;
+    auto j=nlohmann::json::parse(bytes.begin(),bytes.end(),callback);check(j.is_object()&&seen.size()==keys.size()&&j.at("protocol")==requestProtocol,"Incomplete saved worker request");return j;
+}
+void failure(ErrorCode code,bool stagingMayExist,bool publicationMayExist){
+#ifdef SC_SAVED_PUBLICATION_WORKER
+    std::cerr<<nlohmann::json({{"protocol","sc-saved-restoration-error-v2"},{"workerPid",pid()},
+        {"published",publicationMayExist?nlohmann::json(nullptr):nlohmann::json(false)},
+        {"stagingMayExist",stagingMayExist},{"publicationMayExist",publicationMayExist},{"errorCode",static_cast<unsigned>(code)}}).dump()<<std::endl;
+#else
+    (void)publicationMayExist;
+    std::cerr<<nlohmann::json({{"protocol","sc-saved-staging-error-v1"},{"workerPid",pid()},{"published",false},
+        {"stagingMayExist",stagingMayExist},{"errorCode",static_cast<unsigned>(code)}}).dump()<<std::endl;
+#endif
 }
 }
-int main(int argc,char **argv){bool stagingMayExist=false;try{
+int main(int argc,char **argv){bool stagingMayExist=false,publicationMayExist=false;try{
     std::uint64_t memoryBytes=512*1024*1024,sourceLimit=1024ULL*1024*1024;bool memorySeen=false,limitSeen=false;
 #ifdef SC_SAVED_STAGING_QUALIFICATION
     std::string fixtureMode="pause";bool fixtureModeSeen=false;
@@ -78,7 +94,14 @@ int main(int argc,char **argv){bool stagingMayExist=false;try{
     check(memoryBytes>=4*1024*1024 && memoryBytes<=1024ULL*1024*1024 && sourceLimit<=static_cast<std::uint64_t>(INT64_MAX),"Invalid restoration worker policy");
     ResourceLedger memory(static_cast<std::size_t>(memoryBytes),"Saved staging worker payload");
     auto frameBank=memory.reserve(requestMaximum+readyMaximum*2);auto parser=memory.reserve(requestMaximum*32);
-    const auto raw=line(requestMaximum);check(std::cin.get()==std::char_traits<char>::eof(),"Trailing saved worker input");const auto j=request(raw);
+#ifdef SC_SAVED_PUBLICATION_WORKER
+    auto permitBank=memory.reserve(savedRestorationPermitMaximumBytes);
+#endif
+    const auto raw=line(requestMaximum);
+#ifndef SC_SAVED_PUBLICATION_WORKER
+    check(std::cin.get()==std::char_traits<char>::eof(),"Trailing saved worker input");
+#endif
+    const auto j=request(raw);
 #ifdef SC_SAVED_STAGING_QUALIFICATION
     // Foreign-child refusal scenarios read the exact request/EOF, touch no roots.
     if(fixtureMode=="stdout-overflow"){std::cout<<std::string(65536,'x')<<std::flush;return 0;}
@@ -111,9 +134,30 @@ int main(int argc,char **argv){bool stagingMayExist=false;try{
         for(;;)std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }};
 #endif
+#ifdef SC_SAVED_PUBLICATION_WORKER
+    const SavedRestorationOwnerView owner{root,{current.source,current.preparationJob,current.request,current.job}};
+    auto permission=SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,static_cast<std::size_t>(checkPid),operation,memory);
+    auto dispatch=SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,static_cast<std::size_t>(checkPid),operation,memory);
+    stagingMayExist=true;
+    auto stage=DispatchedSavedRestoration::prepare(std::move(dispatch),std::move(source),std::move(audit),ticket,report,
+        static_cast<std::size_t>(checkPid),owner,pid(),maximum,{}, {},observer);
+    auto ready=stage.ready(owner,pid());std::cout<<ready.bytes()<<std::endl;check(bool(std::cout),"Saved READY pipe failed",ErrorCode::Io);
+    // Blocking pipe waits belong to the supervising parent deadline/kill/reap
+    // contract. The SAME live native owners remain held throughout this wait.
+    const auto permitWire=line(savedRestorationPermitMaximumBytes);
+    check(std::cin.get()==std::char_traits<char>::eof(),"Trailing saved permission input");
+    auto permit=decodeSavedRestorationPublicationPermit(permitWire,permission,stage.record(),owner,pid(),memory);
+    publicationMayExist=true; // Errors after entry cannot prove media stayed absent.
+    const auto outcome=permit.publish(stage,owner,pid());
+    const auto result=nlohmann::json({{"protocol","sc-saved-restoration-result-v2"},{"workerPid",pid()},
+        {"published",outcome.published},{"receiptPublished",outcome.receiptPublished},
+        {"postCommitFlushFailed",outcome.postCommitFlushFailed},{"durability",static_cast<unsigned>(outcome.durability)}}).dump();
+    check(result.size()<=readyMaximum,"Saved publication result exceeds bank");std::cout<<result<<std::endl;return std::cout?0:1;
+#else
     stagingMayExist=true;auto stage=SavedRestorationStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum,{}, {},observer);
     stage.reverify();auto record=encodeSavedRestorationRecord(stage.record(),SavedRestorationPhase::Planned,memory);
     const auto result=nlohmann::json({{"protocol","sc-saved-staging-result-v1"},{"workerPid",pid()},{"published",false},{"recordHex",hex(record.bytes())}}).dump();
     check(result.size()<=readyMaximum,"Saved staging result exceeds bank");std::cout<<result<<std::endl;return std::cout?0:1;
-}catch(const ProjectError &e){std::cerr<<nlohmann::json({{"protocol","sc-saved-staging-error-v1"},{"workerPid",pid()},{"published",false},{"stagingMayExist",stagingMayExist},{"errorCode",static_cast<unsigned>(e.code())}}).dump()<<std::endl;return 1;
-}catch(const std::exception &){std::cerr<<nlohmann::json({{"protocol","sc-saved-staging-error-v1"},{"workerPid",pid()},{"published",false},{"stagingMayExist",stagingMayExist},{"errorCode",static_cast<unsigned>(ErrorCode::Io)}}).dump()<<std::endl;return 1;}}
+#endif
+}catch(const ProjectError &e){failure(e.code(),stagingMayExist,publicationMayExist);return 1;
+}catch(const std::exception &){failure(ErrorCode::Io,stagingMayExist,publicationMayExist);return 1;}}
