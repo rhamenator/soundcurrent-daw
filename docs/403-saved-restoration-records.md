@@ -15,7 +15,8 @@ historical evidence. They do not prove a live process, current controller,
 finite audio decode, source access, staging custody or publication permission.
 No native source/root path or handle is serialized; sourceRootsPersisted must be
 false. A published phase is an encoded marker, not an action or independent proof
-that canonical media exists.
+that canonical media exists. Encoding permits planned-to-published and repeat
+markers, and rejects a published-to-planned regression.
 
 The serialized I/O caller must independently capture the actual current owner,
 observed process, project/asset, fresh operation and qualified source extent/hash.

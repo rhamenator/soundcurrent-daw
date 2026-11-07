@@ -48,6 +48,7 @@ SavedRestorationRecord SavedRestorationRecord::planned(const SavedRestorationRec
 OwnedInspectionProtocol encodeSavedRestorationRecord(const SavedRestorationRecord &record,SavedRestorationPhase phase,ResourceLedger memory,std::stop_token stop) {
     poll(stop);check(record.ownedBy(memory),"Unadmitted restoration record");validate(record.data());
     check(phase==SavedRestorationPhase::Planned || phase==SavedRestorationPhase::Published,"Invalid restoration publication phase");
+    check(phase!=SavedRestorationPhase::Planned || record.data().phase==SavedRestorationPhase::Planned,"Saved restoration phase regression");
     auto work=memory.reserve(savedRestorationRecordParserCharge);auto output=memory.reserve(savedRestorationRecordMaximumBytes+1024);
     const auto &d=record.data();
     auto bytes=nlohmann::json({{"schema","sc-saved-asset-restoration-v1"},{"phase",static_cast<unsigned>(phase)},

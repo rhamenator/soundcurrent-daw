@@ -814,6 +814,9 @@ void savedRestorationRecords(){
         auto decoded=decodeSavedRestorationRecord(wire.bytes(),memory);verify(decoded);++checks;
         const auto published=encodeSavedRestorationRecord(record,SavedRestorationPhase::Published,memory);auto historical=decodeSavedRestorationRecord(published.bytes(),memory);
         verify(historical,SavedRestorationPhase::Published);++checks;savedRecordRefuses([&]{verify(historical);});
+        savedRecordRefuses([&]{encodeSavedRestorationRecord(historical,SavedRestorationPhase::Planned,memory);});
+        const auto repeated=encodeSavedRestorationRecord(historical,SavedRestorationPhase::Published,memory);
+        auto repeatedRecord=decodeSavedRestorationRecord(repeated.bytes(),memory);verify(repeatedRecord,SavedRestorationPhase::Published);++checks;
         savedRecordRefuses([&]{SavedRestorationRecord::planned(historical.data(),memory);});
         for(unsigned field=0;field<8;++field){auto stale=current;
             if(field==0)++stale.source.projectEpoch;
