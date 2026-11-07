@@ -173,7 +173,7 @@ struct SavedStagingCompletion {
     bool reaped=false,requestSent=false,stagingMayExist=false,recordVerified=false,stagedBytesVerified=false;
     std::optional<bool> normalExit; // Present only after an actually reaped child; exitCode alone is not normal-exit proof.
     bool killRequested=false; // An issued request, not attribution if exit raced it.
-    bool launchAttempted=false,launchRetired=false,qualificationProbeFailed=false;
+    bool launchAttempted=false,launchRetired=false,qualificationProbeFailed=false,cancellationObserved=false;
     std::optional<ErrorCode> error;
 };
 struct ControllerSnapshot {
@@ -250,7 +250,7 @@ struct ControllerOptions {
     std::function<std::uint64_t()> savedStagingNowMilliseconds = {}; // Thread-safe qualification clock; called on I/O and watchdog, never untrusted metadata.
     std::function<void()> savedStagingBeforeSourceChunk = {},savedStagingBeforeDestination = {};
     std::function<void(std::string_view)> savedStagingDiagnosticHook = {}; // Qualification only.
-    std::function<void(bool reaped)> savedStagingRetirementProbe = {}; // Qualification with native pins held, before kill and after reap.
+    std::function<void(bool launchRetired)> savedStagingRetirementProbe = {}; // Native pins held before kill and after QProcess retirement; confirmed PID/reap stays separate.
     std::function<void()> savedStagingAfterNativeRetirement = {},savedStagingAfterVerification = {},savedStagingAfterLaunch = {};
     std::string savedStagingFixtureMode = {}; // Qualification only; production worker rejects this argument.
     std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};

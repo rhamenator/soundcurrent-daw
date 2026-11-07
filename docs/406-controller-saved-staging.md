@@ -28,8 +28,12 @@ Audit pins, approved selected source and native destination, original control an
 checker bytes live outside exception scopes. They remain held through kill and
 actual reap even when cancellation, expiry or malformed output throws. The
 watchdog joins before those owners are explicitly reset; their admitted credit
-outlives the owners. Native qualification probes check parent pins before kill,
-after reap, and their release afterwards. Admission reserves the
+outlives the owners. Native qualification probes check pins before kill/launch retirement and their
+release afterwards, including cancellation while QProcess is still Starting.
+Linux /proc descriptors isolate parent ownership. On Windows, pre-kill sharing
+denial in a mid-write child can include child pins; unsent-input and post-reap
+probes isolate the parent. No parent-only claim is made for the mixed Windows
+mid-write pre-kill observation. Admission reserves the
 512 MiB child policy plus framing/parser credit in the parent's same ledger and
 scope. Native filesystem I/O remains cooperative around OS calls; this admission
 is not a process RSS sandbox or a guarantee about an uninterruptible OS call.
@@ -38,8 +42,10 @@ source to the 20,000 millisecond base, saturating safely at the configured
 30-minute maximum. A 1 GiB selection therefore has 17 minutes 24 seconds for all
 parent/child work rather than the small-file base alone. This is a bounded policy,
 not a claim that every storage device or maximum-size file has been qualified.
-Qualification can disable the size allowance and use an independently controlled
-clock to exercise expiry without requiring a fast host to reach a spawn seam.
+Every intentionally paused qualification group disables the size allowance and
+uses a frozen clock; expiry groups advance that clock explicitly. Their outer
+CTest and await deadlines remain unchanged. An artificial pause cannot turn an
+intended cancellation into a wall-clock expiry on a loaded runner.
 
 A maximum-width native PID is used to preflight the complete request extent
 before spawn. The actual observed bounded PID then replaces that placeholder.
@@ -81,7 +87,9 @@ Test workers are built only under BUILD_TESTING. Their compile-time-only modes
 exercise actual mid-write retirement, stdout/stderr overflow and unsuccessful or
 empty/diagnostic zero exits; none can activate in the production worker. A late
 cancel/close after all I/O verification is checked again by the serialized control
-completion and cannot publish positive staging verification.
+completion and cannot publish positive staging verification. If a genuine I/O
+failure preceded that late signal, the first error remains and a separate
+cancellation-observed fact records the later cancel/close.
 
 The command and separate completion/refusal snapshots are internal controller
 foundations, not new GUI controls. Single-use live publication permission,

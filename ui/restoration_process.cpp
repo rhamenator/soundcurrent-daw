@@ -260,11 +260,11 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         poll();out.stagedBytesVerified=true;
         if(options.savedStagingAfterVerification)options.savedStagingAfterVerification(); // Final control-thread cancel/close ordering is checked by finishIo.
     }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled && !closing.load(std::memory_order_acquire) && !cancel.load(std::memory_order_acquire) && expired())out.error=ErrorCode::Io;}catch(const std::exception &){out.error=ErrorCode::Io;}
-    const auto probe=[&](bool reaped){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(reaped);}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}};
-    if(child.state()!=QProcess::NotRunning){if(out.childPid)probe(false);out.killRequested=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    const auto probe=[&](bool launchRetired){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(launchRetired);}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}};
+    if(child.state()!=QProcess::NotRunning){probe(false);out.killRequested=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
     out.launchRetired=out.launchAttempted && child.state()==QProcess::NotRunning;
     if(out.childPid){out.childExit=child.exitCode();out.reaped=true;out.normalExit=child.exitStatus()==QProcess::NormalExit;} // Actual QProcess retirement on every launched-child path.
-    if(out.reaped)probe(true); // Both parent native pins and selected source still live AFTER child retirement.
+    if(out.launchRetired)probe(true); // Pins also survive a retired Starting attempt with no confirmed PID.
     watchdog.request_stop();if(watchdog.joinable())watchdog.join();
     sourceOwner.reset();sourceRootOwner.reset();destinationOwner.reset();auditOwner.reset();controlOwner.reset();reportOwner.reset();
     try{if(options.savedStagingAfterNativeRetirement)options.savedStagingAfterNativeRetirement();}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}

@@ -1056,9 +1056,13 @@ struct ProjectController::State : QThread {
         if(result.job.operation==IoOperation::StageSavedRestoration) {
             auto value=std::move(result.savedStaging);value.request=result.job.savedStagingRequest;value.job=result.job.savedStagingJob;
             value.preparationJob=result.job.savedPreparation->request->job;value.error=result.error;
-            if(closing.load(std::memory_order_acquire) || io.restorationCancel.load(std::memory_order_acquire))value.error=ErrorCode::Canceled;
-            else if(view.savedStagingJob!=value.job || view.projectEpoch!=result.job.projectEpoch || view.modelRevision!=result.job.revision ||
-                view.root!=result.job.root || view.session!=result.job.session)value.error=ErrorCode::InvalidState;
+            const bool canceled=closing.load(std::memory_order_acquire) || io.restorationCancel.load(std::memory_order_acquire);
+            value.cancellationObserved=canceled || value.error==ErrorCode::Canceled;
+            if(!value.error) {
+                if(canceled)value.error=ErrorCode::Canceled;
+                else if(view.savedStagingJob!=value.job || view.projectEpoch!=result.job.projectEpoch || view.modelRevision!=result.job.revision ||
+                    view.root!=result.job.root || view.session!=result.job.session)value.error=ErrorCode::InvalidState;
+            }
             if(value.error){value.recordVerified=false;value.stagedBytesVerified=false;}
             view.savedStagingCompleted=std::move(value);
             if(view.savedStagingCompleted.error)error(*view.savedStagingCompleted.error,view.savedStagingCompleted.stagingMayExist ?
