@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/restoration_audit.hpp>
+#include <soundcurrent/saved_publication_audit.hpp>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -52,10 +53,130 @@ void directoryLink(const std::filesystem::path &target,const std::filesystem::pa
     std::filesystem::create_directory_symlink(target,link);
 #endif
 }
+void savedPublicationAudits(const std::filesystem::path &fixture) {
+    const auto bytes=wave();const auto input=fixture/"saved-input";write(input/"source.wav",bytes);
+    ResourceLedger memory(32*1024*1024,"Saved publication audit qualification");
+    ProjectBudget budget;budget.encodedBytes=65536;budget.parserBytes=2*1024*1024;budget.state.memoryBudgetBytes=2*1024*1024;
+    ApprovedMediaRoot sourceRoot(input,memory);auto source=sourceRoot.open("source.wav",1024);
+    Asset asset;asset.relativePath="media/été-Κиїв/nested/take.wav";asset.frames=4;asset.layout={LayoutKind::Mono,1};
+    const auto hash=source.digest();asset.sha256.assign(hash.begin(),hash.end());
+    const CheckedMediaBytes content{52,hash};
+    auto model=makeOneTrackSession("Saved audit","Original");model.assets.push_back(asset);
+    auto unrelated=asset;unrelated.id=Id::generate();unrelated.relativePath="media/absent.wav";model.assets.push_back(unrelated);
+    const SavedRestorationRecordContext context{{0,0,7,9},9,11,13,17};
+    const auto root=[&] {const auto p=fixture/Id::generate().str();write(p/"project.json",encodeProject(model,budget));return p;};
+    const auto record=[&](const std::filesystem::path &p,const Id &op,SavedRestorationRecordContext owner,
+        SavedRestorationPhase phase,std::string_view name) {
+        SavedRestorationRecordData d{op,model.id,asset.id};d.context=owner;d.relativePath=asset.relativePath;
+        d.content=content;d.frames=asset.frames;d.rate=asset.sampleRate;d.layout=asset.layout;
+        auto admitted=SavedRestorationRecord::planned(d,memory);auto encoded=encodeSavedRestorationRecord(admitted,phase,memory);
+        write(p/op.str()/utf8Path(name),encoded.bytes());
+    };
+    const auto audit=[&](const std::filesystem::path &p,const Id &op) {
+        return inspectSavedPublication(p,model.id,asset,content,context,op,1024,memory,budget);
+    };
+    // Warm the strict decoder/native hashing paths before lifetime measurements.
+    {const auto p=root();const auto op=Id::generate();record(p,op,context,SavedRestorationPhase::Planned,"intent.json");auto a=audit(p,op);a.reverify();}
+    const auto baseline=memory.usage();const auto nativeBaseline=handles();
+    for(unsigned state=0;state<6;++state) {
+        const auto p=root();const auto op=Id::generate();record(p,op,context,SavedRestorationPhase::Planned,"intent.json");
+        if(state==1 || state==3 || state==5)write(p/op.str()/"media.partial",bytes);
+        if(state==2 || state==3 || state==4)write(p/utf8Path(asset.relativePath),bytes);
+        if(state>=2)record(p,op,context,SavedRestorationPhase::Published,state==2 ? "receipt.partial" : "receipt.json");
+        const auto before=tree(p);
+        {
+            auto a=audit(p,op);
+            check(a.manifest()==model,"Saved audit passive manifest changed");
+            check(a.intent().context==context && a.intent().context.source.projectEpoch==0,"Saved zero epoch/context lost");
+            check(a.canonical()==((state==2 || state==3 || state==4) ? RestorationMediaObservation::Verified : RestorationMediaObservation::Missing),"Saved canonical observation");
+            check(a.staged()==((state==1 || state==3 || state==5) ? RestorationMediaObservation::Verified : RestorationMediaObservation::Missing),"Saved stage observation");
+            check(a.receipt()==(state<2 ? RestorationReceiptObservation::Missing : state==2 ? RestorationReceiptObservation::Partial : RestorationReceiptObservation::Final),"Saved receipt inferred media");
+            check(a.ownedBy(memory) && !a.ownedBy(ResourceLedger{}),"Saved audit credit scope");
+            auto moved=std::move(a);refuses([&]{a.manifest();});moved.reverify();++checks;
+            std::stop_source stop;stop.request_stop();refuses([&]{moved.reverify(stop.get_token());},ErrorCode::Canceled);
+        }
+        check(tree(p)==before,"Saved audit wrote disk evidence");
+        refuses([&]{ProjectStore(p,budget).load();},ErrorCode::MissingMedia);
+        // Strict accepted-model decoding must never silently accept saved records.
+        refuses([&]{inspectSavedAssetRestoration(p,model.id,asset.id,op,1024,memory,budget);});
+    }
+    const auto p=root();const auto op=Id::generate();record(p,op,context,SavedRestorationPhase::Planned,"intent.json");
+    write(p/utf8Path(asset.relativePath),bytes);record(p,op,context,SavedRestorationPhase::Published,"receipt.json");
+    for(unsigned field=0;field<8;++field) {
+        auto wrong=context;
+        switch(field) {case 0:++wrong.source.projectEpoch;break;case 1:++wrong.source.modelRevision;break;
+            case 2:++wrong.source.request;break;case 3:++wrong.source.job;break;case 4:++wrong.preparationJob;break;
+            case 5:++wrong.request;break;case 6:++wrong.job;break;default:++wrong.workerPid;}
+        refuses([&]{inspectSavedPublication(p,model.id,asset,content,wrong,op,1024,memory,budget);});
+        record(p,op,wrong,SavedRestorationPhase::Published,"receipt.json");refuses([&]{audit(p,op);});
+    }
+    record(p,op,context,SavedRestorationPhase::Published,"receipt.json");
+    auto wrong=asset;wrong.frames=3;refuses([&]{inspectSavedPublication(p,model.id,wrong,content,context,op,1024,memory,budget);});
+    wrong=asset;wrong.nativeEvidence.push_back({"media/evidence.json",asset.sha256,52});
+    refuses([&]{inspectSavedPublication(p,model.id,wrong,content,context,op,1024,memory,budget);});
+    auto changed=content;++changed.bytes;refuses([&]{inspectSavedPublication(p,model.id,asset,changed,context,op,1024,memory,budget);});
+    changed=content;changed.sha256[0]=changed.sha256[0]=='a' ? 'b' : 'a';
+    refuses([&]{inspectSavedPublication(p,model.id,asset,changed,context,op,1024,memory,budget);});
+    refuses([&]{inspectSavedPublication(p,Id::generate(),asset,content,context,op,1024,memory,budget);});
+    refuses([&]{audit(p,Id::generate());},ErrorCode::MissingMedia);
+    refuses([&]{inspectSavedPublication(p,model.id,asset,content,context,op,32,memory,budget);},ErrorCode::ResourceLimit);
+    refuses([&]{inspectSavedPublication(p,model.id,asset,content,context,op,1024,ResourceLedger(64),budget);},ErrorCode::ResourceLimit);
+    auto tiny=budget;tiny.encodedBytes=1;refuses([&]{inspectSavedPublication(p,model.id,asset,content,context,op,1024,memory,tiny);},ErrorCode::ResourceLimit);
+    tiny=budget;tiny.parserBytes=memory.usage().limitBytes;
+    refuses([&]{inspectSavedPublication(p,model.id,asset,content,context,op,1024,memory,tiny);},ErrorCode::ResourceLimit);
+    std::stop_source stop;stop.request_stop();
+    refuses([&]{inspectSavedPublication(p,model.id,asset,content,context,op,1024,memory,budget,stop.get_token());},ErrorCode::Canceled);
+    record(p,op,context,SavedRestorationPhase::Published,"receipt.partial");refuses([&]{audit(p,op);});
+    std::filesystem::remove(p/op.str()/"receipt.partial");
+    const auto intent=read(p/op.str()/"intent.json");write(p/op.str()/"intent.json",read(p/op.str()/"receipt.json"));
+    refuses([&]{audit(p,op);});write(p/op.str()/"intent.json",intent);
+    auto corrupt=bytes;corrupt.back()^=1;write(p/utf8Path(asset.relativePath),corrupt);refuses([&]{audit(p,op);},ErrorCode::MediaMismatch);
+    write(p/utf8Path(asset.relativePath),bytes);
+    write(p/op.str()/"media.partial",corrupt);refuses([&]{audit(p,op);},ErrorCode::MediaMismatch);std::filesystem::remove(p/op.str()/"media.partial");
+    {
+        auto a=audit(p,op);write(p/op.str()/"media.partial",bytes);
+        refuses([&]{a.reverify();},ErrorCode::MediaMismatch);
+    }
+    std::filesystem::remove(p/op.str()/"media.partial");
+    {
+        auto a=audit(p,op);
+#ifdef _WIN32
+        const auto h=CreateFileW((p/utf8Path(asset.relativePath)).c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+        check(h==INVALID_HANDLE_VALUE,"Pinned saved canonical allowed Windows mutation");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+        a.reverify();++checks;
+#else
+        write(p/utf8Path(asset.relativePath),corrupt);refuses([&]{a.reverify();},ErrorCode::MediaMismatch);
+#endif
+    }
+    write(p/utf8Path(asset.relativePath),bytes);
+    const auto linked=fixture/"saved-linked-root";directoryLink(p,linked);refuses([&]{audit(linked,op);});std::filesystem::remove(linked);
+    const auto linkRoot=root();directoryLink(p/op.str(),linkRoot/op.str());refuses([&]{audit(linkRoot,op);});std::filesystem::remove(linkRoot/op.str());
+    // Same bytes at a replacement root cannot hide loss of the original root.
+    {
+        auto a=audit(p,op);const auto renamed=fixture/Id::generate().str();std::error_code error;
+        std::filesystem::rename(p,renamed,error);
+        if(error) {
+#ifdef _WIN32
+            check(error.value()==ERROR_ACCESS_DENIED || error.value()==ERROR_SHARING_VIOLATION || error.value()==ERROR_LOCK_VIOLATION,"Unexpected Windows root rename error");
+            a.reverify();++checks;
+#else
+            check(false,"Linux root rename fixture failed");
+#endif
+        } else {
+            std::filesystem::copy(renamed,p,std::filesystem::copy_options::recursive);
+            refuses([&]{a.reverify();},ErrorCode::MediaMismatch);
+        }
+    }
+    const auto noManifest=root();const auto noOp=Id::generate();record(noManifest,noOp,context,SavedRestorationPhase::Planned,"intent.json");
+    std::filesystem::remove(noManifest/"project.json");const auto before=tree(noManifest);
+    refuses([&]{audit(noManifest,noOp);},ErrorCode::MissingMedia);check(tree(noManifest)==before,"Saved audit synthesized manifest");
+    check(memory.usage().reservedBytes==baseline.reservedBytes && memory.usage().owners==baseline.owners && handles()==nativeBaseline,"Saved audit native/credit leak");
+}
 }
 int main() {
     const auto fixture=std::filesystem::temp_directory_path()/utf8Path("sc-restore-Κиїв-")/Id::generate().str();
     try {
+        savedPublicationAudits(fixture);
         const auto bytes=wave();check(bytes.size()==52,"Independent WAVE extent");write(fixture/"input/source.wav",bytes);
         ResourceLedger memory(32*1024*1024,"Restoration audit qualification");
         ProjectBudget budget;budget.encodedBytes=65536;budget.parserBytes=2*1024*1024;budget.state.memoryBudgetBytes=2*1024*1024;
@@ -207,7 +328,7 @@ int main() {
             check(memory.usage().reservedBytes==baseline.reservedBytes && memory.usage().owners==baseline.owners && handles()==nativeBaseline,"Refusal/native audit leaked");
         }
         check(memory.usage().reservedBytes==0 && memory.usage().owners==0,"Final audit credit leak");
-        std::filesystem::remove_all(fixture);std::cout<<checks<<" native read-only restoration audit checks passed (accepted-asset and saved-manifest selectors)\n";return 0;
+        std::filesystem::remove_all(fixture);std::cout<<checks<<" native read-only restoration audit checks passed (accepted-asset, saved-manifest and saved-publication selectors)\n";return 0;
     }catch(const std::exception &e) {
         std::cerr<<e.what()<<'\n';const auto path=fixture.generic_u8string();std::cerr<<"Retained restoration fixture ";
         std::cerr.write(reinterpret_cast<const char *>(path.data()),static_cast<std::streamsize>(path.size()));std::cerr<<'\n';return 1;
