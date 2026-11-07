@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "restoration_audit.hpp"
+#include <functional>
+#include <stop_token>
 namespace soundcurrent::daw {
 struct SavedManifestAuditState;
 class SavedManifestSourceTicket;

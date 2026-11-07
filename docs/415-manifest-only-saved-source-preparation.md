@@ -13,7 +13,12 @@ media is an observation. A fresh named root, original root stamp, pinned and
 current named manifest bytes, and canonical presence/hash are checked again.
 Root paths have at most4096 native units/64 components; media paths keep their
 existing portable limits. Reverification assumes serialized trusted writers,
-not an atomic namespace snapshot against hostile concurrent writers.
+not an atomic namespace snapshot against hostile concurrent writers. Pinned and
+named bytes are hashed independently at admission and before/after source reads;
+large present canonical files therefore incur repeated bounded I/O. Cancellation
+is polled per chunk and this work stays on I/O workers. Windows read pins deny
+concurrent writers until retirement. Concurrent project-folder mutations refuse
+preparation rather than weakening the original fingerprint.
 
 `SavedManifestSourceTicket` captures the original manifest/root/canonical facts,
 selected asset hash, frame count, rate and full layout, selected source leaf and

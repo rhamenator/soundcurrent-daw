@@ -1727,14 +1727,22 @@ void savedManifestPreparation(unsigned mode){
         check(r.projectEpoch==cold->projectEpoch&&r.modelRevision==cold->modelRevision&&r.checkedSourceSha256==f.input->checked->report->audio().sourceSha256,"Manifest-only qualified source identity changed");
         check(physical(f.root)==before,"Manifest-only preparation wrote project/journal/media");
         check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest-only source retained native pins on control");
-        for(unsigned bad=0;bad<5;++bad){auto invalid=manifestSource(f,*cold,2);if(bad==0)invalid.savedManifestSource->request=1;
+        for(unsigned bad=0;bad<8;++bad){auto invalid=manifestSource(f,*cold,2);if(bad==0)invalid.savedManifestSource->request=1;
             if(bad==1)invalid.savedManifestSource.reset();if(bad==2)invalid.path.clear();if(bad==3)++invalid.savedManifestSource->projectEpoch;if(bad==4)invalid.restoration=f.input;
+            if(bad==5)invalid.path=f.root/std::string(4097,'x');
+            if(bad==6)invalid.restorationSource=f.source/std::string(4097,'x');
+            if(bad==7)for(unsigned n=0;n<70;++n)invalid.path/="x";
             const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,invalid);auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
             check(refused->savedManifestPreparedSource==r.job&&refused->savedManifestSourceCompleted.job==r.job,"Bad manifest request spent original private preparation");}
         const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,publishSaved(r.job));auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
         check(refused->savedManifestPreparedSource==r.job&&!refused->savedPublicationCompleted.staging.job,"Manifest-only metadata minted historical publication authority");
     }else {check(r.error.has_value()&&!r.sourcePrepared&&!done->savedManifestPreparedSource&&r.sourceBytes==0,"Unqualified manifest source created readiness");
         if(mode!=15)check(physical(f.root)==before,"Failed manifest preparation mutated saved project");}
+    if(mode==11||mode==14){
+        check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Closed manifest source preparation retained native pins");
+        if(mode==14)check(r.checkerPid&&r.checkerExit==0,"Late close erased actual reaped checker PID/exit facts");
+        else check(!r.checkerPid||r.checkerExit.has_value(),"Close reported checker identity before retirement");
+    }
     if(!close){f.controller->requestShutdown();await(*f.controller,[](const auto &v){return v.closed;});}
     await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
 }

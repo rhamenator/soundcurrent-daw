@@ -80,6 +80,13 @@ void savedManifestAudits(const std::filesystem::path &fixture) {
     refuses([&]{ProjectStore(p,budget).load();},ErrorCode::MissingMedia);
     write(p/utf8Path(asset.relativePath),bytes);
     {auto a=audit(p);check(a.canonical()==RestorationMediaObservation::Verified,"Manifest-only canonical hash not observed");}
+    refuses([&]{inspectSavedManifestAsset(p,model.id,asset.id,bytes.size()-1,memory,budget);},ErrorCode::ResourceLimit);
+    const auto longRoot=p/std::string(4097,'x');refuses([&]{audit(longRoot);},ErrorCode::ResourceLimit);
+    auto deepRoot=p;for(unsigned n=0;n<70;++n)deepRoot/="x";refuses([&]{audit(deepRoot);},ErrorCode::ResourceLimit);
+    const auto originalManifest=read(p/"project.json");auto longManifest=originalManifest;
+    const auto at=longManifest.find(asset.relativePath);check(at!=std::string::npos,"Manifest path fixture token absent");
+    longManifest.replace(at,asset.relativePath.size(),"media/"+std::string(1020,'x'));write(p/"project.json",longManifest);
+    refuses([&]{audit(p);});write(p/"project.json",originalManifest);
     auto corrupt=bytes;corrupt.back()^=1;write(p/utf8Path(asset.relativePath),corrupt);refuses([&]{audit(p);},ErrorCode::MediaMismatch);
     std::filesystem::remove(p/utf8Path(asset.relativePath));
     {auto a=audit(p);write(p/utf8Path(asset.relativePath),bytes);refuses([&]{a.reverify();},ErrorCode::MediaMismatch);}
