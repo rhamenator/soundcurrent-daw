@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "restoration_process.hpp"
 #include <soundcurrent/saved_restoration_record.hpp>
+#include <soundcurrent/saved_manifest_source.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
 #include <soundcurrent/saved_restoration_dispatch.hpp>
 #include <soundcurrent/saved_restoration_permit.hpp>
@@ -1653,6 +1654,98 @@ void savedControllerPublication(unsigned mode){
         }
     }
 }
+void manifestSourceTicketBinding(){
+    Fixture f;const auto before=physical(f.root);ResourceLedger memory(32*1024*1024,"Manifest-only source binding");
+    {
+        WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);const auto idle=checker.snapshot();
+        ProjectBudget budget;budget.encodedBytes=65536;budget.parserBytes=2*1024*1024;budget.state.memoryBudgetBytes=2*1024*1024;
+        auto audit=inspectSavedManifestAsset(f.root,f.initial->session->id,f.asset.id,1024,memory,budget);
+        const auto leaf=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(leaf.data()),leaf.size());
+        const SavedRestorationSourceContext context{0,0,1,idle->job+1};SavedManifestSourceTicket original(audit,name,context,memory);
+        check(checker.submitReplacement(f.source)==Admission::Accepted,"Manifest ticket checker refused");
+        const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+        while(checker.snapshot()->busy){if(std::chrono::steady_clock::now()>end)throw std::runtime_error("Manifest ticket checker deadline");QThread::msleep(1);}
+        auto checked=checker.snapshot();check(checked->report&&checked->childPid&&checked->childExit==0,"Manifest ticket actual checker did not finish");
+        original.verify(audit,*checked->report,context,checked->childPid,memory);++checks;
+        auto moved=std::move(original);savedRecordRefuses([&]{original.verify(audit,*checked->report,context,checked->childPid,memory);});
+        for(unsigned field=0;field<4;++field){auto wrong=context;if(field==0)++wrong.projectEpoch;if(field==1)++wrong.modelRevision;if(field==2)++wrong.request;if(field==3)++wrong.job;
+            savedRecordRefuses([&]{moved.verify(audit,*checked->report,wrong,checked->childPid,memory);});}
+        savedRecordRefuses([&]{moved.verify(audit,*checked->report,context,checked->childPid+1,memory);});
+        savedRecordRefuses([&]{moved.verify(audit,*checked->report,context,checked->childPid,ResourceLedger{});});
+        savedRecordRefuses([&]{moved.verify(audit,*f.input->checked->report,context,f.input->checked->childPid,memory);});
+        {
+            ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto file=selected.openSelectedFilename(f.source.filename(),1024);
+            moved.verifyFile(audit,*checked->report,context,checked->childPid,file,memory);++checks;
+            std::stop_source stop;stop.request_stop();savedRecordRefuses([&]{moved.verifyFile(audit,*checked->report,context,checked->childPid,file,memory,stop.get_token());});
+        }
+        auto changed=f.data;changed.back()^=1;write(f.source,changed);
+        ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto file=selected.openSelectedFilename(f.source.filename(),1024);
+        savedRecordRefuses([&]{moved.verifyFile(audit,*checked->report,context,checked->childPid,file,memory);});
+    }
+    check(memory.usage().reservedBytes==0&&memory.usage().owners==0,"Manifest source binding retained ledger owners");
+    check(physical(f.root)==before,"Manifest source binding wrote saved project/journal");
+}
+ProjectCommand manifestSource(const Fixture &f,const ControllerSnapshot &cold,std::uint64_t request=1){
+    ProjectCommand c{CommandKind::PrepareSavedManifestSource};c.path=f.root;c.restorationSource=f.source;
+    c.savedManifestSource=SavedManifestSourceRequest{f.initial->session->id,f.asset.id,cold.projectEpoch,cold.modelRevision,request};return c;
+}
+void savedManifestPreparation(unsigned mode){
+    ControllerOptions options;std::atomic<bool> reached=false,release=false;std::filesystem::path selected,root;
+    auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
+    if(mode==5)options.restorationSourceReportHook=[&](std::string &,std::size_t){auto data=bytes(selected);data.back()^=1;write(selected,data);};
+    if(mode==9)options.admission.parserBytes=options.memoryBytes;
+    if(mode==10)options.beforeIo=hold;
+    if(mode==11)options.restorationSourceBeforeSpawn=hold;
+    if(mode==12||mode==14)options.restorationInspectionBeforeVerify=hold;
+    if(mode==13)options.restorationSourceCheckerProgram=std::filesystem::temp_directory_path()/"absent-manifest-checker";
+    if(mode==16)options.restorationSourceReportHook=[](std::string &wire,std::size_t pid){auto j=nlohmann::json::parse(wire);j["workerPid"]=pid+1;wire=j.dump();};
+    if(mode==17)options.restorationSourceReportHook=[](std::string &wire,std::size_t){auto j=nlohmann::json::parse(wire);j["relative"]="foreign.wav";wire=j.dump();};
+    if(mode==18)options.restorationSourceReportHook=[](std::string &wire,std::size_t){auto j=nlohmann::json::parse(wire);j["frames"]=3;j["decodedFrames"]=3;wire=j.dump();};
+    if(mode==15)options.restorationSourceReportHook=[&](std::string &,std::size_t){std::filesystem::create_directory(root/"changed");};
+    Fixture f;selected=f.source;root=f.root;
+    if(mode==1)write(f.canonical,f.data);
+    if(mode==2){auto model=*f.initial->session;auto extra=f.asset;extra.id=Id::generate();extra.relativePath="media/also-missing.wav";model.assets.push_back(extra);write(f.root/"project.json",encodeProject(model));}
+    if(mode==3){auto changed=f.data;changed.back()^=1;write(f.source,changed);}
+    if(mode==4){auto model=*f.initial->session;model.assets.front().frames=3;write(f.root/"project.json",encodeProject(model));}
+    if(mode==6)write(f.canonical,"foreign");
+    if(mode==8)std::filesystem::remove(f.root/"project.json");
+    resetCold(f,options);Release guard{release};const auto cold=f.controller->snapshot();const auto baseline=f.controller->memoryResources().reservedBytes;
+    const auto before=physical(f.root);auto c=manifestSource(f,*cold);if(mode==7)c.savedManifestSource->project=Id::generate();submit(*f.controller,c);
+    const bool held=mode==10||mode==11||mode==12||mode==14;
+    if(held){auto active=await(*f.controller,[&](const auto &v){return reached&&v.io==IoOperation::PrepareSavedManifestSource;});coldOwner(*active);
+        if(mode==10||mode==12){ProjectCommand cancel{CommandKind::CancelSavedManifestSource};cancel.savedManifestSourceJob=active->savedManifestSourceJob+1;
+            auto serial=active->errorSerial;submit(*f.controller,cancel);await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+            cancel.savedManifestSourceJob=active->savedManifestSourceJob;submit(*f.controller,cancel);
+            ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=981;submit(*f.controller,barrier);await(*f.controller,[](const auto &v){return v.lastBarrier==981;});
+        }else f.controller->requestShutdown();release=true;
+    }
+    const bool close=mode==11||mode==14;
+    auto done=close?await(*f.controller,[](const auto &v){return v.closed;}):await(*f.controller,[](const auto &v){return v.savedManifestSourceCompleted.request==1&&v.io==IoOperation::None;});
+    const auto &r=done->savedManifestSourceCompleted;coldOwner(*done);
+    check(!done->restorationPreparedSource&&!done->savedStagingCompleted.job&&!done->savedPublicationCompleted.staging.job,"Manifest-only preparation fabricated historical staging/publication owner");
+    if(mode<=2){check(!r.error&&r.sourcePrepared&&done->savedManifestPreparedSource==r.job&&r.checkerJob==1&&r.checkerPid&&r.checkerExit==0&&r.sourceBytes==f.data.size(),"Manifest-only source failed actual checking/private preparation");
+        check(r.projectEpoch==cold->projectEpoch&&r.modelRevision==cold->modelRevision&&r.checkedSourceSha256==f.input->checked->report->audio().sourceSha256,"Manifest-only qualified source identity changed");
+        check(physical(f.root)==before,"Manifest-only preparation wrote project/journal/media");
+        check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest-only source retained native pins on control");
+        for(unsigned bad=0;bad<8;++bad){auto invalid=manifestSource(f,*cold,2);if(bad==0)invalid.savedManifestSource->request=1;
+            if(bad==1)invalid.savedManifestSource.reset();if(bad==2)invalid.path.clear();if(bad==3)++invalid.savedManifestSource->projectEpoch;if(bad==4)invalid.restoration=f.input;
+            if(bad==5)invalid.path=f.root/std::string(4097,'x');
+            if(bad==6)invalid.restorationSource=f.source/std::string(4097,'x');
+            if(bad==7)for(unsigned n=0;n<70;++n)invalid.path/="x";
+            const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,invalid);auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+            check(refused->savedManifestPreparedSource==r.job&&refused->savedManifestSourceCompleted.job==r.job,"Bad manifest request spent original private preparation");}
+        const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,publishSaved(r.job));auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+        check(refused->savedManifestPreparedSource==r.job&&!refused->savedPublicationCompleted.staging.job,"Manifest-only metadata minted historical publication authority");
+    }else {check(r.error.has_value()&&!r.sourcePrepared&&!done->savedManifestPreparedSource&&r.sourceBytes==0,"Unqualified manifest source created readiness");
+        if(mode!=15)check(physical(f.root)==before,"Failed manifest preparation mutated saved project");}
+    if(mode==11||mode==14){
+        check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Closed manifest source preparation retained native pins");
+        if(mode==14)check(r.checkerPid&&r.checkerExit==0,"Late close erased actual reaped checker PID/exit facts");
+        else check(!r.checkerPid||r.checkerExit.has_value(),"Close reported checker identity before retirement");
+    }
+    if(!close){f.controller->requestShutdown();await(*f.controller,[](const auto &v){return v.closed;});}
+    await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
+}
 void savedControllerReconciliation(unsigned mode){
     std::atomic<bool> armed=false,reached=false,release=false;ControllerOptions options;std::filesystem::path staged;
     if(mode==1)options.savedStagingTerminalHook=[](std::string &wire,std::size_t actual){auto j=nlohmann::json::parse(wire);j["workerPid"]=actual+1;wire=j.dump()+"\n";};
@@ -1837,4 +1930,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

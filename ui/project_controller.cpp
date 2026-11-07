@@ -2,6 +2,7 @@
 #include "project_controller.hpp"
 #include "restoration_process.hpp"
 #include <soundcurrent/saved_publication_audit.hpp>
+#include <soundcurrent/saved_manifest_source.hpp>
 #include "autosave_schedule.hpp"
 #include <chrono>
 #include <soundcurrent/native_take_admission.hpp>
@@ -80,6 +81,26 @@ struct SavedSourcePreparation {
         :lease(std::move(grant)),request(std::move(owner)),expectedAsset(asset),manifestSha(manifest),originalRoot(root),
          ticket(std::move(binding)),checked(std::move(report)),protocol(std::move(bytes)) {}
 };
+struct SavedManifestSourceJobData {
+    ResourceLease lease;
+    SavedManifestSourceRequest input;
+    std::filesystem::path root,source;
+    std::uint64_t job;
+    std::stop_token stop;
+    SavedManifestSourceJobData(ResourceLease grant,const SavedManifestSourceRequest &request,
+        std::filesystem::path selectedRoot,std::filesystem::path selectedSource,std::uint64_t id,std::stop_token cancel)
+        :lease(std::move(grant)),input(request),root(std::move(selectedRoot)),source(std::move(selectedSource)),job(id),stop(cancel) {}
+};
+struct SavedManifestPreparation {
+    ResourceLease lease;
+    std::shared_ptr<const SavedManifestSourceJobData> request;
+    SavedManifestSourceTicket ticket;
+    std::shared_ptr<const WaveCheckSnapshot> checked;
+    OwnedInspectionProtocol protocol;
+    SavedManifestPreparation(ResourceLease grant,std::shared_ptr<const SavedManifestSourceJobData> original,
+        SavedManifestSourceTicket binding,std::shared_ptr<const WaveCheckSnapshot> report,OwnedInspectionProtocol bytes)
+        :lease(std::move(grant)),request(std::move(original)),ticket(std::move(binding)),checked(std::move(report)),protocol(std::move(bytes)) {}
+};
 struct IoJob {
     IoOperation operation = IoOperation::None;
     std::filesystem::path root;
@@ -101,11 +122,14 @@ struct IoJob {
     std::uint64_t savedStagingRequest=0,savedStagingJob=0;
     std::uint64_t savedPublicationRequest=0,savedPublicationJob=0;
     SavedRestorationRecordContext savedReconciliationContext;
+    std::shared_ptr<const SavedManifestSourceJobData> manifestSource;
 };
 struct IoResult {
     IoJob job;
     RestorationProcessResult restoration;
     RestorationInspectionCompletion inspection;
+    SavedManifestSourceCompletion manifestSource;
+    std::shared_ptr<const SavedManifestPreparation> manifestPrepared;
     std::shared_ptr<const SavedSourcePreparation> prepared;
     SavedStagingCompletion savedStaging;
     SavedPublicationProcessResult savedPublication;
@@ -174,7 +198,51 @@ class IoWorker : public QThread {
                 if (closing.load(std::memory_order_acquire))
                     throw ProjectError(ErrorCode::Canceled, "Project operation canceled");
                 ProjectStore store(next.root, options.admission);
-                if(next.operation==IoOperation::PublishSavedRestoration) {
+                if(next.operation==IoOperation::PrepareSavedManifestSource) {
+                    const auto &owned=*next.manifestSource;const auto &request=owned.input;
+                    auto audit=inspectSavedManifestAsset(owned.root,request.project,request.asset,
+                        options.restorationInspectionMaximumBytes,*next.restorationMemory,options.admission,owned.stop);
+                    WaveCheckOptions policy;policy.memory=*next.restorationMemory;
+                    policy.maximumSourceBytes=options.restorationInspectionMaximumBytes;
+                    policy.deadlineMilliseconds=options.restorationSourceDeadlineMilliseconds;
+                    policy.beforeSpawn=options.restorationSourceBeforeSpawn;policy.afterChild=options.restorationSourceReportHook;
+                    policy.beforeTerminalPublish=options.restorationSourceBeforeTerminal;
+                    if(!options.restorationSourceCheckerProgram.empty()) {
+                        const auto path=options.restorationSourceCheckerProgram.u8string();
+                        policy.program=QString::fromUtf8(reinterpret_cast<const char *>(path.data()),static_cast<qsizetype>(path.size()));
+                    }
+                    WaveCheckController checker(std::move(policy));const auto idle=checker.snapshot();
+                    if(idle->job || idle->busy || idle->closed)throw ProjectError(ErrorCode::InvalidState,"Manifest checker owner is not fresh");
+                    const auto name=owned.source.filename().u8string();const std::string relative(reinterpret_cast<const char *>(name.data()),name.size());
+                    const SavedRestorationSourceContext context{next.projectEpoch,next.revision,request.request,idle->job+1};
+                    SavedManifestSourceTicket ticket(audit,relative,context,*next.restorationMemory,owned.stop);
+                    if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Manifest source preparation canceled");
+                    if(checker.submitReplacement(owned.source)!=Admission::Accepted)throw ProjectError(ErrorCode::InvalidState,"Manifest checker admission refused");
+                    std::shared_ptr<const WaveCheckSnapshot> checked;
+                    for(;;){
+                        checked=checker.snapshot();if(!checked->busy)break;
+                        if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())checker.requestCancel();
+                        QThread::msleep(10);
+                    }
+                    auto &value=finished.manifestSource;value.checkerJob=checked->job;value.checkerPid=checked->childPid;value.checkerExit=checked->childExit;
+                    if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Manifest source preparation canceled");
+                    if(checked->error)throw ProjectError(*checked->error,"Manifest source checker refused selection");
+                    if(checked->job!=context.job || checked->phase!=WaveCheckPhase::Complete || checked->closed || !checked->childPid ||
+                        checked->childExit!=0 || !checked->report || checked->replacement)throw ProjectError(ErrorCode::InvalidState,"Manifest source checker owner did not complete");
+                    if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
+                    ApprovedMediaRoot sourceRoot(owned.source.parent_path(),*next.restorationMemory,{1});
+                    auto source=sourceRoot.openSelectedFilename(owned.source.filename(),options.restorationInspectionMaximumBytes,owned.stop);
+                    ticket.verifyFile(audit,*checked->report,context,checked->childPid,source,*next.restorationMemory,owned.stop);
+                    auto protocol=checked->report->copyProtocol(*next.restorationMemory,owned.stop);source.verifyUnchanged();
+                    if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Manifest source preparation canceled");
+                    const auto copy=[](const Id &id){std::array<char,36> out{};if(id.str().size()!=out.size())throw ProjectError(ErrorCode::InvalidId,"Invalid manifest source identity");
+                        std::copy(id.str().begin(),id.str().end(),out.begin());return out;};
+                    value.project=copy(audit.manifest().id);value.asset=copy(audit.asset().id);value.manifestSha256=audit.manifestSha256();
+                    value.sourceBytes=checked->report->audio().sourceBytes;value.checkedSourceSha256=checked->report->audio().sourceSha256;value.canonical=audit.canonical();
+                    finished.manifestPrepared=std::make_shared<const SavedManifestPreparation>(next.restorationMemory->reserve(sizeof(SavedManifestPreparation)+4096),
+                        next.manifestSource,std::move(ticket),std::move(checked),std::move(protocol));
+                }
+                else if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
                     runSavedPublicationProcessInto(finished.savedPublication,original.input,original.selectedRoot,original.selectedSource,
                         p.ticket,*p.checked,original.job,next.savedPublicationRequest,next.savedPublicationJob,options,
@@ -435,6 +503,8 @@ struct ProjectController::State : QThread {
     std::uint64_t lastRestorationRequest=0,lastRestorationJob=0;
     std::uint64_t lastInspectionRequest=0,lastInspectionJob=0;
     std::shared_ptr<const SavedSourcePreparation> preparedSource;
+    std::shared_ptr<const SavedManifestPreparation> manifestPreparedSource;
+    std::uint64_t lastManifestSourceRequest=0,lastManifestSourceJob=0;
     std::uint64_t lastSavedStagingRequest=0,lastSavedStagingJob=0;
     std::uint64_t lastSavedPublicationRequest=0,lastSavedPublicationJob=0;
     // Retain the original admitted private preparation, not a completion DTO.
@@ -489,6 +559,7 @@ struct ProjectController::State : QThread {
     void startIo(IoJob job) {
         io.startJob(std::move(job)); // Refusal leaves the previous private preparation intact.
         preparedSource.reset();view.restorationPreparedSource=0;
+        manifestPreparedSource.reset();view.savedManifestPreparedSource=0;
     }
     void requireModel() const {
         if (!model)
@@ -566,9 +637,9 @@ struct ProjectController::State : QThread {
         return bytes.bytes();
     }
     void execute(ProjectCommand &command) {
-        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration || view.io==IoOperation::PublishSavedRestoration;
+        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration || view.io==IoOperation::PublishSavedRestoration || view.io==IoOperation::PrepareSavedManifestSource;
         const bool passive=command.kind==CommandKind::Barrier || command.kind==CommandKind::CancelAssetRestoration ||
-            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging || command.kind==CommandKind::CancelSavedPublication;
+            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging || command.kind==CommandKind::CancelSavedPublication || command.kind==CommandKind::CancelSavedManifestSource;
         if(view.savedPublicationNeedsReconciliation && command.kind!=CommandKind::Barrier &&
             command.kind!=CommandKind::ReconcileSavedPublication && command.kind!=CommandKind::CancelAssetRestorationInspection)
             throw ProjectError(ErrorCode::InvalidState,"Saved publication requires fresh reconciliation before another command");
@@ -576,6 +647,36 @@ struct ProjectController::State : QThread {
             command.kind!=CommandKind::InspectAssetRestoration && command.kind!=CommandKind::ReconcileAssetRestoration))
             throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
         switch (command.kind) {
+        case CommandKind::PrepareSavedManifestSource: {
+            if(model || view.session || !view.root.empty() || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
+                !command.savedManifestSource || command.path.empty() || !command.path.is_absolute() || command.path.native().size()>4096 ||
+                command.restorationSource.empty() || !command.restorationSource.is_absolute() || command.restorationSource.native().size()>4096 ||
+                command.restoration || command.restorationInspection || lastManifestSourceJob==UINT64_MAX)
+                throw ProjectError(ErrorCode::InvalidState,"Manifest source preparation needs an empty owner and explicit selections");
+            for(const auto *path:{&command.path,&command.restorationSource}){
+                std::size_t components=0;for(const auto &part:*path){(void)part;
+                    if(++components>64)throw ProjectError(ErrorCode::ResourceLimit,"Manifest source selection component limit");}
+            }
+            const auto &request=*command.savedManifestSource;
+            if(!request.request || request.request<=lastManifestSourceRequest || request.projectEpoch!=view.projectEpoch || request.modelRevision!=view.modelRevision)
+                throw ProjectError(ErrorCode::InvalidState,"Stale manifest source preparation request");
+            PayloadCharge metadata("Manifest source request",SIZE_MAX);metadata.add(sizeof(SavedManifestSourceJobData)+4096);
+            metadata.add(command.path.native().capacity(),sizeof(std::filesystem::path::value_type)*8);
+            metadata.add(command.restorationSource.native().capacity(),sizeof(std::filesystem::path::value_type)*8);metadata.add(128);
+            const auto jobId=lastManifestSourceJob+1;std::stop_source cancel;
+            auto owned=std::make_shared<const SavedManifestSourceJobData>(memory.reserve(metadata.bytes()),request,
+                std::move(command.path),std::move(command.restorationSource),jobId,cancel.get_token());
+            IoJob job{IoOperation::PrepareSavedManifestSource,view.root,view.session,view.modelRevision};job.projectEpoch=view.projectEpoch;
+            job.restorationMemory=memory;job.manifestSource=std::move(owned);
+            QMutexLocker permission(&io.restorationPermitMutex);
+            if(closing.load(std::memory_order_acquire))throw ProjectError(ErrorCode::Canceled,"Manifest source preparation closing");
+            io.inspectionStop=std::move(cancel);startIo(std::move(job));
+            lastManifestSourceJob=jobId;lastManifestSourceRequest=request.request;view.savedManifestSourceJob=jobId;view.io=IoOperation::PrepareSavedManifestSource;break;
+        }
+        case CommandKind::CancelSavedManifestSource:
+            if(view.io!=IoOperation::PrepareSavedManifestSource || !command.savedManifestSourceJob || command.savedManifestSourceJob!=view.savedManifestSourceJob)
+                throw ProjectError(ErrorCode::InvalidState,"Manifest source cancellation owner differs");
+            {QMutexLocker permission(&io.restorationPermitMutex);io.inspectionStop.request_stop();}break;
         case CommandKind::ReconcileSavedPublication: {
             if(!view.savedPublicationNeedsReconciliation || !savedPublicationOwner || model || view.session || !view.root.empty() ||
                 view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken || !command.restorationInspection ||
@@ -1135,6 +1236,20 @@ struct ProjectController::State : QThread {
     }
     void finishIo(IoResult result) {
         view.io = IoOperation::None;
+        if(result.job.operation==IoOperation::PrepareSavedManifestSource) {
+            const auto &owned=*result.job.manifestSource;auto value=result.manifestSource;
+            value.request=owned.input.request;value.job=owned.job;value.projectEpoch=result.job.projectEpoch;value.modelRevision=result.job.revision;value.error=result.error;
+            QMutexLocker permission(&io.restorationPermitMutex);
+            if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())value.error=ErrorCode::Canceled;
+            else if(model || view.session || !view.root.empty() || view.savedManifestSourceJob!=owned.job ||
+                view.projectEpoch!=result.job.projectEpoch || view.modelRevision!=result.job.revision || view.root!=result.job.root || view.session!=result.job.session)
+                value.error=ErrorCode::InvalidState;
+            if(!value.error){if(!result.manifestPrepared || result.manifestPrepared->request!=result.job.manifestSource)value.error=ErrorCode::InvalidState;
+                else {manifestPreparedSource=std::move(result.manifestPrepared);view.savedManifestPreparedSource=owned.job;value.sourcePrepared=true;}}
+            if(value.error){value.sourcePrepared=false;value.checkedSourceSha256={};value.manifestSha256={};value.canonical.reset();value.sourceBytes=0;
+                error(*value.error,"Saved manifest source preparation failed");}
+            view.savedManifestSourceCompleted=value;return;
+        }
         if(result.job.operation==IoOperation::InspectAssetRestoration) {
             const auto &owned=*result.job.inspection;const auto &request=owned.input;
             auto value=result.inspection;value.request=request.request;value.job=owned.job;
@@ -1447,6 +1562,8 @@ struct ProjectController::State : QThread {
                 } catch (const ProjectError &e) {
                     if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration || command->kind==CommandKind::ReconcileSavedPublication)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,e.code(),"Restoration inspection owner refused"};
+                    if(command->kind==CommandKind::PrepareSavedManifestSource)
+                        view.savedManifestSourceRejected={command->savedManifestSource?command->savedManifestSource->request:0,e.code(),"Manifest source owner refused"};
                     if(command->kind==CommandKind::PublishSavedRestoration)
                         view.savedPublicationRejected={command->savedPublicationRequest,e.code(),"Saved publication owner refused"};
                     if(command->kind==CommandKind::StageSavedRestoration)
@@ -1478,6 +1595,8 @@ struct ProjectController::State : QThread {
                 } catch (const std::exception &e) {
                     if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration || command->kind==CommandKind::ReconcileSavedPublication)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,ErrorCode::Io,"Restoration inspection owner refused"};
+                    if(command->kind==CommandKind::PrepareSavedManifestSource)
+                        view.savedManifestSourceRejected={command->savedManifestSource?command->savedManifestSource->request:0,ErrorCode::Io,"Manifest source owner refused"};
                     if(command->kind==CommandKind::PublishSavedRestoration)
                         view.savedPublicationRejected={command->savedPublicationRequest,ErrorCode::Io,"Saved publication owner refused"};
                     if(command->kind==CommandKind::StageSavedRestoration)
@@ -1519,6 +1638,7 @@ struct ProjectController::State : QThread {
         publish();
         io.stopWorker();
         preparedSource.reset();view.restorationPreparedSource=0;
+        manifestPreparedSource.reset();view.savedManifestPreparedSource=0;
         // An already-published save still needs to be reported honestly on close.
         if (auto result = io.takeResult())
             finishIo(std::move(*result));

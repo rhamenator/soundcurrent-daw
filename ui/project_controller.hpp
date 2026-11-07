@@ -12,6 +12,10 @@
 namespace soundcurrent::daw {class VerifiedClipStretch;class VerifiedNativeTake;class VerifiedCompAssemblyAdoption;class PreparedCompTransition;}
 namespace soundcurrent::daw::ui {
 struct AssetRestorationInput;
+struct SavedManifestSourceRequest {
+    Id project,asset;
+    std::uint64_t projectEpoch=0,modelRevision=0,request=0;
+};
 struct RestorationInspectionRequest {
     Id project,asset,operation;
     std::uint64_t projectEpoch=0,modelRevision=0,request=0;
@@ -49,7 +53,9 @@ enum class CommandKind {
     CancelAssetRestorationInspection,
     PublishSavedRestoration,
     CancelSavedPublication,
-    ReconcileSavedPublication
+    ReconcileSavedPublication,
+    PrepareSavedManifestSource,
+    CancelSavedManifestSource
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -113,6 +119,8 @@ struct ProjectCommand {
     std::uint64_t autosaveReviewRequest = 0, autosaveRestoreRequest = 0;
     std::shared_ptr<const AssetRestorationInput> restoration;
     std::uint64_t restorationJob=0; // Cancel only; exact current dispatch identity.
+    std::optional<SavedManifestSourceRequest> savedManifestSource;
+    std::uint64_t savedManifestSourceJob=0; // Cancel only; exact active manifest-only dispatch.
     std::optional<RestorationInspectionRequest> restorationInspection;
     std::uint64_t restorationInspectionJob=0; // Cancel only, exact active dispatch.
     std::filesystem::path restorationSource; // Explicit selected file for saved-source preparation only.
@@ -121,7 +129,7 @@ struct ProjectCommand {
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration, PublishSavedRestoration };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration, PublishSavedRestoration, PrepareSavedManifestSource };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -166,6 +174,17 @@ struct RestorationInspectionCompletion {
     bool ambiguityReleased=false; // Fresh live reconciliation only; never historical publication attribution.
     std::optional<RestorationMediaObservation> canonical,staged;
     std::optional<RestorationReceiptObservation> receipt;
+    std::optional<ErrorCode> error;
+};
+// No operation/journal identity: passive manifest-only source observations.
+struct SavedManifestSourceCompletion {
+    std::uint64_t request=0,job=0,projectEpoch=0,modelRevision=0,checkerJob=0,sourceBytes=0;
+    std::size_t checkerPid=0;
+    std::optional<int> checkerExit;
+    std::array<char,36> project{},asset{};
+    std::array<char,64> manifestSha256{},checkedSourceSha256{};
+    bool sourcePrepared=false;
+    std::optional<RestorationMediaObservation> canonical;
     std::optional<ErrorCode> error;
 };
 // Historical stage-only observations, never publication/current ownership.
@@ -231,6 +250,9 @@ struct ControllerSnapshot {
     AttachmentCompletion restorationInspectionRejected;
     std::uint64_t restorationInspectionJob=0;
     std::uint64_t restorationPreparedSource=0; // Live opaque ID; never publication permission.
+    SavedManifestSourceCompletion savedManifestSourceCompleted;
+    AttachmentCompletion savedManifestSourceRejected;
+    std::uint64_t savedManifestSourceJob=0,savedManifestPreparedSource=0;
     SavedStagingCompletion savedStagingCompleted;
     AttachmentCompletion savedStagingRejected;
     std::uint64_t savedStagingJob=0;
