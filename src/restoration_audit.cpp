@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/restoration_audit.hpp>
 #include <algorithm>
+#include <nlohmann/json.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -298,5 +299,64 @@ void SavedRestorationStage::reverify(std::stop_token stop) {
     verify();s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
     require(s.source.digest(stop)==d.content.sha256 && s.source.size()==d.content.bytes,"Saved stage source changed",ErrorCode::MediaMismatch);
     verify();poll(stop);
+}
+} // namespace soundcurrent::daw
+
+namespace soundcurrent::daw {
+namespace {
+std::string controlHex(std::string_view bytes){constexpr char digits[]="0123456789abcdef";std::string out;out.reserve(bytes.size()*2);
+    for(unsigned char c:bytes){out+=digits[c>>4];out+=digits[c&15];}return out;}
+std::string controlUnhex(const nlohmann::json &j,std::size_t maximum){require(j.is_string(),"Invalid saved control hex type");const auto &v=j.get_ref<const std::string &>();
+    require(v.size()<=maximum*2 && v.size()%2==0,"Saved control hex limit");auto digit=[](char c)->unsigned {
+        if(c>='0'&&c<='9')return unsigned(c-'0');
+        if(c>='a'&&c<='f')return unsigned(c-'a'+10);
+        throw ProjectError(ErrorCode::InvalidState,"Invalid saved control hex");};
+    std::string out;out.reserve(v.size()/2);for(std::size_t n=0;n<v.size();n+=2)out+=char((digit(v[n])<<4)|digit(v[n+1]));return out;}
+}
+OwnedInspectionProtocol SavedRestorationSourceTicket::copyControlProtocol(RestorationAudit &audit,const WaveCheckReport &report,
+    SavedRestorationSourceContext current,std::size_t pid,ResourceLedger memory,std::stop_token stop) const {
+    poll(stop);verifySavedRestorationSourceReport(*this,audit,report,current,pid,memory,stop);
+    auto work=memory.reserve(savedSourceControlMaximumBytes*32);auto output=memory.reserve(savedSourceControlMaximumBytes+1024);
+    std::string fingerprint;fingerprint.reserve(441);
+    for(auto word:root_.identity)for(unsigned n=0;n<8;++n)fingerprint+=char((word>>(n*8))&255);
+    for(const auto &h:hashes_)fingerprint.append(h.data(),h.size());
+    unsigned mask=0;
+    for(unsigned n=0;n<6;++n)if(present_[n])mask|=1U<<n;
+    fingerprint+=char(mask);
+    auto bytes=nlohmann::json({{"schema","sc-saved-source-control-v1"},{"projectEpoch",context_.projectEpoch},{"modelRevision",context_.modelRevision},
+        {"request",context_.request},{"job",context_.job},{"rootAndFilesHex",controlHex(fingerprint)},{"selectedRelativeHex",controlHex(selectedRelative_)},
+        {"sourceSha256",std::string(sourceSha256_.data(),sourceSha256_.size())},{"sourceBytes",sourceBytes_},
+        {"frames",frames_},{"rate",rate_},{"channels",channels_}}).dump();
+    require(bytes.size()<=savedSourceControlMaximumBytes,"Saved source control frame exceeds bank");
+    verifySavedRestorationSourceReport(*this,audit,report,current,pid,memory,stop);poll(stop);return {std::move(output),std::move(bytes)};
+}
+SavedRestorationSourceTicket SavedRestorationSourceTicket::fromControlProtocol(std::string_view bytes,RestorationAudit &audit,
+    const WaveCheckReport &report,SavedRestorationSourceContext current,std::size_t pid,ResourceLedger memory,std::stop_token stop) {
+    poll(stop);require(!bytes.empty()&&bytes.size()<=savedSourceControlMaximumBytes,"Saved source control frame exceeds bank");
+    for(unsigned char c:bytes)require(c&&c<128,"Saved source control must be ASCII JSON");
+    auto work=memory.reserve(savedSourceControlMaximumBytes*32);
+    constexpr std::array<std::string_view,12> fields{"schema","projectEpoch","modelRevision","request","job","rootAndFilesHex","selectedRelativeHex","sourceSha256","sourceBytes","frames","rate","channels"};
+    std::array<bool,12> seen{};
+    try {
+        const auto callback=[&](int depth,nlohmann::json::parse_event_t event,nlohmann::json &v){poll(stop);
+            require(depth<=1&&event!=nlohmann::json::parse_event_t::array_start,"Nested saved source control refused");
+            if(event==nlohmann::json::parse_event_t::key){const auto &key=v.get_ref<const std::string &>();const auto it=std::find(fields.begin(),fields.end(),key);
+                require(it!=fields.end(),"Unknown saved source control key");const auto n=static_cast<std::size_t>(it-fields.begin());require(!seen[n],"Duplicate saved source control key");seen[n]=true;}return true;};
+        const auto j=nlohmann::json::parse(bytes.begin(),bytes.end(),callback);require(j.is_object()&&std::all_of(seen.begin(),seen.end(),[](bool x){return x;})&&j.at("schema")=="sc-saved-source-control-v1","Incomplete saved source control");
+        const auto integer=[&](const char *key){const auto &v=j.at(key);require(v.is_number_unsigned(),"Invalid saved source control integer");return v.get<std::uint64_t>();};
+        require((SavedRestorationSourceContext{integer("projectEpoch"),integer("modelRevision"),integer("request"),integer("job")}==current),"Stale saved source control context");
+        const auto name=controlUnhex(j.at("selectedRelativeHex"),1024),fingerprint=controlUnhex(j.at("rootAndFilesHex"),441);
+        require(fingerprint.size()==441,"Invalid saved source fingerprint extent");
+        SavedRestorationSourceTicket fresh(audit,name,current,memory,stop);std::size_t at=0;
+        for(auto word:fresh.root_.identity){std::uint64_t value=0;for(unsigned n=0;n<8;++n)value|=std::uint64_t(static_cast<unsigned char>(fingerprint[at++]))<<(n*8);
+            require(word==value,"Original saved control root changed",ErrorCode::MediaMismatch);}
+        for(const auto &h:fresh.hashes_)for(char c:h)require(c==fingerprint[at++],"Original saved control pinned content changed",ErrorCode::MediaMismatch);
+        const auto mask=static_cast<unsigned char>(fingerprint[at]);require(mask<64,"Invalid saved control presence mask");
+        for(unsigned n=0;n<6;++n)require(fresh.present_[n]==bool(mask&(1U<<n)),"Original saved control visibility changed",ErrorCode::MediaMismatch);
+        require(j.at("sourceSha256").is_string()&&j.at("sourceSha256").get_ref<const std::string &>()==std::string_view(fresh.sourceSha256_.data(),64)&&
+            integer("sourceBytes")==fresh.sourceBytes_&&integer("frames")==fresh.frames_&&integer("rate")==fresh.rate_&&integer("channels")==fresh.channels_,
+            "Original saved control audio changed",ErrorCode::MediaMismatch);
+        verifySavedRestorationSourceReport(fresh,audit,report,current,pid,memory,stop);poll(stop);return fresh;
+    }catch(const nlohmann::json::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed saved source control");}
 }
 } // namespace soundcurrent::daw
