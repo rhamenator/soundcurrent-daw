@@ -262,6 +262,7 @@ struct ControllerOptions {
     std::filesystem::path savedPublicationWorkerProgram = {};
     std::function<void()> savedPublicationBeforePermit = {},savedPublicationAfterPermit = {};
     std::function<void(std::string &,std::size_t)> savedPublicationReadyHook = {}; // Qualification only.
+    std::function<void()> savedPublicationBeforeReturn = {}; // I/O qualification: deliberately escapes after retirement; caller-owned progress must survive.
     std::function<void()> savedPublicationBeforeFinish = {}; // Control-thread qualification, before final owner/cancel checks; no permission mutex held.
     unsigned savedStagingDeadlineMilliseconds=20000; // Base, unchanged for small selections when size allowance is disabled.
     unsigned savedStagingMillisecondsPerMiB=1000; // Additional trusted I/O allowance from checked source extent.

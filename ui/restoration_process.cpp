@@ -129,12 +129,12 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
     return out;
 }
 namespace {
-SavedStagingCompletion runSavedProcess(const RestorationInspectionRequest &original,
+void runSavedProcess(const RestorationInspectionRequest &original,
     const std::filesystem::path &root,const std::filesystem::path &source,
     const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,std::uint64_t preparationJob,
     std::uint64_t requestId,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
-    const std::atomic<bool> &closing,const std::atomic<bool> &cancel,SavedPublicationProcessResult *publication,QMutex *permissionMutex) {
-    SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel,SavedStagingCompletion &out,SavedPublicationProcessResult *publication,QMutex *permissionMutex) {
+    out.request=requestId;out.job=job;out.preparationJob=preparationJob;
     QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
     // These owners outlive every try-scope and all child failure cleanup.
     std::optional<RestorationAudit> auditOwner;
@@ -329,26 +329,35 @@ SavedStagingCompletion runSavedProcess(const RestorationInspectionRequest &origi
         if(!publication->permitSent)publication->published=false;
         publication->needsReconciliation=publication->permitSent&&(!publication->terminalVerified||!publication->canonicalVerified||!publication->receiptVerified||publication->postCommitFlushFailed||out.error.has_value());
     }
-    return out;
 }
 } // namespace
 SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest &original,const std::filesystem::path &root,
     const std::filesystem::path &source,const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,
     std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
     const std::atomic<bool> &closing,const std::atomic<bool> &cancel){
-    return runSavedProcess(original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,nullptr,nullptr);
+    SavedStagingCompletion out;
+    runSavedProcess(original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,out,nullptr,nullptr);
+    return out;
+}
+void runSavedPublicationProcessInto(SavedPublicationProcessResult &out,const RestorationInspectionRequest &original,const std::filesystem::path &root,
+    const std::filesystem::path &source,const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,
+    std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel,QMutex &permissionMutex){
+    out={}; // Before launch/mutation: facts thereafter belong to the caller.
+    runSavedProcess(original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,out.staging,&out,&permissionMutex);
+    {QMutexLocker lock(&permissionMutex);
+     if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)){
+         out.staging.cancellationObserved=true;if(!out.staging.error)out.staging.error=ErrorCode::Canceled;
+         if(out.permitSent)out.needsReconciliation=true;
+     }}
+    if(options.savedPublicationBeforeReturn)options.savedPublicationBeforeReturn(); // Qualification: caller facts survive an escaping exception.
 }
 SavedPublicationProcessResult runSavedPublicationProcess(const RestorationInspectionRequest &original,const std::filesystem::path &root,
     const std::filesystem::path &source,const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,
     std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
     const std::atomic<bool> &closing,const std::atomic<bool> &cancel,QMutex &permissionMutex){
     SavedPublicationProcessResult out;
-    out.staging=runSavedProcess(original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,&out,&permissionMutex);
-    {QMutexLocker lock(&permissionMutex);
-     if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)){
-         out.staging.cancellationObserved=true;if(!out.staging.error)out.staging.error=ErrorCode::Canceled;
-         if(out.permitSent)out.needsReconciliation=true;
-     }}
+    runSavedPublicationProcessInto(out,original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,permissionMutex);
     return out;
 }
 }

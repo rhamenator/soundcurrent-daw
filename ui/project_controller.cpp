@@ -169,7 +169,7 @@ class IoWorker : public QThread {
                 ProjectStore store(next.root, options.admission);
                 if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
-                    finished.savedPublication=runSavedPublicationProcess(original.input,original.selectedRoot,original.selectedSource,
+                    runSavedPublicationProcessInto(finished.savedPublication,original.input,original.selectedRoot,original.selectedSource,
                         p.ticket,*p.checked,original.job,next.savedPublicationRequest,next.savedPublicationJob,options,
                         *next.restorationMemory,closing,restorationCancel,restorationPermitMutex);
                     finished.error=finished.savedPublication.staging.error;

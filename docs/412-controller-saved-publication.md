@@ -9,7 +9,9 @@ inspection and accepted-restoration DTO inputs refuse. Rejected admission retain
 the previous private preparation and previous completion. Successful I/O admission
 consumes the private preparation once; retry requires a fresh preparation.
 
-The owned I/O job retains the original admitted private preparation, source ticket
+The I/O job owns live process-progress storage before the supervisor is called,
+so even an unexpected escaping epilogue exception cannot discard a sent permit,
+actual PID/operation or observed publication. The owned I/O job retains the original admitted private preparation, source ticket
 and actual checker snapshot and invokes the qualified live supervisor with the
 real controller close/cancel atomics and the same permission mutex used by cancel
 and shutdown. `CancelSavedPublication` requires the exact active publication job.
