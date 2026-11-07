@@ -61,6 +61,7 @@ class StagedMedia {
         CheckedMediaBytes,std::uint64_t,Id,const OwnedInspectionProtocol &,std::stop_token,const StageObserver &);
     static StagedMedia prepareSavedRestorationStage(ApprovedMediaFile &,const std::filesystem::path &,
         CheckedMediaBytes,std::uint64_t,Id,const OwnedInspectionProtocol &,ApprovedDirectoryStamp,std::stop_token,const StageObserver &);
+    void verifyRestorationPublicationNames(ResourceLedger,std::stop_token) const;
     MediaCommitOutcome restoreMissing(std::string_view,const OwnedInspectionProtocol &,const OwnedInspectionProtocol &,
         std::stop_token,const StageObserver &);
     friend StagedMedia stageMediaImpl(ApprovedMediaFile &,const std::filesystem::path &,

@@ -240,6 +240,7 @@ struct SavedRestorationStageState {
     SavedRestorationRecord record;
     ApprovedMediaFile source;
     StagedMedia stage;
+    bool attempted=false;
     SavedRestorationStageState(ResourceLease grant,ResourceLedger resources,RestorationAudit original,
         SavedRestorationRecord evidence,ApprovedMediaFile selected,StagedMedia prepared)
         :lease(std::move(grant)),memory(resources),audit(std::move(original)),record(std::move(evidence)),
@@ -300,6 +301,31 @@ void SavedRestorationStage::reverify(std::stop_token stop) {
     verify();s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
     require(s.source.digest(stop)==d.content.sha256 && s.source.size()==d.content.bytes,"Saved stage source changed",ErrorCode::MediaMismatch);
     verify();poll(stop);
+}
+MediaCommitOutcome SavedRestorationStage::publishForPermit(const std::filesystem::path &root,
+    std::stop_token stop,const StageObserver &observer) {
+    record();auto &s=*state_;require(!s.attempted,"Saved stage already attempted");s.attempted=true;
+    reverify(stop); // Exact ORIGINAL native transition BEFORE publication creates any directories.
+    auto intent=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Planned,s.memory,stop);
+    auto receipt=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Published,s.memory,stop);
+    const auto guard=[&](StageBoundary at,std::uint64_t bytes) {
+        if(observer)observer(at,bytes);
+        if(at==StageBoundary::BeforeCommit) {
+            // Canonical directory creation legitimately changes the parent stamp.
+            // Keep the original root OBJECT and all original pinned/named facts;
+            // never replace the original audit with a newly captured fingerprint.
+            poll(stop);ApprovedMediaRoot named(root,s.memory);
+            const auto original=s.audit.state().stamp,held=s.audit.state().root.directoryStamp(),now=named.directoryStamp();
+            require(original.identity[0]==held.identity[0] && original.identity[1]==held.identity[1] &&
+                now.identity[0]==held.identity[0] && now.identity[1]==held.identity[1],"Saved publication root replaced",ErrorCode::MediaMismatch);
+            s.stage.verifyRestorationPublicationNames(s.memory,stop);
+            s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
+            require(s.source.size()==s.record.data().content.bytes && s.source.digest(stop)==s.record.data().content.sha256,
+                "Saved publication source changed",ErrorCode::MediaMismatch);
+            s.stage.verifyRestorationPublicationNames(s.memory,stop);poll(stop);
+        }
+    };
+    return s.stage.restoreMissing(s.record.data().relativePath,intent,receipt,stop,guard);
 }
 } // namespace soundcurrent::daw
 
@@ -402,9 +428,14 @@ void savedDispatchRoot(const SavedRestorationOwnerView &owner,const SavedRestora
 }
 }
 SavedRestorationDispatchTicket::SavedRestorationDispatchTicket(ResourceLease lease,OwnedInspectionProtocol proof,
-    const SavedRestorationOwnerView &owner,Id history,Id operation,std::size_t pid)
+    const SavedRestorationOwnerView &owner,const RestorationAudit &audit,Id operation,std::size_t pid)
     :lease_(std::move(lease)),originalProof_(std::move(proof)),root_(owner.root),context_(owner.context),
-     history_(std::move(history)),operation_(std::move(operation)),checkerPid_(pid) {}
+     history_(audit.intent().operation),operation_(std::move(operation)),checkerPid_(pid),
+     identity_(operation_,audit.manifest().id,audit.intent().asset) {
+    const auto &a=audit.intent();identity_.relativePath=a.relativePath;identity_.content=a.content;
+    identity_.frames=a.frames;identity_.rate=a.rate;identity_.layout=a.layout;
+    identity_.context={owner.context.source,owner.context.preparationJob,owner.context.request,owner.context.job,0};
+}
 const Id &SavedRestorationDispatchTicket::operation() const {
     require(lease_.bytes()!=0 && originalProof_.chargedBytes()!=0,"Retired saved dispatch ticket");return operation_;
 }
@@ -416,7 +447,22 @@ SavedRestorationDispatchTicket SavedRestorationDispatchTicket::bind(const SavedR
     require(operation!=audit.intent().operation,"Saved dispatch reused historical operation");
     savedDispatchRoot(owner,source,memory,stop);
     auto proof=source.copyControlProtocol(audit,report,owner.context.source,pid,memory,stop);
-    poll(stop);return {std::move(lease),std::move(proof),owner,audit.intent().operation,std::move(operation),pid};
+    poll(stop);return {std::move(lease),std::move(proof),owner,audit,std::move(operation),pid};
+}
+void SavedRestorationDispatchTicket::verifyOwner(const SavedRestorationOwnerView &owner,ResourceLedger memory,std::stop_token stop) const {
+    poll(stop);require(memory.owns(lease_) && originalProof_.ownedBy(memory),"Saved dispatch scope mismatch");
+    savedDispatchOwner(owner,memory,stop);
+    require(owner.root.native()==root_.native() && owner.context==context_,"Stale saved dispatch owner");
+}
+void SavedRestorationDispatchTicket::verifyReady(const SavedRestorationRecord &ready,const SavedRestorationOwnerView &owner,
+    std::size_t pid,ResourceLedger memory,std::stop_token stop) const {
+    verifyOwner(owner,memory,stop);require(pid && pid<=UINT32_MAX && ready.ownedBy(memory),"Saved READY PID/scope mismatch");
+    auto expected=identity_.context;expected.workerPid=pid;const auto &d=ready.data();
+    require(d.context==expected && d.operation==operation_ && d.project==identity_.project && d.asset==identity_.asset &&
+        d.phase==SavedRestorationPhase::Planned && d.relativePath==identity_.relativePath &&
+        d.content.bytes==identity_.content.bytes && d.content.sha256==identity_.content.sha256 &&
+        d.frames==identity_.frames && d.rate==identity_.rate && d.layout==identity_.layout,"Saved READY differs from original dispatch");
+    poll(stop);
 }
 void SavedRestorationDispatchTicket::verify(const SavedRestorationOwnerView &owner,RestorationAudit &audit,
     const SavedRestorationSourceTicket &source,const WaveCheckReport &report,std::size_t pid,

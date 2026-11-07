@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include "restoration_audit.hpp"
+#include "saved_restoration_record.hpp"
 namespace soundcurrent::daw {
 struct SavedRestorationDispatchContext {
     SavedRestorationSourceContext source;
@@ -31,13 +31,19 @@ class SavedRestorationDispatchTicket {
     void verify(const SavedRestorationOwnerView &,RestorationAudit &,const SavedRestorationSourceTicket &,
         const WaveCheckReport &,std::size_t actualCheckerPid,ResourceLedger,std::stop_token = {}) const;
   private:
+    friend class DispatchedSavedRestoration;
+    friend OwnedInspectionProtocol encodeSavedRestorationPublicationPermit(const SavedRestorationDispatchTicket &,
+        const SavedRestorationRecord &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token);
+    void verifyOwner(const SavedRestorationOwnerView &,ResourceLedger,std::stop_token) const;
+    void verifyReady(const SavedRestorationRecord &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token) const;
     SavedRestorationDispatchTicket(ResourceLease,OwnedInspectionProtocol,const SavedRestorationOwnerView &,
-        Id history,Id freshOperation,std::size_t);
+        const RestorationAudit &,Id freshOperation,std::size_t);
     ResourceLease lease_; // Root and proof storage retire before dispatch credit.
     OwnedInspectionProtocol originalProof_;
     std::filesystem::path root_;
     SavedRestorationDispatchContext context_;
     Id history_,operation_;
     std::size_t checkerPid_=0;
+    SavedRestorationRecordData identity_;
 };
 } // namespace soundcurrent::daw

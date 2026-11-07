@@ -182,7 +182,7 @@ void renameExclusive(const Handle &directory,const Handle &file,const char *oldN
         "Cannot exclusively publish owned staging name");
 #endif
 }
-void restorationDirectory(const Handle &parent,std::string_view leaf,Handle &out) {
+void restorationDirectory(const Handle &parent,std::string_view leaf,Handle &out,bool mayCreate=true) {
 #ifdef _WIN32
     std::array<wchar_t,256> name{};
     const auto count=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,leaf.data(),static_cast<int>(leaf.size()),name.data(),255);
@@ -196,13 +196,13 @@ void restorationDirectory(const Handle &parent,std::string_view leaf,Handle &out
     IO_STATUS_BLOCK result{};const auto createFile=std::bit_cast<Create>(entry);
     require(createFile(&out.value,FILE_LIST_DIRECTORY|FILE_ADD_FILE|FILE_ADD_SUBDIRECTORY|FILE_TRAVERSE|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
         &attributes,&result,nullptr,FILE_ATTRIBUTE_DIRECTORY,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-        3,0x21UL,nullptr,0)==0,"Cannot open/create plain restoration directory"); // FILE_OPEN_IF, synchronous directory
+        mayCreate?3:1,0x21UL,nullptr,0)==0,"Cannot open/create plain restoration directory"); // FILE_OPEN_IF, synchronous directory
     plainDirectory(out);
 #else
     const std::string name(leaf);open_how how{};how.flags=O_RDONLY|O_DIRECTORY|O_CLOEXEC;
     how.resolve=RESOLVE_BENEATH|RESOLVE_NO_SYMLINKS|RESOLVE_NO_MAGICLINKS|RESOLVE_NO_XDEV;
     out.value=static_cast<int>(syscall(SYS_openat2,parent.value,name.c_str(),&how,sizeof(how)));
-    if (out.value<0 && errno==ENOENT) {
+    if (mayCreate && out.value<0 && errno==ENOENT) {
         const auto made=mkdirat(parent.value,name.c_str(),0700);
         require(made==0 || errno==EEXIST,"Cannot create restoration directory");
         out.value=static_cast<int>(syscall(SYS_openat2,parent.value,name.c_str(),&how,sizeof(how)));
@@ -442,6 +442,21 @@ StagedMedia StagedMedia::prepareSavedRestorationStage(ApprovedMediaFile &source,
     ApprovedDirectoryStamp before,std::stop_token stop,const StageObserver &observer) {
     return stageMediaImpl(source,root,checked,maximum,std::move(operation),stop,observer,nullptr,true,&intent,&before);
 }
+void StagedMedia::verifyRestorationPublicationNames(ResourceLedger memory,std::stop_token stop) const {
+    operation();const auto &s=*state_;poll(stop);
+    require(memory.owns(s.lease)&&s.restoration&&s.hasIntent&&s.commitAttempted&&!s.committed,"No current saved publication stage",ErrorCode::InvalidState);
+#ifndef _WIN32
+    const auto named=[&](const Handle &parent,const char *name,const Handle &held,bool directory) {
+        struct stat entry{},owner{};
+        require(fstatat(parent.value,name,&entry,AT_SYMLINK_NOFOLLOW)==0 && fstat(held.value,&owner)==0 &&
+            entry.st_dev==owner.st_dev && entry.st_ino==owner.st_ino &&
+            (directory?S_ISDIR(entry.st_mode):S_ISREG(entry.st_mode)&&owner.st_nlink==1),"Saved publication stage name changed",ErrorCode::MediaMismatch);
+    };
+    named(s.parent,s.operation.str().c_str(),s.directory,true);
+    named(s.directory,"intent.json",s.intent,false);named(s.directory,"media.partial",s.file,false);
+#endif
+    poll(stop); // Windows held operation/file handles deny deletion/replacement.
+}
 MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const OwnedInspectionProtocol &intent,
     const OwnedInspectionProtocol &receipt,std::stop_token stop,const StageObserver &observer) {
     operation();auto &s=*state_;
@@ -468,6 +483,16 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
     flush(s.directory);
 #endif
     boundary(observer,StageBoundary::BeforeCommit,s.checked.bytes,stop);
+    // Observer/cancellation work may have yielded. Reopen EVERY canonical parent
+    // without creation and require the names to still select our exact handles.
+    const Handle *namedParent=&s.parent;std::size_t index=0,partBegin=0;
+    for(;;){const auto end=relative.find('/',partBegin);if(end==relative.npos)break;
+        Handle named;restorationDirectory(*namedParent,relative.substr(partBegin,end-partBegin),named,false);
+        const auto actual=detail::nativeDirectoryStamp(named.value),held=detail::nativeDirectoryStamp(directories[index].value);
+        require(actual.identity[0]==held.identity[0]&&actual.identity[1]==held.identity[1],"Restoration destination parent changed",ErrorCode::MediaMismatch);
+        namedParent=&directories[index++];partBegin=end+1;poll(stop);
+    }
+    require(index==count,"Restoration destination parent count changed",ErrorCode::InvalidState);
     verifyRecord(s.intent,intent.bytes(),stop);verifyRecord(pending,receipt.bytes(),stop);
     require(digest(s.file,s.checked.bytes,stop)==s.checked.sha256,"Restoration staged content changed",ErrorCode::MediaMismatch);
     flush(s.file);poll(stop);restoreRename(s.directory,s.file,*parent,relative.substr(begin));

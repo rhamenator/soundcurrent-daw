@@ -21,6 +21,8 @@ class SavedRestorationStage {
     // source, planned intent and staged bytes. Never rebases the original audit.
     void reverify(std::stop_token = {});
   private:
+    friend class DispatchedSavedRestoration;
+    MediaCommitOutcome publishForPermit(const std::filesystem::path &,std::stop_token,const StageObserver &);
     explicit SavedRestorationStage(std::unique_ptr<SavedRestorationStageState>);
     std::unique_ptr<SavedRestorationStageState> state_;
 };
