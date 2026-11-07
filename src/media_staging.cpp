@@ -182,6 +182,21 @@ void renameExclusive(const Handle &directory,const Handle &file,const char *oldN
         "Cannot exclusively publish owned staging name");
 #endif
 }
+std::array<std::uint64_t,8> restorationFileStamp(const Handle &file) {
+#ifdef _WIN32
+    BY_HANDLE_FILE_INFORMATION info{};FILE_BASIC_INFO basic{};
+    require(GetFileInformationByHandle(file.value,&info) && GetFileInformationByHandleEx(file.value,FileBasicInfo,&basic,sizeof(basic)) &&
+        !(info.dwFileAttributes&(FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)),"Cannot inspect restoration file");
+    return {{info.dwVolumeSerialNumber,(std::uint64_t(info.nFileIndexHigh)<<32)|info.nFileIndexLow,
+        (std::uint64_t(info.nFileSizeHigh)<<32)|info.nFileSizeLow,std::uint64_t(basic.LastWriteTime.QuadPart),0,
+        std::uint64_t(basic.ChangeTime.QuadPart),0,info.nNumberOfLinks}};
+#else
+    struct stat info{};require(fstat(file.value,&info)==0&&S_ISREG(info.st_mode),"Cannot inspect restoration file");
+    return {{std::uint64_t(info.st_dev),std::uint64_t(info.st_ino),std::uint64_t(info.st_size),
+        std::uint64_t(info.st_mtim.tv_sec),std::uint64_t(info.st_mtim.tv_nsec),
+        std::uint64_t(info.st_ctim.tv_sec),std::uint64_t(info.st_ctim.tv_nsec),std::uint64_t(info.st_nlink)}};
+#endif
+}
 void restorationDirectory(const Handle &parent,std::string_view leaf,Handle &out,bool mayCreate=true) {
 #ifdef _WIN32
     std::array<wchar_t,256> name{};
@@ -486,6 +501,7 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
     verifyRecord(s.intent,intent.bytes(),stop);verifyRecord(pending,receipt.bytes(),stop);
     require(digest(s.file,s.checked.bytes,stop)==s.checked.sha256,"Restoration staged content changed",ErrorCode::MediaMismatch);
     flush(s.file);poll(stop);
+    const auto mediaAtHash=restorationFileStamp(s.file),intentAtVerification=restorationFileStamp(s.intent);
     boundary(observer,StageBoundary::BeforeRestorationRename,s.checked.bytes,stop);
     // Observer/cancellation work may have yielded. Reopen EVERY canonical parent
     // without creation and require the names to still select our exact handles.
@@ -497,6 +513,8 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
         namedParent=&directories[index++];partBegin=end+1;poll(stop);
     }
     require(index==count,"Restoration destination parent count changed",ErrorCode::InvalidState);
+    require(restorationFileStamp(s.file)==mediaAtHash && restorationFileStamp(s.intent)==intentAtVerification,
+        "Restoration file metadata changed after final verification",ErrorCode::MediaMismatch);
     poll(stop);restoreRename(s.directory,s.file,*parent,relative.substr(begin));
     s.committed=true;MediaCommitOutcome outcome;outcome.published=true;
     try {
