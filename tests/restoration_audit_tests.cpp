@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/restoration_audit.hpp>
 #include <soundcurrent/saved_publication_audit.hpp>
+#include <soundcurrent/saved_manifest_source.hpp>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -52,6 +53,46 @@ void directoryLink(const std::filesystem::path &target,const std::filesystem::pa
 #else
     std::filesystem::create_directory_symlink(target,link);
 #endif
+}
+void savedManifestAudits(const std::filesystem::path &fixture) {
+    const auto bytes=wave();const auto input=fixture/"manifest-input";write(input/"source.wav",bytes);
+    ResourceLedger memory(32*1024*1024,"Manifest-only audit qualification");ProjectBudget budget;
+    budget.encodedBytes=65536;budget.parserBytes=2*1024*1024;budget.state.memoryBudgetBytes=2*1024*1024;
+    ApprovedMediaRoot sourceRoot(input,memory);auto source=sourceRoot.open("source.wav",1024);const auto hash=source.digest();
+    Asset asset;asset.relativePath="media/été-Κиїв/take.wav";asset.frames=4;asset.layout={LayoutKind::Mono,1};asset.sha256.assign(hash.begin(),hash.end());
+    auto model=makeOneTrackSession("No journal","Original");model.assets.push_back(asset);
+    auto absent=asset;absent.id=Id::generate();absent.relativePath="media/unrelated.wav";model.assets.push_back(absent);
+    const auto root=[&]{auto p=fixture/Id::generate().str();write(p/"project.json",encodeProject(model,budget));return p;};
+    const auto audit=[&](const std::filesystem::path &p){return inspectSavedManifestAsset(p,model.id,asset.id,1024,memory,budget);};
+    {auto p=root();auto a=audit(p);a.reverify();++checks;}
+    const auto baseline=memory.usage();const auto nativeBaseline=handles();const auto p=root();
+    const auto before=tree(p);
+    {
+        auto a=audit(p);check(a.manifest()==model && a.asset()==asset && a.canonical()==RestorationMediaObservation::Missing,"Manifest-only descriptor/missing canonical differs");
+        check(a.ownedBy(memory)&&!a.ownedBy(ResourceLedger{}),"Manifest-only audit admission scope");
+        SavedManifestSourceTicket ticket(a,"source.wav",{0,0,1,1},memory);++checks;
+        refuses([&]{SavedManifestSourceTicket bad(a,"source.wav",{0,0,0,1},memory);});
+        refuses([&]{SavedManifestSourceTicket bad(a,"source.wav",{0,0,1,1},ResourceLedger{});});
+        auto moved=std::move(a);refuses([&]{a.manifest();});moved.reverify();++checks;
+        std::stop_source stop;stop.request_stop();refuses([&]{moved.reverify(stop.get_token());},ErrorCode::Canceled);
+    }
+    check(tree(p)==before,"Manifest-only audit created journal/media");
+    refuses([&]{ProjectStore(p,budget).load();},ErrorCode::MissingMedia);
+    write(p/utf8Path(asset.relativePath),bytes);
+    {auto a=audit(p);check(a.canonical()==RestorationMediaObservation::Verified,"Manifest-only canonical hash not observed");}
+    auto corrupt=bytes;corrupt.back()^=1;write(p/utf8Path(asset.relativePath),corrupt);refuses([&]{audit(p);},ErrorCode::MediaMismatch);
+    std::filesystem::remove(p/utf8Path(asset.relativePath));
+    {auto a=audit(p);write(p/utf8Path(asset.relativePath),bytes);refuses([&]{a.reverify();},ErrorCode::MediaMismatch);}
+    std::filesystem::remove(p/utf8Path(asset.relativePath));
+    refuses([&]{inspectSavedManifestAsset(p,Id::generate(),asset.id,1024,memory,budget);});
+    refuses([&]{inspectSavedManifestAsset(p,model.id,Id::generate(),1024,memory,budget);});
+    refuses([&]{inspectSavedManifestAsset(p,model.id,asset.id,1024,ResourceLedger(64),budget);},ErrorCode::ResourceLimit);
+    auto tiny=budget;tiny.encodedBytes=1;refuses([&]{inspectSavedManifestAsset(p,model.id,asset.id,1024,memory,tiny);},ErrorCode::ResourceLimit);
+    std::stop_source stop;stop.request_stop();refuses([&]{inspectSavedManifestAsset(p,model.id,asset.id,1024,memory,budget,stop.get_token());},ErrorCode::Canceled);
+    const auto linked=fixture/"manifest-linked-root";directoryLink(p,linked);refuses([&]{audit(linked);});std::filesystem::remove(linked);
+    const auto saved=read(p/"project.json");write(p/"project.json","{}");refuses([&]{audit(p);});write(p/"project.json",saved);
+    {auto a=audit(p);std::filesystem::create_directory(p/"namespace-change");refuses([&]{a.reverify();},ErrorCode::MediaMismatch);}
+    check(memory.usage().reservedBytes==baseline.reservedBytes && memory.usage().owners==baseline.owners && handles()==nativeBaseline,"Manifest-only audit owner leak");
 }
 void savedPublicationAudits(const std::filesystem::path &fixture) {
     const auto bytes=wave();const auto input=fixture/"saved-input";write(input/"source.wav",bytes);
@@ -176,6 +217,7 @@ void savedPublicationAudits(const std::filesystem::path &fixture) {
 int main() {
     const auto fixture=std::filesystem::temp_directory_path()/utf8Path("sc-restore-Κиїв-")/Id::generate().str();
     try {
+        savedManifestAudits(fixture);
         savedPublicationAudits(fixture);
         const auto bytes=wave();check(bytes.size()==52,"Independent WAVE extent");write(fixture/"input/source.wav",bytes);
         ResourceLedger memory(32*1024*1024,"Restoration audit qualification");
