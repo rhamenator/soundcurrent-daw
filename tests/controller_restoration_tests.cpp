@@ -1583,7 +1583,7 @@ bool nativeReadPin(const std::filesystem::path &path){
 ProjectCommand stageSaved(std::uint64_t preparation,std::uint64_t request=1){ProjectCommand c{CommandKind::StageSavedRestoration};c.savedPreparationJob=preparation;c.savedStagingRequest=request;return c;}
 ProjectCommand publishSaved(std::uint64_t preparation,std::uint64_t request=1){ProjectCommand c{CommandKind::PublishSavedRestoration};c.savedPreparationJob=preparation;c.savedPublicationRequest=request;return c;}
 void savedControllerPublication(unsigned mode){
-    std::atomic<bool> reached=false,release=false;std::atomic<std::uint64_t> clock=0;ControllerOptions options;std::filesystem::path root;
+    std::atomic<bool> reached=false,release=false;std::atomic<std::uint64_t> clock=0;ControllerOptions options;std::filesystem::path root,canonicalPath;
     auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
     options.savedStagingNowMilliseconds=[&]{return clock.load();};options.savedStagingMillisecondsPerMiB=0;
     if(mode==0||mode==5||mode==6)options.savedPublicationBeforePermit=hold;
@@ -1597,10 +1597,10 @@ void savedControllerPublication(unsigned mode){
     if(mode==16)options.savedPublicationAfterPermit=[&]{clock=options.savedStagingDeadlineMilliseconds;};
     if(mode==17)options.savedStagingAfterNativeRetirement=[]{throw std::runtime_error("Publication retirement probe");};
     if(mode==18)options.savedPublicationAfterPermit=[]{throw ProjectError(ErrorCode::Io,"Injected post-permission channel failure");};
-    if(mode==19)options.savedStagingBeforeTerminal=[&]{write(root/"media"/"x.wav","foreign");};
+    if(mode==19)options.savedStagingBeforeTerminal=[&]{write(canonicalPath,"foreign");};
     if(mode==20)options.savedPublicationBeforeFinish=hold;
     if(mode==21)options.savedPublicationBeforeFinish=[]{throw std::runtime_error("Final control qualification failure");};
-    Fixture f;const auto history=stagedOperation(f);root=f.root;const auto expected=*f.initial->session;resetCold(f,options);Release guard{release};
+    Fixture f;const auto history=stagedOperation(f);root=f.root;canonicalPath=f.canonical;const auto expected=*f.initial->session;resetCold(f,options);Release guard{release};
     const auto cold=f.controller->snapshot();submit(*f.controller,prepareSaved(f,*cold,history));const auto ready=finishInspection(f);
     check(!ready->restorationInspectionCompleted.error&&ready->restorationPreparedSource,"Publication controller did not privately prepare source");
     const auto prep=ready->restorationPreparedSource;const auto before=physical(f.root);
