@@ -1060,6 +1060,78 @@ void savedPublicationPermits(unsigned mode){
         check(ProjectStore(f.root).load()==expected,"Independently strict Open differs after saved publication");}
     check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved permit/native stage credit leaked");
 }
+void savedPublicationSupervisor(unsigned mode){
+    Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto expected=*f.initial->session;
+    const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto original=physical(f.root);SavedPublicationProcessResult result;const auto movedRoot=f.owned.path/"moved-supervisor-root";
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
+        const auto native=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(native.data()),native.size());
+        const auto empty=f.controller->snapshot();const SavedRestorationSourceContext context{empty->projectEpoch,empty->modelRevision,611,1};
+        SavedRestorationSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);
+         check(checker.submitReplacement(f.source)==Admission::Accepted,"Supervisor checker refused");checked=finishSource(checker);}
+        check(checked->job==context.job&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,"Supervisor lacks actual checker");
+        RestorationInspectionRequest request{f.initial->session->id,f.asset.id,history,context.projectEpoch,context.modelRevision,context.request};
+        ControllerOptions options;options.restorationInspectionMaximumBytes=1024;options.savedStagingMillisecondsPerMiB=0;
+        std::atomic<bool> closing=false,cancel=false;std::atomic<std::uint64_t> clock=111;QMutex permission;
+        options.savedStagingNowMilliseconds=[&]{return clock.load();};
+        const auto signal=[&](bool close){check(permission.tryLock(),"Saved supervisor callback ran under permission mutex");
+            if(close)closing=true;else cancel=true;permission.unlock();};
+        if(mode==1)cancel=true;if(mode==2)closing=true;
+        if(mode==3)options.savedStagingBeforeSpawn=[&]{signal(false);};
+        if(mode==4)options.savedStagingAfterLaunch=[&]{signal(false);};
+        if(mode==5||mode==6)options.savedPublicationBeforePermit=[&]{signal(mode==6);};
+        if(mode==7||mode==8)options.savedPublicationAfterPermit=[&]{signal(mode==8);};
+        if(mode>=9&&mode<=11)options.savedStagingTerminalHook=[=](std::string &wire,std::size_t pid){auto j=nlohmann::json::parse(wire);
+            if(mode==9)j["protocol"]="wrong";if(mode==10)j["published"]=false;if(mode==11)j["workerPid"]=pid+1;wire=j.dump()+"\n";};
+        if(mode>=12&&mode<=14)options.savedPublicationReadyHook=[=](std::string &wire,std::size_t pid){
+            if(mode==12){auto j=nlohmann::json::parse(wire);j["workerPid"]=pid+1;wire=j.dump();}
+            if(mode==13)wire="{\"workerPid\":"+std::to_string(pid)+","+wire.substr(1);
+            if(mode==14)wire.resize(wire.size()/2);};
+        if(mode==15)options.savedPublicationBeforePermit=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
+        if(mode==16)options.savedStagingAfterVerification=[&]{signal(false);};
+        if(mode==17)options.savedPublicationBeforePermit=[&]{write(f.canonical,"foreign");};
+        if(mode==18)options.savedPublicationWorkerProgram=f.owned.path/"absent-live-worker";
+        if(mode==20)options.savedStagingBeforeSourceChunk=[&]{signal(false);};
+        if(mode==21)options.savedStagingAfterNativeRetirement=[]{throw std::runtime_error("Supervisor retirement probe failure");};
+        if(mode==22)options.savedStagingTerminalHook=[](std::string &wire,std::size_t){wire=std::string(32769,'x')+"\n";};
+        if(mode==23)options.savedPublicationAfterPermit=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
+        if(mode==24)options.savedStagingBeforeTerminal=[&]{std::error_code error;std::filesystem::rename(f.root,movedRoot,error);
+            if(error)throw ProjectError(ErrorCode::Io,"Native parent pin denied root rename");std::filesystem::create_directory(f.root);};
+        const auto admitted=memory.usage();if(mode==19)memory.configure(admitted.reservedBytes+512*1024*1024-1);
+        result=runSavedPublicationProcess(request,f.root,f.source,ticket,*checked,611,612,1,options,memory,closing,cancel,permission);
+        if(mode==19)memory.configure(admitted.limitBytes);
+        const auto &r=result.staging;
+        if(mode==0){check(!r.error&&r.childPid&&r.childExit==0&&r.reaped&&r.normalExit==true&&!r.killRequested&&
+            result.permitSent&&result.terminalVerified&&result.published==true&&result.canonicalVerified&&result.receiptPublished&&
+            result.receiptVerified&&!result.needsReconciliation,"Saved supervisor failed independent successful publication");}
+        else {
+            check(r.error.has_value(),"Saved supervisor refusal lost error");
+            const bool afterPermission=(mode>=7&&mode<=11)||mode==16||mode==17||mode==21||mode==22||mode==23||mode==24;
+            check(result.permitSent==afterPermission,"Saved supervisor permit boundary differs");
+            if(afterPermission)check(result.needsReconciliation,"Saved supervisor lost conservative post-permit latch");
+            else check(result.published==false&&!result.needsReconciliation&&!std::filesystem::exists(f.canonical),"Pre-permit saved refusal invented publication/ambiguity");
+            if(mode==16||mode==21)check(result.terminalVerified&&result.published==true&&result.canonicalVerified&&result.receiptVerified,"Late saved refusal erased real positive observations");
+            else if(mode==24)check(!result.canonicalVerified,"Moved named root qualified canonical bytes");
+            else if(afterPermission)check(!result.published.has_value()&&!result.canonicalVerified,"Ambiguous saved refusal invented absent/verified publication");
+            if(mode==1||mode==2||mode==3||mode==19||mode==20)check(!r.launchAttempted&&!r.childPid&&!r.operation,"Prelaunch saved refusal spawned child");
+            else check(r.launchAttempted&&r.launchRetired,"Saved supervisor failed actual launch retirement");
+            if(r.childPid)check(r.reaped&&r.childExit.has_value()&&r.normalExit.has_value(),"Saved supervisor has PID without actual retirement");
+            if(mode==15||mode==23)check(r.error==ErrorCode::Io,"Saved supervisor expiry category changed");
+            if(mode==19)check(r.error==ErrorCode::ResourceLimit,"Saved supervisor bypassed child admission");
+            if(mode==21)check(r.qualificationProbeFailed,"Saved supervisor lost auxiliary retirement failure");
+        }
+        coldOwner(*f.controller->snapshot());
+    }
+    if(mode==24&&std::filesystem::exists(movedRoot)){check(std::filesystem::remove(f.root),"Cannot retire empty substituted root");std::filesystem::rename(movedRoot,f.root);}
+    const bool knownPublished=mode==0||(mode>=9&&mode<=11)||mode==16||mode==21||mode==22||mode==24;
+    if(knownPublished)check(bytes(f.canonical)==f.data&&ProjectStore(f.root).load()==expected,"Saved supervisor post-retirement canonical/strict Open differs");
+    if(mode==17)check(bytes(f.canonical)=="foreign","Saved supervisor replaced foreign canonical bytes");
+    const auto after=physical(f.root);for(const auto &[path,value]:original)check(after.contains(path)&&after.at(path)==value,"Saved supervisor changed original saved facts");
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved supervisor leaked owner credit");
+}
 void isolatedSavedPublication(unsigned mode){
     Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();const auto original=physical(f.root);const auto expected=*f.initial->session;const auto operation=Id::generate();
     {
@@ -1618,4 +1690,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

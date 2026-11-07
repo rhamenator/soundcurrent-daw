@@ -244,6 +244,9 @@ struct ControllerOptions {
     std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
     std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
     std::filesystem::path savedStagingWorkerProgram = {};
+    std::filesystem::path savedPublicationWorkerProgram = {};
+    std::function<void()> savedPublicationBeforePermit = {},savedPublicationAfterPermit = {};
+    std::function<void(std::string &,std::size_t)> savedPublicationReadyHook = {}; // Qualification only.
     unsigned savedStagingDeadlineMilliseconds=20000; // Base, unchanged for small selections when size allowance is disabled.
     unsigned savedStagingMillisecondsPerMiB=1000; // Additional trusted I/O allowance from checked source extent.
     std::uint64_t savedStagingMaximumDeadlineMilliseconds=30*60*1000;

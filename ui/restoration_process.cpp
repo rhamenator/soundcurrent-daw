@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "restoration_process.hpp"
 #include <soundcurrent/saved_restoration_record.hpp>
+#include <soundcurrent/saved_restoration_permit.hpp>
 #include <QCoreApplication>
 #include <QProcess>
 #include <QFileInfo>
@@ -127,11 +128,12 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
     out.needsReconciliation=out.permitSent&&!out.canonicalVerified;
     return out;
 }
-SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest &original,
+namespace {
+SavedStagingCompletion runSavedProcess(const RestorationInspectionRequest &original,
     const std::filesystem::path &root,const std::filesystem::path &source,
     const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,std::uint64_t preparationJob,
     std::uint64_t requestId,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
-    const std::atomic<bool> &closing,const std::atomic<bool> &cancel) {
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel,SavedPublicationProcessResult *publication,QMutex *permissionMutex) {
     SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
     QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
     // These owners outlive every try-scope and all child failure cleanup.
@@ -139,6 +141,7 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
     std::optional<ApprovedMediaRoot> sourceRootOwner,destinationOwner;
     std::optional<ApprovedMediaFile> sourceOwner;
     std::optional<OwnedInspectionProtocol> controlOwner,reportOwner;
+    std::optional<SavedRestorationDispatchTicket> dispatchOwner;
     const auto now=[&]()->std::uint64_t {return options.savedStagingNowMilliseconds?options.savedStagingNowMilliseconds():
         static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());};
     const auto begun=now();std::uint64_t allowance=options.savedStagingDeadlineMilliseconds;
@@ -186,7 +189,9 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         ticket.verifyRootStamp(destination.directoryStamp(),memory);audit.reverify(stop); // No pathname reopen may reset the original identity.
 
         const auto operation=Id::generate();
-        auto requestPacket=nlohmann::json({{"protocol","sc-saved-staging-worker-v1"},{"project",original.project.str()},{"asset",original.asset.str()},
+        const SavedRestorationOwnerView owner{root,{context,preparationJob,requestId,job}};
+        if(publication){check(permissionMutex,"Saved publication mutex absent");dispatchOwner.emplace(SavedRestorationDispatchTicket::bind(owner,audit,ticket,*checked.report,checked.childPid,operation,memory,stop));}
+        auto requestPacket=nlohmann::json({{"protocol",publication?"sc-saved-restoration-worker-v2":"sc-saved-staging-worker-v1"},{"project",original.project.str()},{"asset",original.asset.str()},
             {"historyOperation",original.operation.str()},{"operation",operation.str()},{"rootHex",hex(rootBytes)},
             {"sourceRootHex",hex(sourceRootBytes)},{"sourceLeafHex",hex(leafBytes)},
             {"sourceControlHex",hex(control.bytes())},{"checkReportHex",hex(report.bytes())},{"checkPid",checked.childPid},
@@ -196,13 +201,14 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         poll();
         if(options.savedStagingBeforeSpawn)options.savedStagingBeforeSpawn();
         poll();
-        QString program=options.savedStagingWorkerProgram.empty()?QCoreApplication::applicationDirPath()+
+        const auto &configuredProgram=publication?options.savedPublicationWorkerProgram:options.savedStagingWorkerProgram;
+        QString program=configuredProgram.empty()?QCoreApplication::applicationDirPath()+
 #ifdef _WIN32
-            QStringLiteral("/sc-saved-restoration-worker.exe"):
+            (publication?QStringLiteral("/sc-saved-restoration-live-worker.exe"):QStringLiteral("/sc-saved-restoration-worker.exe")):
 #else
-            QStringLiteral("/sc-saved-restoration-worker"):
+            (publication?QStringLiteral("/sc-saved-restoration-live-worker"):QStringLiteral("/sc-saved-restoration-worker")):
 #endif
-            QString::fromUtf8(native(options.savedStagingWorkerProgram).c_str());
+            QString::fromUtf8(native(configuredProgram).c_str());
         check(QFileInfo(program).isAbsolute(),"Saved staging worker must be absolute");
         child.setProcessChannelMode(QProcess::SeparateChannels);
         QObject::connect(&child,&QProcess::started,&child,[&]{out.childPid=static_cast<std::size_t>(child.processId());out.stagingMayExist=true;});
@@ -225,7 +231,7 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         requestPacket["workerPid"]=out.childPid;
         const auto wire=requestPacket.dump()+"\n";
         out.requestSent=true;check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Saved staging input channel",ErrorCode::Io);
-        child.closeWriteChannel(); // The child refuses access to roots before exact EOF.
+        if(!publication)child.closeWriteChannel(); // V1 refuses root access before exact EOF; V2 retains its pipe for permission.
         std::string output;output.reserve(32768);std::array<char,32768> errors{};std::size_t errorUsed=0;
         const auto drain=[&]{
             child.setReadChannel(QProcess::StandardError);
@@ -236,8 +242,26 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
             while(child.bytesAvailable()){check(output.size()<32768,"Saved staging stdout overflow",ErrorCode::ResourceLimit);std::array<char,4096> chunk{};
                 const auto n=child.read(chunk.data(),static_cast<qint64>(std::min(chunk.size(),32768-output.size())));check(n>=0,"Saved staging stdout",ErrorCode::Io);if(!n)break;output.append(chunk.data(),static_cast<std::size_t>(n));}
         };
-        while(child.state()!=QProcess::NotRunning){child.waitForReadyRead(20);drain();
-        poll();}
+        bool readySeen=false;
+        while(child.state()!=QProcess::NotRunning){child.waitForReadyRead(20);drain();poll();
+            if(publication&&!readySeen&&output.find('\n')!=output.npos){
+                const auto end=output.find('\n');auto readyWire=output.substr(0,end);output.erase(0,end+1);
+                check(output.empty()&&!errorUsed,"Unexpected saved output before permission");
+                if(options.savedPublicationReadyHook)options.savedPublicationReadyHook(readyWire,out.childPid);
+                auto record=decodeSavedRestorationReady(readyWire,*dispatchOwner,owner,out.childPid,memory,stop);out.recordVerified=true;
+                if(options.savedPublicationBeforePermit)options.savedPublicationBeforePermit();poll();
+                auto permit=encodeSavedRestorationPublicationPermit(*dispatchOwner,record,owner,out.childPid,memory,stop);
+                const auto permission=std::string(permit.bytes())+"\n";poll();
+                // No callback, clock hook or wait under the actual cancel/close
+                // mutex. Admission freezes context; these are real owner flags.
+                {QMutexLocker lock(permissionMutex);
+                 check(!closing.load(std::memory_order_acquire)&&!cancel.load(std::memory_order_acquire)&&!stop.stop_requested(),"Saved publication canceled",ErrorCode::Canceled);
+                 publication->permitSent=true; // BEFORE any possible prefix.
+                 check(child.write(permission.data(),static_cast<qint64>(permission.size()))==static_cast<qint64>(permission.size()),"Saved publication permit channel",ErrorCode::Io);
+                 child.closeWriteChannel();readySeen=true;}
+                if(options.savedPublicationAfterPermit)options.savedPublicationAfterPermit();
+            }
+        }
         out.childExit=child.exitCode();out.reaped=out.childPid!=0;out.normalExit=child.exitStatus()==QProcess::NormalExit;bank.resize(bank.bytes()-childCredit);drain();
         poll();
         check(out.reaped && child.exitStatus()==QProcess::NormalExit && out.childExit==0 && !errorUsed,"Saved staging child refused",ErrorCode::Io);
@@ -246,6 +270,31 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         if(options.savedStagingTerminalHook)options.savedStagingTerminalHook(output,out.childPid);
         poll();
         check(!output.empty() && output.find('\n')==output.size()-1,"Saved staging terminal framing");
+        if(publication){
+            check(readySeen&&publication->permitSent,"Saved publication has no permission");
+            const auto terminal=frame(output,{"protocol","workerPid","published","receiptPublished","postCommitFlushFailed","durability"});
+            check(terminal.at("protocol")=="sc-saved-restoration-result-v2"&&integer(terminal.at("workerPid"))==out.childPid,"Saved publication terminal identity");
+            const auto published=boolean(terminal.at("published")),receipt=boolean(terminal.at("receiptPublished")),flushFailed=boolean(terminal.at("postCommitFlushFailed"));
+            const auto durability=integer(terminal.at("durability"));check(published&&(durability==1||durability==2),"Saved publication terminal outcome");
+#ifdef _WIN32
+            check(durability==1,"Saved Windows durability overstated");
+#endif
+            publication->published=true;publication->receiptPublished=receipt;publication->postCommitFlushFailed=flushFailed;
+            publication->durability=static_cast<unsigned>(durability);publication->terminalVerified=true;
+            const auto &audio=checked.report->audio();CheckedMediaBytes content{audio.sourceBytes,audio.sourceSha256};
+            const auto namedRoot=[&]{ApprovedMediaRoot named(root,memory,{1});const auto currentRoot=named.directoryStamp(),heldRoot=destination.directoryStamp();
+                check(currentRoot.identity[0]==heldRoot.identity[0]&&currentRoot.identity[1]==heldRoot.identity[1],"Saved canonical root replaced",ErrorCode::MediaMismatch);};
+            namedRoot();
+            auto canonical=destination.open(asset->relativePath,options.restorationInspectionMaximumBytes,stop);
+            check(canonical.size()==content.bytes&&canonical.digest(stop,poll)==content.sha256,"Saved canonical bytes differ",ErrorCode::MediaMismatch);
+            canonical.verifyUnchanged();poll();
+            if(receipt){auto file=destination.open(operation.str()+"/receipt.json",savedRestorationRecordMaximumBytes,stop);
+                std::string bytes(static_cast<std::size_t>(file.size()),'\0');file.readAt(0,std::span(bytes),stop);
+                auto record=decodeSavedRestorationRecord(bytes,memory,stop);
+                verifySavedRestorationRecord(record,original.project,*asset,content,current,operation,SavedRestorationPhase::Published,memory,stop);
+                file.verifyUnchanged();poll();}
+            namedRoot();canonical.verifyUnchanged();poll();publication->canonicalVerified=true;publication->receiptVerified=receipt;
+        }else{
         const auto terminal=frame(output,{"protocol","workerPid","published","recordHex"});
         check(terminal.at("protocol")=="sc-saved-staging-result-v1" && integer(terminal.at("workerPid"))==out.childPid && !boolean(terminal.at("published")),"Saved staging terminal identity");
         auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex"),savedRestorationRecordMaximumBytes),memory,stop);
@@ -261,6 +310,7 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         auto intentRecord=decodeSavedRestorationRecord(intentBytes,memory,stop);verifySavedRestorationRecord(intentRecord,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory,stop);
         intentFile.verifyUnchanged();
         poll();out.stagedBytesVerified=true;
+        }
         if(options.savedStagingAfterVerification)options.savedStagingAfterVerification(); // Final control-thread cancel/close ordering is checked by finishIo.
     }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled && !closing.load(std::memory_order_acquire) && !cancel.load(std::memory_order_acquire) && expired())out.error=ErrorCode::Io;}catch(const std::exception &){out.error=ErrorCode::Io;}
     const auto probe=[&](bool launchRetired){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(launchRetired);}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}};
@@ -269,10 +319,36 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
     if(out.childPid){out.childExit=child.exitCode();out.reaped=true;out.normalExit=child.exitStatus()==QProcess::NormalExit;} // Actual QProcess retirement on every launched-child path.
     if(out.launchRetired)probe(true); // Pins also survive a retired Starting attempt with no confirmed PID.
     watchdog.request_stop();if(watchdog.joinable())watchdog.join();
-    sourceOwner.reset();sourceRootOwner.reset();destinationOwner.reset();auditOwner.reset();controlOwner.reset();reportOwner.reset();
+    dispatchOwner.reset();sourceOwner.reset();sourceRootOwner.reset();destinationOwner.reset();auditOwner.reset();controlOwner.reset();reportOwner.reset();
     try{if(options.savedStagingAfterNativeRetirement)options.savedStagingAfterNativeRetirement();}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}
     if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
+    if(publication){
+        try{poll();}catch(const ProjectError &e){if(!out.error)out.error=e.code();}
+        catch(...){if(!out.error)out.error=ErrorCode::Io;}
+        out.cancellationObserved=closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire);
+        if(!publication->permitSent)publication->published=false;
+        publication->needsReconciliation=publication->permitSent&&(!publication->terminalVerified||!publication->canonicalVerified||!publication->receiptVerified||publication->postCommitFlushFailed||out.error.has_value());
+    }
     return out;
 }
-
+} // namespace
+SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest &original,const std::filesystem::path &root,
+    const std::filesystem::path &source,const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,
+    std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel){
+    return runSavedProcess(original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,nullptr,nullptr);
+}
+SavedPublicationProcessResult runSavedPublicationProcess(const RestorationInspectionRequest &original,const std::filesystem::path &root,
+    const std::filesystem::path &source,const SavedRestorationSourceTicket &ticket,const WaveCheckSnapshot &checked,
+    std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,const ControllerOptions &options,ResourceLedger memory,
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel,QMutex &permissionMutex){
+    SavedPublicationProcessResult out;
+    out.staging=runSavedProcess(original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,&out,&permissionMutex);
+    {QMutexLocker lock(&permissionMutex);
+     if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)){
+         out.staging.cancellationObserved=true;if(!out.staging.error)out.staging.error=ErrorCode::Canceled;
+         if(out.permitSent)out.needsReconciliation=true;
+     }}
+    return out;
+}
 }
