@@ -271,7 +271,7 @@ void SavedManifestStage::reverify(std::stop_token stop) {
     record();auto &s=*state_;poll(stop);const auto &d=s.record.data();const auto &a=s.audit.asset();
     require(s.record.ownedBy(s.memory) && s.audit.ownedBy(s.memory) && s.source.ownedBy(s.memory),"Manifest stage scope mismatch");
     require(d.project==s.audit.manifest().id && d.asset==a.id && d.relativePath==a.relativePath &&
-        std::string_view(d.content.sha256.data(),d.content.sha256.size())==a.sourceSha256 &&
+        std::string_view(d.content.sha256.data(),d.content.sha256.size())==a.sha256 &&
         d.frames==a.frames && d.rate==a.sampleRate && d.layout==a.layout &&
         s.audit.canonical()==RestorationMediaObservation::Missing,"Manifest stage changed original asset");
     auto intent=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Planned,s.memory,stop);

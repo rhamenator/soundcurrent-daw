@@ -1745,6 +1745,7 @@ void manifestNativeStage(unsigned mode){
     const auto alternate=f.owned.path/"alternate-manifest-root";
     if(mode==12)std::filesystem::copy(f.root,alternate,std::filesystem::copy_options::recursive);
     const auto originalManifest=bytes(f.root/"project.json"),originalSource=bytes(f.source);
+    bool staged=false;SavedRestorationRecordContext writtenContext{};CheckedMediaBytes writtenContent{};
     {
         auto audit=inspectSavedManifestAsset(f.root,f.initial->session->id,f.asset.id,1024,memory);
         SavedRestorationSourceContext context{0,0,771,1};
@@ -1753,7 +1754,8 @@ void manifestNativeStage(unsigned mode){
         std::shared_ptr<const WaveCheckSnapshot> checked;
         {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);
          check(checker.submitReplacement(f.source)==Admission::Accepted,"Manifest stage checker admission refused");checked=finishSource(checker);}
-        check(checked->report&&checked->childPid&&checked->childExit==0&&!checked->error,"Manifest stage lacks actual checked source");
+        check(checked->job==context.job&&checked->report&&checked->childPid&&checked->childExit==0&&!checked->error,
+            "Manifest stage lacks actual checked source");
 #ifdef _WIN32
         const auto writer=static_cast<std::uint64_t>(GetCurrentProcessId());
 #else
@@ -1776,23 +1778,41 @@ void manifestNativeStage(unsigned mode){
             *checked->report,checked->childPid,current,operation,mode==6?1:1024,{},cancel.get_token(),observer);};
         if(mode>=1&&mode<=13){bool refused=false;try{auto unexpected=prepare();}catch(const ProjectError &e){refused=true;
                 if(mode==6||mode==13)check(e.code()==ErrorCode::ResourceLimit,"Manifest stage budget refusal code");
-                if(mode==7||mode==10)check(e.code()==ErrorCode::Canceled,"Manifest stage cancellation code");}
+                if(mode==7||mode==10)check(e.code()==ErrorCode::Canceled,"Manifest stage cancellation code");
+                if(mode==1||mode==2||mode==3||mode==8||mode==9)check(e.code()==ErrorCode::InvalidState,"Manifest stage owner refusal code");
+                if(mode==4||mode==5||mode==12)check(e.code()==ErrorCode::MediaMismatch,"Manifest stage identity refusal code");}
             check(refused,"Unqualified manifest stage admitted");if(mode==13)memory.configure(baseline.limitBytes);
             if(mode==10)check(boundary&&std::filesystem::exists(f.root/operation.str()/"media.partial"),"Manifest canceled stage lost partial evidence");
             else if(mode!=11)check(!std::filesystem::exists(f.root/operation.str()),"Manifest pre-create refusal wrote operation");
+            if(mode==11)check(std::filesystem::is_empty(f.root/operation.str()),"Manifest reused operation changed original directory");
+            if(mode==12)check(!std::filesystem::exists(alternate/operation.str()),"Manifest wrong-root refusal mutated alternate");
         }else{
             auto stage=prepare();const auto &d=stage.record().data();
             check(d.context==current&&d.project==f.initial->session->id&&d.asset==f.asset.id&&d.operation==operation&&
                 d.phase==SavedRestorationPhase::Planned,"Manifest stage lost fresh identity/context");
-            check(stage.relativePath()==operation.str()+"/media.partial"&&bytes(f.root/stage.relativePath())==originalSource,
-                "Manifest stage did not retain exact source bytes");
-            auto record=decodeSavedRestorationRecord(bytes(f.root/operation.str()/"intent.json"),memory);
-            verifySavedRestorationRecord(record,d.project,f.asset,d.content,current,operation,SavedRestorationPhase::Planned,memory);
+            check(stage.relativePath()==operation.str()+"/media.partial","Manifest stage changed operation path");
+            staged=true;writtenContext=current;writtenContent=d.content;
+#ifdef _WIN32
+            for(const auto &leaf:{"intent.json","media.partial"}) {
+                const auto path=f.root/operation.str()/leaf;
+                const auto h=CreateFileW(path.c_str(),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+                const auto error=h==INVALID_HANDLE_VALUE?GetLastError():ERROR_SUCCESS;
+                if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+                check(h==INVALID_HANDLE_VALUE&&error==ERROR_SHARING_VIOLATION,"Manifest live Windows stage allowed pathname read");
+            }
+#else
+            check(bytes(f.root/stage.relativePath())==originalSource,"Manifest stage did not retain exact source bytes");
+#endif
             stage.reverify();check(nativeReadPin(f.root/"project.json")&&nativeReadPin(f.source),"Manifest stage lost native pins");
             auto moved=std::move(stage);savedRecordRefuses([&]{stage.reverify();},ErrorCode::InvalidState);moved.reverify();
             if(mode==14){std::filesystem::create_directory(f.root/"unowned-after-stage");
                 savedRecordRefuses([&]{moved.reverify();},ErrorCode::MediaMismatch);}
         }
+    }
+    if(staged){
+        check(bytes(f.root/operation.str()/"media.partial")==originalSource,"Retired manifest stage bytes changed");
+        auto record=decodeSavedRestorationRecord(bytes(f.root/operation.str()/"intent.json"),memory);
+        verifySavedRestorationRecord(record,f.initial->session->id,f.asset,writtenContent,writtenContext,operation,SavedRestorationPhase::Planned,memory);
     }
     check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Manifest stage leaked ledger owners");
     check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest stage leaked native pins");
