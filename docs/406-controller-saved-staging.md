@@ -24,7 +24,12 @@ cancellation, closing and the deadline into the stop token passed to every nativ
 audit, proof revalidation, report copy, selected-source hash and post-stage read.
 The source hash also checks the policy before each chunk. A full hash pass is not
 an uninterruptible unit; only an individual native syscall remains cooperative.
-The watchdog is retired before any captured owner or credit. Admission reserves the
+Audit pins, approved selected source and native destination, original control and
+checker bytes live outside exception scopes. They remain held through kill and
+actual reap even when cancellation, expiry or malformed output throws. The
+watchdog joins before those owners are explicitly reset; their admitted credit
+outlives the owners. Native qualification probes check parent pins before kill,
+after reap, and their release afterwards. Admission reserves the
 512 MiB child policy plus framing/parser credit in the parent's same ledger and
 scope. Native filesystem I/O remains cooperative around OS calls; this admission
 is not a process RSS sandbox or a guarantee about an uninterruptible OS call.
@@ -36,6 +41,10 @@ not a claim that every storage device or maximum-size file has been qualified.
 Qualification can disable the size allowance and use an independently controlled
 clock to exercise expiry without requiring a fast host to reach a spawn seam.
 
+A maximum-width native PID is used to preflight the complete request extent
+before spawn. The actual observed bounded PID then replaces that placeholder.
+The operation observation is populated only after an actual child starts; a
+pre-spawn refusal has no operation, child or partial-staging observation.
 Only a normal zero-exit, reaped child with one strict bounded planned-record
 response can qualify. The parent compares the record and persisted intent with
 its independent original asset, qualified source bytes, source/preparation/
@@ -55,6 +64,12 @@ retained; exitCode alone, even zero, never establishes normal completion.
 Pre-spawn refusals report that no child started instead of claiming partial files. It
 does not erase staging, publish canonical media, write publication receipts,
 release accepted-model reconciliation, adopt a project or bypass strict Open.
+
+Test workers are built only under BUILD_TESTING. Their compile-time-only modes
+exercise actual mid-write retirement, stdout/stderr overflow and unsuccessful or
+empty/diagnostic zero exits; none can activate in the production worker. A late
+cancel/close after all I/O verification is checked again by the serialized control
+completion and cannot publish positive staging verification.
 
 The command and separate completion/refusal snapshots are internal controller
 foundations, not new GUI controls. Single-use live publication permission,

@@ -1129,24 +1129,46 @@ void savedRestorationRecords(){
     check(physical(f.root)==physicalBefore&&bytes(f.source)==originalSource,"Saved-record codec changed files");coldOwner(*f.controller->snapshot());
 }
 
+// Probe actual parent native pins, with no mutation. Child descriptors live in
+// another process, so the Linux census distinguishes parent retention directly.
+bool parentNativePin(const std::filesystem::path &path){
+#ifdef _WIN32
+    const auto h=CreateFileW(path.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+    if(h==INVALID_HANDLE_VALUE)return GetLastError()==ERROR_SHARING_VIOLATION;
+    CloseHandle(h);return false;
+#else
+    for(const auto &entry:std::filesystem::directory_iterator("/proc/self/fd")) {
+        std::error_code ec;const auto target=std::filesystem::read_symlink(entry.path(),ec);
+        if(!ec && target==path)return true;
+    }
+    return false;
+#endif
+}
 ProjectCommand stageSaved(std::uint64_t preparation,std::uint64_t request=1){ProjectCommand c{CommandKind::StageSavedRestoration};c.savedPreparationJob=preparation;c.savedStagingRequest=request;return c;}
 void savedControllerStage(unsigned mode){
-    std::atomic<bool> reached=false,release=false;ControllerOptions options;std::filesystem::path mutationRoot;std::atomic<std::uint64_t> clock=0;std::atomic<unsigned> chunks=0;
-    const bool paused=(mode>=1&&mode<=4)||mode==13||(mode>=15&&mode<=18);
+    std::atomic<bool> reached=false,release=false;ControllerOptions options;std::filesystem::path mutationRoot,sourcePinPath;std::atomic<std::uint64_t> clock=0;std::atomic<unsigned> chunks=0;
+    std::atomic<bool> pinsGood=true;std::atomic<unsigned> beforeKill=0,afterReap=0,afterRelease=0;
+    const bool probePins=mode==0||mode==3||mode==4||mode==14||mode==17||mode==18;
+    if(probePins){options.savedStagingRetirementProbe=[&](bool reaped){if(reaped)++afterReap;else ++beforeKill;
+        if(!parentNativePin(mutationRoot/"project.json")||!parentNativePin(sourcePinPath))pinsGood=false;};
+        options.savedStagingAfterNativeRetirement=[&]{++afterRelease;if(parentNativePin(mutationRoot/"project.json")||parentNativePin(sourcePinPath))pinsGood=false;};}
+    const bool paused=(mode>=1&&mode<=4)||mode==13||(mode>=15&&mode<=18)||mode==25||mode==26;
     auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
     if(mode==1||mode==2)options.savedStagingBeforeSpawn=hold;
     if(mode==3||mode==4)options.savedStagingAfterSpawn=hold;
     if(mode==13)options.savedStagingBeforeTerminal=hold;
+    if(mode==25||mode==26)options.savedStagingAfterVerification=hold;
     if(mode==5||mode==14){options.savedStagingNowMilliseconds=[&]{return clock.load();};options.savedStagingMillisecondsPerMiB=0;}
     if(mode==14){options.savedStagingDeadlineMilliseconds=1000;options.savedStagingAfterSpawn=[&]{clock=1001;};}
     if(mode==15||mode==16)options.savedStagingBeforeSourceChunk=[&]{if(++chunks==2)hold();};
-    if(mode==17||mode==18){options.savedStagingWorkerProgram=std::filesystem::path(QCoreApplication::applicationDirPath().toStdString())/
+    if(mode==17||mode==18||(mode>=20&&mode<=24)){options.savedStagingWorkerProgram=std::filesystem::path(QCoreApplication::applicationDirPath().toStdString())/
 #ifdef _WIN32
         "sc-saved-staging-worker-fixture.exe";
 #else
         "sc-saved-staging-worker-fixture";
 #endif
-        options.savedStagingDiagnosticHook=[&](std::string_view diagnostic){if(diagnostic.find("sc-saved-midstage")!=diagnostic.npos)hold();};}
+        if(mode==17||mode==18)options.savedStagingDiagnosticHook=[&](std::string_view diagnostic){if(diagnostic.find("sc-saved-midstage")!=diagnostic.npos)hold();};
+        if(mode>=20){constexpr std::array<std::string_view,5> modes{"stdout-overflow","stderr-overflow","nonzero","empty","stderr-success"};options.savedStagingFixtureMode=modes[mode-20];}}
     if(mode==19)options.savedStagingBeforeDestination=[&]{std::filesystem::create_directory(mutationRoot/"changed-after-audit");};
     if(mode==11)options.savedStagingTerminalHook=[&](std::string &wire,std::size_t){auto j=nlohmann::json::parse(wire);auto record=nlohmann::json::parse(savedControlUnhex(j.at("recordHex").get<std::string>()));const auto staged=mutationRoot/record.at("operation").get<std::string>()/"media.partial";auto damaged=bytes(staged);damaged.back()^=1;write(staged,damaged);};
     if(mode==5){options.savedStagingDeadlineMilliseconds=20;options.savedStagingBeforeSpawn=[&]{clock=21;};}
@@ -1154,7 +1176,7 @@ void savedControllerStage(unsigned mode){
     if(mode==7)options.savedStagingTerminalHook=[](std::string &wire,std::size_t actual){auto j=nlohmann::json::parse(wire);j["workerPid"]=actual+1;wire=j.dump()+"\n";};
     if(mode==8)options.savedStagingTerminalHook=[](std::string &wire,std::size_t){wire.clear();};
     if(mode==12)options.memoryBytes=650*1024*1024;
-    Fixture f({},false,(mode==15||mode==16)?4*1024*1024:4);const auto old=stagedOperation(f);mutationRoot=f.root;resetCold(f,options);Release guard{release};const auto baseline=f.controller->memoryResources().reservedBytes;
+    Fixture f({},false,(mode==15||mode==16)?4*1024*1024:4);const auto old=stagedOperation(f);mutationRoot=f.root;sourcePinPath=f.source;resetCold(f,options);Release guard{release};const auto baseline=f.controller->memoryResources().reservedBytes;
     submit(*f.controller,prepareSaved(f,*f.controller->snapshot(),old));auto prepared=finishInspection(f);check(!prepared->restorationInspectionCompleted.error&&prepared->restorationPreparedSource,"Staging fixture did not prepare actual private source");
     const auto prep=prepared->restorationPreparedSource;const auto before=physical(f.root);
     if(mode==9){auto changed=f.data;changed.back()^=1;write(f.source,changed);}
@@ -1174,12 +1196,13 @@ void savedControllerStage(unsigned mode){
             ProjectCommand c{kind};c.savedPreparationJob=prep;c.savedStagingRequest=2;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,c);
             auto no=await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});check(no->io==IoOperation::StageSavedRestoration&&!no->restorationPreparedSource,"Competing command revoked saved stage owner");coldOwner(*no);}
         ProjectCommand wrong{CommandKind::CancelSavedRestorationStaging};wrong.savedStagingJob=held->savedStagingJob+1;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,wrong);await(*f.controller,[&](const auto &s){return s.errorSerial>serial;});
-        if(mode==2||mode==4||mode==16||mode==18){f.controller->requestShutdown();auto shutting=await(*f.controller,[](const auto &s){return s.closing;});check(!shutting->closed,"Saved child/owner retired before I/O join");}
+        if(mode==2||mode==4||mode==16||mode==18||mode==26){f.controller->requestShutdown();auto shutting=await(*f.controller,[](const auto &s){return s.closing;});check(!shutting->closed,"Saved child/owner retired before I/O join");}
         else {wrong.savedStagingJob=held->savedStagingJob;submit(*f.controller,wrong);ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=565;submit(*f.controller,barrier);await(*f.controller,[](const auto &s){return s.lastBarrier==565;});}
         release=true;
     }
-    const bool close=mode==2||mode==4||mode==16||mode==18;
+    const bool close=mode==2||mode==4||mode==16||mode==18||mode==26;
     auto done=await(*f.controller,[&](const auto &s){return close?s.closed:s.savedStagingCompleted.request==1&&s.io==IoOperation::None;});const auto &r=done->savedStagingCompleted;
+    if(probePins)check(pinsGood&&afterReap==1&&afterRelease==1&&beforeKill==(mode==0?0U:1U),"Actual native source/manifest pins retired before child reap or leaked after release");
     check(r.request==1&&r.job&&r.preparationJob==prep&&!done->restorationPreparedSource,"Saved staging completion lost private dispatch correlation");coldOwner(*done);
     check(!std::filesystem::exists(f.canonical)&&bytes(f.root/"project.json")==f.manifest,"Saved stage published/adopted/changed manifest");
     if(mode==0){check(!r.error&&r.operation&&r.childPid&&r.childExit==0&&r.normalExit==true&&!r.killed&&r.reaped&&r.requestSent&&r.stagingMayExist&&r.recordVerified&&r.stagedBytesVerified,"Controller saved staging not verified against actual reaped child/bytes");
@@ -1188,8 +1211,14 @@ void savedControllerStage(unsigned mode){
     else {check(r.error.has_value()&&!r.recordVerified&&!r.stagedBytesVerified,"Saved staging failure published qualified result");
         if(paused)check(r.error==ErrorCode::Canceled,"Canceled saved staging has wrong error");
         if(mode==12)check(r.error==ErrorCode::ResourceLimit,"Saved stage bypassed parent ledger admission");
-        if(mode==1||mode==2||mode==5||mode==6||mode==9||mode==10||mode==12||mode==15||mode==16||mode==19){check(!r.childPid&&!r.reaped&&!r.stagingMayExist&&!r.requestSent,"Pre-spawn refusal invented child or staging facts");
+        if(mode==1||mode==2||mode==5||mode==6||mode==9||mode==10||mode==12||mode==15||mode==16||mode==19){check(!r.operation&&!r.childPid&&!r.reaped&&!r.stagingMayExist&&!r.requestSent,"Pre-spawn refusal invented operation, child or staging facts");
             auto expected=before;if(mode==10)expected.emplace("changed-before-staging","directory");if(mode==19)expected.emplace("changed-after-audit","directory");check(physical(f.root)==expected,"Pre-spawn saved staging refusal mutated project");}
+        if(mode>=20&&mode<=24){check(r.childPid&&r.reaped&&r.requestSent&&r.stagingMayExist&&!r.recordVerified&&!r.stagedBytesVerified,"Foreign child exit/overflow lost conservative actual process facts");
+            if(mode<=21)check(r.error==ErrorCode::ResourceLimit,"Actual child stream overflow bypassed bounded banks");
+            if(mode==22)check(r.error==ErrorCode::Io&&r.normalExit==true&&r.childExit==7&&!r.killed,"Nonzero normal exit was misreported");
+            if(mode==23||mode==24)check(r.normalExit==true&&r.childExit==0&&!r.killed,"Empty/stdout diagnostic child exit was misreported");
+            check(physical(f.root)==before,"Foreign output-only fixture changed project");}
+        if(mode==25||mode==26)check(r.error==ErrorCode::Canceled&&r.childPid&&r.reaped&&r.normalExit==true&&r.childExit==0&&!r.killed&&r.requestSent&&r.stagingMayExist&&!r.recordVerified&&!r.stagedBytesVerified,"Control completion race accepted verified success after cancel/close");
         if(mode==15||mode==16)check(r.error==ErrorCode::Canceled&&chunks>=2,"Large selected native hash did not honor actual cancellation token");
         if(mode==19)check(r.error==ErrorCode::MediaMismatch,"Independently opened destination reset original ticket stamp");
         if(mode==17||mode==18){check(r.error==ErrorCode::Canceled&&r.childPid&&r.reaped&&r.normalExit.has_value()&&r.killed&&r.requestSent&&r.stagingMayExist&&r.operation,"Mid-write child cancel/close was not killed/reaped honestly");
@@ -1209,4 +1238,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<20;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<27;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

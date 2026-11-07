@@ -59,7 +59,16 @@ nlohmann::json request(std::string_view bytes){
 }
 int main(int argc,char **argv){bool stagingMayExist=false;try{
     std::uint64_t memoryBytes=512*1024*1024,sourceLimit=1024ULL*1024*1024;bool memorySeen=false,limitSeen=false;
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+    std::string fixtureMode="pause";bool fixtureModeSeen=false;
+#endif
     for(int i=1;i<argc;++i){const std::string_view arg=argv[i];
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+        if(arg=="--fixture-mode") {
+            check(!fixtureModeSeen && i+1<argc,"Invalid saved fixture option");fixtureMode=argv[++i];fixtureModeSeen=true;
+            check(fixtureMode=="pause"||fixtureMode=="stdout-overflow"||fixtureMode=="stderr-overflow"||fixtureMode=="nonzero"||fixtureMode=="empty"||fixtureMode=="stderr-success","Invalid saved fixture mode");continue;
+        }
+#endif
 
         check(i+1<argc && ((arg=="--memory-bytes" && !memorySeen)||(arg=="--maximum-source-bytes" && !limitSeen)),"Invalid restoration worker options",ErrorCode::InvalidParameter);
         const std::string_view text=argv[++i];std::uint64_t n=0;const auto parsed=std::from_chars(text.data(),text.data()+text.size(),n);
@@ -70,6 +79,14 @@ int main(int argc,char **argv){bool stagingMayExist=false;try{
     ResourceLedger memory(static_cast<std::size_t>(memoryBytes),"Saved staging worker payload");
     auto frameBank=memory.reserve(requestMaximum+readyMaximum*2);auto parser=memory.reserve(requestMaximum*32);
     const auto raw=line(requestMaximum);check(std::cin.get()==std::char_traits<char>::eof(),"Trailing saved worker input");const auto j=request(raw);
+#ifdef SC_SAVED_STAGING_QUALIFICATION
+    // Foreign-child refusal scenarios read the exact request/EOF, touch no roots.
+    if(fixtureMode=="stdout-overflow"){std::cout<<std::string(65536,'x')<<std::flush;return 0;}
+    if(fixtureMode=="stderr-overflow"){std::cerr<<std::string(65536,'x')<<std::flush;return 0;}
+    if(fixtureMode=="nonzero")return 7;
+    if(fixtureMode=="empty")return 0;
+    if(fixtureMode=="stderr-success"){std::cerr<<"fixture diagnostic\n"<<std::flush;return 0;}
+#endif
     const auto maximum=integer(j.at("maximumBytes"));check(maximum&&maximum<=sourceLimit,"Saved worker source policy exceeded",ErrorCode::ResourceLimit);
     check(integer(j.at("workerPid"))==pid(),"Saved worker request belongs to another process");
     for(const auto *key:{"project","asset","historyOperation","operation"})check(j.at(key).is_string(),"Invalid saved worker identifier");

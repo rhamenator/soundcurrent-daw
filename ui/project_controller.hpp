@@ -246,9 +246,12 @@ struct ControllerOptions {
     unsigned savedStagingDeadlineMilliseconds=20000; // Base, unchanged for small selections when size allowance is disabled.
     unsigned savedStagingMillisecondsPerMiB=1000; // Additional trusted I/O allowance from checked source extent.
     std::uint64_t savedStagingMaximumDeadlineMilliseconds=30*60*1000;
-    std::function<std::uint64_t()> savedStagingNowMilliseconds = {}; // Qualification clock, never untrusted metadata.
+    std::function<std::uint64_t()> savedStagingNowMilliseconds = {}; // Thread-safe qualification clock; called on I/O and watchdog, never untrusted metadata.
     std::function<void()> savedStagingBeforeSourceChunk = {},savedStagingBeforeDestination = {};
     std::function<void(std::string_view)> savedStagingDiagnosticHook = {}; // Qualification only.
+    std::function<void(bool reaped)> savedStagingRetirementProbe = {}; // Qualification with native pins held, before kill and after reap.
+    std::function<void()> savedStagingAfterNativeRetirement = {},savedStagingAfterVerification = {};
+    std::string savedStagingFixtureMode = {}; // Qualification only; production worker rejects this argument.
     std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};
     std::function<void(std::string &,std::size_t)> savedStagingTerminalHook = {};
     HistoryBudget historyBudget{};

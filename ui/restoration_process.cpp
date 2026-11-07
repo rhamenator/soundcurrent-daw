@@ -136,6 +136,11 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
     const std::atomic<bool> &closing,const std::atomic<bool> &cancel) {
     SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
     QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
+    // These owners outlive every try-scope and all child failure cleanup.
+    std::optional<RestorationAudit> auditOwner;
+    std::optional<ApprovedMediaRoot> sourceRootOwner,destinationOwner;
+    std::optional<ApprovedMediaFile> sourceOwner;
+    std::optional<OwnedInspectionProtocol> controlOwner,reportOwner;
     const auto now=[&]()->std::uint64_t {return options.savedStagingNowMilliseconds?options.savedStagingNowMilliseconds():
         static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());};
     const auto begun=now();std::uint64_t allowance=options.savedStagingDeadlineMilliseconds;
@@ -164,19 +169,28 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
             }
         }); // Bridges cancel/close/deadline to every native audit/hash chunk, not just whole passes.
         const SavedRestorationSourceContext context{original.projectEpoch,original.modelRevision,original.request,checked.job};
-        auto audit=inspectSavedAssetRestoration(root,original.project,original.asset,original.operation,options.restorationInspectionMaximumBytes,memory,options.admission,stop);
-        auto control=ticket.copyControlProtocol(audit,*checked.report,context,checked.childPid,memory,stop);
-        auto report=checked.report->copyProtocol(memory,stop);
-        {ApprovedMediaRoot approved(source.parent_path(),memory,{1});auto current=approved.openSelectedFilename(source.filename(),options.restorationInspectionMaximumBytes,stop);
-         verifySavedRestorationSourceFile(ticket,audit,*checked.report,context,checked.childPid,current,memory,stop,[&]{
-             poll();if(options.savedStagingBeforeSourceChunk)options.savedStagingBeforeSourceChunk();poll();});}
+        auto &audit=auditOwner.emplace(inspectSavedAssetRestoration(root,original.project,original.asset,original.operation,options.restorationInspectionMaximumBytes,memory,options.admission,stop));
+        auto &control=controlOwner.emplace(ticket.copyControlProtocol(audit,*checked.report,context,checked.childPid,memory,stop));
+        auto &report=reportOwner.emplace(checked.report->copyProtocol(memory,stop));
+        auto &approved=sourceRootOwner.emplace(source.parent_path(),memory,ApprovedMediaLimits{1});
+        auto &selected=sourceOwner.emplace(approved.openSelectedFilename(source.filename(),options.restorationInspectionMaximumBytes,stop));
+         verifySavedRestorationSourceFile(ticket,audit,*checked.report,context,checked.childPid,selected,memory,stop,[&]{
+             poll();if(options.savedStagingBeforeSourceChunk)options.savedStagingBeforeSourceChunk();poll();});
         const auto asset=std::find_if(audit.manifest().assets.begin(),audit.manifest().assets.end(),[&](const auto &a){return a.id==original.asset;});
         check(asset!=audit.manifest().assets.end(),"Saved stage asset disappeared");
         if(options.savedStagingBeforeDestination)options.savedStagingBeforeDestination();
-        poll();ApprovedMediaRoot destination(root,memory,{2});
+        poll();auto &destination=destinationOwner.emplace(root,memory,ApprovedMediaLimits{2});
         ticket.verifyRootStamp(destination.directoryStamp(),memory);audit.reverify(stop); // No pathname reopen may reset the original identity.
 
-        const auto operation=Id::generate();out.operation=operation;
+        const auto operation=Id::generate();
+        auto requestPacket=nlohmann::json({{"protocol","sc-saved-staging-worker-v1"},{"project",original.project.str()},{"asset",original.asset.str()},
+            {"historyOperation",original.operation.str()},{"operation",operation.str()},{"rootHex",hex(native(root))},
+            {"sourceRootHex",hex(native(source.parent_path()))},{"sourceLeafHex",hex(native(source.filename()))},
+            {"sourceControlHex",hex(control.bytes())},{"checkReportHex",hex(report.bytes())},{"checkPid",checked.childPid},
+            {"maximumBytes",options.restorationInspectionMaximumBytes},{"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},
+            {"sourceRequest",context.request},{"sourceJob",context.job},{"preparationJob",preparationJob},{"request",requestId},{"job",job},{"workerPid",UINT32_MAX}});
+        check(requestPacket.dump().size()+1<=65537,"Saved staging request extent");
+        poll();
         if(options.savedStagingBeforeSpawn)options.savedStagingBeforeSpawn();
         poll();
         QString program=options.savedStagingWorkerProgram.empty()?QCoreApplication::applicationDirPath()+
@@ -189,21 +203,21 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         check(QFileInfo(program).isAbsolute(),"Saved staging worker must be absolute");
         child.setProcessChannelMode(QProcess::SeparateChannels);
         QObject::connect(&child,&QProcess::started,&child,[&]{out.childPid=static_cast<std::size_t>(child.processId());out.stagingMayExist=true;});
-        child.start(program,{QStringLiteral("--memory-bytes"),QString::number(childCredit),QStringLiteral("--maximum-source-bytes"),QString::number(options.restorationInspectionMaximumBytes)},QIODevice::ReadWrite);
+        QStringList arguments{QStringLiteral("--memory-bytes"),QString::number(childCredit),QStringLiteral("--maximum-source-bytes"),QString::number(options.restorationInspectionMaximumBytes)};
+        if(!options.savedStagingFixtureMode.empty()) {
+            check(options.savedStagingFixtureMode.size()<=32,"Saved fixture mode extent");
+            arguments<<QStringLiteral("--fixture-mode")<<QString::fromStdString(options.savedStagingFixtureMode);
+        }
+        child.start(program,arguments,QIODevice::ReadWrite);
         while(child.state()==QProcess::Starting){child.waitForStarted(20);
         poll();}
-        check(child.state()==QProcess::Running && out.childPid,"Saved staging child did not start",ErrorCode::Io);
+        check(child.state()==QProcess::Running && out.childPid && out.childPid<=UINT32_MAX,"Saved staging child did not start with a bounded native PID",ErrorCode::Io);
+        out.operation=operation; // No operation observation exists until an actual child started.
         if(options.savedStagingAfterSpawn)options.savedStagingAfterSpawn();
         poll();
         const SavedRestorationRecordContext current{context,preparationJob,requestId,job,out.childPid};
-        const auto wire=nlohmann::json({{"protocol","sc-saved-staging-worker-v1"},{"project",original.project.str()},{"asset",original.asset.str()},
-            {"historyOperation",original.operation.str()},{"operation",operation.str()},{"rootHex",hex(native(root))},
-            {"sourceRootHex",hex(native(source.parent_path()))},{"sourceLeafHex",hex(native(source.filename()))},
-            {"sourceControlHex",hex(control.bytes())},{"checkReportHex",hex(report.bytes())},{"checkPid",checked.childPid},
-            {"maximumBytes",options.restorationInspectionMaximumBytes},{"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},
-            {"sourceRequest",context.request},{"sourceJob",context.job},{"preparationJob",preparationJob},{"request",requestId},{"job",job},{"workerPid",out.childPid}}).dump()+"\n";
-        check(wire.size()<=65537,"Saved staging request extent");
-        poll();
+        requestPacket["workerPid"]=out.childPid;
+        const auto wire=requestPacket.dump()+"\n";
         out.requestSent=true;check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Saved staging input channel",ErrorCode::Io);
         child.closeWriteChannel(); // The child refuses access to roots before exact EOF.
         std::string output;output.reserve(32768);std::array<char,32768> errors{};std::size_t errorUsed=0;
@@ -241,11 +255,16 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         auto intentRecord=decodeSavedRestorationRecord(intentBytes,memory,stop);verifySavedRestorationRecord(intentRecord,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory,stop);
         intentFile.verifyUnchanged();
         poll();out.stagedBytesVerified=true;
+        if(options.savedStagingAfterVerification)options.savedStagingAfterVerification(); // Final control-thread cancel/close ordering is checked by finishIo.
     }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled && !closing.load(std::memory_order_acquire) && !cancel.load(std::memory_order_acquire) && expired())out.error=ErrorCode::Io;}catch(const std::exception &){out.error=ErrorCode::Io;}
-    if(child.state()!=QProcess::NotRunning){out.killed=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    const auto probe=[&](bool reaped){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(reaped);}catch(...){out.error=ErrorCode::Io;}};
+    if(child.state()!=QProcess::NotRunning){if(out.childPid)probe(false);out.killed=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
     if(out.childPid){out.childExit=child.exitCode();out.reaped=true;out.normalExit=child.exitStatus()==QProcess::NormalExit;} // Actual QProcess retirement on every launched-child path.
-    if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
+    if(out.reaped)probe(true); // Both parent native pins and selected source still live AFTER child retirement.
     watchdog.request_stop();if(watchdog.joinable())watchdog.join();
+    sourceOwner.reset();sourceRootOwner.reset();destinationOwner.reset();auditOwner.reset();controlOwner.reset();reportOwner.reset();
+    try{if(options.savedStagingAfterNativeRetirement)options.savedStagingAfterNativeRetirement();}catch(...){out.error=ErrorCode::Io;}
+    if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
     return out;
 }
 
