@@ -31,7 +31,13 @@ The child freshly approves the explicit source root/leaf, binds the original
 checker report, performs a full finite decode and invokes the shared native
 pre-create stamp guards. Output is bounded planned-record evidence with actual
 native PID and published=false (this executable has no publication path).
-Errors conservatively report whether partial staging may exist. The process
+Error frames conservatively report whether partial staging may exist. A missing or
+truncated result/error frame, abnormal exit, deadline, cancellation or closed
+output pipe after launch must be treated as staging-may-exist; neither empty
+stderr nor a nonzero exit proves the project was untouched. On Linux a closed
+stdout pipe can terminate the worker through SIGPIPE after files were staged.
+The parent must preserve and independently inspect partial evidence after reaping
+the child, never infer no mutation or permission to publish from that exit. The process
 retires all native owners at exit; the returned record cannot recreate them or
 authorize restart/publication. The parent must validate evidence against its
 independent current context, observed PID, operation and qualified content, and
