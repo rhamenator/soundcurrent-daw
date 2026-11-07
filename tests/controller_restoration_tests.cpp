@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "restoration_process.hpp"
+#include <soundcurrent/saved_restoration_record.hpp>
 #include <QCoreApplication>
 #include <exception>
 #include <QThread>
@@ -787,5 +788,112 @@ void ownedStagingAudit(unsigned mode){
     check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Owned audit/stage native credits outlived retirement");
 }
 
+
+template<class F>void savedRecordRefuses(F f,std::optional<ErrorCode> code={}){
+    bool denied=false;try{f();}catch(const ProjectError &e){denied=true;
+            if(code)check(e.code()==*code,"Wrong saved-record refusal category");}
+    check(denied,"Invalid saved restoration record admitted");
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+void savedRestorationRecords(){
+    Fixture f;resetCold(f);const auto empty=f.controller->snapshot();const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto physicalBefore=physical(f.root);const auto originalSource=bytes(f.source);
+    {
+        WaveCheckOptions policy;policy.memory=memory;WaveCheckController checker(policy);check(checker.submitReplacement(f.source)==Admission::Accepted,"Saved-record checker refused");
+        const auto checked=finishSource(checker);check(checked->report&&checked->phase==WaveCheckPhase::Complete&&checked->childExit==0,"Saved-record actual checker failed");
+        SavedRestorationRecordData input{Id::generate(),f.initial->session->id,f.asset.id};
+        input.context={{empty->projectEpoch,empty->modelRevision,547,checked->job},1,548,1,static_cast<std::uint64_t>(QCoreApplication::applicationPid())};
+        input.relativePath=f.asset.relativePath;input.content={checked->report->audio().sourceBytes,checked->report->audio().sourceSha256};
+        input.frames=f.asset.frames;input.rate=f.asset.sampleRate;input.layout=f.asset.layout;
+        const auto current=input.context;const auto expected=input.content;
+        auto record=SavedRestorationRecord::planned(input,memory);
+        auto verify=[&](const SavedRestorationRecord &value,SavedRestorationPhase phase=SavedRestorationPhase::Planned){
+            verifySavedRestorationRecord(value,input.project,f.asset,expected,current,input.operation,phase,memory);};
+        verify(record);++checks;check(!record.data().context.source.projectEpoch&&!record.data().context.source.modelRevision,"Saved record fabricated accepted epoch/revision");
+        const auto wire=encodeSavedRestorationRecord(record,SavedRestorationPhase::Planned,memory);const auto json=nlohmann::json::parse(wire.bytes());
+        check(json.size()==21&&json.at("schema")=="sc-saved-asset-restoration-v1"&&json.at("sourceRootsPersisted")==false,"Saved-record schema/authority changed");
+        auto decoded=decodeSavedRestorationRecord(wire.bytes(),memory);verify(decoded);++checks;
+        const auto published=encodeSavedRestorationRecord(record,SavedRestorationPhase::Published,memory);auto historical=decodeSavedRestorationRecord(published.bytes(),memory);
+        verify(historical,SavedRestorationPhase::Published);++checks;savedRecordRefuses([&]{verify(historical);});
+        savedRecordRefuses([&]{SavedRestorationRecord::planned(historical.data(),memory);});
+        for(unsigned field=0;field<8;++field){auto stale=current;
+            if(field==0)++stale.source.projectEpoch;
+            if(field==1)++stale.source.modelRevision;
+            if(field==2)++stale.source.request;
+            if(field==3)++stale.source.job;
+            if(field==4)++stale.preparationJob;
+            if(field==5)++stale.request;
+            if(field==6)++stale.job;
+            if(field==7)++stale.workerPid;
+            savedRecordRefuses([&]{verifySavedRestorationRecord(decoded,input.project,f.asset,expected,stale,input.operation,SavedRestorationPhase::Planned,memory);});
+        }
+        savedRecordRefuses([&]{verifySavedRestorationRecord(record,Id::generate(),f.asset,expected,current,input.operation,SavedRestorationPhase::Planned,memory);});
+        savedRecordRefuses([&]{verifySavedRestorationRecord(record,input.project,f.asset,expected,current,Id::generate(),SavedRestorationPhase::Planned,memory);});
+        auto otherAsset=f.asset;otherAsset.id=Id::generate();savedRecordRefuses([&]{verifySavedRestorationRecord(record,input.project,otherAsset,expected,current,input.operation,SavedRestorationPhase::Planned,memory);});
+        auto wrongExtent=expected;++wrongExtent.bytes;savedRecordRefuses([&]{verifySavedRestorationRecord(record,input.project,f.asset,wrongExtent,current,input.operation,SavedRestorationPhase::Planned,memory);});
+        auto foreign=memory.child(1024*1024,"Sibling saved-record scope");
+        savedRecordRefuses([&]{encodeSavedRestorationRecord(record,SavedRestorationPhase::Planned,foreign);});
+        savedRecordRefuses([&]{verifySavedRestorationRecord(record,input.project,f.asset,expected,current,input.operation,SavedRestorationPhase::Planned,foreign);});
+        ResourceLedger alien(1024*1024,"Foreign saved record ledger");auto alienRecord=decodeSavedRestorationRecord(wire.bytes(),alien);savedRecordRefuses([&]{verify(alienRecord);});
+        for(const auto &[key,value]:json.items()){(void)value;auto missing=json;missing.erase(key);savedRecordRefuses([&]{decodeSavedRestorationRecord(missing.dump(),memory);});}
+        for(const char *key:{"projectEpoch","modelRevision","sourceRequest","sourceJob","preparationJob","request","job","workerPid","sourceBytes","frames","rateHz","channels","layoutKind","phase"}){
+            for(const auto &bad:{nlohmann::json(-1),nlohmann::json(1.5),nlohmann::json(true),nlohmann::json("1"),nlohmann::json(nullptr)}){
+                auto changed=json;changed[key]=bad;savedRecordRefuses([&]{decodeSavedRestorationRecord(changed.dump(),memory);});
+            }
+        }
+        for(const char *key:{"sourceRequest","sourceJob","preparationJob","request","job","workerPid","sourceBytes","frames","rateHz","channels","phase"}){
+            auto changed=json;changed[key]=0;savedRecordRefuses([&]{decodeSavedRestorationRecord(changed.dump(),memory);});
+        }
+        for(const char *key:{"operation","project","asset"}){auto changed=json;changed[key]="invalid UUID";savedRecordRefuses([&]{decodeSavedRestorationRecord(changed.dump(),memory);});}
+        for(unsigned field=0;field<12;++field){auto changed=json;
+            if(field==0)changed["extra"]="field";
+            if(field==1)changed["sourceRootsPersisted"]=true;
+            if(field==2)changed["relativePathHex"]="f";
+            if(field==3)changed["relativePathHex"]="gg";
+            if(field==4)changed["sourceSha256"]=std::string(64,'B');
+            if(field==5)changed["sourceSha256"]=std::string(63,'b');
+            if(field==6)changed["rateHz"]=std::uint64_t(UINT32_MAX)+1;
+            if(field==7)changed["frames"]=std::uint64_t(INT64_MAX)+1;
+            if(field==8)changed["workerPid"]=std::uint64_t(UINT32_MAX)+1;
+            if(field==9)changed["layoutKind"]=3;
+            if(field==10)changed["phase"]=3;
+            if(field==11)changed["request"]=nlohmann::json::array();
+            savedRecordRefuses([&]{decodeSavedRestorationRecord(changed.dump(),memory);});
+        }
+        savedRecordRefuses([&]{decodeSavedRestorationRecord("{\"request\":1,"+std::string(wire.bytes()).substr(1),memory);});
+        savedRecordRefuses([&]{decodeSavedRestorationRecord(std::string(savedRestorationRecordMaximumBytes+1,' '),memory);});
+        savedRecordRefuses([&]{decodeSavedRestorationRecord(std::string(wire.bytes())+std::string(1,'\0'),memory);});
+        savedRecordRefuses([&]{decodeSavedRestorationRecord(std::string(wire.bytes())+"é",memory);});
+        for(const auto &path:{std::string("/media/absolute.wav"),std::string("media/../escape.wav"),std::string("other/x.wav"),std::string(1025,'x')}){
+            auto invalid=input;invalid.relativePath=path;savedRecordRefuses([&]{SavedRestorationRecord::planned(invalid,memory);});
+        }
+        {auto unicode=input;unicode.relativePath="media/été-Κиїв.wav";auto owned=SavedRestorationRecord::planned(unicode,memory);auto encoded=encodeSavedRestorationRecord(owned,SavedRestorationPhase::Planned,memory);
+         auto parsed=decodeSavedRestorationRecord(encoded.bytes(),memory);auto asset=f.asset;asset.relativePath=unicode.relativePath;
+         verifySavedRestorationRecord(parsed,input.project,asset,expected,current,input.operation,SavedRestorationPhase::Planned,memory);++checks;}
+        {auto large=input;large.relativePath.reserve(1024*1024);auto bounded=SavedRestorationRecord::planned(large,memory);check(bounded.data().relativePath.capacity()<=2048,"Saved record retained unadmitted caller path capacity");}
+        auto old=json;old["schema"]="sc-asset-restoration-v1";for(const char *key:{"project","sourceRequest","sourceJob","preparationJob","job","workerPid"})old.erase(key);
+        savedRecordRefuses([&]{decodeAssetRestorationRecord(old.dump(),memory);});old["projectEpoch"]=1;auto accepted=decodeAssetRestorationRecord(old.dump(),memory);
+        check(accepted.data().context.projectEpoch==1,"Accepted-record epoch policy changed");savedRecordRefuses([&]{decodeSavedRestorationRecord(old.dump(),memory);});
+        std::stop_source canceled;canceled.request_stop();
+        savedRecordRefuses([&]{SavedRestorationRecord::planned(input,memory,canceled.get_token());},ErrorCode::Canceled);
+        savedRecordRefuses([&]{encodeSavedRestorationRecord(record,SavedRestorationPhase::Planned,memory,canceled.get_token());},ErrorCode::Canceled);
+        savedRecordRefuses([&]{decodeSavedRestorationRecord(wire.bytes(),memory,canceled.get_token());},ErrorCode::Canceled);
+        savedRecordRefuses([&]{verifySavedRestorationRecord(record,input.project,f.asset,expected,current,input.operation,SavedRestorationPhase::Planned,memory,canceled.get_token());},ErrorCode::Canceled);
+        const auto usage=memory.usage();for(unsigned kind=0;kind<3;++kind){memory.configure(usage.reservedBytes+(kind==0?savedRestorationRecordValueCharge:savedRestorationRecordParserCharge)-1);
+            if(kind==0)savedRecordRefuses([&]{SavedRestorationRecord::planned(input,memory);},ErrorCode::ResourceLimit);
+            if(kind==1)savedRecordRefuses([&]{encodeSavedRestorationRecord(record,SavedRestorationPhase::Planned,memory);},ErrorCode::ResourceLimit);
+            if(kind==2)savedRecordRefuses([&]{decodeSavedRestorationRecord(wire.bytes(),memory);},ErrorCode::ResourceLimit);
+            memory.configure(usage.limitBytes);check(memory.usage().reservedBytes==usage.reservedBytes&&memory.usage().owners==usage.owners,"Saved record refusal leaked credit");}
+        for(unsigned field=0;field<3;++field){auto retired=input;
+            if(field==0){auto held=std::move(retired.operation);(void)held;}
+            if(field==1){auto held=std::move(retired.project);(void)held;}
+            if(field==2){auto held=std::move(retired.asset);(void)held;}
+            savedRecordRefuses([&]{SavedRestorationRecord::planned(retired,memory);});
+        }
+        auto moved=std::move(record);savedRecordRefuses([&]{verify(record);});verify(moved);++checks;
+    }
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved-record metadata outlived credit");
+    check(physical(f.root)==physicalBefore&&bytes(f.source)==originalSource,"Saved-record codec changed files");coldOwner(*f.controller->snapshot());
+}
+
+}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
