@@ -37,6 +37,41 @@ DispatchedSavedRestoration DispatchedSavedRestoration::prepare(SavedRestorationD
     ticket.verifyReady(stage.record(),owner,pid,memory,stop);
     return {std::move(ticket),std::move(stage),memory};
 }
+OwnedInspectionProtocol DispatchedSavedRestoration::ready(const SavedRestorationOwnerView &owner,std::size_t pid,std::stop_token stop) {
+    poll(stop);check(!attempted_&&pid==nativePid(),"Saved READY requires the unattempted native worker");
+    ticket_.verifyReady(record(),owner,pid,memory_,stop);
+    auto work=memory_.reserve(savedRestorationReadyWorkCharge);
+    auto output=memory_.reserve(savedRestorationReadyMaximumBytes+1024);
+    stage_.reverify(stop);
+    auto planned=encodeSavedRestorationRecord(record(),SavedRestorationPhase::Planned,memory_,stop);
+    auto wire=nlohmann::json({{"protocol","sc-saved-restoration-ready-v2"},{"workerPid",pid},{"recordHex",hex(planned.bytes())}}).dump();
+    check(wire.size()<=savedRestorationReadyMaximumBytes,"Saved READY exceeds bank");poll(stop);
+    return {std::move(output),std::move(wire)};
+}
+SavedRestorationRecord decodeSavedRestorationReady(std::string_view wire,const SavedRestorationDispatchTicket &ticket,
+    const SavedRestorationOwnerView &owner,std::size_t pid,ResourceLedger memory,std::stop_token stop) {
+    poll(stop);check(!wire.empty()&&wire.size()<=savedRestorationReadyMaximumBytes,"Saved READY exceeds bank");
+    for(unsigned char c:wire)check(c&&c<128,"Saved READY must be ASCII JSON");
+    auto work=memory.reserve(savedRestorationReadyWorkCharge);
+    auto recordCredit=memory.reserve(savedRestorationRecordMaximumBytes);
+    try {
+        std::set<std::string> seen;
+        auto callback=[&](int depth,nlohmann::json::parse_event_t event,nlohmann::json &v){poll(stop);
+            check(depth<=1&&event!=nlohmann::json::parse_event_t::array_start,"Nested saved READY refused");
+            if(event==nlohmann::json::parse_event_t::key){const auto &k=v.get_ref<const std::string &>();
+                check((k=="protocol"||k=="workerPid"||k=="recordHex")&&seen.insert(k).second,"Unknown/duplicate saved READY field");}return true;};
+        const auto j=nlohmann::json::parse(wire.begin(),wire.end(),callback);
+        check(j.is_object()&&seen.size()==3&&j.at("protocol").is_string()&&j.at("protocol")=="sc-saved-restoration-ready-v2"&&
+            j.at("workerPid").is_number_unsigned()&&j.at("workerPid")==pid&&j.at("recordHex").is_string(),"Saved READY identity/type mismatch");
+        const auto &encoded=j.at("recordHex").get_ref<const std::string &>();
+        check(!encoded.empty()&&encoded.size()%2==0&&encoded.size()<=savedRestorationRecordMaximumBytes*2,"Saved READY record extent");
+        auto digit=[](char c)->unsigned{if(c>='0'&&c<='9')return unsigned(c-'0');if(c>='a'&&c<='f')return unsigned(c-'a'+10);throw ProjectError(ErrorCode::InvalidState,"Invalid saved READY record hex");};
+        std::string bytes;bytes.reserve(encoded.size()/2);
+        for(std::size_t i=0;i<encoded.size();i+=2){poll(stop);bytes+=char((digit(encoded[i])<<4)|digit(encoded[i+1]));}
+        auto record=decodeSavedRestorationRecord(bytes,memory,stop);
+        ticket.verifyReady(record,owner,pid,memory,stop);poll(stop);return record;
+    }catch(const nlohmann::json::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed saved READY");}
+}
 OwnedInspectionProtocol encodeSavedRestorationPublicationPermit(const SavedRestorationDispatchTicket &ticket,
     const SavedRestorationRecord &ready,const SavedRestorationOwnerView &owner,std::size_t pid,ResourceLedger memory,std::stop_token stop) {
     poll(stop);ticket.verifyReady(ready,owner,pid,memory,stop);

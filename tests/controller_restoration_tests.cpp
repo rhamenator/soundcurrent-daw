@@ -911,6 +911,47 @@ void savedPublicationPermits(unsigned mode){
         auto prepared=DispatchedSavedRestoration::prepare(std::move(child),std::move(source),std::move(audit),selected,report,checked->childPid,owner,pid,1024);
         check(!std::filesystem::exists(f.canonical)&&bytes(f.root/"project.json")==originalManifest,"Saved READY published or edited manifest");
         check(!prepared.record().data().context.source.projectEpoch&&!prepared.record().data().context.source.modelRevision,"Saved READY invented accepted epoch");
+        if(mode==0){
+            const auto before=physical(f.root);auto ready=prepared.ready(owner,pid);
+            auto observed=decodeSavedRestorationReady(ready.bytes(),parent,owner,pid,memory);
+            auto original=encodeSavedRestorationRecord(prepared.record(),SavedRestorationPhase::Planned,memory);
+            auto decoded=encodeSavedRestorationRecord(observed,SavedRestorationPhase::Planned,memory);
+            check(original.bytes()==decoded.bytes(),"Saved READY changed planned record");
+            const auto shape=nlohmann::json::parse(ready.bytes());check(shape.size()==3,"Saved READY shape changed");
+            auto invalid=[&](std::string_view bytes){sourceRefuses([&]{decodeSavedRestorationReady(bytes,parent,owner,pid,memory);});};
+            for(const auto &[key,value]:shape.items()){
+                (void)value;auto changed=shape;changed.erase(key);invalid(changed.dump());
+                for(const auto &badType:{nlohmann::json(nullptr),nlohmann::json::array(),nlohmann::json::object(),nlohmann::json(true)}){
+                    changed=shape;changed[key]=badType;invalid(changed.dump());}
+                changed=shape;changed[key]=key=="workerPid"?nlohmann::json(pid+1):nlohmann::json("wrong");invalid(changed.dump());
+            }
+            invalid("{\"workerPid\":"+std::to_string(pid)+","+std::string(ready.bytes().substr(1)));
+            invalid(std::string(ready.bytes())+"{}");invalid(std::string(ready.bytes())+std::string(1,'\0'));
+            invalid(std::string(savedRestorationReadyMaximumBytes+1,'x'));invalid(std::string(1,char(0xff)));
+            auto changed=shape;changed["extra"]=true;invalid(changed.dump());
+            for(const auto &bad:{std::string{},std::string("0"),std::string("zz"),std::string(savedRestorationRecordMaximumBytes*2+2,'0')}){
+                changed=shape;changed["recordHex"]=bad;invalid(changed.dump());}
+            changed=shape;changed["workerPid"]=-1;invalid(changed.dump());changed["workerPid"]=double(pid);invalid(changed.dump());
+            const auto toHex=[](std::string_view v){constexpr char digits[]="0123456789abcdef";std::string s;for(unsigned char c:v){s+=digits[c>>4];s+=digits[c&15];}return s;};
+            auto data=prepared.record().data();++data.context.job;auto wrong=SavedRestorationRecord::planned(data,memory);
+            auto wrongWire=encodeSavedRestorationRecord(wrong,SavedRestorationPhase::Planned,memory);
+            changed=shape;changed["recordHex"]=toHex(wrongWire.bytes());invalid(changed.dump());
+            auto published=encodeSavedRestorationRecord(prepared.record(),SavedRestorationPhase::Published,memory);
+            changed["recordHex"]=toHex(published.bytes());invalid(changed.dump());
+            auto stale=owner.context;++stale.request;SavedRestorationOwnerView staleOwner{f.root,stale};
+            sourceRefuses([&]{decodeSavedRestorationReady(ready.bytes(),parent,staleOwner,pid,memory);});
+            sourceRefuses([&]{prepared.ready(staleOwner,pid);});sourceRefuses([&]{prepared.ready(owner,pid+1);});
+            auto sibling=memory.child(64*1024*1024,"Saved READY sibling");
+            sourceRefuses([&]{decodeSavedRestorationReady(ready.bytes(),parent,owner,pid,sibling);});
+            std::stop_source canceled;canceled.request_stop();
+            sourceRefuses([&]{prepared.ready(owner,pid,canceled.get_token());},ErrorCode::Canceled);
+            sourceRefuses([&]{decodeSavedRestorationReady(ready.bytes(),parent,owner,pid,memory,canceled.get_token());},ErrorCode::Canceled);
+            const auto admitted=memory.usage();memory.configure(admitted.reservedBytes);
+            sourceRefuses([&]{prepared.ready(owner,pid);},ErrorCode::ResourceLimit);
+            sourceRefuses([&]{decodeSavedRestorationReady(ready.bytes(),parent,owner,pid,memory);},ErrorCode::ResourceLimit);
+            memory.configure(admitted.limitBytes);
+            check(physical(f.root)==before,"Saved READY exchange mutated saved project");coldOwner(*f.controller->snapshot());
+        }
         auto wire=encodeSavedRestorationPublicationPermit(parent,prepared.record(),owner,pid,memory);
         if(mode==0){
             const auto shape=nlohmann::json::parse(wire.bytes());check(shape.size()==8&&shape.at("protocol")=="sc-saved-restoration-permit-v1","Saved permit shape changed");
@@ -1004,6 +1045,7 @@ void savedPublicationPermits(unsigned mode){
             }
         }
         sourceRefuses([&]{permit.publish(prepared,owner,pid);});
+        if(mode==0)sourceRefuses([&]{prepared.ready(owner,pid);});
         if(mode==0||(mode>=3&&mode<=10)||mode>=13){auto replay=decodeSavedRestorationPublicationPermit(wire.bytes(),parent,prepared.record(),owner,pid,memory);
             sourceRefuses([&]{replay.publish(prepared,owner,pid);});}
         if(mode==5||mode==28)check(bytes(f.canonical)=="foreign","Saved publication replaced an independently created target");
