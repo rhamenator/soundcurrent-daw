@@ -36,8 +36,13 @@ canonical destination parent are checked against their held native objects again
 after the final pre-rename observer yields, after full hashing and fsync; no
 full-file hash or fsync remains between these final native name checks and rename.
 Staged media and intent size/identity/link-count/write/change timestamps are
-captured after full verification and checked again after the last observer,
-catching same-inode, same-length edits without adding another hash. Verification
+captured before verification, compared after hashing/flushing, and checked again
+after the last observer,
+checking same-inode, same-length edits without adding another hash. Metadata is
+best effort at native timestamp granularity, never a replacement for the content
+hash or trusted serialized-writer contract. Timestamp-mutation fixtures separate
+events before their intentional edit. Pending receipt bytes are also verified
+again after the postcommit observer before final receipt publication. Verification
 opens never create names. Freshly created nested canonical paths and
 intermediate-parent swaps are covered alongside existing-directory cases.
 The native staging layer performs exclusive no-overwrite

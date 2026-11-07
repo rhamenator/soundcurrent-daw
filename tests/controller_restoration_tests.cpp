@@ -889,7 +889,7 @@ void savedPublicationPermits(unsigned mode){
         f.canonical=f.root/"media"/"a"/"b"/"x.wav";f.manifest=encodeProject(expected);write(f.root/"project.json",f.manifest);
         check(std::filesystem::remove_all(f.root/"media")>0,"Cannot prepare absent nested canonical parents");}
     const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
-    const bool successMode=mode==0||mode==7||mode==8||mode==10||mode==19||mode==25;
+    const bool successMode=mode==0||mode==7||mode==8||mode==10||mode==19||mode==25||mode==29;
     const auto originalManifest=bytes(f.root/"project.json");std::optional<MediaCommitOutcome> committed;std::optional<Id> committedOperation;
     {
         auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
@@ -958,6 +958,10 @@ void savedPublicationPermits(unsigned mode){
         else {
             std::stop_source canceled;bool reached=false;MediaCommitOutcome outcome;
             const auto observer=[&](StageBoundary at,std::uint64_t){
+                if(mode==29&&at==StageBoundary::BeforeRestorationReceiptPublish){reached=true;const auto path=f.root/operation.str()/"receipt.partial";
+                    auto changed=bytes(path);if(changed.empty())throw ProjectError(ErrorCode::Io,"Native receipt pin denied read");
+                    changed.back()^=1;std::ofstream out(path,std::ios::binary|std::ios::trunc);out.write(changed.data(),static_cast<std::streamsize>(changed.size()));out.flush();
+                    if(!out)throw ProjectError(ErrorCode::Io,"Native receipt pin denied write");return;}
                 if(mode==7&&at==StageBoundary::BeforeRestorationReceiptPublish){reached=true;throw ProjectError(ErrorCode::Io,"Qualification receipt failure");}
                 if(mode==8&&at==StageBoundary::AfterCommitBeforeDirectoryFlush){reached=true;canceled.request_stop();}
                 const auto phase=((mode>=21&&mode<=24)||mode>=26)?StageBoundary::BeforeRestorationRename:StageBoundary::BeforeCommit;
@@ -968,7 +972,8 @@ void savedPublicationPermits(unsigned mode){
                 if(mode==22){reached=true;const auto from=f.root/operation.str();std::error_code error;
                     std::filesystem::rename(from,f.root/"last-edge-stage",error);if(error)throw ProjectError(ErrorCode::Io,"Native last-edge stage rename denied");
                     std::filesystem::create_directory(from);return;}
-                if(mode==26||mode==27){reached=true;const auto path=f.root/operation.str()/(mode==26?"media.partial":"intent.json");
+                if(mode==26||mode==27||mode==30){reached=true;QThread::msleep(20); // Separate intentional metadata events at native timestamp granularity.
+                    const auto path=f.root/operation.str()/(mode==26?"media.partial":mode==27?"intent.json":"receipt.partial");
                     auto changed=mode==26?f.data:bytes(path);if(changed.empty())throw ProjectError(ErrorCode::Io,"Native pin denied last-edge read");
                     changed.back()^=1;std::ofstream out(path,std::ios::binary|std::ios::trunc);out.write(changed.data(),static_cast<std::streamsize>(changed.size()));out.flush();
                     if(!out)throw ProjectError(ErrorCode::Io,"Native pin denied last-edge in-place write");return;}
@@ -985,7 +990,7 @@ void savedPublicationPermits(unsigned mode){
                 if(mode>=3&&mode<=6){reached=true;const auto path=mode==3?f.source:mode==4?f.root/"project.json":mode==5?f.canonical:f.root/operation.str()/"media.partial";
                     std::ofstream change(path,std::ios::binary|std::ios::trunc);change<<"foreign";change.flush();if(!change)throw ProjectError(ErrorCode::Io,"Native pin denied qualification write");}
             };
-            if((mode>=3&&mode<=6)||mode==9||(mode>=13&&mode<=16)||((mode>=20&&mode<=24)||mode>=26)){bool refused=false;try{permit.publish(prepared,owner,pid,canceled.get_token(),observer);}catch(const ProjectError &e){refused=true;check(e.code()==ErrorCode::Io||e.code()==ErrorCode::MediaMismatch||e.code()==ErrorCode::Canceled,"Unexpected native saved publication refusal");}check(refused&&reached,"Changed native saved publication did not refuse");}
+            if((mode>=3&&mode<=6)||mode==9||(mode>=13&&mode<=16)||((mode>=20&&mode<=24)||(mode>=26&&mode!=29))){bool refused=false;try{permit.publish(prepared,owner,pid,canceled.get_token(),observer);}catch(const ProjectError &e){refused=true;check(e.code()==ErrorCode::Io||e.code()==ErrorCode::MediaMismatch||e.code()==ErrorCode::Canceled,"Unexpected native saved publication refusal");}check(refused&&reached,"Changed native saved publication did not refuse");}
             else if(mode==10){auto moved=std::move(permit);sourceRefuses([&]{permit.publish(prepared,owner,pid);});outcome=moved.publish(prepared,owner,pid);sourceRefuses([&]{moved.publish(prepared,owner,pid);});}
             else if(mode==25){auto staleContext=owner.context;++staleContext.job;SavedRestorationOwnerView stale{f.root,staleContext};
                 sourceRefuses([&]{permit.publish(prepared,stale,pid);});
@@ -993,8 +998,8 @@ void savedPublicationPermits(unsigned mode){
                 outcome=fresh.publish(prepared,owner,pid);sourceRefuses([&]{fresh.publish(prepared,owner,pid);});}
             else outcome=permit.publish(prepared,owner,pid,canceled.get_token(),observer);
             if(successMode){check(outcome.published,"Saved permit did not report publication");committed=outcome;committedOperation=operation;
-                check(mode==7?(!outcome.receiptPublished&&outcome.postCommitFlushFailed):outcome.receiptPublished,"Saved receipt visibility conflated with publication");
-                if(mode==7||mode==8)check(reached,"Postcommit qualification boundary absent");
+                check((mode==7||mode==29)?(!outcome.receiptPublished&&outcome.postCommitFlushFailed):outcome.receiptPublished,"Saved receipt visibility conflated with publication");
+                if(mode==7||mode==8||mode==29)check(reached,"Postcommit qualification boundary absent");
 
             }
         }
@@ -1483,4 +1488,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<29;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

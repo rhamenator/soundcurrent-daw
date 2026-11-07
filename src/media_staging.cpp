@@ -498,10 +498,14 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
     flush(s.directory);
 #endif
     boundary(observer,StageBoundary::BeforeCommit,s.checked.bytes,stop);
+    const auto mediaBeforeVerification=restorationFileStamp(s.file),intentBeforeVerification=restorationFileStamp(s.intent),
+        receiptBeforeVerification=restorationFileStamp(pending);
+    const auto unchanged=[&]{return restorationFileStamp(s.file)==mediaBeforeVerification &&
+        restorationFileStamp(s.intent)==intentBeforeVerification && restorationFileStamp(pending)==receiptBeforeVerification;};
     verifyRecord(s.intent,intent.bytes(),stop);verifyRecord(pending,receipt.bytes(),stop);
     require(digest(s.file,s.checked.bytes,stop)==s.checked.sha256,"Restoration staged content changed",ErrorCode::MediaMismatch);
     flush(s.file);poll(stop);
-    const auto mediaAtHash=restorationFileStamp(s.file),intentAtVerification=restorationFileStamp(s.intent);
+    require(unchanged(),"Restoration file metadata changed during verification",ErrorCode::MediaMismatch);
     boundary(observer,StageBoundary::BeforeRestorationRename,s.checked.bytes,stop);
     // Observer/cancellation work may have yielded. Reopen EVERY canonical parent
     // without creation and require the names to still select our exact handles.
@@ -513,7 +517,7 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
         namedParent=&directories[index++];partBegin=end+1;poll(stop);
     }
     require(index==count,"Restoration destination parent count changed",ErrorCode::InvalidState);
-    require(restorationFileStamp(s.file)==mediaAtHash && restorationFileStamp(s.intent)==intentAtVerification,
+    require(unchanged(),
         "Restoration file metadata changed after final verification",ErrorCode::MediaMismatch);
     poll(stop);restoreRename(s.directory,s.file,*parent,relative.substr(begin));
     s.committed=true;MediaCommitOutcome outcome;outcome.published=true;
@@ -522,6 +526,7 @@ MediaCommitOutcome StagedMedia::restoreMissing(std::string_view relative,const O
         if (observer)observer(StageBoundary::BeforeRestorationReceiptPublish,s.checked.bytes);
         // The asset is already visible. Complete the receipt despite cancellation,
         // or report published=true/receiptPublished=false if this final step fails.
+        verifyRecord(pending,receipt.bytes(),{}); // After visibility, finish receipt despite cancellation.
         renameExclusive(s.directory,pending,"receipt.partial","receipt.json");outcome.receiptPublished=true;
 #ifndef _WIN32
         flush(s.directory);
