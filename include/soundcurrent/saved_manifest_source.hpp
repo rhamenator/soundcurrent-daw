@@ -6,6 +6,7 @@
 namespace soundcurrent::daw {
 struct SavedManifestAuditState;
 class SavedManifestSourceTicket;
+inline constexpr std::size_t savedManifestSourceControlMaximumBytes=8192;
 // I/O-only passive manifest/selected-asset snapshot. No journal, accepted model,
 // source reopen, staging or publication authority is synthesized.
 class SavedManifestAudit {
@@ -37,12 +38,20 @@ class SavedManifestSourceTicket {
         ResourceLedger,std::stop_token = {});
     SavedManifestSourceTicket(SavedManifestSourceTicket &&) noexcept=default;
     SavedManifestSourceTicket(const SavedManifestSourceTicket &)=delete;
+    // Volatile trusted-parent handoff only. The original private ticket is
+    // verified before encoding; the consumer supplies a fresh native audit and
+    // independently observed checker/context. No source paths or authority.
+    OwnedInspectionProtocol copyControlProtocol(SavedManifestAudit &,const WaveCheckReport &,
+        SavedRestorationSourceContext,std::size_t actualPid,ResourceLedger,std::stop_token = {}) const;
+    static SavedManifestSourceTicket fromControlProtocol(std::string_view,SavedManifestAudit &,const WaveCheckReport &,
+        SavedRestorationSourceContext current,std::size_t actualPid,ResourceLedger,std::stop_token = {});
     void verify(SavedManifestAudit &,const WaveCheckReport &,SavedRestorationSourceContext,
         std::size_t actualPid,ResourceLedger,std::stop_token = {}) const;
     void verifyFile(SavedManifestAudit &,const WaveCheckReport &,SavedRestorationSourceContext,
         std::size_t actualPid,ApprovedMediaFile &,ResourceLedger,std::stop_token = {},
         const std::function<void()> &beforeChunk = {}) const;
   private:
+    std::array<char,193> fingerprint() const;
     ResourceLease lease_;
     Id asset_;
     std::array<char,64> sourceSha_{};
