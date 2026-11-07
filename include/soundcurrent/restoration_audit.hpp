@@ -66,10 +66,18 @@ struct SavedRestorationSourceContext {
 };
 // I/O-only metadata binding captured BEFORE the selected checker dispatch.
 // No native handles, passive Session, source reopen or publication authority.
+inline constexpr std::size_t savedSourceControlMaximumBytes=8192;
 class SavedRestorationSourceTicket {
   public:
     SavedRestorationSourceTicket(RestorationAudit &,std::string_view selectedRelative,
         SavedRestorationSourceContext,ResourceLedger,std::stop_token = {});
+    // Volatile trusted-parent control metadata only; never persist as a source,
+    // controller or publication capability. Child owns a fresh native audit and
+    // must match this ORIGINAL private fingerprint, not recapture a newer one.
+    OwnedInspectionProtocol copyControlProtocol(RestorationAudit &,const WaveCheckReport &,
+        SavedRestorationSourceContext,std::size_t observedPid,ResourceLedger,std::stop_token = {}) const;
+    static SavedRestorationSourceTicket fromControlProtocol(std::string_view,RestorationAudit &,const WaveCheckReport &,
+        SavedRestorationSourceContext current,std::size_t observedPid,ResourceLedger,std::stop_token = {});
     SavedRestorationSourceTicket(SavedRestorationSourceTicket &&) noexcept=default;
     SavedRestorationSourceTicket(const SavedRestorationSourceTicket &)=delete;
   private:

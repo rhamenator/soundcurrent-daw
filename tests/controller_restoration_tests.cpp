@@ -3,6 +3,7 @@
 #include <soundcurrent/saved_restoration_record.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
 #include <QCoreApplication>
+#include <QProcess>
 #include <exception>
 #include <QThread>
 #include <nlohmann/json.hpp>
@@ -733,6 +734,114 @@ void savedSourceFileBinding(){
 }
 
 
+std::string savedControlHex(std::string_view bytes){constexpr char digits[]="0123456789abcdef";std::string out;out.reserve(bytes.size()*2);
+    for(unsigned char c:bytes){out+=digits[c>>4];out+=digits[c&15];}return out;}
+std::string savedControlUnhex(std::string_view bytes){check(bytes.size()%2==0&&bytes.size()<=savedRestorationRecordMaximumBytes*2,"Invalid saved result hex extent");
+    auto digit=[](char c)->unsigned{if(c>='0'&&c<='9')return unsigned(c-'0');if(c>='a'&&c<='f')return unsigned(c-'a'+10);throw std::runtime_error("Invalid saved result hex");};
+    std::string out;for(std::size_t n=0;n<bytes.size();n+=2)out+=char((digit(bytes[n])<<4)|digit(bytes[n+1]));return out;}
+void savedControlProtocols(){
+    Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();const auto original=physical(f.root);
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
+        const auto native=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(native.data()),native.size());
+        const SavedRestorationSourceContext context{0,0,561,1};SavedRestorationSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);check(checker.submitReplacement(f.source)==Admission::Accepted,"Control checker refused");checked=finishSource(checker);}
+        check(checked->job==1&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,"Control proof lacks actual reaped checker");
+        const auto &report=*checked->report;const auto pid=checked->childPid;
+        auto proof=ticket.copyControlProtocol(audit,report,context,pid,memory);const auto encoded=std::string(proof.bytes());
+        {auto copy=SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,memory);
+         verifySavedRestorationSourceReport(copy,audit,report,context,pid,memory);auto round=copy.copyControlProtocol(audit,report,context,pid,memory);check(round.bytes()==proof.bytes(),"Original control fingerprint changed in round trip");}
+        auto refuses=[&](std::string_view bytes){bool caught=false;try{auto invalid=SavedRestorationSourceTicket::fromControlProtocol(bytes,audit,report,context,pid,memory);}catch(const ProjectError &){caught=true;}check(caught,"Invalid original control proof qualified");};
+        const auto parsed=nlohmann::json::parse(encoded);
+        for(auto it=parsed.begin();it!=parsed.end();++it){auto changed=parsed;changed.erase(it.key());refuses(changed.dump());}
+        for(unsigned mode=0;mode<11;++mode){auto j=parsed;
+            if(mode==0)j["request"]=context.request+1;
+            if(mode==1)j["rootAndFilesHex"]="00";
+            if(mode==2){auto token=j["rootAndFilesHex"].get<std::string>();token[0]=token[0]=='0'?'1':'0';j["rootAndFilesHex"]=token;}
+            if(mode==3){auto token=j["rootAndFilesHex"].get<std::string>();token[112]=token[112]=='0'?'1':'0';j["rootAndFilesHex"]=token;}
+            if(mode==4)j["selectedRelativeHex"]="ff";
+            if(mode==5)j["sourceBytes"]=0;
+            if(mode==6)j["sourceRootsPersisted"]=true;
+            if(mode==7)j["job"]=-1;
+            if(mode==8)j["frames"]=1.0;
+            if(mode==9)j["rate"]=nlohmann::json::object();
+            if(mode==10)j["schema"]="sc-saved-asset-restoration-v1";
+            refuses(j.dump());}
+        for(unsigned field=0;field<14;++field){auto j=parsed;auto token=j["rootAndFilesHex"].get<std::string>();
+            if(field<13){const auto at=field<7?field*16:112+(field-7)*128;token[at]=token[at]=='0'?'1':'0';}
+            else {auto raw=savedControlUnhex(token);raw.back()=char(static_cast<unsigned char>(raw.back())^4U);token=savedControlHex(raw);}
+            j["rootAndFilesHex"]=token;refuses(j.dump());}
+        refuses("{\"job\":1,"+encoded.substr(1));refuses(encoded+"{}");refuses(std::string(savedSourceControlMaximumBytes+1,'x'));
+        for(unsigned mode=0;mode<2;++mode){ResourceLedger foreign(64*1024*1024,"Foreign control");auto sibling=memory.child(64*1024*1024,"Sibling control");auto other=mode?sibling:foreign;
+            sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,other);});}
+        std::stop_source stop;stop.request_stop();sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,memory,stop.get_token());},ErrorCode::Canceled);
+        const auto usage=memory.usage();memory.configure(usage.reservedBytes);sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,memory);},ErrorCode::ResourceLimit);memory.configure(usage.limitBytes);
+        std::filesystem::create_directory(f.root/"changed-after-original-control");
+        auto newer=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
+        sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,newer,report,context,pid,memory);},ErrorCode::MediaMismatch);
+        check(std::filesystem::remove(f.root/"changed-after-original-control"),"Cannot retire intentional control mutation");
+    }
+    check(physical(f.root)==original,"Control codec changed original project facts");check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Control proof admission leaked");coldOwner(*f.controller->snapshot());
+}
+void isolatedSavedStage(unsigned mode){
+    Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();const auto original=physical(f.root);const auto operation=Id::generate();
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
+        const auto native=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(native.data()),native.size());
+        const auto empty=f.controller->snapshot();const SavedRestorationSourceContext context{empty->projectEpoch,empty->modelRevision,561,1};SavedRestorationSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);check(checker.submitReplacement(f.source)==Admission::Accepted,"Isolated saved checker refused");checked=finishSource(checker);}
+        check(checked->job==context.job&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,"Isolated source checker incomplete");
+        auto control=ticket.copyControlProtocol(audit,*checked->report,context,checked->childPid,memory);
+        auto report=checked->report->copyProtocol(memory);auto bank=memory.reserve(3*65536);
+        auto pathHex=[](const std::filesystem::path &path){const auto value=path.u8string();return savedControlHex(std::string_view(reinterpret_cast<const char *>(value.data()),value.size()));};
+        QProcess child;child.setProcessChannelMode(QProcess::SeparateChannels);
+#ifdef _WIN32
+        const auto executable=QCoreApplication::applicationDirPath()+QStringLiteral("/sc-saved-restoration-worker.exe");
+#else
+        const auto executable=QCoreApplication::applicationDirPath()+QStringLiteral("/sc-saved-restoration-worker");
+#endif
+        QStringList arguments{QStringLiteral("--maximum-source-bytes"),QStringLiteral("1024")};
+        if(mode==8)arguments<<QStringLiteral("--memory-bytes")<<QStringLiteral("67108864");
+        child.start(executable,arguments);check(child.waitForStarted(3000),"Saved staging child failed to start");const auto pid=static_cast<std::uint64_t>(child.processId());check(pid>0,"Saved staging actual child PID absent");
+        const SavedRestorationRecordContext current{context,561,562,1,pid};
+        nlohmann::json request{{"protocol","sc-saved-staging-worker-v1"},{"project",f.initial->session->id.str()},{"asset",f.asset.id.str()},{"historyOperation",history.str()},
+            {"operation",operation.str()},{"rootHex",pathHex(f.root)},{"sourceRootHex",pathHex(f.source.parent_path())},{"sourceLeafHex",pathHex(f.source.filename())},
+            {"sourceControlHex",savedControlHex(control.bytes())},{"checkReportHex",savedControlHex(report.bytes())},{"checkPid",checked->childPid},{"maximumBytes",1024U},
+            {"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},{"sourceRequest",context.request},{"sourceJob",context.job},{"preparationJob",current.preparationJob},
+            {"request",current.request},{"job",current.job},{"workerPid",pid}};
+        if(mode==1)request["workerPid"]=pid+1;
+        if(mode==2)request["sourceRequest"]=context.request+1;
+        if(mode==3){std::filesystem::create_directory(f.root/"changed-before-child");}
+        if(mode==4){auto j=nlohmann::json::parse(control.bytes());auto value=j["rootAndFilesHex"].get<std::string>();value[112]=value[112]=='0'?'1':'0';j["rootAndFilesHex"]=value;request["sourceControlHex"]=savedControlHex(j.dump());}
+        if(mode==5)request["sourceLeafHex"]=savedControlHex("../escape.wav");
+        auto wire=request.dump();if(mode==6)wire="{\"workerPid\":"+std::to_string(pid)+","+wire.substr(1);
+        if(mode==7)wire+="\n{}";
+        if(mode==9)wire.resize(wire.size()/2);
+        check(wire.size()<65536,"Isolated request exceeds test bank");if(mode!=9)wire+='\n';check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Saved child request not queued");child.closeWriteChannel();
+        check(child.waitForFinished(15000),"Saved child did not terminate/reap in deadline");check(child.state()==QProcess::NotRunning&&static_cast<std::uint64_t>(child.processId())==0,"Saved child still running after terminal wait");
+        const auto output=child.readAllStandardOutput(),error=child.readAllStandardError();check(output.size()<=32768&&error.size()<=32768,"Saved child exceeded output banks");
+        if(mode==0){if(child.exitStatus()!=QProcess::NormalExit||child.exitCode()!=0){
+                write(f.owned.path/"saved-worker-request.json",wire);write(f.owned.path/"saved-worker-stdout.json",output.toStdString());write(f.owned.path/"saved-worker-stderr.json",error.toStdString());
+                std::cerr<<"Saved child diagnostic "<<error.toStdString()<<'\n';}
+            check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()==0,"Actual saved worker refused valid request");
+            const auto result=nlohmann::json::parse(output.toStdString());check(result.is_object()&&result.size()==4&&result.at("protocol")=="sc-saved-staging-result-v1"&&result.at("workerPid")==pid&&
+                result.at("published").is_boolean()&&!result.at("published").get<bool>(),"Saved result has wrong actual PID or publication fact");
+            const auto recordBytes=savedControlUnhex(result.at("recordHex").get<std::string>());auto record=decodeSavedRestorationRecord(recordBytes,memory);
+            verifySavedRestorationRecord(record,f.initial->session->id,f.asset,{checked->report->audio().sourceBytes,checked->report->audio().sourceSha256},current,operation,SavedRestorationPhase::Planned,memory);++checks;
+            check(bytes(f.root/operation.str()/"intent.json")==recordBytes&&bytes(f.root/operation.str()/"media.partial")==f.data,"Reaped saved worker did not preserve exact stage bytes");
+            check(!std::filesystem::exists(f.canonical)&&!std::filesystem::exists(f.root/operation.str()/"receipt.json"),"Saved stage-only child published media/receipt");
+        }else{check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()!=0&&output.isEmpty(),"Invalid saved child request qualified evidence");
+            if(mode==8){const auto failed=nlohmann::json::parse(error.toStdString());check(failed.at("errorCode")==static_cast<unsigned>(ErrorCode::ResourceLimit)&&!failed.at("stagingMayExist").get<bool>()&&!failed.at("published").get<bool>(),"Saved worker quota bypassed original project admission");}
+            check(!std::filesystem::exists(f.root/operation.str())&&!std::filesystem::exists(f.canonical),"Rejected saved child mutated destination");}
+        if(mode==3)check(std::filesystem::remove(f.root/"changed-before-child"),"Cannot retire intentional child root mutation");
+    }
+    const auto after=physical(f.root);for(const auto &[path,value]:original)check(after.contains(path)&&after.at(path)==value,"Isolated worker changed original project evidence");
+    if(mode)check(after==original,"Refused isolated worker added project entries");
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Isolated worker leaked parent admission");coldOwner(*f.controller->snapshot());
+}
+
 void savedNativeStage(unsigned mode){
     Fixture f;const auto oldOperation=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
     const auto original=physical(f.root);const auto originalSource=bytes(f.source);const auto operation=mode==2?oldOperation:Id::generate();
@@ -1020,4 +1129,4 @@ void savedRestorationRecords(){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
