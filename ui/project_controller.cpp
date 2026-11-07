@@ -1062,7 +1062,8 @@ struct ProjectController::State : QThread {
             if(value.error){value.recordVerified=false;value.stagedBytesVerified=false;}
             view.savedStagingCompleted=std::move(value);
             if(view.savedStagingCompleted.error)error(*view.savedStagingCompleted.error,view.savedStagingCompleted.stagingMayExist ?
-                "Saved staging requires inspection; partial files may exist" : "Saved staging refused before a child started");
+                "Saved staging requires inspection; partial files may exist" : view.savedStagingCompleted.launchAttempted ?
+                "Saved staging launch retired without a verified child identity" : "Saved staging refused before launch");
             return; // Empty controller, no Session/history/autosave/publication ownership granted.
         }
         if(result.job.operation==IoOperation::RestoreAsset) {

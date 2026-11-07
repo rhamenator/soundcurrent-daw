@@ -16,7 +16,7 @@ namespace {
 void check(bool ok,const char *text,ErrorCode code=ErrorCode::InvalidState) {if(!ok)throw ProjectError(code,text);}
 std::string hex(std::string_view s) {constexpr char d[]="0123456789abcdef";std::string out;out.reserve(s.size()*2);for(unsigned char c:s){out+=d[c>>4];out+=d[c&15];}return out;}
 std::string native(const std::filesystem::path &p){const auto u=p.u8string();return {reinterpret_cast<const char *>(u.data()),u.size()};}
-std::string unhex(const nlohmann::json &j){check(j.is_string(),"Restoration record is not hex");const auto &s=j.get_ref<const std::string &>();check(s.size()<=assetRestorationRecordMaximumBytes*2 && s.size()%2==0,"Restoration record extent");
+std::string unhex(const nlohmann::json &j,std::size_t maximum=assetRestorationRecordMaximumBytes){check(j.is_string(),"Restoration record is not hex");const auto &s=j.get_ref<const std::string &>();check(s.size()%2==0 && s.size()/2<=maximum,"Restoration record extent");
     auto digit=[](char c)->unsigned{if(c>='0'&&c<='9')return unsigned(c-'0');if(c>='a'&&c<='f')return unsigned(c-'a'+10);throw ProjectError(ErrorCode::InvalidState,"Restoration record hex");};
     std::string out;out.reserve(s.size()/2);for(std::size_t i=0;i<s.size();i+=2)out+=char((digit(s[i])<<4)|digit(s[i+1]));return out;}
 nlohmann::json frame(std::string_view wire,std::initializer_list<std::string_view> keys){
@@ -208,7 +208,10 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
             check(options.savedStagingFixtureMode.size()<=32,"Saved fixture mode extent");
             arguments<<QStringLiteral("--fixture-mode")<<QString::fromStdString(options.savedStagingFixtureMode);
         }
+        out.launchAttempted=true;
         child.start(program,arguments,QIODevice::ReadWrite);
+        if(options.savedStagingAfterLaunch)options.savedStagingAfterLaunch();
+        poll();
         while(child.state()==QProcess::Starting){child.waitForStarted(20);
         poll();}
         check(child.state()==QProcess::Running && out.childPid && out.childPid<=UINT32_MAX,"Saved staging child did not start with a bounded native PID",ErrorCode::Io);
@@ -242,7 +245,7 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         check(!output.empty() && output.find('\n')==output.size()-1,"Saved staging terminal framing");
         const auto terminal=frame(output,{"protocol","workerPid","published","recordHex"});
         check(terminal.at("protocol")=="sc-saved-staging-result-v1" && integer(terminal.at("workerPid"))==out.childPid && !boolean(terminal.at("published")),"Saved staging terminal identity");
-        auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex")),memory,stop);
+        auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex"),savedRestorationRecordMaximumBytes),memory,stop);
         const auto &audio=checked.report->audio();CheckedMediaBytes content{audio.sourceBytes,audio.sourceSha256};
         verifySavedRestorationRecord(record,original.project,*asset,content,current,operation,SavedRestorationPhase::Planned,memory,stop);out.recordVerified=true;
         // Independent read after native exclusive writer handles have retired.
@@ -257,13 +260,14 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         poll();out.stagedBytesVerified=true;
         if(options.savedStagingAfterVerification)options.savedStagingAfterVerification(); // Final control-thread cancel/close ordering is checked by finishIo.
     }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled && !closing.load(std::memory_order_acquire) && !cancel.load(std::memory_order_acquire) && expired())out.error=ErrorCode::Io;}catch(const std::exception &){out.error=ErrorCode::Io;}
-    const auto probe=[&](bool reaped){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(reaped);}catch(...){out.error=ErrorCode::Io;}};
-    if(child.state()!=QProcess::NotRunning){if(out.childPid)probe(false);out.killed=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    const auto probe=[&](bool reaped){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(reaped);}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}};
+    if(child.state()!=QProcess::NotRunning){if(out.childPid)probe(false);out.killRequested=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    out.launchRetired=out.launchAttempted && child.state()==QProcess::NotRunning;
     if(out.childPid){out.childExit=child.exitCode();out.reaped=true;out.normalExit=child.exitStatus()==QProcess::NormalExit;} // Actual QProcess retirement on every launched-child path.
     if(out.reaped)probe(true); // Both parent native pins and selected source still live AFTER child retirement.
     watchdog.request_stop();if(watchdog.joinable())watchdog.join();
     sourceOwner.reset();sourceRootOwner.reset();destinationOwner.reset();auditOwner.reset();controlOwner.reset();reportOwner.reset();
-    try{if(options.savedStagingAfterNativeRetirement)options.savedStagingAfterNativeRetirement();}catch(...){out.error=ErrorCode::Io;}
+    try{if(options.savedStagingAfterNativeRetirement)options.savedStagingAfterNativeRetirement();}catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}
     if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
     return out;
 }

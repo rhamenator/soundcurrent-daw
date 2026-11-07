@@ -59,9 +59,21 @@ Once a child actually starts, staging-may-exist stays conservative even before
 the request is sent. A missing, malformed or truncated reply, overflow, cancellation,
 deadline, crash or closed pipe must never prove no files were created. The parent
 retains honest PID/exit/reap/request facts and partial files for inspection.
-Reported QProcess normal/crash status and a separate parent-killed flag are
-retained; exitCode alone, even zero, never establishes normal completion.
-Pre-spawn refusals report that no child started instead of claiming partial files. It
+Reported QProcess normal/crash status and a separate kill-request flag are
+retained; a request does not attribute an exit that races it. Launch-attempt and
+launch-retirement facts are separate from a confirmed started PID, so cancellation
+while QProcess is still Starting never means that no launch was attempted.
+exitCode alone, even zero, never establishes normal completion.
+Refusals before launch have no operation or child identity. Failed or interrupted
+launch attempts report their retirement without inventing a confirmed child PID
+or exit. An auxiliary qualification-probe failure is recorded separately and
+preserves the first Canceled/ResourceLimit/etc. cause while invalidating positive
+verification. The saved record uses its own saved-schema extent limit explicitly.
+The logical deadline requests cancellation/kill; it cannot preempt an individual
+kernel call or promise a finite kernel retirement time. The I/O owner and all
+native pins remain held until actual QProcess retirement, even if the kernel
+keeps close pending. The GUI's asynchronous closing state remains honest; the
+parent never detaches or declares a live child reaped to meet a timer. It
 does not erase staging, publish canonical media, write publication receipts,
 release accepted-model reconciliation, adopt a project or bypass strict Open.
 

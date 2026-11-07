@@ -172,7 +172,8 @@ struct SavedStagingCompletion {
     std::optional<int> childExit;
     bool reaped=false,requestSent=false,stagingMayExist=false,recordVerified=false,stagedBytesVerified=false;
     std::optional<bool> normalExit; // Present only after an actually reaped child; exitCode alone is not normal-exit proof.
-    bool killed=false;
+    bool killRequested=false; // An issued request, not attribution if exit raced it.
+    bool launchAttempted=false,launchRetired=false,qualificationProbeFailed=false;
     std::optional<ErrorCode> error;
 };
 struct ControllerSnapshot {
@@ -250,7 +251,7 @@ struct ControllerOptions {
     std::function<void()> savedStagingBeforeSourceChunk = {},savedStagingBeforeDestination = {};
     std::function<void(std::string_view)> savedStagingDiagnosticHook = {}; // Qualification only.
     std::function<void(bool reaped)> savedStagingRetirementProbe = {}; // Qualification with native pins held, before kill and after reap.
-    std::function<void()> savedStagingAfterNativeRetirement = {},savedStagingAfterVerification = {};
+    std::function<void()> savedStagingAfterNativeRetirement = {},savedStagingAfterVerification = {},savedStagingAfterLaunch = {};
     std::string savedStagingFixtureMode = {}; // Qualification only; production worker rejects this argument.
     std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};
     std::function<void(std::string &,std::size_t)> savedStagingTerminalHook = {};
