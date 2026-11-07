@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "restoration_process.hpp"
 #include <soundcurrent/saved_restoration_record.hpp>
+#include <soundcurrent/saved_restoration_stage.hpp>
 #include <QCoreApplication>
 #include <exception>
 #include <QThread>
@@ -15,6 +16,8 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
@@ -730,6 +733,124 @@ void savedSourceFileBinding(){
 }
 
 
+void savedNativeStage(unsigned mode){
+    Fixture f;const auto oldOperation=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto original=physical(f.root);const auto originalSource=bytes(f.source);const auto operation=mode==2?oldOperation:Id::generate();
+    bool staged=false;SavedRestorationRecordContext writtenContext{};CheckedMediaBytes writtenContent{};
+    const auto alternate=f.owned.path/"other-staging-root";if(mode==4)std::filesystem::copy(f.root,alternate,std::filesystem::copy_options::recursive);
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,oldOperation,1024,memory);
+        const auto leaf=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(leaf.data()),leaf.size());
+        const SavedRestorationSourceContext context{0,0,555,1};SavedRestorationSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);
+         check(checker.submitReplacement(f.source)==Admission::Accepted,"Saved staging checker refused");checked=finishSource(checker);}
+        check(checked->job==1&&checked->phase==WaveCheckPhase::Complete&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,
+            "Saved staging lacks actual reaped checker");
+#ifdef _WIN32
+        const auto writer=static_cast<std::uint64_t>(GetCurrentProcessId());
+#else
+        const auto writer=static_cast<std::uint64_t>(getpid());
+#endif
+        SavedRestorationRecordContext current{context,555,556,1,mode==1?writer+1:writer};
+        if(mode==15)current.preparationJob=0;
+        if(mode==16)++current.source.request;
+        if(mode==18)std::filesystem::create_directory(f.root/"changed-before-prepare");
+        auto scope=mode==3?memory.child(64*1024*1024,"Wrong saved staging scope"):memory;
+        ApprovedMediaRoot selected(f.source.parent_path(),scope,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+        std::stop_source cancel;if(mode==13)cancel.request_stop();bool boundary=false;
+        const auto observer=[&](StageBoundary at,std::uint64_t){
+            if(mode==4&&at==StageBoundary::BeforeDirectory)boundary=true;
+            if(mode==5&&at==StageBoundary::BeforeDirectory){boundary=true;std::filesystem::create_directory(f.root/"changed-before-create");}
+            if(mode==6&&at==StageBoundary::BeforeWrite){boundary=true;cancel.request_stop();}
+        };
+        auto prepare=[&]{return SavedRestorationStage::prepare(std::move(source),mode==4?alternate:f.root,std::move(audit),ticket,
+            *checked->report,mode==17?checked->childPid+1:checked->childPid,current,operation,mode==12?1:1024,{},cancel.get_token(),observer);};
+        const bool refusal=(mode>=1&&mode<=6)||mode==12||mode==13||mode==14||(mode>=15&&mode<=18);
+        auto expectedBefore=physical(f.root);if(mode==5)expectedBefore.emplace("changed-before-create","directory");
+        const auto alternateBefore=mode==4?physical(alternate):decltype(expectedBefore){};
+        ApprovedMediaRoot witness(f.root,memory,{1});const auto beforeStamp=witness.directoryStamp();
+        if(mode==14)memory.configure(memory.usage().reservedBytes);
+        if(refusal){bool refused=false;try{auto impossible=prepare();}catch(const ProjectError &error){refused=true;
+                if(mode==4||mode==5||mode==18)check(error.code()==ErrorCode::MediaMismatch,"Saved native-root refusal used wrong code");
+                if(mode==6||mode==13)check(error.code()==ErrorCode::Canceled,"Saved cancellation used wrong code");
+                if(mode==12||mode==14)check(error.code()==ErrorCode::ResourceLimit,"Saved quota refusal used wrong code");
+                if(mode==1||mode==2||mode==3||mode==15||mode==16||mode==17)check(error.code()==ErrorCode::InvalidState,"Saved owner refusal used wrong code");
+            }check(refused,"Invalid saved stage qualified");
+            if(mode==14)memory.configure(baseline.limitBytes);
+            if(mode==4)check(!boundary,"Wrong native root reached BeforeDirectory hook");
+            if(mode==5||mode==6)check(boundary,"Saved staging boundary refusal unexercised");
+            if(mode!=6)check(!std::filesystem::exists((mode==4?alternate:f.root)/operation.str())||mode==2,
+                "Pre-create saved refusal created an operation");
+            if(mode==6){check(std::filesystem::is_directory(f.root/operation.str())&&
+                    std::filesystem::is_regular_file(f.root/operation.str()/"media.partial")&&
+                    std::filesystem::is_regular_file(f.root/operation.str()/"intent.json"),"Canceled saved stage lost partial evidence");
+                check(!std::filesystem::exists(f.canonical)&&!std::filesystem::exists(f.root/operation.str()/"receipt.json")&&
+                    !std::filesystem::exists(f.root/operation.str()/"receipt.partial"),"Canceled saved stage published media or receipt");}
+            if(mode!=6){check(physical(f.root)==expectedBefore,"Pre-create refusal changed complete project contents");
+                if(mode!=5)check(witness.directoryStamp()==beforeStamp,"Pre-create refusal changed native directory stamp");
+                if(mode==4)check(physical(alternate)==alternateBefore,"Wrong-root refusal changed complete alternate contents");}
+
+        }else{
+            auto stage=prepare();check(stage.record().data().context==current&&stage.record().data().project==f.initial->session->id&&
+                stage.record().data().operation==operation&&stage.record().data().phase==SavedRestorationPhase::Planned,"Saved stage lost current metadata");
+            staged=true;writtenContext=current;writtenContent={checked->report->audio().sourceBytes,checked->report->audio().sourceSha256};
+            check(stage.relativePath()==operation.str()+"/media.partial"&&
+                !std::filesystem::exists(f.canonical)&&!std::filesystem::exists(f.root/operation.str()/"receipt.json"),"Saved stage published/adopted");
+            // Windows intentionally denies pathname reads while the live writer
+            // owns exclusive intent/media handles. reverify hashes those held
+            // handles. Independently read files below AFTER owner retirement.
+#ifdef _WIN32
+            for(const auto &ownedLeaf:{"intent.json","media.partial"}){const auto path=f.root/operation.str()/ownedLeaf;
+                const auto h=CreateFileW(path.c_str(),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+                const auto error=h==INVALID_HANDLE_VALUE?GetLastError():ERROR_SUCCESS;
+                if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+                check(h==INVALID_HANDLE_VALUE&&error==ERROR_SHARING_VIOLATION,"Saved Windows live writer allowed pathname read");}
+#else
+            check(bytes(f.root/stage.relativePath())==originalSource,"Saved stage changed source content");
+#endif
+            stage.reverify();++checks;
+            if(mode==19){std::stop_source stopped;stopped.request_stop();sourceRefuses([&]{stage.reverify(stopped.get_token());},ErrorCode::Canceled);stage.reverify();++checks;}
+            else if(mode==20){const auto usage=memory.usage();memory.configure(usage.reservedBytes);sourceRefuses([&]{stage.reverify();},ErrorCode::ResourceLimit);memory.configure(usage.limitBytes);stage.reverify();++checks;}
+            else if(mode==7){auto moved=std::move(stage);sourceRefuses([&]{stage.reverify();});moved.reverify();++checks;}
+            else if(mode>=8&&mode<=11){
+                if(mode==9)std::filesystem::create_directory(f.root/"changed-after-create");
+                else {const auto path=mode==8?f.source:f.root/(mode==10?operation:oldOperation).str()/"media.partial";
+#ifdef _WIN32
+                    const auto h=CreateFileW(path.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
+                    check(h==INVALID_HANDLE_VALUE,"Live saved stage failed to pin native source/evidence");if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
+#else
+                    auto changed=f.data;changed.back()^=1;write(path,changed);
+#endif
+                }
+                if(mode==9){sourceRefuses([&]{stage.reverify();},ErrorCode::MediaMismatch);}
+#ifndef _WIN32
+                else {sourceRefuses([&]{stage.reverify();},ErrorCode::MediaMismatch);}
+#else
+                else {stage.reverify();++checks;}
+#endif
+            }else {stage.reverify();stage.reverify();++checks;}
+        }
+    }
+    if(staged){
+        {auto record=decodeSavedRestorationRecord(bytes(f.root/operation.str()/"intent.json"),memory);
+         verifySavedRestorationRecord(record,f.initial->session->id,f.asset,writtenContent,writtenContext,operation,SavedRestorationPhase::Planned,memory);++checks;}
+#ifndef _WIN32
+        if(mode!=10) // mode10 deliberately changed the new native stage.
+#endif
+            check(bytes(f.root/operation.str()/"media.partial")==originalSource,"Retired saved stage has wrong content");
+    }
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved stage native/admission owners leaked");
+    const auto after=physical(f.root);
+    for(const auto &[name,value]:original){
+#ifndef _WIN32
+        if(mode==11&&name==oldOperation.str()+"/media.partial")continue;
+#endif
+        check(after.contains(name)&&after.at(name)==value,"Saved staging rewrote historical project evidence");
+    }
+    coldOwner(*f.controller->snapshot());
+}
+
 void ownedStagingAudit(unsigned mode){
     Fixture f;const auto originalOperation=stagedOperation(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
     const auto original=physical(f.root);const auto originalSource=bytes(f.source);const auto operation=Id::generate();
@@ -899,4 +1020,4 @@ void savedRestorationRecords(){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -8,6 +8,7 @@ enum class RestorationMediaObservation { Missing, Verified };
 enum class RestorationReceiptObservation { Missing, Partial, Final };
 struct RestorationAuditState;
 class SavedRestorationSourceTicket;
+class SavedRestorationStage;
 struct SavedRestorationSourceContext;
 // Read-only I/O-worker snapshot, never publication/resume/rollback authority.
 // The manifest is passively admitted; unrelated media need not exist. Strict
@@ -35,6 +36,7 @@ class RestorationAudit {
     void reverifyAfterOwnedStaging(const PreparedAssetRestoration &,std::stop_token = {});
   private:
     friend class SavedRestorationSourceTicket;
+    friend class SavedRestorationStage;
     friend void verifySavedRestorationSourceReport(const SavedRestorationSourceTicket &,RestorationAudit &,
         const WaveCheckReport &,SavedRestorationSourceContext,std::size_t,ResourceLedger,std::stop_token);
     friend RestorationAudit inspectAssetRestoration(const std::filesystem::path &,const Id &,const Asset &,

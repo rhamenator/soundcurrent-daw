@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/restoration_audit.hpp>
 #include <algorithm>
+#include <soundcurrent/saved_restoration_stage.hpp>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 namespace soundcurrent::daw {
 namespace {
 void require(bool value,const char *message,ErrorCode code=ErrorCode::InvalidState) {
@@ -218,5 +227,76 @@ void verifySavedRestorationSourceFile(const SavedRestorationSourceTicket &ticket
     // again after it, rather than relying on the audit from before the read.
     verifySavedRestorationSourceReport(ticket,audit,report,context,pid,memory,stop);
     source.verifyUnchanged();poll(stop);
+}
+} // namespace soundcurrent::daw
+
+namespace soundcurrent::daw {
+struct SavedRestorationStageState {
+    ResourceLease lease;
+    ResourceLedger memory;
+    RestorationAudit audit;
+    SavedRestorationRecord record;
+    ApprovedMediaFile source;
+    StagedMedia stage;
+    SavedRestorationStageState(ResourceLease grant,ResourceLedger resources,RestorationAudit original,
+        SavedRestorationRecord evidence,ApprovedMediaFile selected,StagedMedia prepared)
+        :lease(std::move(grant)),memory(resources),audit(std::move(original)),record(std::move(evidence)),
+         source(std::move(selected)),stage(std::move(prepared)) {}
+};
+SavedRestorationStage::SavedRestorationStage(std::unique_ptr<SavedRestorationStageState> state):state_(std::move(state)) {}
+SavedRestorationStage::SavedRestorationStage(SavedRestorationStage &&) noexcept=default;
+SavedRestorationStage::~SavedRestorationStage()=default;
+const SavedRestorationRecord &SavedRestorationStage::record() const {
+    require(bool(state_),"Retired saved restoration stage");return state_->record;
+}
+const std::string &SavedRestorationStage::relativePath() const {record();return state_->stage.relativePath();}
+SavedRestorationStage SavedRestorationStage::prepare(ApprovedMediaFile source,const std::filesystem::path &root,RestorationAudit audit,
+    const SavedRestorationSourceTicket &ticket,const WaveCheckReport &report,std::size_t observedCheckerPid,
+    SavedRestorationRecordContext current,Id operation,std::uint64_t maximum,WaveValidationLimits limits,
+    std::stop_token stop,const StageObserver &observer) {
+    poll(stop);const auto memory=source.resourceLedger();require(audit.ownedBy(memory),"Saved staging audit scope mismatch");
+#ifdef _WIN32
+    const auto actualPid=static_cast<std::uint64_t>(GetCurrentProcessId());
+#else
+    const auto actualPid=static_cast<std::uint64_t>(getpid());
+#endif
+    require(current.workerPid==actualPid,"Saved staging writer is not this native process");
+    require(operation!=audit.intent().operation,"Saved staging cannot reuse historical operation");
+    require(maximum>0 && maximum<=static_cast<std::uint64_t>(INT64_MAX) && source.size()<=maximum,
+        "Invalid saved staging source budget",ErrorCode::ResourceLimit);
+    auto grant=memory.reserve(sizeof(SavedRestorationStageState)+4096);
+    verifySavedRestorationSourceFile(ticket,audit,report,current.source,observedCheckerPid,source,memory,stop);
+    const auto &original=audit.intent();const auto &manifest=audit.manifest();
+    const auto found=std::find_if(manifest.assets.begin(),manifest.assets.end(),[&](const Asset &a){return a.id==original.asset;});
+    require(found!=manifest.assets.end(),"Saved staging asset disappeared");
+    const auto checked=verifyAssetReplacement(source,*found,limits,stop);
+    SavedRestorationRecordData data{operation,manifest.id,found->id};data.context=current;data.relativePath=found->relativePath;
+    data.content={checked.sourceBytes,checked.sourceSha256};data.frames=found->frames;data.rate=found->sampleRate;data.layout=found->layout;
+    require(data.content.bytes==original.content.bytes && data.content.sha256==original.content.sha256 &&
+        data.frames==original.frames && data.rate==original.rate && data.layout==original.layout,
+        "Fresh saved decode differs from original audit",ErrorCode::MediaMismatch);
+    auto record=SavedRestorationRecord::planned(data,memory,stop);
+    // A fresh full finite decode is separate from a previous checker report.
+    // Recheck that original report/fingerprint and the same native source again.
+    verifySavedRestorationSourceFile(ticket,audit,report,current.source,observedCheckerPid,source,memory,stop);
+    auto intent=encodeSavedRestorationRecord(record,SavedRestorationPhase::Planned,memory,stop);
+    auto stage=StagedMedia::prepareSavedRestorationStage(source,root,data.content,maximum,std::move(operation),intent,
+        audit.state().stamp,stop,observer);
+    SavedRestorationStage result(std::make_unique<SavedRestorationStageState>(std::move(grant),memory,std::move(audit),
+        std::move(record),std::move(source),std::move(stage)));
+    result.reverify(stop);return result;
+}
+void SavedRestorationStage::reverify(std::stop_token stop) {
+    record();auto &s=*state_;poll(stop);const auto &original=s.audit.intent();const auto &d=s.record.data();
+    require(s.record.ownedBy(s.memory) && s.audit.ownedBy(s.memory) && s.source.ownedBy(s.memory),"Saved stage scope mismatch");
+    require(d.operation!=original.operation && d.asset==original.asset && d.relativePath==original.relativePath &&
+        d.content.bytes==original.content.bytes && d.content.sha256==original.content.sha256 &&
+        d.frames==original.frames && d.rate==original.rate && d.layout==original.layout,"Saved stage changed original identity");
+    auto intent=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Planned,s.memory,stop);
+    const auto verify=[&]{s.stage.verifyRestorationParentTransition(s.audit.state().stamp,s.audit.state().root.directoryStamp(),
+        original.content,intent.bytes(),s.memory,stop);};
+    verify();s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
+    require(s.source.digest(stop)==d.content.sha256 && s.source.size()==d.content.bytes,"Saved stage source changed",ErrorCode::MediaMismatch);
+    verify();poll(stop);
 }
 } // namespace soundcurrent::daw
