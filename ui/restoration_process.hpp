@@ -34,13 +34,14 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
     const std::atomic<bool> &closing,const std::atomic<bool> &cancel);
 // Parent supervisor only. Caller freezes the actual empty owner/context and
 // uses THIS mutex for cancel/close as well; no GUI command/adoption is implied.
-struct SavedPublicationProcessResult {
-    SavedStagingCompletion staging;
-    bool permitSent=false,terminalVerified=false,canonicalVerified=false,receiptVerified=false,needsReconciliation=false;
-    std::optional<bool> published;
-    bool receiptPublished=false,postCommitFlushFailed=false;
-    unsigned durability=0;
-};
+using SavedPublicationProcessResult=SavedPublicationCompletion;
+// Controller I/O owns this progress storage BEFORE invocation. Phase, PID and
+// permission facts survive even an unexpected exception escaping an epilogue.
+void runSavedPublicationProcessInto(SavedPublicationProcessResult &,const RestorationInspectionRequest &original,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedRestorationSourceTicket &,const WaveCheckSnapshot &,std::uint64_t preparationJob,
+    std::uint64_t request,std::uint64_t job,const ControllerOptions &,ResourceLedger,
+    const std::atomic<bool> &closing,const std::atomic<bool> &cancel,QMutex &permissionMutex);
 SavedPublicationProcessResult runSavedPublicationProcess(const RestorationInspectionRequest &original,
     const std::filesystem::path &root,const std::filesystem::path &source,
     const SavedRestorationSourceTicket &,const WaveCheckSnapshot &,std::uint64_t preparationJob,

@@ -1581,6 +1581,78 @@ bool nativeReadPin(const std::filesystem::path &path){
 #endif
 }
 ProjectCommand stageSaved(std::uint64_t preparation,std::uint64_t request=1){ProjectCommand c{CommandKind::StageSavedRestoration};c.savedPreparationJob=preparation;c.savedStagingRequest=request;return c;}
+ProjectCommand publishSaved(std::uint64_t preparation,std::uint64_t request=1){ProjectCommand c{CommandKind::PublishSavedRestoration};c.savedPreparationJob=preparation;c.savedPublicationRequest=request;return c;}
+void savedControllerPublication(unsigned mode){
+    std::atomic<bool> reached=false,release=false;std::atomic<std::uint64_t> clock=0;ControllerOptions options;std::filesystem::path root,canonicalPath;
+    auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
+    options.savedStagingNowMilliseconds=[&]{return clock.load();};options.savedStagingMillisecondsPerMiB=0;
+    if(mode==0||mode==5||mode==6)options.savedPublicationBeforePermit=hold;
+    if(mode==1||mode==2)options.savedStagingBeforeSpawn=hold;
+    if(mode==3||mode==4)options.savedStagingAfterSpawn=hold;
+    if(mode==7||mode==8)options.savedPublicationAfterPermit=hold;
+    if(mode==9||mode==10)options.savedStagingAfterVerification=hold;
+    if(mode==11)options.savedStagingTerminalHook=[](std::string &wire,std::size_t actual){auto j=nlohmann::json::parse(wire);j["workerPid"]=actual+1;wire=j.dump()+"\n";};
+    if(mode==12)options.savedPublicationWorkerProgram=std::filesystem::temp_directory_path()/"missing-publication-worker";
+    if(mode==15)options.savedPublicationBeforePermit=[&]{clock=options.savedStagingDeadlineMilliseconds;};
+    if(mode==16)options.savedPublicationAfterPermit=[&]{clock=options.savedStagingDeadlineMilliseconds;};
+    if(mode==17)options.savedStagingAfterNativeRetirement=[]{throw std::runtime_error("Publication retirement probe");};
+    if(mode==18)options.savedPublicationAfterPermit=[]{throw ProjectError(ErrorCode::Io,"Injected post-permission channel failure");};
+    if(mode==19)options.savedStagingBeforeTerminal=[&]{write(canonicalPath,"foreign");};
+    if(mode==20)options.savedPublicationBeforeFinish=hold;
+    if(mode==21)options.savedPublicationBeforeFinish=[]{throw std::runtime_error("Final control qualification failure");};
+    if(mode==22)options.savedPublicationBeforeReturn=[]{throw std::runtime_error("Escaping supervisor epilogue qualification");};
+    Fixture f;const auto history=stagedOperation(f);root=f.root;canonicalPath=f.canonical;const auto expected=*f.initial->session;resetCold(f,options);Release guard{release};
+    const auto cold=f.controller->snapshot();submit(*f.controller,prepareSaved(f,*cold,history));const auto ready=finishInspection(f);
+    check(!ready->restorationInspectionCompleted.error&&ready->restorationPreparedSource,"Publication controller did not privately prepare source");
+    const auto prep=ready->restorationPreparedSource;const auto before=physical(f.root);
+    if(mode==13){auto changed=f.data;changed.back()^=1;write(f.source,changed);}
+    if(mode==14)std::filesystem::create_directory(f.root/"changed-before-publication");
+    if(mode==0){
+        for(unsigned bad=0;bad<7;++bad){auto c=publishSaved(prep);
+            if(bad==0)c.savedPreparationJob=prep+1;if(bad==1)c.savedPublicationRequest=0;if(bad==2)c.savedPreparationJob=0;
+            if(bad==3)c.path=f.root;if(bad==4)c.restorationSource=f.source;if(bad==5)c.restoration=f.input;
+            if(bad==6)c.restorationInspection=RestorationInspectionRequest{f.initial->session->id,f.asset.id,history,0,0,1};
+            const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto denied=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+            check(denied->errorCode==ErrorCode::InvalidState&&denied->restorationPreparedSource==prep&&denied->savedPublicationCompleted.staging.job==0&&physical(f.root)==before,"Rejected publication lost preparation/previous completion or mutated disk");}
+    }
+    submit(*f.controller,publishSaved(prep));
+    const bool paused=mode<=10||mode==20;
+    if(paused){auto held=await(*f.controller,[&](const auto &v){return reached&&v.io==IoOperation::PublishSavedRestoration;});
+        check(held->savedPublicationJob&&!held->restorationPreparedSource,"Publication admission did not exclusively consume private source");coldOwner(*held);
+        if(mode==0){
+            for(const auto kind:{CommandKind::Create,CommandKind::Open,CommandKind::Save,CommandKind::StageSavedRestoration,CommandKind::PrepareSavedRestorationSource,CommandKind::InspectSavedAssetRestoration,CommandKind::PublishSavedRestoration,CommandKind::AcquireAutosaveInhibition,CommandKind::MemoryLimits}){
+                auto c=publishSaved(prep,2);c.kind=kind;c.path=f.root;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto denied=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+                check(denied->errorCode==ErrorCode::InvalidState&&denied->io==IoOperation::PublishSavedRestoration&&denied->savedPublicationJob==held->savedPublicationJob,"Competing command stole publication owner");}
+            ProjectCommand wrong{CommandKind::CancelSavedPublication};wrong.savedPublicationJob=held->savedPublicationJob+1;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,wrong);await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+        }else if(mode%2==0||mode==20)f.controller->requestShutdown();
+        else{ProjectCommand cancel{CommandKind::CancelSavedPublication};cancel.savedPublicationJob=held->savedPublicationJob;submit(*f.controller,cancel);
+            ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=865;submit(*f.controller,barrier);await(*f.controller,[](const auto &v){return v.lastBarrier==865;});}
+        release=true;
+    }
+    const bool close=(mode>=1&&mode<=10&&mode%2==0)||mode==20;
+    auto done=close?await(*f.controller,[](const auto &v){return v.closed;}):await(*f.controller,[](const auto &v){return v.savedPublicationCompleted.staging.request==1&&v.io==IoOperation::None;});
+    const auto &value=done->savedPublicationCompleted;const auto &r=value.staging;coldOwner(*done);
+    check(done->projectEpoch==cold->projectEpoch&&done->modelRevision==cold->modelRevision&&done->savedRevision==cold->savedRevision&&bytes(f.root/"project.json")==f.manifest,"Publication silently adopted or changed passive manifest");
+    check(r.request==1&&r.job==done->savedPublicationJob&&r.preparationJob==prep&&!done->restorationPreparedSource,"Publication completion lost actual owner IDs");
+    if(mode==0){
+        check(!r.error&&value.permitSent&&value.terminalVerified&&value.published==true&&value.canonicalVerified&&value.receiptVerified&&!done->savedPublicationNeedsReconciliation,"Controller publication failed complete native qualification");
+        check(bytes(f.canonical)==f.data&&ProjectStore(f.root).load()==expected,"Controller publication independent bytes/strict Open differ");
+        const auto previous=r.job;const auto serial=done->errorSerial;submit(*f.controller,publishSaved(prep,2));auto replay=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+        check(replay->savedPublicationCompleted.staging.job==previous&&!replay->savedPublicationNeedsReconciliation,"Rejected replay overwrote previous publication or created latch");
+    }else{
+        const bool after=(mode>=7&&mode<=11)||mode==16||mode==17||mode==18||mode==19||mode==20||mode==21||mode==22;
+        check(r.error.has_value()&&value.permitSent==after&&done->savedPublicationNeedsReconciliation==after&&value.needsReconciliation==after,"Publication error/permission/latch boundary differs");
+        if(!after)check(value.published==false&&!std::filesystem::exists(f.canonical),"Pre-permit publication refusal created media or lost absence proof");
+        if(mode==9||mode==10||mode==17||mode==20||mode==21||mode==22)check(value.published==true&&value.canonicalVerified&&value.receiptVerified,"Late control error erased actual positive disk observations");
+        if(r.childPid)check(r.reaped&&r.childExit.has_value()&&r.normalExit.has_value()&&r.launchRetired,"Publication completion escaped actual child retirement");
+        if(after&&!close){
+            const auto prior=value.staging.job;const auto bytesBefore=physical(f.root);
+            for(const auto kind:{CommandKind::Create,CommandKind::Open,CommandKind::Save,CommandKind::PrepareSavedRestorationSource,CommandKind::InspectSavedAssetRestoration,CommandKind::StageSavedRestoration,CommandKind::PublishSavedRestoration,CommandKind::MemoryLimits}){
+                auto c=publishSaved(prep,3);c.kind=kind;c.path=f.root;const auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,std::move(c));auto denied=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+                check(denied->errorCode==ErrorCode::InvalidState&&denied->savedPublicationNeedsReconciliation&&denied->savedPublicationCompleted.staging.job==prior&&physical(f.root)==bytesBefore,"Ambiguous publication latch was bypassed by competing command");}
+        }
+    }
+}
 void savedControllerStage(unsigned mode){
     std::atomic<bool> reached=false,release=false;ControllerOptions options;std::filesystem::path mutationRoot,sourcePinPath;std::atomic<std::uint64_t> clock=0;std::atomic<unsigned> chunks=0;
     std::atomic<bool> pinsGood=true;std::atomic<unsigned> beforeKill=0,afterReap=0,afterRelease=0;
@@ -1690,4 +1762,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
