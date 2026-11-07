@@ -97,9 +97,12 @@ struct SavedManifestPreparation {
     SavedManifestSourceTicket ticket;
     std::shared_ptr<const WaveCheckSnapshot> checked;
     OwnedInspectionProtocol protocol;
+    OwnedInspectionProtocol control;
     SavedManifestPreparation(ResourceLease grant,std::shared_ptr<const SavedManifestSourceJobData> original,
-        SavedManifestSourceTicket binding,std::shared_ptr<const WaveCheckSnapshot> report,OwnedInspectionProtocol bytes)
-        :lease(std::move(grant)),request(std::move(original)),ticket(std::move(binding)),checked(std::move(report)),protocol(std::move(bytes)) {}
+        SavedManifestSourceTicket binding,std::shared_ptr<const WaveCheckSnapshot> report,OwnedInspectionProtocol bytes,
+        OwnedInspectionProtocol controlBytes)
+        :lease(std::move(grant)),request(std::move(original)),ticket(std::move(binding)),checked(std::move(report)),
+         protocol(std::move(bytes)),control(std::move(controlBytes)) {}
 };
 struct IoJob {
     IoOperation operation = IoOperation::None;
@@ -233,14 +236,20 @@ class IoWorker : public QThread {
                     ApprovedMediaRoot sourceRoot(owned.source.parent_path(),*next.restorationMemory,{1});
                     auto source=sourceRoot.openSelectedFilename(owned.source.filename(),options.restorationInspectionMaximumBytes,owned.stop);
                     ticket.verifyFile(audit,*checked->report,context,checked->childPid,source,*next.restorationMemory,owned.stop);
-                    auto protocol=checked->report->copyProtocol(*next.restorationMemory,owned.stop);source.verifyUnchanged();
+                    auto protocol=checked->report->copyProtocol(*next.restorationMemory,owned.stop);
+                    // Capture the handoff while the ORIGINAL native audit is still
+                    // pinned on I/O. The private owner retains both bounded frames,
+                    // never native handles or a rebased destination fingerprint.
+                    auto control=ticket.copyControlProtocol(audit,*checked->report,context,checked->childPid,
+                        *next.restorationMemory,owned.stop);
+                    source.verifyUnchanged();
                     if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Manifest source preparation canceled");
                     const auto copy=[](const Id &id){std::array<char,36> out{};if(id.str().size()!=out.size())throw ProjectError(ErrorCode::InvalidId,"Invalid manifest source identity");
                         std::copy(id.str().begin(),id.str().end(),out.begin());return out;};
                     value.project=copy(audit.manifest().id);value.asset=copy(audit.asset().id);value.manifestSha256=audit.manifestSha256();
                     value.sourceBytes=checked->report->audio().sourceBytes;value.checkedSourceSha256=checked->report->audio().sourceSha256;value.canonical=audit.canonical();
                     finished.manifestPrepared=std::make_shared<const SavedManifestPreparation>(next.restorationMemory->reserve(sizeof(SavedManifestPreparation)+4096),
-                        next.manifestSource,std::move(ticket),std::move(checked),std::move(protocol));
+                        next.manifestSource,std::move(ticket),std::move(checked),std::move(protocol),std::move(control));
                 }
                 else if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
