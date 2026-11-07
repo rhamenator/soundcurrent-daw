@@ -93,6 +93,7 @@ struct IoJob {
     std::shared_ptr<const Session> inspectionSavedModel = {};
     std::shared_ptr<const SavedSourcePreparation> savedPreparation = {};
     std::uint64_t savedStagingRequest=0,savedStagingJob=0;
+    std::uint64_t savedPublicationRequest=0,savedPublicationJob=0;
 };
 struct IoResult {
     IoJob job;
@@ -100,6 +101,7 @@ struct IoResult {
     RestorationInspectionCompletion inspection;
     std::shared_ptr<const SavedSourcePreparation> prepared;
     SavedStagingCompletion savedStaging;
+    SavedPublicationProcessResult savedPublication;
     std::shared_ptr<const Session> loaded;
     std::optional<ErrorCode> error;
     std::string diagnostic;
@@ -165,7 +167,14 @@ class IoWorker : public QThread {
                 if (closing.load(std::memory_order_acquire))
                     throw ProjectError(ErrorCode::Canceled, "Project operation canceled");
                 ProjectStore store(next.root, options.admission);
-                if(next.operation==IoOperation::StageSavedRestoration) {
+                if(next.operation==IoOperation::PublishSavedRestoration) {
+                    const auto &p=*next.savedPreparation;const auto &original=*p.request;
+                    finished.savedPublication=runSavedPublicationProcess(original.input,original.selectedRoot,original.selectedSource,
+                        p.ticket,*p.checked,original.job,next.savedPublicationRequest,next.savedPublicationJob,options,
+                        *next.restorationMemory,closing,restorationCancel,restorationPermitMutex);
+                    finished.error=finished.savedPublication.staging.error;
+                }
+                else if(next.operation==IoOperation::StageSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
                     finished.savedStaging=runSavedStagingProcess(original.input,original.selectedRoot,original.selectedSource,
                         p.ticket,*p.checked,original.job,next.savedStagingRequest,next.savedStagingJob,options,
@@ -379,6 +388,11 @@ struct ProjectController::State : QThread {
     std::uint64_t lastInspectionRequest=0,lastInspectionJob=0;
     std::shared_ptr<const SavedSourcePreparation> preparedSource;
     std::uint64_t lastSavedStagingRequest=0,lastSavedStagingJob=0;
+    std::uint64_t lastSavedPublicationRequest=0,lastSavedPublicationJob=0;
+    // Retain the original admitted private preparation, not a completion DTO.
+    // The public latch is established before any potentially allocating report.
+    std::shared_ptr<const SavedSourcePreparation> savedPublicationOwner;
+    std::array<char,36> savedPublicationOperation{};
     struct LatchedRestorationBinding {
         bool valid=false;
         std::array<char,36> project{},asset{},operation{};
@@ -503,9 +517,11 @@ struct ProjectController::State : QThread {
         return bytes.bytes();
     }
     void execute(ProjectCommand &command) {
-        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration;
+        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration || view.io==IoOperation::PublishSavedRestoration;
         const bool passive=command.kind==CommandKind::Barrier || command.kind==CommandKind::CancelAssetRestoration ||
-            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging;
+            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging || command.kind==CommandKind::CancelSavedPublication;
+        if(view.savedPublicationNeedsReconciliation && command.kind!=CommandKind::Barrier)
+            throw ProjectError(ErrorCode::InvalidState,"Saved publication requires fresh reconciliation before another command");
         if ((restorationIo && !passive) || (view.assetRestorationNeedsReconciliation && !passive &&
             command.kind!=CommandKind::InspectAssetRestoration && command.kind!=CommandKind::ReconcileAssetRestoration))
             throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
@@ -562,6 +578,27 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState,"Restoration inspection cancellation owner differs");
             {QMutexLocker permission(&io.restorationPermitMutex);io.inspectionStop.request_stop();}
             break;
+        case CommandKind::PublishSavedRestoration: {
+            if(model || view.session || !view.root.empty() || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
+                view.savedPublicationNeedsReconciliation || !preparedSource || !command.savedPreparationJob ||
+                command.savedPreparationJob!=preparedSource->request->job || !command.savedPublicationRequest ||
+                command.savedPublicationRequest<=lastSavedPublicationRequest || lastSavedPublicationJob==UINT64_MAX ||
+                preparedSource->request->input.projectEpoch!=view.projectEpoch || preparedSource->request->input.modelRevision!=view.modelRevision ||
+                !command.path.empty() || !command.restorationSource.empty() || command.restoration || command.restorationInspection)
+                throw ProjectError(ErrorCode::InvalidState,"Saved publication needs the exact current private preparation");
+            IoJob job{IoOperation::PublishSavedRestoration,view.root,view.session,view.modelRevision};job.projectEpoch=view.projectEpoch;
+            job.savedPreparation=preparedSource;job.savedPublicationRequest=command.savedPublicationRequest;job.savedPublicationJob=lastSavedPublicationJob+1;
+            job.restorationMemory=memory;
+            QMutexLocker permission(&io.restorationPermitMutex);
+            if(closing.load(std::memory_order_acquire))throw ProjectError(ErrorCode::Canceled,"Saved publication closing");
+            io.restorationCancel.store(false,std::memory_order_release);startIo(std::move(job));
+            lastSavedPublicationRequest=command.savedPublicationRequest;++lastSavedPublicationJob;
+            view.savedPublicationJob=lastSavedPublicationJob;view.io=IoOperation::PublishSavedRestoration;break;
+        }
+        case CommandKind::CancelSavedPublication:
+            if(view.io!=IoOperation::PublishSavedRestoration || !command.savedPublicationJob || command.savedPublicationJob!=view.savedPublicationJob)
+                throw ProjectError(ErrorCode::InvalidState,"Saved publication cancellation owner differs");
+            {QMutexLocker permission(&io.restorationPermitMutex);io.restorationCancel.store(true,std::memory_order_release);}break;
         case CommandKind::StageSavedRestoration: {
             if(model || view.session || !view.root.empty() || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
                 !preparedSource || !command.savedPreparationJob || command.savedPreparationJob!=view.restorationPreparedSource ||
@@ -1053,6 +1090,39 @@ struct ProjectController::State : QThread {
             view.restorationInspectionCompleted=value;
             return; // No Session/history edits, disk publication or autosave-token release.
         }
+        if(result.job.operation==IoOperation::PublishSavedRestoration) {
+            try{if(io.options.savedPublicationBeforeFinish)io.options.savedPublicationBeforeFinish();}
+            catch(const ProjectError &e){if(!result.error)result.error=e.code();}
+            catch(...){if(!result.error)result.error=ErrorCode::Io;}
+            auto value=std::move(result.savedPublication);auto &stage=value.staging;
+            stage.request=result.job.savedPublicationRequest;stage.job=result.job.savedPublicationJob;
+            stage.preparationJob=result.job.savedPreparation->request->job;stage.error=result.error;
+            {
+                QMutexLocker permission(&io.restorationPermitMutex);
+                const bool canceled=closing.load(std::memory_order_acquire)||io.restorationCancel.load(std::memory_order_acquire);
+                stage.cancellationObserved=stage.cancellationObserved||canceled||stage.error==ErrorCode::Canceled;
+                const bool current=!model&&!view.session&&view.root.empty()&&view.savedPublicationJob==stage.job&&
+                    view.projectEpoch==result.job.projectEpoch&&view.modelRevision==result.job.revision&&
+                    view.root==result.job.root&&view.session==result.job.session;
+                if(!stage.error){if(canceled)stage.error=ErrorCode::Canceled;else if(!current)stage.error=ErrorCode::InvalidState;}
+                if(!value.permitSent)value.published=false;
+                const bool complete=!stage.error&&current&&!canceled&&stage.childPid&&stage.reaped&&stage.normalExit==true&&stage.childExit==0&&
+                    stage.launchRetired&&value.permitSent&&value.terminalVerified&&value.published==true&&value.canonicalVerified&&
+                    value.receiptPublished&&value.receiptVerified&&!value.postCommitFlushFailed&&!value.needsReconciliation;
+                if(!complete&&!stage.error)stage.error=ErrorCode::InvalidState;
+                value.needsReconciliation=value.needsReconciliation||(value.permitSent&&!complete);
+                view.savedPublicationNeedsReconciliation=view.savedPublicationNeedsReconciliation||value.needsReconciliation;
+                if(value.needsReconciliation){
+                    savedPublicationOwner=result.job.savedPreparation;
+                    if(stage.operation&&stage.operation->str().size()==savedPublicationOperation.size())
+                        std::copy(stage.operation->str().begin(),stage.operation->str().end(),savedPublicationOperation.begin());
+                }
+            }
+            view.savedPublicationCompleted=std::move(value);
+            if(view.savedPublicationCompleted.staging.error)error(*view.savedPublicationCompleted.staging.error,
+                view.savedPublicationNeedsReconciliation?"Saved publication requires reconciliation; media may be visible":"Saved publication refused before permission; stage files may exist");
+            return; // No accepted Session/root/history/revision or automatic adoption.
+        }
         if(result.job.operation==IoOperation::StageSavedRestoration) {
             auto value=std::move(result.savedStaging);value.request=result.job.savedStagingRequest;value.job=result.job.savedStagingJob;
             value.preparationJob=result.job.savedPreparation->request->job;value.error=result.error;
@@ -1287,6 +1357,8 @@ struct ProjectController::State : QThread {
                 } catch (const ProjectError &e) {
                     if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,e.code(),"Restoration inspection owner refused"};
+                    if(command->kind==CommandKind::PublishSavedRestoration)
+                        view.savedPublicationRejected={command->savedPublicationRequest,e.code(),"Saved publication owner refused"};
                     if(command->kind==CommandKind::StageSavedRestoration)
                         view.savedStagingRejected={command->savedStagingRequest,e.code(),"Saved staging owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
@@ -1316,6 +1388,8 @@ struct ProjectController::State : QThread {
                 } catch (const std::exception &e) {
                     if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,ErrorCode::Io,"Restoration inspection owner refused"};
+                    if(command->kind==CommandKind::PublishSavedRestoration)
+                        view.savedPublicationRejected={command->savedPublicationRequest,ErrorCode::Io,"Saved publication owner refused"};
                     if(command->kind==CommandKind::StageSavedRestoration)
                         view.savedStagingRejected={command->savedStagingRequest,ErrorCode::Io,"Saved staging owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)

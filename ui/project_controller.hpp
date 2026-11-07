@@ -46,7 +46,9 @@ enum class CommandKind {
     StageSavedRestoration,
     CancelSavedRestorationStaging,
     ReconcileAssetRestoration,
-    CancelAssetRestorationInspection
+    CancelAssetRestorationInspection,
+    PublishSavedRestoration,
+    CancelSavedPublication
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -114,10 +116,11 @@ struct ProjectCommand {
     std::uint64_t restorationInspectionJob=0; // Cancel only, exact active dispatch.
     std::filesystem::path restorationSource; // Explicit selected file for saved-source preparation only.
     std::uint64_t savedStagingRequest=0,savedPreparationJob=0,savedStagingJob=0; // Opaque current private owner; no paths or capability DTO.
+    std::uint64_t savedPublicationRequest=0,savedPublicationJob=0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration, PublishSavedRestoration };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -176,6 +179,14 @@ struct SavedStagingCompletion {
     bool launchAttempted=false,launchRetired=false,qualificationProbeFailed=false,cancellationObserved=false;
     std::optional<ErrorCode> error;
 };
+// Observed facts only, never a source proof, native stage or adoption capability.
+struct SavedPublicationCompletion {
+    SavedStagingCompletion staging;
+    bool permitSent=false,terminalVerified=false,canonicalVerified=false,receiptVerified=false,needsReconciliation=false;
+    std::optional<bool> published;
+    bool receiptPublished=false,postCommitFlushFailed=false;
+    unsigned durability=0;
+};
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
@@ -222,6 +233,10 @@ struct ControllerSnapshot {
     SavedStagingCompletion savedStagingCompleted;
     AttachmentCompletion savedStagingRejected;
     std::uint64_t savedStagingJob=0;
+    SavedPublicationCompletion savedPublicationCompleted;
+    AttachmentCompletion savedPublicationRejected;
+    std::uint64_t savedPublicationJob=0;
+    bool savedPublicationNeedsReconciliation=false;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -247,6 +262,7 @@ struct ControllerOptions {
     std::filesystem::path savedPublicationWorkerProgram = {};
     std::function<void()> savedPublicationBeforePermit = {},savedPublicationAfterPermit = {};
     std::function<void(std::string &,std::size_t)> savedPublicationReadyHook = {}; // Qualification only.
+    std::function<void()> savedPublicationBeforeFinish = {}; // Control-thread qualification, before final owner/cancel checks; no permission mutex held.
     unsigned savedStagingDeadlineMilliseconds=20000; // Base, unchanged for small selections when size allowance is disabled.
     unsigned savedStagingMillisecondsPerMiB=1000; // Additional trusted I/O allowance from checked source extent.
     std::uint64_t savedStagingMaximumDeadlineMilliseconds=30*60*1000;
