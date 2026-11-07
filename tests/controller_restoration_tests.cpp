@@ -6,6 +6,7 @@
 #include <soundcurrent/saved_restoration_permit.hpp>
 #include <QCoreApplication>
 #include <QProcess>
+#include <QElapsedTimer>
 #include <exception>
 #include <QThread>
 #include <nlohmann/json.hpp>
@@ -1059,6 +1060,93 @@ void savedPublicationPermits(unsigned mode){
         check(ProjectStore(f.root).load()==expected,"Independently strict Open differs after saved publication");}
     check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Saved permit/native stage credit leaked");
 }
+void isolatedSavedPublication(unsigned mode){
+    Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();const auto original=physical(f.root);const auto expected=*f.initial->session;const auto operation=Id::generate();
+    {
+        auto audit=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
+        const auto native=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(native.data()),native.size());
+        const auto empty=f.controller->snapshot();const SavedRestorationSourceContext context{empty->projectEpoch,empty->modelRevision,561,1};SavedRestorationSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);check(checker.submitReplacement(f.source)==Admission::Accepted,"Isolated saved checker refused");checked=finishSource(checker);}
+        check(checked->job==context.job&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,"Isolated source checker incomplete");
+        auto control=ticket.copyControlProtocol(audit,*checked->report,context,checked->childPid,memory);
+        auto report=checked->report->copyProtocol(memory);auto bank=memory.reserve(4*65536);
+        const SavedRestorationOwnerView owner{f.root,{context,561,562,1}};
+        auto parent=SavedRestorationDispatchTicket::bind(owner,audit,ticket,*checked->report,checked->childPid,operation,memory);
+        auto pathHex=[](const std::filesystem::path &path){const auto value=path.u8string();return savedControlHex(std::string_view(reinterpret_cast<const char *>(value.data()),value.size()));};
+        QProcess child;
+        struct Retire {QProcess &child;~Retire(){if(child.state()!=QProcess::NotRunning){child.kill();child.waitForFinished(15000);}}} retire{child};
+        child.setProcessChannelMode(QProcess::SeparateChannels);
+#ifdef _WIN32
+        const auto executable=QCoreApplication::applicationDirPath()+QStringLiteral("/sc-saved-restoration-live-worker.exe");
+#else
+        const auto executable=QCoreApplication::applicationDirPath()+QStringLiteral("/sc-saved-restoration-live-worker");
+#endif
+        QStringList arguments{QStringLiteral("--maximum-source-bytes"),QStringLiteral("1024")};
+        child.start(executable,arguments);check(child.waitForStarted(3000),"Saved staging child failed to start");const auto pid=static_cast<std::uint64_t>(child.processId());check(pid>0,"Saved staging actual child PID absent");
+        const SavedRestorationRecordContext current{context,561,562,1,pid};
+        nlohmann::json request{{"protocol","sc-saved-restoration-worker-v2"},{"project",f.initial->session->id.str()},{"asset",f.asset.id.str()},{"historyOperation",history.str()},
+            {"operation",operation.str()},{"rootHex",pathHex(f.root)},{"sourceRootHex",pathHex(f.source.parent_path())},{"sourceLeafHex",pathHex(f.source.filename())},
+            {"sourceControlHex",savedControlHex(control.bytes())},{"checkReportHex",savedControlHex(report.bytes())},{"checkPid",checked->childPid},{"maximumBytes",1024U},
+            {"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},{"sourceRequest",context.request},{"sourceJob",context.job},{"preparationJob",current.preparationJob},
+            {"request",current.request},{"job",current.job},{"workerPid",pid}};
+        if(mode==8)request["protocol"]="sc-saved-staging-worker-v1";
+        auto wire=request.dump()+"\n";check(wire.size()<65536,"Live saved request exceeds bank");
+        check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Live saved request queue failed");
+        QByteArray readyBytes;
+        if(mode!=8){
+            QElapsedTimer timer;timer.start();
+            while(!readyBytes.contains('\n')&&timer.elapsed()<15000&&child.state()!=QProcess::NotRunning){
+                child.waitForReadyRead(20);readyBytes+=child.readAllStandardOutput();
+                check(readyBytes.size()<=static_cast<qint64>(savedRestorationReadyMaximumBytes+1),"Live saved READY overflow");
+            }
+            check(readyBytes.endsWith('\n')&&readyBytes.count('\n')==1,"Live saved child lacked one bounded READY");
+            check(child.state()!=QProcess::NotRunning&&!std::filesystem::exists(f.canonical),"Live saved READY did not retain unpublished child");
+            auto record=decodeSavedRestorationReady(std::string_view(readyBytes.constData(),static_cast<std::size_t>(readyBytes.size()-1)),parent,owner,static_cast<std::size_t>(pid),memory);
+            auto grant=encodeSavedRestorationPublicationPermit(parent,record,owner,static_cast<std::size_t>(pid),memory);std::string permission(grant.bytes());
+            if(mode==6)write(f.canonical,"foreign"); // Valid permit, original native proof now stale: conservative ambiguity after entry.
+            if(mode==2)permission="{}";
+            if(mode==3){auto j=nlohmann::json::parse(permission);j["workerPid"]=pid+1;permission=j.dump();}
+            if(mode==7){auto j=nlohmann::json::parse(permission);auto encoded=encodeSavedRestorationRecord(record,SavedRestorationPhase::Published,memory);j["recordHex"]=savedControlHex(encoded.bytes());permission=j.dump();}
+            if(mode==5)child.kill();
+            else if(mode!=1){
+                if(mode==9)permission.resize(permission.size()/2);
+                else permission+='\n';
+                if(mode==4)permission+=permission; // No second permission may reach a native attempt.
+                check(child.write(permission.data(),static_cast<qint64>(permission.size()))==static_cast<qint64>(permission.size()),"Live saved permit queue failed");
+            }
+        }
+        child.closeWriteChannel();check(child.waitForFinished(15000),"Live saved child did not retire in test deadline");
+        check(child.state()==QProcess::NotRunning&&child.processId()==0,"Live saved native child still alive");
+        const auto output=child.readAllStandardOutput(),error=child.readAllStandardError();check(output.size()<=32768&&error.size()<=32768,"Live saved terminal overflow");
+        if(mode==0){
+            if(child.exitStatus()!=QProcess::NormalExit||child.exitCode()!=0)std::cerr<<error.toStdString()<<'\n';
+            check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()==0&&error.isEmpty(),"Live saved publication child failed");
+            const auto terminal=nlohmann::json::parse(output.toStdString());
+            check(terminal.size()==6&&terminal.at("protocol")=="sc-saved-restoration-result-v2"&&terminal.at("workerPid")==pid&&
+                terminal.at("published")==true&&terminal.at("receiptPublished")==true&&terminal.at("postCommitFlushFailed")==false,"Live saved terminal visibility differs");
+            check(!std::filesystem::exists(f.root/operation.str()/"media.partial"),"Live saved published bytes still staged");
+        } else if(mode!=5){
+            check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()!=0&&output.isEmpty(),"Invalid live saved permission published success");
+            const auto failure=nlohmann::json::parse(error.toStdString());
+            check(failure.at("protocol")=="sc-saved-restoration-error-v2"&&failure.at("workerPid")==pid&&
+                failure.at("stagingMayExist")==bool(mode!=8)&&failure.at("publicationMayExist")==bool(mode==6),"Live saved refusal lost mutation boundary");
+            check(mode==6?failure.at("published").is_null():failure.at("published")==false,"Live saved refusal fabricated publication absence");
+        }
+        if(mode!=0)check(!std::filesystem::exists(f.root/operation.str()/"receipt.json"),"Refused live saved child published receipt");
+        if(mode==8)check(!std::filesystem::exists(f.root/operation.str()),"Wrong v1 protocol mutated live stage");
+        coldOwner(*f.controller->snapshot());
+    }
+    // Independent reads ONLY after actual child retirement and all native owners.
+    if(mode==0){
+        check(bytes(f.canonical)==f.data&&ProjectStore(f.root).load()==expected,"Live saved canonical bytes/strict Open differ");
+        auto receipt=decodeSavedRestorationRecord(bytes(f.root/operation.str()/"receipt.json"),memory);
+        check(receipt.data().phase==SavedRestorationPhase::Published,"Live saved receipt was not published");
+    }else if(mode==6)check(bytes(f.canonical)=="foreign","Live saved refusal replaced independent canonical file");
+    else check(!std::filesystem::exists(f.canonical),"Live saved refusal created canonical media");
+    const auto after=physical(f.root);for(const auto &[path,value]:original)check(after.contains(path)&&after.at(path)==value,"Live saved process changed original historical facts");
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Live saved process admission leaked");
+}
 void isolatedSavedStage(unsigned mode){
     Fixture f;const auto history=stagedOperation(f);resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();const auto original=physical(f.root);const auto operation=Id::generate();
     {
@@ -1530,4 +1618,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
