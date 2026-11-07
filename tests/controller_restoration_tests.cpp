@@ -2,6 +2,7 @@
 #include "restoration_process.hpp"
 #include <soundcurrent/saved_restoration_record.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
+#include <soundcurrent/saved_restoration_dispatch.hpp>
 #include <QCoreApplication>
 #include <QProcess>
 #include <exception>
@@ -750,6 +751,57 @@ void savedControlProtocols(){
         {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);check(checker.submitReplacement(f.source)==Admission::Accepted,"Control checker refused");checked=finishSource(checker);}
         check(checked->job==1&&checked->childPid&&checked->childExit==0&&checked->report&&!checked->error,"Control proof lacks actual reaped checker");
         const auto &report=*checked->report;const auto pid=checked->childPid;
+        {
+            const auto usage=memory.usage();
+            {
+                const SavedRestorationDispatchContext bound{context,571,572,2};
+                SavedRestorationOwnerView owner{f.root,bound};const auto operation=Id::generate();
+                auto dispatch=SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,operation,memory);
+                check(dispatch.operation()==operation,"Saved dispatch changed current operation");
+                dispatch.verify(owner,audit,ticket,report,pid,memory);++checks;
+                for(unsigned mode=0;mode<16;++mode){auto path=f.root;auto c=bound;bool accepted=false,closing=false,active=false,ambiguous=false;
+                    if(mode==0)++c.source.projectEpoch;
+                    if(mode==1)++c.source.modelRevision;
+                    if(mode==2)++c.source.request;
+                    if(mode==3)++c.source.job;
+                    if(mode==4)++c.preparationJob;
+                    if(mode==5)++c.request;
+                    if(mode==6)++c.job;
+                    if(mode==7)accepted=true;
+                    if(mode==8)closing=true;
+                    if(mode==9)active=true;
+                    if(mode==10)ambiguous=true;
+                    if(mode==11)path="relative";
+                    if(mode==12)c.preparationJob=0;
+                    if(mode==13)c.request=0;
+                    if(mode==14)c.job=0;
+                    if(mode==15)path=f.source.parent_path();
+                    SavedRestorationOwnerView stale{path,c,accepted,closing,active,ambiguous};
+                    sourceRefuses([&]{dispatch.verify(stale,audit,ticket,report,pid,memory);});
+                    if(mode>=7)sourceRefuses([&]{SavedRestorationDispatchTicket::bind(stale,audit,ticket,report,pid,operation,memory);},mode==15?ErrorCode::MediaMismatch:ErrorCode::InvalidState);
+                }
+                sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid+1,memory);});
+                sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,history,memory);});
+                for(const auto wrong:{std::size_t(0),pid+1})sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,wrong,operation,memory);});
+                ResourceLedger tiny(1,"Tiny dispatch");sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,operation,tiny);},ErrorCode::ResourceLimit);
+                const auto admitted=memory.usage();memory.configure(admitted.reservedBytes);
+                sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid,memory);},ErrorCode::ResourceLimit);
+                sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,operation,memory);},ErrorCode::ResourceLimit);
+                memory.configure(admitted.limitBytes);
+                ResourceLedger foreign(64*1024*1024,"Foreign dispatch");auto sibling=memory.child(64*1024*1024,"Sibling dispatch");
+                for(const auto other:{foreign,sibling}){
+                    sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid,other);});
+                    sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,operation,other);});
+                }
+                std::stop_source canceled;canceled.request_stop();
+                sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid,memory,canceled.get_token());},ErrorCode::Canceled);
+                sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,operation,memory,canceled.get_token());},ErrorCode::Canceled);
+                auto moved=std::move(dispatch);sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid,memory);});
+                moved.verify(owner,audit,ticket,report,pid,memory);++checks;
+                check(physical(f.root)==original,"Dispatch metadata touched saved project");
+            }
+            check(memory.usage().reservedBytes==usage.reservedBytes&&memory.usage().owners==usage.owners,"Saved dispatch retained metadata credit");
+        }
         auto proof=ticket.copyControlProtocol(audit,report,context,pid,memory);const auto encoded=std::string(proof.bytes());
         {auto copy=SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,memory);
          verifySavedRestorationSourceReport(copy,audit,report,context,pid,memory);auto round=copy.copyControlProtocol(audit,report,context,pid,memory);check(round.bytes()==proof.bytes(),"Original control fingerprint changed in round trip");}

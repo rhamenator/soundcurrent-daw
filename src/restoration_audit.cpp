@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/restoration_audit.hpp>
+#include <soundcurrent/saved_restoration_dispatch.hpp>
 #include <algorithm>
 #include <nlohmann/json.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
@@ -362,5 +363,52 @@ SavedRestorationSourceTicket SavedRestorationSourceTicket::fromControlProtocol(s
             "Original saved control audio changed",ErrorCode::MediaMismatch);
         verifySavedRestorationSourceReport(fresh,audit,report,current,pid,memory,stop);poll(stop);return fresh;
     }catch(const nlohmann::json::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed saved source control");}
+}
+} // namespace soundcurrent::daw
+
+namespace soundcurrent::daw {
+namespace {
+void savedDispatchOwner(const SavedRestorationOwnerView &owner,std::stop_token stop) {
+    poll(stop);const auto &c=owner.context;
+    require(!owner.acceptedProject&&!owner.closing&&!owner.ioActive&&!owner.publicationAmbiguous &&
+        c.source.request && c.source.job && c.preparationJob && c.request && c.job,
+        "No current idle saved restoration owner");
+    require(owner.root.is_absolute() && owner.root.native().size()<=4096 &&
+        owner.root.native().find(std::filesystem::path::value_type(0))==owner.root.native().npos,
+        "Invalid saved dispatch root");
+    const auto u=owner.root.u8string();
+    require(u.size()<=4096 && validUtf8(std::string_view(reinterpret_cast<const char *>(u.data()),u.size())),
+        "Invalid saved dispatch root encoding");
+}
+void savedDispatchRoot(const SavedRestorationOwnerView &owner,const SavedRestorationSourceTicket &source,
+    ResourceLedger memory,std::stop_token stop) {
+    poll(stop);ApprovedMediaRoot root(owner.root,memory);source.verifyRootStamp(root.directoryStamp(),memory);poll(stop);
+}
+}
+SavedRestorationDispatchTicket::SavedRestorationDispatchTicket(ResourceLease lease,OwnedInspectionProtocol proof,
+    const SavedRestorationOwnerView &owner,Id history,Id operation,std::size_t pid)
+    :lease_(std::move(lease)),originalProof_(std::move(proof)),root_(owner.root),context_(owner.context),
+     history_(std::move(history)),operation_(std::move(operation)),checkerPid_(pid) {}
+SavedRestorationDispatchTicket SavedRestorationDispatchTicket::bind(const SavedRestorationOwnerView &owner,
+    RestorationAudit &audit,const SavedRestorationSourceTicket &source,const WaveCheckReport &report,
+    std::size_t pid,Id operation,ResourceLedger memory,std::stop_token stop) {
+    savedDispatchOwner(owner,stop);
+    auto lease=memory.reserve(sizeof(SavedRestorationDispatchTicket)+32768); // Both UTF-8 and native path storage.
+    require(operation!=audit.intent().operation,"Saved dispatch reused historical operation");
+    savedDispatchRoot(owner,source,memory,stop);
+    auto proof=source.copyControlProtocol(audit,report,owner.context.source,pid,memory,stop);
+    poll(stop);return {std::move(lease),std::move(proof),owner,audit.intent().operation,std::move(operation),pid};
+}
+void SavedRestorationDispatchTicket::verify(const SavedRestorationOwnerView &owner,RestorationAudit &audit,
+    const SavedRestorationSourceTicket &source,const WaveCheckReport &report,std::size_t pid,
+    ResourceLedger memory,std::stop_token stop) const {
+    poll(stop);require(memory.owns(lease_) && originalProof_.ownedBy(memory),"Saved dispatch scope mismatch");
+    savedDispatchOwner(owner,stop);
+    require(owner.root==root_ && owner.context==context_ && pid==checkerPid_ &&
+        audit.intent().operation==history_ && operation_!=history_,"Stale saved dispatch owner");
+    savedDispatchRoot(owner,source,memory,stop);
+    auto proof=source.copyControlProtocol(audit,report,owner.context.source,pid,memory,stop);
+    require(proof.bytes()==originalProof_.bytes(),"Saved dispatch original fingerprint changed",ErrorCode::MediaMismatch);
+    poll(stop);
 }
 } // namespace soundcurrent::daw
