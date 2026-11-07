@@ -2,6 +2,7 @@
 #include "restoration_process.hpp"
 #include <soundcurrent/saved_restoration_record.hpp>
 #include <soundcurrent/saved_manifest_source.hpp>
+#include <soundcurrent/saved_manifest_stage.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
 #include <soundcurrent/saved_restoration_dispatch.hpp>
 #include <soundcurrent/saved_restoration_permit.hpp>
@@ -1736,6 +1737,71 @@ void manifestSourceTicketBinding(){
     check(memory.usage().reservedBytes==0&&memory.usage().owners==0,"Manifest source binding retained ledger owners");
     check(physical(f.root)==before,"Manifest source binding wrote saved project/journal");
 }
+void manifestNativeStage(unsigned mode){
+    Fixture f;resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();
+    const auto operation=Id::generate();
+    if(mode==8)write(f.canonical,f.data);
+    if(mode==11)std::filesystem::create_directory(f.root/operation.str());
+    const auto alternate=f.owned.path/"alternate-manifest-root";
+    if(mode==12)std::filesystem::copy(f.root,alternate,std::filesystem::copy_options::recursive);
+    const auto originalManifest=bytes(f.root/"project.json"),originalSource=bytes(f.source);
+    {
+        auto audit=inspectSavedManifestAsset(f.root,f.initial->session->id,f.asset.id,1024,memory);
+        SavedRestorationSourceContext context{0,0,771,1};
+        const auto leaf=f.source.filename().u8string();SavedManifestSourceTicket ticket(audit,
+            std::string(reinterpret_cast<const char *>(leaf.data()),leaf.size()),context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);
+         check(checker.submitReplacement(f.source)==Admission::Accepted,"Manifest stage checker admission refused");checked=finishSource(checker);}
+        check(checked->report&&checked->childPid&&checked->childExit==0&&!checked->error,"Manifest stage lacks actual checked source");
+#ifdef _WIN32
+        const auto writer=static_cast<std::uint64_t>(GetCurrentProcessId());
+#else
+        const auto writer=static_cast<std::uint64_t>(getpid());
+#endif
+        SavedRestorationRecordContext current{context,772,773,774,writer};
+        if(mode==1)++current.workerPid;
+        if(mode==3)++current.source.request;
+        if(mode==9)current.preparationJob=0;
+        if(mode==4){auto data=f.data;data.back()^=1;write(f.source,data);}
+        if(mode==5)std::filesystem::create_directory(f.root/"unowned-before-stage");
+        auto scope=mode==2?memory.child(64*1024*1024,"Foreign manifest stage scope"):memory;
+        ApprovedMediaRoot selected(f.source.parent_path(),scope,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+        std::stop_source cancel;if(mode==7)cancel.request_stop();bool boundary=false;
+        const auto observer=[&](StageBoundary at,std::uint64_t){
+            if(mode==10&&at==StageBoundary::BeforeWrite){boundary=true;cancel.request_stop();}
+        };
+        if(mode==13)memory.configure(memory.usage().reservedBytes);
+        auto prepare=[&]{return SavedManifestStage::prepare(std::move(source),mode==12?alternate:f.root,std::move(audit),ticket,
+            *checked->report,checked->childPid,current,operation,mode==6?1:1024,{},cancel.get_token(),observer);};
+        if(mode>=1&&mode<=13){bool refused=false;try{auto unexpected=prepare();}catch(const ProjectError &e){refused=true;
+                if(mode==6||mode==13)check(e.code()==ErrorCode::ResourceLimit,"Manifest stage budget refusal code");
+                if(mode==7||mode==10)check(e.code()==ErrorCode::Canceled,"Manifest stage cancellation code");}
+            check(refused,"Unqualified manifest stage admitted");if(mode==13)memory.configure(baseline.limitBytes);
+            if(mode==10)check(boundary&&std::filesystem::exists(f.root/operation.str()/"media.partial"),"Manifest canceled stage lost partial evidence");
+            else if(mode!=11)check(!std::filesystem::exists(f.root/operation.str()),"Manifest pre-create refusal wrote operation");
+        }else{
+            auto stage=prepare();const auto &d=stage.record().data();
+            check(d.context==current&&d.project==f.initial->session->id&&d.asset==f.asset.id&&d.operation==operation&&
+                d.phase==SavedRestorationPhase::Planned,"Manifest stage lost fresh identity/context");
+            check(stage.relativePath()==operation.str()+"/media.partial"&&bytes(f.root/stage.relativePath())==originalSource,
+                "Manifest stage did not retain exact source bytes");
+            auto record=decodeSavedRestorationRecord(bytes(f.root/operation.str()/"intent.json"),memory);
+            verifySavedRestorationRecord(record,d.project,f.asset,d.content,current,operation,SavedRestorationPhase::Planned,memory);
+            stage.reverify();check(nativeReadPin(f.root/"project.json")&&nativeReadPin(f.source),"Manifest stage lost native pins");
+            auto moved=std::move(stage);savedRecordRefuses([&]{stage.reverify();},ErrorCode::InvalidState);moved.reverify();
+            if(mode==14){std::filesystem::create_directory(f.root/"unowned-after-stage");
+                savedRecordRefuses([&]{moved.reverify();},ErrorCode::MediaMismatch);}
+        }
+    }
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Manifest stage leaked ledger owners");
+    check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest stage leaked native pins");
+    check(bytes(f.root/"project.json")==originalManifest,"Manifest stage modified saved manifest");
+    if(mode!=8)check(!std::filesystem::exists(f.canonical),"Manifest stage published canonical bytes");
+    check(!std::filesystem::exists(f.root/operation.str()/"receipt.json")&&!std::filesystem::exists(f.root/operation.str()/"receipt.partial"),
+        "Manifest stage published receipt");
+    if(mode!=4)check(bytes(f.source)==originalSource,"Manifest stage modified source");
+}
 ProjectCommand manifestSource(const Fixture &f,const ControllerSnapshot &cold,std::uint64_t request=1){
     ProjectCommand c{CommandKind::PrepareSavedManifestSource};c.path=f.root;c.restorationSource=f.source;
     c.savedManifestSource=SavedManifestSourceRequest{f.initial->session->id,f.asset.id,cold.projectEpoch,cold.modelRevision,request};return c;
@@ -1981,4 +2047,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<15;++mode)manifestNativeStage(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

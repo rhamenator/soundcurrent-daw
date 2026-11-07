@@ -54,6 +54,7 @@ class StagedMedia {
         std::stop_token,const StageObserver &);
     friend class PreparedAssetRestoration;
     friend class SavedRestorationStage;
+    friend class SavedManifestStage;
     friend class RestorationAudit;
     void verifyRestorationParentTransition(ApprovedDirectoryStamp before,ApprovedDirectoryStamp current,
         CheckedMediaBytes,std::string_view plannedIntent,ResourceLedger,std::stop_token) const;
