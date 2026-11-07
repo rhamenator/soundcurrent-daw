@@ -760,6 +760,7 @@ void savedNativeStage(unsigned mode){
         ApprovedMediaRoot selected(f.source.parent_path(),scope,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
         std::stop_source cancel;if(mode==13)cancel.request_stop();bool boundary=false;
         const auto observer=[&](StageBoundary at,std::uint64_t){
+            if(mode==4&&at==StageBoundary::BeforeDirectory)boundary=true;
             if(mode==5&&at==StageBoundary::BeforeDirectory){boundary=true;std::filesystem::create_directory(f.root/"changed-before-create");}
             if(mode==6&&at==StageBoundary::BeforeWrite){boundary=true;cancel.request_stop();}
         };
@@ -777,6 +778,7 @@ void savedNativeStage(unsigned mode){
                 if(mode==1||mode==2||mode==3||mode==15||mode==16||mode==17)check(error.code()==ErrorCode::InvalidState,"Saved owner refusal used wrong code");
             }check(refused,"Invalid saved stage qualified");
             if(mode==14)memory.configure(baseline.limitBytes);
+            if(mode==4)check(!boundary,"Wrong native root reached BeforeDirectory hook");
             if(mode==5||mode==6)check(boundary,"Saved staging boundary refusal unexercised");
             if(mode!=6)check(!std::filesystem::exists((mode==4?alternate:f.root)/operation.str())||mode==2,
                 "Pre-create saved refusal created an operation");
@@ -799,7 +801,7 @@ void savedNativeStage(unsigned mode){
             // owns exclusive intent/media handles. reverify hashes those held
             // handles. Independently read files below AFTER owner retirement.
 #ifdef _WIN32
-            for(const auto &leaf:{"intent.json","media.partial"}){const auto path=f.root/operation.str()/leaf;
+            for(const auto &ownedLeaf:{"intent.json","media.partial"}){const auto path=f.root/operation.str()/ownedLeaf;
                 const auto h=CreateFileW(path.c_str(),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,0,nullptr);
                 const auto error=h==INVALID_HANDLE_VALUE?GetLastError():ERROR_SUCCESS;
                 if(h!=INVALID_HANDLE_VALUE)CloseHandle(h);
