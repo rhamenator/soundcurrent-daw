@@ -1167,7 +1167,7 @@ void savedControllerStage(unsigned mode){
     if(paused||mode==5||mode==14){options.savedStagingNowMilliseconds=[&]{return clock.load();};options.savedStagingMillisecondsPerMiB=0;}
     if(mode==14){options.savedStagingDeadlineMilliseconds=1000;options.savedStagingAfterSpawn=[&]{clock=1001;};}
     if(mode==15||mode==16)options.savedStagingBeforeSourceChunk=[&]{if(++chunks==2)hold();};
-    if(mode==17||mode==18||(mode>=20&&mode<=24)||mode==30||mode==33||mode==34){options.savedStagingWorkerProgram=std::filesystem::path(QCoreApplication::applicationDirPath().toStdString())/
+    if(mode==17||mode==18||(mode>=20&&mode<=24)||mode==30||mode==33||mode==34){options.savedStagingWorkerProgram=utf8Path(QCoreApplication::applicationDirPath().toStdString())/
 #ifdef _WIN32
         "sc-saved-staging-worker-fixture.exe";
 #else

@@ -37,6 +37,16 @@ mid-write pre-kill observation. Admission reserves the
 512 MiB child policy plus framing/parser credit in the parent's same ledger and
 scope. Native filesystem I/O remains cooperative around OS calls; this admission
 is not a process RSS sandbox or a guarantee about an uninterruptible OS call.
+The parent audit uses trusted ControllerOptions.admission. The v1 child uses its
+own unchanged default ProjectBudget (32 MiB encoded, 64 MiB state, 256 MiB parser)
+and 512 MiB ledger. A stricter parent policy is enforced by the original and fresh
+parent audits; a larger parent policy does not enlarge child limits. Such a
+configuration may admit a parent audit and still refuse in the child. That is a
+fail-closed post-launch refusal with conservative staging-may-exist facts, not a
+claim that larger non-default projects are qualified. Larger worker budgets need
+separate joint parent/child qualification; this route never silently lowers the
+parent's policy or promotes a project to fit.
+
 The trusted deadline policy adds 1,000 milliseconds per started MiB of checked
 source to the 20,000 millisecond base, saturating safely at the configured
 30-minute maximum. A 1 GiB selection therefore has 17 minutes 24 seconds for all
@@ -47,6 +57,10 @@ uses a frozen clock; expiry groups advance that clock explicitly. Their outer
 CTest and await deadlines remain unchanged. An artificial pause cannot turn an
 intended cancellation into a wall-clock expiry on a loaded runner.
 
+Before any spawn, root and source-parent paths must fit the child's 4096 UTF-8
+byte limits and the selected leaf its 1024-byte limit. Native code-unit limits
+alone are insufficient on Windows. Converted path storage is admitted before
+copying; test worker paths use the same explicit UTF-8 conversion.
 A maximum-width native PID is used to preflight the complete request extent
 before spawn. The actual observed bounded PID then replaces that placeholder.
 The operation observation is populated only after an actual child starts; a

@@ -161,6 +161,11 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
         allowance+=extra; // Saturated before multiplication; no untrusted extent overflow.
         poll();
         bank=memory.reserve(childCredit+3*1024*1024); // Logical child/frame admission, not an RSS sandbox.
+        // The v1 child budgets are UTF-8 bytes, not Windows native code units.
+        check(root.native().size()<=4096 && source.native().size()<=4096,"Saved staging native path extent");
+        const auto rootBytes=native(root),sourceRootBytes=native(source.parent_path()),leafBytes=native(source.filename());
+        const auto pathBytes=[](const std::string &bytes,std::size_t maximum){return !bytes.empty() && bytes.size()<=maximum && bytes.find('\0')==bytes.npos && validUtf8(bytes);};
+        check(pathBytes(rootBytes,4096) && pathBytes(sourceRootBytes,4096) && pathBytes(leafBytes,1024),"Saved staging UTF-8 path extent");
         watchdog=std::jthread([&](std::stop_token retired){
             while(!retired.stop_requested()) {
                 try {if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)||expired()){workStop.request_stop();return;}}
@@ -184,8 +189,8 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
 
         const auto operation=Id::generate();
         auto requestPacket=nlohmann::json({{"protocol","sc-saved-staging-worker-v1"},{"project",original.project.str()},{"asset",original.asset.str()},
-            {"historyOperation",original.operation.str()},{"operation",operation.str()},{"rootHex",hex(native(root))},
-            {"sourceRootHex",hex(native(source.parent_path()))},{"sourceLeafHex",hex(native(source.filename()))},
+            {"historyOperation",original.operation.str()},{"operation",operation.str()},{"rootHex",hex(rootBytes)},
+            {"sourceRootHex",hex(sourceRootBytes)},{"sourceLeafHex",hex(leafBytes)},
             {"sourceControlHex",hex(control.bytes())},{"checkReportHex",hex(report.bytes())},{"checkPid",checked.childPid},
             {"maximumBytes",options.restorationInspectionMaximumBytes},{"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},
             {"sourceRequest",context.request},{"sourceJob",context.job},{"preparationJob",preparationJob},{"request",requestId},{"job",job},{"workerPid",UINT32_MAX}});
