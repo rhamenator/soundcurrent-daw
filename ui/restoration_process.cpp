@@ -75,8 +75,7 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
             while(child.bytesAvailable()){check(output.size()<65536,"Restoration stdout overflow",ErrorCode::ResourceLimit);std::array<char,4096> chunk{};const auto n=child.read(chunk.data(),static_cast<qint64>(std::min(chunk.size(),65536-output.size())));check(n>=0,"Restoration output channel",ErrorCode::Io);if(!n)break;output.append(chunk.data(),static_cast<std::size_t>(n));}
         };
         while(child.state()!=QProcess::NotRunning){
-            child.waitForReadyRead(20);drain();
-        poll();
+            child.waitForReadyRead(20);drain();poll();
             if(!ready && output.find('\n')!=output.npos){
                 const auto at=output.find('\n');std::string wire=output.substr(0,at);output.erase(0,at+1);
                 if(options.restorationReadyHook)options.restorationReadyHook(wire,out.childPid);
@@ -85,8 +84,7 @@ RestorationProcessResult runRestorationProcess(const AssetRestorationInput &inpu
                 verifyAssetRestorationRecord(prepared,asset,{context.checked.projectEpoch,context.checked.modelRevision,context.checked.request},operation,AssetRestorationPhase::Planned,memory);
                 if(options.restorationBeforePermit)options.restorationBeforePermit();
                 poll();
-                auto permit=encodeRestorationPublicationPermit(ticket,prepared,owner,out.childPid,memory);
-        poll();
+                auto permit=encodeRestorationPublicationPermit(ticket,prepared,owner,out.childPid,memory);poll();
                 const auto bytes=std::string(permit.bytes())+"\n";
                 // Mark ambiguity before writing: an OS/channel error cannot prove
                 // that no prefix reached this exact child.

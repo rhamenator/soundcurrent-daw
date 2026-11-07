@@ -46,7 +46,7 @@
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
-    "ui/restoration_process.cpp": "5b5a85cbed6f8c28f1e404b64f6372c695ce843083d70c93b8c528022560323d",
+    "ui/restoration_process.cpp": "972c5b3082617258dca8280f38842bec00ad332858b9fb4aaaf13f5db023009a",
     "ui/restoration_process.hpp": "70507cbdcadb8d371a53b849f93d2dc6d34270d7374080876b15770acbb30d56",
     "ui/session_list_model.cpp": "2120539a576d7ff163734defe706fea59394665ba38e96fa73753bc1ac7a526d",
     "ui/session_list_model.hpp": "04f9482daabcbbe5cf17361acb5b76f8724abb25b1520a61194258d8eb6f743a",

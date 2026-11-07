@@ -12,8 +12,9 @@ stdin. Unknown/duplicate/nested keys, invalid types/IDs/hex/native paths, extra
 frames, wrong child PID and invalid current namespaces refuse. The request bank
 is 64 KiB; native roots are capped at 4096 UTF-8 bytes and leaf names at 1024. The parent owns
 the process deadline, cancellation, close and reap lifecycle; these calls stay
-off the audio and GUI threads. The current implementation is an executable and
-control-transfer foundation, not yet a new ProjectController command or UI flow.
+off the audio and GUI threads. The executable and control-transfer foundation is consumed by the controller
+command described in [Controller saved staging](406-controller-saved-staging.md).
+It has no localized UI flow.
 
 SavedRestorationSourceTicket::copyControlProtocol exports the ORIGINAL private
 root stamp, all six pinned hashes/presence observations, selected reference,
@@ -51,8 +52,9 @@ work; it does not shrink project/parser limits to fit the accepted-only worker's
 64 MiB policy. Explicit insufficient caller budgets refuse before staging.
 These are admission limits, not an eager allocation of the whole bank.
 
-Controller-private preparation consumption, current-parent lifecycle enforcement,
-a live one-use publication permission, canonical verification, strict Open/adoption
+Controller-private preparation consumption and current-parent lifecycle enforcement
+are implemented by StageSavedRestoration as described in the controller contract.
+A live one-use publication permission, canonical verification, strict Open/adoption
 and localized recovery controls remain required downstream work. No project
 metadata grants any of those capabilities. Linux and Windows use the same C++
 implementation and require actual exact-head native execution and retained
