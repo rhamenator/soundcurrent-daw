@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
 #include "restoration_process.hpp"
+#include <soundcurrent/saved_publication_audit.hpp>
 #include "autosave_schedule.hpp"
 #include <chrono>
 #include <soundcurrent/native_take_admission.hpp>
@@ -52,7 +53,7 @@ Session retainLoop(const Session &s,const LoopTakeRetention &r,const std::string
     return withLoopTakeLanes(s,r.take->context.intent,r.take->sources,r.first,r.count,name,r.allowPartial,budget);
 }
 
-enum class InspectionPurpose { AcceptedAsset, Reconcile, SavedManifest, SavedSource };
+enum class InspectionPurpose { AcceptedAsset, Reconcile, SavedManifest, SavedSource, SavedReconcile };
 struct InspectionJobData {
     ResourceLease lease; // Request bytes retire before their admitted credit.
     RestorationInspectionRequest input;
@@ -67,12 +68,17 @@ struct InspectionJobData {
 struct SavedSourcePreparation {
     ResourceLease lease; // All metadata/protocol owners retire before this grant.
     std::shared_ptr<const InspectionJobData> request;
+    Asset expectedAsset;
+    std::array<char,64> manifestSha;
+    ApprovedDirectoryStamp originalRoot;
     SavedRestorationSourceTicket ticket;
     std::shared_ptr<const WaveCheckSnapshot> checked;
     OwnedInspectionProtocol protocol;
     SavedSourcePreparation(ResourceLease grant,std::shared_ptr<const InspectionJobData> owner,
-        SavedRestorationSourceTicket binding,std::shared_ptr<const WaveCheckSnapshot> report,OwnedInspectionProtocol bytes)
-        :lease(std::move(grant)),request(std::move(owner)),ticket(std::move(binding)),checked(std::move(report)),protocol(std::move(bytes)) {}
+        SavedRestorationSourceTicket binding,std::shared_ptr<const WaveCheckSnapshot> report,OwnedInspectionProtocol bytes,
+        const Asset &asset,std::array<char,64> manifest,ApprovedDirectoryStamp root)
+        :lease(std::move(grant)),request(std::move(owner)),expectedAsset(asset),manifestSha(manifest),originalRoot(root),
+         ticket(std::move(binding)),checked(std::move(report)),protocol(std::move(bytes)) {}
 };
 struct IoJob {
     IoOperation operation = IoOperation::None;
@@ -94,6 +100,7 @@ struct IoJob {
     std::shared_ptr<const SavedSourcePreparation> savedPreparation = {};
     std::uint64_t savedStagingRequest=0,savedStagingJob=0;
     std::uint64_t savedPublicationRequest=0,savedPublicationJob=0;
+    SavedRestorationRecordContext savedReconciliationContext;
 };
 struct IoResult {
     IoJob job;
@@ -190,6 +197,34 @@ class IoWorker : public QThread {
                 else if (next.operation == IoOperation::InspectAssetRestoration) {
                     const auto &owned=*next.inspection;const auto &request=owned.input;
                     if(owned.stop.stop_requested())throw ProjectError(ErrorCode::Canceled,"Restoration inspection canceled");
+                    if(owned.purpose==InspectionPurpose::SavedReconcile) {
+                        const auto &p=*next.savedPreparation;const auto &original=*p.request;
+                        const auto &audio=p.checked->report->audio();const CheckedMediaBytes content{audio.sourceBytes,audio.sourceSha256};
+                        auto audit=inspectSavedPublication(original.selectedRoot,original.input.project,p.expectedAsset,content,
+                            next.savedReconciliationContext,request.operation,options.restorationInspectionMaximumBytes,
+                            *next.restorationMemory,options.admission,owned.stop);
+                        const auto verifyRoot=[&] {
+                            ApprovedMediaRoot root(original.selectedRoot,*next.restorationMemory,{1});const auto current=root.directoryStamp();
+                            // Native object identity only: original pre-publication
+                            // timestamps remain untouched and cannot authorize reuse.
+                            if(current.identity[0]!=p.originalRoot.identity[0] || current.identity[1]!=p.originalRoot.identity[1])
+                                throw ProjectError(ErrorCode::MediaMismatch,"Saved reconciliation destination object changed");
+                        };
+                        verifyRoot();
+                        if(audit.manifestSha256()!=p.manifestSha || audit.canonical()!=RestorationMediaObservation::Verified)
+                            throw ProjectError(ErrorCode::MediaMismatch,"Saved reconciliation needs original manifest and current canonical bytes");
+                        if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
+                        audit.reverify(owned.stop);verifyRoot();
+                        if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
+                            throw ProjectError(ErrorCode::Canceled,"Saved reconciliation canceled");
+                        auto &value=finished.inspection;
+                        const auto copy=[](const Id &id){std::array<char,36> out{};
+                            if(id.str().size()!=out.size())throw ProjectError(ErrorCode::InvalidId,"Invalid saved reconciliation identity");
+                            std::copy(id.str().begin(),id.str().end(),out.begin());return out;};
+                        value.project=copy(original.input.project);value.asset=copy(p.expectedAsset.id);value.operation=copy(request.operation);
+                        value.manifestSha256=audit.manifestSha256();value.sourceBytes=content.bytes;
+                        value.canonical=audit.canonical();value.staged=audit.staged();value.receipt=audit.receipt();
+                    } else {
                     auto audit=[&] {
                         if(owned.purpose==InspectionPurpose::SavedManifest || owned.purpose==InspectionPurpose::SavedSource)
                             return inspectSavedAssetRestoration(owned.selectedRoot,request.project,request.asset,request.operation,
@@ -254,8 +289,20 @@ class IoWorker : public QThread {
                         if(closing.load(std::memory_order_acquire) || owned.stop.stop_requested())
                             throw ProjectError(ErrorCode::Canceled,"Saved source preparation canceled");
                         observed.checkedSourceSha256=checked->report->audio().sourceSha256;
-                        finished.prepared=std::make_shared<const SavedSourcePreparation>(next.restorationMemory->reserve(sizeof(SavedSourcePreparation)+4096),
-                            next.inspection,std::move(ticket),std::move(checked),std::move(protocol));
+                        const auto asset=std::find_if(audit.manifest().assets.begin(),audit.manifest().assets.end(),
+                            [&](const Asset &a){return a.id==request.asset;});
+                        if(asset==audit.manifest().assets.end())throw ProjectError(ErrorCode::InvalidState,"Prepared saved asset disappeared");
+                        // Copy only the original selected descriptor, not a Session.
+                        // Admit all variable storage before constructing its owner.
+                        PayloadCharge metadata("Private saved asset expectation",SIZE_MAX);metadata.add(sizeof(SavedSourcePreparation)+4096);
+                        const auto text=[&](const std::string &v){metadata.add(v.size(),2);metadata.add(64);};
+                        text(asset->id.str());text(asset->relativePath);text(asset->sha256);
+                        metadata.add(asset->nativeEvidence.size(),sizeof(ProjectEvidenceFile)*2);
+                        for(const auto &file:asset->nativeEvidence){text(file.relativePath);text(file.sha256);}
+                        ApprovedMediaRoot originalRoot(owned.selectedRoot,*next.restorationMemory,{1});
+                        const auto rootStamp=originalRoot.directoryStamp();ticket.verifyRootStamp(rootStamp,*next.restorationMemory);
+                        finished.prepared=std::make_shared<const SavedSourcePreparation>(next.restorationMemory->reserve(metadata.bytes()),
+                            next.inspection,std::move(ticket),std::move(checked),std::move(protocol),*asset,audit.manifestSha256(),rootStamp);
                     } else {
                         if(options.restorationInspectionBeforeVerify)options.restorationInspectionBeforeVerify();
                         audit.reverify(owned.stop);
@@ -271,6 +318,7 @@ class IoWorker : public QThread {
                     value.canonical=audit.canonical();value.staged=audit.staged();value.receipt=audit.receipt();
                     // Audit/native pins and passive manifest retire here on I/O,
                     // before publishing the plain observation DTO to control/GUI.
+                    }
                 }
                 else if (next.operation == IoOperation::Open)
                     finished.loaded =
@@ -392,6 +440,7 @@ struct ProjectController::State : QThread {
     // Retain the original admitted private preparation, not a completion DTO.
     // The public latch is established before any potentially allocating report.
     std::shared_ptr<const SavedSourcePreparation> savedPublicationOwner;
+    SavedRestorationRecordContext savedPublicationContext;
     std::array<char,36> savedPublicationOperation{};
     struct LatchedRestorationBinding {
         bool valid=false;
@@ -520,12 +569,39 @@ struct ProjectController::State : QThread {
         const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration || view.io==IoOperation::PublishSavedRestoration;
         const bool passive=command.kind==CommandKind::Barrier || command.kind==CommandKind::CancelAssetRestoration ||
             command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging || command.kind==CommandKind::CancelSavedPublication;
-        if(view.savedPublicationNeedsReconciliation && command.kind!=CommandKind::Barrier)
+        if(view.savedPublicationNeedsReconciliation && command.kind!=CommandKind::Barrier &&
+            command.kind!=CommandKind::ReconcileSavedPublication && command.kind!=CommandKind::CancelAssetRestorationInspection)
             throw ProjectError(ErrorCode::InvalidState,"Saved publication requires fresh reconciliation before another command");
         if ((restorationIo && !passive) || (view.assetRestorationNeedsReconciliation && !passive &&
             command.kind!=CommandKind::InspectAssetRestoration && command.kind!=CommandKind::ReconcileAssetRestoration))
             throw ProjectError(ErrorCode::InvalidState,"Restoration owns the accepted project; finish or reconcile first");
         switch (command.kind) {
+        case CommandKind::ReconcileSavedPublication: {
+            if(!view.savedPublicationNeedsReconciliation || !savedPublicationOwner || model || view.session || !view.root.empty() ||
+                view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken || !command.restorationInspection ||
+                !command.path.empty() || !command.restorationSource.empty() || command.restoration ||
+                lastInspectionJob==UINT64_MAX || command.savedPreparationJob!=savedPublicationOwner->request->job ||
+                command.savedPublicationJob!=savedPublicationContext.job || view.savedPublicationJob!=savedPublicationContext.job)
+                throw ProjectError(ErrorCode::InvalidState,"Saved reconciliation needs the original private publication owner");
+            const auto &request=*command.restorationInspection;const auto &original=savedPublicationOwner->request->input;
+            if(!request.request || request.request<=lastInspectionRequest || request.project!=original.project || request.asset!=original.asset ||
+                request.projectEpoch!=view.projectEpoch || request.modelRevision!=view.modelRevision ||
+                original.projectEpoch!=view.projectEpoch || original.modelRevision!=view.modelRevision ||
+                request.operation.str()!=std::string_view(savedPublicationOperation.data(),savedPublicationOperation.size()) ||
+                !savedPublicationContext.workerPid)
+                throw ProjectError(ErrorCode::InvalidState,"Stale saved reconciliation request");
+            const auto jobId=lastInspectionJob+1;std::stop_source cancel;
+            auto owned=std::make_shared<const InspectionJobData>(memory.reserve(sizeof(InspectionJobData)+4096),request,jobId,
+                cancel.get_token(),InspectionPurpose::SavedReconcile);
+            IoJob job{IoOperation::InspectAssetRestoration,view.root,view.session,view.modelRevision};job.projectEpoch=view.projectEpoch;
+            job.inspection=std::move(owned);job.savedPreparation=savedPublicationOwner;
+            job.savedReconciliationContext=savedPublicationContext;job.restorationMemory=memory;
+            QMutexLocker permission(&io.restorationPermitMutex);
+            if(closing.load(std::memory_order_acquire))throw ProjectError(ErrorCode::Canceled,"Saved reconciliation closing");
+            io.inspectionStop=std::move(cancel);startIo(std::move(job));
+            lastInspectionJob=jobId;lastInspectionRequest=request.request;
+            view.restorationInspectionJob=jobId;view.io=IoOperation::InspectAssetRestoration;break;
+        }
         case CommandKind::PrepareSavedRestorationSource:
         case CommandKind::InspectSavedAssetRestoration:
         case CommandKind::InspectAssetRestoration:
@@ -1062,7 +1138,7 @@ struct ProjectController::State : QThread {
         if(result.job.operation==IoOperation::InspectAssetRestoration) {
             const auto &owned=*result.job.inspection;const auto &request=owned.input;
             auto value=result.inspection;value.request=request.request;value.job=owned.job;
-            value.savedManifest=owned.purpose==InspectionPurpose::SavedManifest || owned.purpose==InspectionPurpose::SavedSource;
+            value.savedManifest=owned.purpose==InspectionPurpose::SavedManifest || owned.purpose==InspectionPurpose::SavedSource || owned.purpose==InspectionPurpose::SavedReconcile;
             value.projectEpoch=result.job.projectEpoch;value.modelRevision=result.job.revision;
             value.error=result.error;
             QMutexLocker permission(&io.restorationPermitMutex);
@@ -1075,6 +1151,17 @@ struct ProjectController::State : QThread {
                     savedModel!=result.job.inspectionSavedModel || value.canonical!=RestorationMediaObservation::Verified)
                     value.error=ErrorCode::InvalidState;
                 else {view.assetRestorationNeedsReconciliation=false;reconciliation={};value.ambiguityReleased=true;}
+            }
+            if(!value.error && owned.purpose==InspectionPurpose::SavedReconcile) {
+                if(!view.savedPublicationNeedsReconciliation || model || view.session || !view.root.empty() ||
+                    savedPublicationOwner!=result.job.savedPreparation || savedPublicationContext!=result.job.savedReconciliationContext ||
+                    view.savedPublicationJob!=savedPublicationContext.job || value.canonical!=RestorationMediaObservation::Verified ||
+                    request.operation.str()!=std::string_view(savedPublicationOperation.data(),savedPublicationOperation.size()))
+                    value.error=ErrorCode::InvalidState;
+                else {
+                    view.savedPublicationNeedsReconciliation=false;savedPublicationOwner.reset();savedPublicationContext={};
+                    savedPublicationOperation={};value.ambiguityReleased=true;
+                }
             }
             if(!value.error && owned.purpose==InspectionPurpose::SavedSource) {
                 if(!result.prepared || result.prepared->request!=result.job.inspection)
@@ -1114,6 +1201,9 @@ struct ProjectController::State : QThread {
                 view.savedPublicationNeedsReconciliation=view.savedPublicationNeedsReconciliation||value.needsReconciliation;
                 if(value.needsReconciliation){
                     savedPublicationOwner=result.job.savedPreparation;
+                    const auto &source=result.job.savedPreparation->request->input;
+                    savedPublicationContext={{source.projectEpoch,source.modelRevision,source.request,result.job.savedPreparation->checked->job},
+                        result.job.savedPreparation->request->job,result.job.savedPublicationRequest,result.job.savedPublicationJob,stage.childPid};
                     if(stage.operation&&stage.operation->str().size()==savedPublicationOperation.size())
                         std::copy(stage.operation->str().begin(),stage.operation->str().end(),savedPublicationOperation.begin());
                 }
@@ -1355,7 +1445,7 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
-                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
+                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration || command->kind==CommandKind::ReconcileSavedPublication)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,e.code(),"Restoration inspection owner refused"};
                     if(command->kind==CommandKind::PublishSavedRestoration)
                         view.savedPublicationRejected={command->savedPublicationRequest,e.code(),"Saved publication owner refused"};
@@ -1386,7 +1476,7 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
-                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration)
+                    if(command->kind==CommandKind::InspectAssetRestoration || command->kind==CommandKind::InspectSavedAssetRestoration || command->kind==CommandKind::PrepareSavedRestorationSource || command->kind==CommandKind::ReconcileAssetRestoration || command->kind==CommandKind::ReconcileSavedPublication)
                         view.restorationInspectionRejected={command->restorationInspection?command->restorationInspection->request:0,ErrorCode::Io,"Restoration inspection owner refused"};
                     if(command->kind==CommandKind::PublishSavedRestoration)
                         view.savedPublicationRejected={command->savedPublicationRequest,ErrorCode::Io,"Saved publication owner refused"};
@@ -1432,6 +1522,7 @@ struct ProjectController::State : QThread {
         // An already-published save still needs to be reported honestly on close.
         if (auto result = io.takeResult())
             finishIo(std::move(*result));
+        savedPublicationOwner.reset(); // Closed observation remains; no live private owner survives shutdown.
         view.autosaveInhibitionToken = 0;
         view.closed = true;
         publish();
