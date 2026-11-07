@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/saved_manifest_source.hpp>
 #include <algorithm>
+#include <nlohmann/json.hpp>
 namespace soundcurrent::daw {
 namespace {
 void require(bool value,const char *message,ErrorCode code=ErrorCode::InvalidState) {
@@ -121,5 +122,85 @@ void SavedManifestSourceTicket::verifyFile(SavedManifestAudit &audit,const WaveC
     const auto &audio=report.audio();require(source.size()==audio.sourceBytes,"Saved manifest source extent mismatch",ErrorCode::MediaMismatch);
     source.verifyUnchanged();require(source.digest(stop,beforeChunk)==audio.sourceSha256,"Saved manifest source bytes mismatch",ErrorCode::MediaMismatch);
     source.verifyUnchanged();verify(audit,report,context,pid,memory,stop);source.verifyUnchanged();poll(stop);
+}
+namespace {
+std::string manifestControlHex(std::string_view bytes) {
+    constexpr char digits[]="0123456789abcdef";std::string out;out.reserve(bytes.size()*2);
+    for(unsigned char c:bytes){out+=digits[c>>4];out+=digits[c&15];}return out;
+}
+std::string manifestControlUnhex(const nlohmann::json &value,std::size_t maximum) {
+    require(value.is_string(),"Invalid manifest control hex type");const auto &text=value.get_ref<const std::string &>();
+    require(text.size()<=maximum*2 && text.size()%2==0,"Manifest control hex limit");
+    const auto digit=[](char c)->unsigned {
+        if(c>='0'&&c<='9')return unsigned(c-'0');
+        if(c>='a'&&c<='f')return unsigned(c-'a'+10);
+        throw ProjectError(ErrorCode::InvalidState,"Invalid manifest control hex");
+    };
+    std::string out;out.reserve(text.size()/2);
+    for(std::size_t n=0;n<text.size();n+=2)out+=char((digit(text[n])<<4)|digit(text[n+1]));return out;
+}
+}
+std::array<char,193> SavedManifestSourceTicket::fingerprint() const {
+    std::array<char,193> out{};std::size_t at=0;
+    const auto word=[&](std::uint64_t value){for(unsigned n=0;n<8;++n)out[at++]=char((value>>(n*8))&255);};
+    for(auto value:root_.identity)word(value);
+    for(char c:manifestSha_)out[at++]=c;
+    for(char c:canonicalSha_)out[at++]=c;
+    out[at++]=char(canonicalPresent_);word(canonicalBytes_);return out;
+}
+OwnedInspectionProtocol SavedManifestSourceTicket::copyControlProtocol(SavedManifestAudit &audit,const WaveCheckReport &report,
+    SavedRestorationSourceContext current,std::size_t pid,ResourceLedger memory,std::stop_token stop) const {
+    verify(audit,report,current,pid,memory,stop);
+    require(report.audio().sourceBytes<=audit.state().maximum,"Manifest handoff extent exceeds native policy",ErrorCode::ResourceLimit);
+    auto parser=memory.reserve(savedManifestSourceControlMaximumBytes*32);
+    auto output=memory.reserve(savedManifestSourceControlMaximumBytes+1024);
+    const auto original=fingerprint();
+    auto bytes=nlohmann::json({{"schema","sc-saved-manifest-source-control-v1"},
+        {"project",audit.manifest().id.str()},{"asset",asset_.str()},
+        {"projectEpoch",context_.projectEpoch},{"modelRevision",context_.modelRevision},{"request",context_.request},{"job",context_.job},
+        {"fingerprintHex",manifestControlHex(std::string_view(original.data(),original.size()))},
+        {"selectedLeafHex",manifestControlHex(selectedLeaf_)},{"sourceSha256",std::string(sourceSha_.data(),sourceSha_.size())},
+        {"checkedSourceBytes",report.audio().sourceBytes},{"frames",static_cast<std::uint64_t>(frames_)},{"rateHz",rate_},
+        {"channels",layout_.channels},{"layoutKind",static_cast<unsigned>(layout_.kind)},{"workerPid",static_cast<std::uint64_t>(pid)}}).dump();
+    require(bytes.size()<=savedManifestSourceControlMaximumBytes,"Manifest source handoff exceeds bank");
+    verify(audit,report,current,pid,memory,stop);return {std::move(output),std::move(bytes)};
+}
+SavedManifestSourceTicket SavedManifestSourceTicket::fromControlProtocol(std::string_view bytes,SavedManifestAudit &audit,
+    const WaveCheckReport &report,SavedRestorationSourceContext current,std::size_t pid,ResourceLedger memory,std::stop_token stop) {
+    poll(stop);require(!bytes.empty() && bytes.size()<=savedManifestSourceControlMaximumBytes,"Manifest source handoff exceeds bank");
+    for(unsigned char c:bytes)require(c && c<128,"Manifest source handoff must be ASCII JSON");
+    require(audit.ownedBy(memory) && report.ownedBy(memory) && pid && report.workerPid()==pid,"Manifest source handoff scope or PID mismatch");
+    auto parser=memory.reserve(savedManifestSourceControlMaximumBytes*32);
+    constexpr std::array<std::string_view,16> fields{"schema","project","asset","projectEpoch","modelRevision","request","job",
+        "fingerprintHex","selectedLeafHex","sourceSha256","checkedSourceBytes","frames","rateHz","channels","layoutKind","workerPid"};
+    std::array<bool,fields.size()> seen{};
+    try {
+        const auto callback=[&](int depth,nlohmann::json::parse_event_t event,nlohmann::json &value) {
+            poll(stop);require(depth<=1 && event!=nlohmann::json::parse_event_t::array_start,"Nested manifest source handoff refused");
+            if(event==nlohmann::json::parse_event_t::key){const auto &key=value.get_ref<const std::string &>();
+                const auto found=std::find(fields.begin(),fields.end(),key);require(found!=fields.end(),"Unknown manifest source handoff key");
+                const auto n=static_cast<std::size_t>(found-fields.begin());require(!seen[n],"Duplicate manifest source handoff key");seen[n]=true;}
+            return true;
+        };
+        const auto j=nlohmann::json::parse(bytes.begin(),bytes.end(),callback);
+        require(j.is_object() && std::all_of(seen.begin(),seen.end(),[](bool present){return present;}) &&
+            j.at("schema")=="sc-saved-manifest-source-control-v1","Incomplete manifest source handoff");
+        const auto integer=[&](const char *key){const auto &v=j.at(key);require(v.is_number_unsigned(),"Invalid manifest source handoff integer");return v.get<std::uint64_t>();};
+        require((SavedRestorationSourceContext{integer("projectEpoch"),integer("modelRevision"),integer("request"),integer("job")}==current),
+            "Stale manifest source handoff context");
+        require(j.at("project").is_string() && j.at("project").get_ref<const std::string &>()==audit.manifest().id.str() &&
+            j.at("asset").is_string() && j.at("asset").get_ref<const std::string &>()==audit.asset().id.str(),"Manifest source handoff identity mismatch");
+        const auto leaf=manifestControlUnhex(j.at("selectedLeafHex"),1024);
+        const auto encodedFingerprint=manifestControlUnhex(j.at("fingerprintHex"),193);
+        require(encodedFingerprint.size()==193,"Invalid manifest source fingerprint extent");
+        SavedManifestSourceTicket fresh(audit,leaf,current,memory,stop);const auto original=fresh.fingerprint();
+        require(std::equal(original.begin(),original.end(),encodedFingerprint.begin()),"Original manifest source fingerprint changed",ErrorCode::MediaMismatch);
+        require(j.at("sourceSha256").is_string() && j.at("sourceSha256").get_ref<const std::string &>()==std::string_view(fresh.sourceSha_.data(),64) &&
+            integer("checkedSourceBytes")==report.audio().sourceBytes && integer("checkedSourceBytes")<=audit.state().maximum &&
+            integer("frames")==static_cast<std::uint64_t>(fresh.frames_) && integer("rateHz")==fresh.rate_ &&
+            integer("channels")==fresh.layout_.channels && integer("layoutKind")==static_cast<unsigned>(fresh.layout_.kind) &&
+            integer("workerPid")==pid,"Manifest source handoff differs from original checked asset");
+        fresh.verify(audit,report,current,pid,memory,stop);return fresh;
+    }catch(const nlohmann::json::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed manifest source handoff");}
 }
 } // namespace soundcurrent::daw

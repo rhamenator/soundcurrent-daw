@@ -1656,6 +1656,7 @@ void savedControllerPublication(unsigned mode){
 }
 void manifestSourceTicketBinding(){
     Fixture f;const auto before=physical(f.root);ResourceLedger memory(32*1024*1024,"Manifest-only source binding");
+    std::string originalControl;
     {
         WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);const auto idle=checker.snapshot();
         ProjectBudget budget;budget.encodedBytes=65536;budget.parserBytes=2*1024*1024;budget.state.memoryBudgetBytes=2*1024*1024;
@@ -1667,6 +1668,51 @@ void manifestSourceTicketBinding(){
         while(checker.snapshot()->busy){if(std::chrono::steady_clock::now()>end)throw std::runtime_error("Manifest ticket checker deadline");QThread::msleep(1);}
         auto checked=checker.snapshot();check(checked->report&&checked->childPid&&checked->childExit==0,"Manifest ticket actual checker did not finish");
         original.verify(audit,*checked->report,context,checked->childPid,memory);++checks;
+        {
+            auto wire=original.copyControlProtocol(audit,*checked->report,context,checked->childPid,memory);
+            check(wire.ownedBy(memory)&&wire.bytes().size()<=savedManifestSourceControlMaximumBytes,"Manifest handoff not bounded/admitted");
+            originalControl=wire.bytes();
+            const auto restore=[&](std::string_view text){return SavedManifestSourceTicket::fromControlProtocol(text,audit,*checked->report,context,checked->childPid,memory);};
+            const auto beforeDecode=memory.usage();
+            {auto restored=restore(wire.bytes());restored.verify(audit,*checked->report,context,checked->childPid,memory);++checks;}
+            check(memory.usage().reservedBytes==beforeDecode.reservedBytes&&memory.usage().owners==beforeDecode.owners,"Manifest handoff roundtrip leaked metadata");
+            const auto j=nlohmann::json::parse(wire.bytes());
+            check(!j.contains("root")&&!j.contains("sourceRoot")&&!j.contains("operation")&&!j.contains("sourcePath"),"Manifest handoff invented paths or historical operation");
+            constexpr std::array<const char *,4> contexts{"projectEpoch","modelRevision","request","job"};
+            for(const auto key:contexts){auto wrong=j;wrong[key]=wrong[key].get<std::uint64_t>()+1;savedRecordRefuses([&]{restore(wrong.dump());});}
+            for(const auto key:{"checkedSourceBytes","frames","rateHz","channels","layoutKind","workerPid"}){auto wrong=j;wrong[key]=wrong[key].get<std::uint64_t>()+1;savedRecordRefuses([&]{restore(wrong.dump());});}
+            for(const auto key:{"project","asset"}){auto wrong=j;wrong[key]=Id::generate().str();savedRecordRefuses([&]{restore(wrong.dump());});}
+            for(unsigned kind=0;kind<15;++kind){auto wrong=j;
+                if(kind==0)wrong["schema"]="unknown";
+                if(kind==1)wrong["fingerprintHex"]="00";
+                if(kind==2){auto text=wrong["fingerprintHex"].get<std::string>();text[0]=text[0]=='a'?'b':'a';wrong["fingerprintHex"]=text;}
+                if(kind==3)wrong["selectedLeafHex"]="666f726569676e2e776176";
+                if(kind==4)wrong["selectedLeafHex"]="gg";
+                if(kind==5)wrong["sourceSha256"]=std::string(64,'a');
+                if(kind==6)wrong.erase("asset");
+                if(kind==7)wrong["authority"]=true;
+                if(kind==8)wrong["request"]=-1;
+                if(kind==9)wrong["job"]=1.5;
+                if(kind==10)wrong["checkedSourceBytes"]=false;
+                if(kind==11)wrong["project"]=nlohmann::json::object();
+                if(kind==12)wrong["asset"]=nlohmann::json::array();
+                if(kind==13)wrong["selectedLeafHex"]=std::string(2050,'0');
+                if(kind==14)wrong["schema"]="sc-saved-source-control-v1";
+                savedRecordRefuses([&]{restore(wrong.dump());});
+            }
+            for(const auto bad:{std::string{},std::string("{"),std::string(savedManifestSourceControlMaximumBytes+1,' '),std::string("\0",1),std::string("\xC3\xA9",2)})savedRecordRefuses([&]{restore(bad);});
+            auto duplicate=std::string(wire.bytes());duplicate.pop_back();duplicate+=",\"job\":1}";savedRecordRefuses([&]{restore(duplicate);});
+            auto signedZero=std::string(wire.bytes());const auto position=signedZero.find("\"projectEpoch\":0");check(position!=std::string::npos,"Epoch0 handoff fixture absent");
+            signedZero.replace(position,16,"\"projectEpoch\":-0");savedRecordRefuses([&]{restore(signedZero);});
+            std::stop_source stop;stop.request_stop();savedRecordRefuses([&]{SavedManifestSourceTicket::fromControlProtocol(wire.bytes(),audit,*checked->report,context,checked->childPid,memory,stop.get_token());});
+            savedRecordRefuses([&]{SavedManifestSourceTicket::fromControlProtocol(wire.bytes(),audit,*checked->report,context,checked->childPid+1,memory);});
+            savedRecordRefuses([&]{SavedManifestSourceTicket::fromControlProtocol(wire.bytes(),audit,*checked->report,context,checked->childPid,ResourceLedger{});});
+            const auto usage=memory.usage();memory.configure(usage.reservedBytes+savedManifestSourceControlMaximumBytes*32-1);
+            savedRecordRefuses([&]{restore(wire.bytes());},ErrorCode::ResourceLimit);
+            savedRecordRefuses([&]{original.copyControlProtocol(audit,*checked->report,context,checked->childPid,memory);},ErrorCode::ResourceLimit);
+            memory.configure(usage.limitBytes);
+            check(memory.usage().reservedBytes==beforeDecode.reservedBytes&&memory.usage().owners==beforeDecode.owners,"Manifest handoff refusals leaked metadata");
+        }
         auto moved=std::move(original);savedRecordRefuses([&]{original.verify(audit,*checked->report,context,checked->childPid,memory);});
         for(unsigned field=0;field<4;++field){auto wrong=context;if(field==0)++wrong.projectEpoch;if(field==1)++wrong.modelRevision;if(field==2)++wrong.request;if(field==3)++wrong.job;
             savedRecordRefuses([&]{moved.verify(audit,*checked->report,wrong,checked->childPid,memory);});}
@@ -1679,8 +1725,13 @@ void manifestSourceTicketBinding(){
             std::stop_source stop;stop.request_stop();savedRecordRefuses([&]{moved.verifyFile(audit,*checked->report,context,checked->childPid,file,memory,stop.get_token());});
         }
         auto changed=f.data;changed.back()^=1;write(f.source,changed);
-        ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto file=selected.openSelectedFilename(f.source.filename(),1024);
-        savedRecordRefuses([&]{moved.verifyFile(audit,*checked->report,context,checked->childPid,file,memory);});
+        {ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto file=selected.openSelectedFilename(f.source.filename(),1024);
+         savedRecordRefuses([&]{moved.verifyFile(audit,*checked->report,context,checked->childPid,file,memory);});}
+        write(f.source,f.data);std::filesystem::create_directory(f.root/"changed-before-control-consumption");
+        auto fresh=inspectSavedManifestAsset(f.root,f.initial->session->id,f.asset.id,1024,memory,budget);
+        savedRecordRefuses([&]{SavedManifestSourceTicket::fromControlProtocol(originalControl,fresh,*checked->report,context,checked->childPid,memory);},ErrorCode::MediaMismatch);
+        savedRecordRefuses([&]{moved.copyControlProtocol(audit,*checked->report,context,checked->childPid,memory);},ErrorCode::MediaMismatch);
+        std::filesystem::remove(f.root/"changed-before-control-consumption");
     }
     check(memory.usage().reservedBytes==0&&memory.usage().owners==0,"Manifest source binding retained ledger owners");
     check(physical(f.root)==before,"Manifest source binding wrote saved project/journal");
