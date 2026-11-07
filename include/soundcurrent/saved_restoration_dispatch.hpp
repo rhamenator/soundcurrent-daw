@@ -9,6 +9,8 @@ struct SavedRestorationDispatchContext {
 };
 // Borrowed trusted control-owner view, never populated from project/protocol
 // metadata. Caller serializes owner/root/I/O changes through bind and verify.
+// Root must be a named owner object that outlives this borrowed view. Flags
+// must come from the real controller owner, never GUI/protocol fields.
 // An empty owner's epoch/revision may be zero; no accepted Session is invented.
 struct SavedRestorationOwnerView {
     const std::filesystem::path &root;
@@ -25,7 +27,7 @@ class SavedRestorationDispatchTicket {
         Id freshOperation,ResourceLedger,std::stop_token = {});
     SavedRestorationDispatchTicket(SavedRestorationDispatchTicket &&) noexcept=default;
     SavedRestorationDispatchTicket(const SavedRestorationDispatchTicket &)=delete;
-    const Id &operation() const {return operation_;}
+    const Id &operation() const;
     void verify(const SavedRestorationOwnerView &,RestorationAudit &,const SavedRestorationSourceTicket &,
         const WaveCheckReport &,std::size_t actualCheckerPid,ResourceLedger,std::stop_token = {}) const;
   private:

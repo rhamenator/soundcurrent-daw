@@ -778,7 +778,27 @@ void savedControlProtocols(){
                     if(mode==15)path=f.source.parent_path();
                     SavedRestorationOwnerView stale{path,c,accepted,closing,active,ambiguous};
                     sourceRefuses([&]{dispatch.verify(stale,audit,ticket,report,pid,memory);});
-                    if(mode>=7)sourceRefuses([&]{SavedRestorationDispatchTicket::bind(stale,audit,ticket,report,pid,operation,memory);},mode==15?ErrorCode::MediaMismatch:ErrorCode::InvalidState);
+                    // Preparation/request/job are fresh trusted dispatch inputs at bind, not independent source-check tokens.
+                    if(mode<4||mode>=7)sourceRefuses([&]{SavedRestorationDispatchTicket::bind(stale,audit,ticket,report,pid,operation,memory);},mode==15?ErrorCode::MediaMismatch:ErrorCode::InvalidState);
+                }
+                for(unsigned mode=0;mode<4;++mode){auto native=f.root.native();
+                    if(mode==0)native.append(4097,static_cast<std::filesystem::path::value_type>('x'));
+                    if(mode==1)native.push_back(0);
+#ifdef _WIN32
+                    if(mode==2)native.push_back(wchar_t(0xd800)); // Unpaired UTF-16 surrogate.
+                    if(mode==3)native.append(1400,wchar_t(0x20ac)); // Native units fit; UTF-8 bytes do not.
+#else
+                    if(mode==2)native.push_back(char(0xff));
+                    if(mode==3)native.append("//"); // Same path elements, different original spelling.
+#endif
+                    const std::filesystem::path invalid(native);SavedRestorationOwnerView malformed{invalid,bound};
+                    sourceRefuses([&]{dispatch.verify(malformed,audit,ticket,report,pid,memory);});
+                    // The equivalent spelling on POSIX is valid for a NEW bind; only verification must pin exact spelling.
+#ifdef _WIN32
+                    sourceRefuses([&]{SavedRestorationDispatchTicket::bind(malformed,audit,ticket,report,pid,operation,memory);});
+#else
+                    if(mode!=3)sourceRefuses([&]{SavedRestorationDispatchTicket::bind(malformed,audit,ticket,report,pid,operation,memory);});
+#endif
                 }
                 sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid+1,memory);});
                 sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,history,memory);});
@@ -797,6 +817,7 @@ void savedControlProtocols(){
                 sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid,memory,canceled.get_token());},ErrorCode::Canceled);
                 sourceRefuses([&]{SavedRestorationDispatchTicket::bind(owner,audit,ticket,report,pid,operation,memory,canceled.get_token());},ErrorCode::Canceled);
                 auto moved=std::move(dispatch);sourceRefuses([&]{dispatch.verify(owner,audit,ticket,report,pid,memory);});
+                sourceRefuses([&]{dispatch.operation();});
                 moved.verify(owner,audit,ticket,report,pid,memory);++checks;
                 check(physical(f.root)==original,"Dispatch metadata touched saved project");
             }
@@ -830,9 +851,14 @@ void savedControlProtocols(){
             sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,other);});}
         std::stop_source stop;stop.request_stop();sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,memory,stop.get_token());},ErrorCode::Canceled);
         const auto usage=memory.usage();memory.configure(usage.reservedBytes);sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,audit,report,context,pid,memory);},ErrorCode::ResourceLimit);memory.configure(usage.limitBytes);
+        const SavedRestorationOwnerView beforeChange{f.root,{context,571,572,2}};
+        auto originalDispatch=SavedRestorationDispatchTicket::bind(beforeChange,audit,ticket,report,pid,Id::generate(),memory);
         std::filesystem::create_directory(f.root/"changed-after-original-control");
         auto newer=inspectSavedAssetRestoration(f.root,f.initial->session->id,f.asset.id,history,1024,memory);
         sourceRefuses([&]{SavedRestorationSourceTicket::fromControlProtocol(encoded,newer,report,context,pid,memory);},ErrorCode::MediaMismatch);
+        SavedRestorationSourceTicket recaptured(newer,name,context,memory);
+        verifySavedRestorationSourceReport(recaptured,newer,report,context,pid,memory);++checks;
+        sourceRefuses([&]{originalDispatch.verify(beforeChange,newer,recaptured,report,pid,memory);},ErrorCode::MediaMismatch);
         check(std::filesystem::remove(f.root/"changed-after-original-control"),"Cannot retire intentional control mutation");
     }
     check(physical(f.root)==original,"Control codec changed original project facts");check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Control proof admission leaked");coldOwner(*f.controller->snapshot());

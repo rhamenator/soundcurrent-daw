@@ -8,18 +8,23 @@ It does not construct an accepted Session or require an invented positive epoch.
 Zero epoch and revision remain valid for an empty owner.
 
 Binding and verification refuse an accepted project, closing, active competing
-I/O or unresolved publication ambiguity. Every current token, root spelling and
+I/O or unresolved publication ambiguity. Every current token, exact native root spelling and
 checker PID must still match. The independently opened native destination must
 match the original source ticket's root stamp. Revalidated original control bytes
 bind the six original pinned/named facts and selected checked source; a newer
 fingerprint cannot replace them. The fresh operation cannot equal the historical
-operation. Retained path/proof storage stays in the same ledger and scope; moved,
+operation. Native-to-UTF-8 conversion has temporary admission before allocation and maps
+encoding failures to InvalidState; retained path/proof storage stays in the same ledger and scope; moved,
 foreign-scope, canceled and insufficient-credit use refuses without mutation.
 
 This is a read-only foundation for the separate two-phase saved worker route.
 The ticket has no native staging owners or publication method. Successful
 verification does not authorize publication, process launch, replay, model
-adoption or canonical acceptance. The trusted caller must serialize owner/root/
+adoption or canonical acceptance. The borrowed view requires a named root that outlives it, with flags captured
+from the real controller. Moved tickets expose no operation. Original native
+proof checks can re-hash large media twice per call; use them on serialized
+I/O transitions, never on audio/GUI threads or high-frequency polling.
+The trusted caller must serialize owner/root/
 I/O changes through binding and verification. Publication needs a separate live
 one-use permission, retained native stage and original-root transition proof;
 those checks cannot be reconstructed from an exited stage-only DTO or saved file.
