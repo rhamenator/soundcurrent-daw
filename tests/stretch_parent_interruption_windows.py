@@ -16,6 +16,7 @@ import tempfile
 import time
 import uuid
 from parent_observation_timing import ObservationTimeline
+from parent_fixture_initialization import initialize_fixture
 
 K = ctypes.WinDLL("kernel32", use_last_error=True)
 HANDLE = W.HANDLE
@@ -271,7 +272,7 @@ def run_case(probe, helper, directory, stage):
     timing = ObservationTimeline()
     timing.mark("fixture-init.begin")
     root = (directory / "project-été-Κиїв").resolve()
-    subprocess.run([str(probe), "--init", str(root)], check=True, timeout=10, creationflags=0x08004000)
+    initialize_fixture(probe, root, directory, creationflags=0x08004000)
     timing.mark("fixture-init.end")
     timing.mark("baseline-hash.begin")
     baseline = inventory(root)
@@ -485,7 +486,7 @@ def main():
             (root / stage / "case-report.json").write_text(json.dumps(case, indent=2) + "\n", encoding="utf-8")
             report["cases"].append(case)
             if observation_root:
-                for name in ("case-report.json", "observation-timing.json", "cleanup-terminal.json", "cleanup-report.json", "parent-ready.json"):
+                for name in ("case-report.json", "observation-timing.json", "cleanup-terminal.json", "cleanup-report.json", "parent-ready.json", "fixture-init.json"):
                     original = root / stage / name
                     if original.is_file():
                         shutil.copyfile(original, observation_root / (stage + "-" + name))
@@ -495,7 +496,7 @@ def main():
     except Exception:
         if observation_root:
             for stage in ("before-ack", "during-processing", "during-processing-helper-death", "after-complete"):
-                for name in ("case-report.json", "failure-report.json", "observation-timing.json", "cleanup-terminal.json", "cleanup-report.json", "parent-ready.json"):
+                for name in ("case-report.json", "failure-report.json", "observation-timing.json", "cleanup-terminal.json", "cleanup-report.json", "parent-ready.json", "fixture-init.json"):
                     original = root / stage / name
                     if original.is_file():
                         shutil.copyfile(original, observation_root / (stage + "-" + name))
