@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/saved_restoration_permit.hpp>
+#ifdef SC_SAVED_MANIFEST_WORKER
+#include <soundcurrent/saved_manifest_stage.hpp>
+#if defined(SC_SAVED_PUBLICATION_WORKER) || defined(SC_SAVED_STAGING_QUALIFICATION)
+#error Manifest staging cannot include publication or qualification modes
+#endif
+#endif
 #include <algorithm>
 #include <array>
 #include <charconv>
@@ -16,13 +22,20 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#ifdef SC_SAVED_MANIFEST_WORKER
+#include <cstdio>
+#include <fcntl.h>
+#include <io.h>
+#endif
 #else
 #include <unistd.h>
 #endif
 using namespace soundcurrent::daw;
 namespace {
 constexpr std::size_t requestMaximum=65536,readyMaximum=32768;
-#ifdef SC_SAVED_PUBLICATION_WORKER
+#ifdef SC_SAVED_MANIFEST_WORKER
+constexpr auto requestProtocol="sc-saved-manifest-staging-worker-v1";
+#elif defined(SC_SAVED_PUBLICATION_WORKER)
 constexpr auto requestProtocol="sc-saved-restoration-worker-v2";
 #else
 constexpr auto requestProtocol="sc-saved-staging-worker-v1";
@@ -55,7 +68,11 @@ std::filesystem::path path(const nlohmann::json &j,bool root){auto s=unhex(j,roo
 }
 std::uint64_t integer(const nlohmann::json &j){check(j.is_number_unsigned(),"Invalid restoration request integer");return j.get<std::uint64_t>();}
 nlohmann::json request(std::string_view bytes){
+#ifdef SC_SAVED_MANIFEST_WORKER
+    constexpr std::array<std::string_view,19> keys{"protocol","project","asset","operation","rootHex","sourceRootHex","sourceLeafHex","sourceControlHex","checkReportHex","checkPid","maximumBytes","projectEpoch","modelRevision","sourceRequest","sourceJob","preparationJob","request","job","workerPid"};
+#else
     constexpr std::array<std::string_view,20> keys{"protocol","project","asset","historyOperation","operation","rootHex","sourceRootHex","sourceLeafHex","sourceControlHex","checkReportHex","checkPid","maximumBytes","projectEpoch","modelRevision","sourceRequest","sourceJob","preparationJob","request","job","workerPid"};
+#endif
     std::set<std::string> seen;auto callback=[&](int depth,nlohmann::json::parse_event_t event,nlohmann::json &v){
         check(depth<=1&&event!=nlohmann::json::parse_event_t::array_start,"Nested saved worker request");
         if(event==nlohmann::json::parse_event_t::key){const auto &k=v.get_ref<const std::string &>();check(std::find(keys.begin(),keys.end(),k)!=keys.end()&&seen.insert(k).second,"Unknown/duplicate saved worker request");}return true;};
@@ -66,6 +83,10 @@ void failure(ErrorCode code,bool stagingMayExist,bool publicationMayExist){
     std::cerr<<nlohmann::json({{"protocol","sc-saved-restoration-error-v2"},{"workerPid",pid()},
         {"published",publicationMayExist?nlohmann::json(nullptr):nlohmann::json(false)},
         {"stagingMayExist",stagingMayExist},{"publicationMayExist",publicationMayExist},{"errorCode",static_cast<unsigned>(code)}}).dump()<<std::endl;
+#elif defined(SC_SAVED_MANIFEST_WORKER)
+    (void)publicationMayExist;
+    std::cerr<<nlohmann::json({{"protocol","sc-saved-manifest-staging-error-v1"},{"workerPid",pid()},{"published",false},
+        {"stagingMayExist",stagingMayExist},{"errorCode",static_cast<unsigned>(code)}}).dump()<<std::endl;
 #else
     (void)publicationMayExist;
     std::cerr<<nlohmann::json({{"protocol","sc-saved-staging-error-v1"},{"workerPid",pid()},{"published",false},
@@ -74,6 +95,11 @@ void failure(ErrorCode code,bool stagingMayExist,bool publicationMayExist){
 }
 }
 int main(int argc,char **argv){bool stagingMayExist=false,publicationMayExist=false;try{
+#if defined(_WIN32) && defined(SC_SAVED_MANIFEST_WORKER)
+    // The manifest protocol requires physical EOF, not CRT text-mode Ctrl+Z.
+    // Configure before any stdin access; keep historical worker modes intact.
+    check(_setmode(_fileno(stdin),_O_BINARY)!=-1,"Manifest worker input mode failed",ErrorCode::Io);
+#endif
     std::uint64_t memoryBytes=512*1024*1024,sourceLimit=1024ULL*1024*1024;bool memorySeen=false,limitSeen=false;
 #ifdef SC_SAVED_STAGING_QUALIFICATION
     std::string fixtureMode="pause";bool fixtureModeSeen=false;
@@ -112,8 +138,12 @@ int main(int argc,char **argv){bool stagingMayExist=false,publicationMayExist=fa
 #endif
     const auto maximum=integer(j.at("maximumBytes"));check(maximum&&maximum<=sourceLimit,"Saved worker source policy exceeded",ErrorCode::ResourceLimit);
     check(integer(j.at("workerPid"))==pid(),"Saved worker request belongs to another process");
-    for(const auto *key:{"project","asset","historyOperation","operation"})check(j.at(key).is_string(),"Invalid saved worker identifier");
-    const Id project(j.at("project").get<std::string>()),asset(j.at("asset").get<std::string>()),history(j.at("historyOperation").get<std::string>()),operation(j.at("operation").get<std::string>());
+    for(const auto *key:{"project","asset","operation"})check(j.at(key).is_string(),"Invalid saved worker identifier");
+    const Id project(j.at("project").get<std::string>()),asset(j.at("asset").get<std::string>()),operation(j.at("operation").get<std::string>());
+#ifndef SC_SAVED_MANIFEST_WORKER
+    check(j.at("historyOperation").is_string(),"Invalid saved worker historical identifier");
+    const Id history(j.at("historyOperation").get<std::string>());
+#endif
     const auto root=path(j.at("rootHex"),true),selectedRoot=path(j.at("sourceRootHex"),true),leaf=path(j.at("sourceLeafHex"),false);
     const auto native=leaf.u8string();const std::string name(reinterpret_cast<const char *>(native.data()),native.size());
     const auto checkPid=integer(j.at("checkPid"));check(checkPid&&checkPid<=UINT32_MAX&&checkPid<=SIZE_MAX,"Invalid saved checker PID");
@@ -122,9 +152,15 @@ int main(int argc,char **argv){bool stagingMayExist=false,publicationMayExist=fa
     check(current.source.request&&current.source.job&&current.preparationJob&&current.request&&current.job,"Invalid saved worker request namespace");
     auto reportBytes=unhex(j.at("checkReportHex"),waveReportMaximumBytes);OwnedInspectionProtocol reportProtocol(memory.reserve(waveReportMaximumBytes+1024),std::move(reportBytes));
     auto report=decodeWaveCheckReport(std::move(reportProtocol),name,static_cast<std::size_t>(checkPid),maximum,memory,memory.reserve(waveReportValueCharge),memory.reserve(waveReportParserCharge));
+#ifdef SC_SAVED_MANIFEST_WORKER
+    auto audit=inspectSavedManifestAsset(root,project,asset,maximum,memory);
+    auto control=unhex(j.at("sourceControlHex"),savedManifestSourceControlMaximumBytes);
+    auto ticket=SavedManifestSourceTicket::fromControlProtocol(control,audit,report,current.source,static_cast<std::size_t>(checkPid),memory);
+#else
     auto audit=inspectSavedAssetRestoration(root,project,asset,history,maximum,memory);
     auto control=unhex(j.at("sourceControlHex"),savedSourceControlMaximumBytes);
     auto ticket=SavedRestorationSourceTicket::fromControlProtocol(control,audit,report,current.source,static_cast<std::size_t>(checkPid),memory);
+#endif
     ApprovedMediaRoot approved(selectedRoot,memory,{1});auto source=approved.openSelectedFilename(leaf,maximum);
     StageObserver observer;
 #ifdef SC_SAVED_STAGING_QUALIFICATION
@@ -154,9 +190,18 @@ int main(int argc,char **argv){bool stagingMayExist=false,publicationMayExist=fa
         {"postCommitFlushFailed",outcome.postCommitFlushFailed},{"durability",static_cast<unsigned>(outcome.durability)}}).dump();
     check(result.size()<=readyMaximum,"Saved publication result exceeds bank");std::cout<<result<<std::endl;return std::cout?0:1;
 #else
+#ifdef SC_SAVED_MANIFEST_WORKER
+    stagingMayExist=true;auto stage=SavedManifestStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum,{}, {},observer);
+#else
     stagingMayExist=true;auto stage=SavedRestorationStage::prepare(std::move(source),root,std::move(audit),ticket,report,static_cast<std::size_t>(checkPid),current,operation,maximum,{}, {},observer);
+#endif
     stage.reverify();auto record=encodeSavedRestorationRecord(stage.record(),SavedRestorationPhase::Planned,memory);
-    const auto result=nlohmann::json({{"protocol","sc-saved-staging-result-v1"},{"workerPid",pid()},{"published",false},{"recordHex",hex(record.bytes())}}).dump();
+#ifdef SC_SAVED_MANIFEST_WORKER
+    constexpr auto resultProtocol="sc-saved-manifest-staging-result-v1";
+#else
+    constexpr auto resultProtocol="sc-saved-staging-result-v1";
+#endif
+    const auto result=nlohmann::json({{"protocol",resultProtocol},{"workerPid",pid()},{"published",false},{"recordHex",hex(record.bytes())}}).dump();
     check(result.size()<=readyMaximum,"Saved staging result exceeds bank");std::cout<<result<<std::endl;return std::cout?0:1;
 #endif
 }catch(const ProjectError &e){failure(e.code(),stagingMayExist,publicationMayExist);return 1;
