@@ -1,7 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/saved_manifest_source.hpp>
+#include <soundcurrent/saved_manifest_stage.hpp>
 #include <algorithm>
 #include <nlohmann/json.hpp>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 namespace soundcurrent::daw {
 namespace {
 void require(bool value,const char *message,ErrorCode code=ErrorCode::InvalidState) {
@@ -60,14 +69,18 @@ void SavedManifestAudit::reverify(std::stop_token stop) {
     auto &s=state();poll(stop);
     const auto root=[&]{require(s.root.directoryStamp()==s.stamp,"Saved manifest root changed",ErrorCode::MediaMismatch);
         ApprovedMediaRoot named(s.path,s.memory,{1});require(named.directoryStamp()==s.stamp,"Saved manifest named root changed",ErrorCode::MediaMismatch);};
-    root();s.manifestFile.verifyUnchanged();require(s.manifestFile.digest(stop)==s.manifestSha,"Pinned saved manifest changed",ErrorCode::MediaMismatch);
+    root();reverifyFiles(stop);root();poll(stop);
+}
+void SavedManifestAudit::reverifyFiles(std::stop_token stop) {
+    auto &s=state();poll(stop);
+    s.manifestFile.verifyUnchanged();require(s.manifestFile.digest(stop)==s.manifestSha,"Pinned saved manifest changed",ErrorCode::MediaMismatch);
     {auto named=s.root.open("project.json",s.manifestFile.size(),stop);
      require(named.size()==s.manifestFile.size() && named.digest(stop)==s.manifestSha,"Named saved manifest changed",ErrorCode::MediaMismatch);}
     if(s.canonical){s.canonical->verifyUnchanged();require(s.canonical->digest(stop)==s.canonicalSha,"Pinned canonical changed",ErrorCode::MediaMismatch);}
     auto named=optionalFile(s.root,asset().relativePath,s.maximum,stop);
     require(bool(named)==bool(s.canonical),"Saved canonical visibility changed",ErrorCode::MediaMismatch);
     if(named)require(named->size()==s.canonical->size() && named->digest(stop)==s.canonicalSha,"Named canonical changed",ErrorCode::MediaMismatch);
-    root();poll(stop);
+    poll(stop);
 }
 SavedManifestAudit inspectSavedManifestAsset(const std::filesystem::path &path,const Id &project,const Id &asset,
     std::uint64_t maximum,ResourceLedger memory,ProjectBudget budget,std::stop_token stop) {
@@ -202,5 +215,75 @@ SavedManifestSourceTicket SavedManifestSourceTicket::fromControlProtocol(std::st
             integer("workerPid")==pid,"Manifest source handoff differs from original checked asset");
         fresh.verify(audit,report,current,pid,memory,stop);return fresh;
     }catch(const nlohmann::json::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed manifest source handoff");}
+}
+struct SavedManifestStageState {
+    ResourceLease lease;
+    ResourceLedger memory;
+    SavedManifestAudit audit;
+    SavedRestorationRecord record;
+    ApprovedMediaFile source;
+    StagedMedia stage;
+    SavedManifestStageState(ResourceLease grant,ResourceLedger resources,SavedManifestAudit original,
+        SavedRestorationRecord planned,ApprovedMediaFile selected,StagedMedia prepared)
+        :lease(std::move(grant)),memory(resources),audit(std::move(original)),record(std::move(planned)),
+         source(std::move(selected)),stage(std::move(prepared)) {}
+};
+SavedManifestStage::SavedManifestStage(std::unique_ptr<SavedManifestStageState> state):state_(std::move(state)) {}
+SavedManifestStage::SavedManifestStage(SavedManifestStage &&) noexcept=default;
+SavedManifestStage::~SavedManifestStage()=default;
+const SavedRestorationRecord &SavedManifestStage::record() const {
+    require(bool(state_),"Retired manifest stage");return state_->record;
+}
+const std::string &SavedManifestStage::relativePath() const {record();return state_->stage.relativePath();}
+SavedManifestStage SavedManifestStage::prepare(ApprovedMediaFile source,const std::filesystem::path &root,SavedManifestAudit audit,
+    const SavedManifestSourceTicket &ticket,const WaveCheckReport &report,std::size_t checkerPid,
+    SavedRestorationRecordContext current,Id operation,std::uint64_t maximum,WaveValidationLimits limits,
+    std::stop_token stop,const StageObserver &observer) {
+    poll(stop);const auto memory=source.resourceLedger();
+    require(audit.ownedBy(memory),"Manifest staging audit scope mismatch");
+#ifdef _WIN32
+    const auto actualPid=static_cast<std::uint64_t>(GetCurrentProcessId());
+#else
+    const auto actualPid=static_cast<std::uint64_t>(getpid());
+#endif
+    require(current.workerPid==actualPid,"Manifest staging writer is not this native process");
+    require(maximum>0 && maximum<=audit.state().maximum && source.size()<=maximum,
+        "Invalid manifest staging source budget",ErrorCode::ResourceLimit);
+    auto grant=memory.reserve(sizeof(SavedManifestStageState)+4096);
+    ticket.verifyFile(audit,report,current.source,checkerPid,source,memory,stop);
+    require(audit.canonical()==RestorationMediaObservation::Missing,"Manifest staging needs missing canonical media");
+    const auto &asset=audit.asset();
+    const auto checked=verifyAssetReplacement(source,asset,limits,stop);
+    require(checked.sourceBytes==report.audio().sourceBytes && checked.sourceSha256==report.audio().sourceSha256,
+        "Fresh manifest decode differs from actual checker",ErrorCode::MediaMismatch);
+    SavedRestorationRecordData data{operation,audit.manifest().id,asset.id};data.context=current;data.relativePath=asset.relativePath;
+    data.content={checked.sourceBytes,checked.sourceSha256};data.frames=asset.frames;data.rate=asset.sampleRate;data.layout=asset.layout;
+    auto record=SavedRestorationRecord::planned(data,memory,stop);
+    ticket.verifyFile(audit,report,current.source,checkerPid,source,memory,stop);
+    auto intent=encodeSavedRestorationRecord(record,SavedRestorationPhase::Planned,memory,stop);
+    auto stage=StagedMedia::prepareSavedRestorationStage(source,root,data.content,maximum,std::move(operation),intent,
+        audit.state().stamp,stop,observer);
+    SavedManifestStage result(std::make_unique<SavedManifestStageState>(std::move(grant),memory,std::move(audit),
+        std::move(record),std::move(source),std::move(stage)));
+    result.reverify(stop);return result;
+}
+void SavedManifestStage::reverify(std::stop_token stop) {
+    record();auto &s=*state_;poll(stop);const auto &d=s.record.data();const auto &a=s.audit.asset();
+    require(s.record.ownedBy(s.memory) && s.audit.ownedBy(s.memory) && s.source.ownedBy(s.memory),"Manifest stage scope mismatch");
+    require(d.project==s.audit.manifest().id && d.asset==a.id && d.relativePath==a.relativePath &&
+        std::string_view(d.content.sha256.data(),d.content.sha256.size())==a.sha256 &&
+        d.frames==a.frames && d.rate==a.sampleRate && d.layout==a.layout &&
+        s.audit.canonical()==RestorationMediaObservation::Missing,"Manifest stage changed original asset");
+    auto intent=encodeSavedRestorationRecord(s.record,SavedRestorationPhase::Planned,s.memory,stop);
+    const auto verify=[&] {
+        const auto held=s.audit.state().root.directoryStamp();
+        ApprovedMediaRoot named(s.audit.state().path,s.memory,{1});
+        require(named.directoryStamp()==held,"Manifest stage named root changed",ErrorCode::MediaMismatch);
+        s.stage.verifyRestorationParentTransition(s.audit.state().stamp,held,d.content,intent.bytes(),s.memory,stop);
+    };
+    verify();s.audit.reverifyFiles(stop);s.source.verifyUnchanged();
+    require(s.source.size()==d.content.bytes && s.source.digest(stop)==d.content.sha256,
+        "Manifest stage source changed",ErrorCode::MediaMismatch);
+    verify();poll(stop);
 }
 } // namespace soundcurrent::daw

@@ -22,10 +22,12 @@ class SavedManifestAudit {
     void reverify(std::stop_token = {});
   private:
     friend class SavedManifestSourceTicket;
+    friend class SavedManifestStage;
     friend SavedManifestAudit inspectSavedManifestAsset(const std::filesystem::path &,const Id &,const Id &,
         std::uint64_t,ResourceLedger,ProjectBudget,std::stop_token);
     explicit SavedManifestAudit(std::unique_ptr<SavedManifestAuditState>);
     SavedManifestAuditState &state() const;
+    void reverifyFiles(std::stop_token);
     std::unique_ptr<SavedManifestAuditState> state_;
 };
 SavedManifestAudit inspectSavedManifestAsset(const std::filesystem::path &,const Id &project,const Id &asset,
