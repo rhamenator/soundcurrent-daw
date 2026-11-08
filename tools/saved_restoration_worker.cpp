@@ -22,6 +22,11 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#ifdef SC_SAVED_MANIFEST_WORKER
+#include <cstdio>
+#include <fcntl.h>
+#include <io.h>
+#endif
 #else
 #include <unistd.h>
 #endif
@@ -90,6 +95,11 @@ void failure(ErrorCode code,bool stagingMayExist,bool publicationMayExist){
 }
 }
 int main(int argc,char **argv){bool stagingMayExist=false,publicationMayExist=false;try{
+#if defined(_WIN32) && defined(SC_SAVED_MANIFEST_WORKER)
+    // The manifest protocol requires physical EOF, not CRT text-mode Ctrl+Z.
+    // Configure before any stdin access; keep historical worker modes intact.
+    check(_setmode(_fileno(stdin),_O_BINARY)!=-1,"Manifest worker input mode failed",ErrorCode::Io);
+#endif
     std::uint64_t memoryBytes=512*1024*1024,sourceLimit=1024ULL*1024*1024;bool memorySeen=false,limitSeen=false;
 #ifdef SC_SAVED_STAGING_QUALIFICATION
     std::string fixtureMode="pause";bool fixtureModeSeen=false;

@@ -14,7 +14,8 @@ and supervisor is the next step. The new executable is not yet a packaged UI
 dependency or a release/installer qualification claim.
 
 Input is one ASCII newline frame, at most65536 bytes, followed by EOF before
-filesystem access. The exact19-field schema is
+filesystem access. Manifest-mode Windows stdin is binary so Ctrl+Z cannot
+substitute for physical EOF and hide trailing input. The exact19-field schema is
 `sc-saved-manifest-staging-worker-v1`: protocol, project, asset, operation,
 rootHex, sourceRootHex, sourceLeafHex, sourceControlHex, checkReportHex, checkPid,
 maximumBytes, projectEpoch, modelRevision, sourceRequest, sourceJob,
@@ -34,7 +35,10 @@ an exclusive planned operation. It reverifies its live original owners before
 emitting a bounded `sc-saved-manifest-staging-result-v1` containing its actual
 workerPid, published=false and recordHex. Errors use the distinct
 `sc-saved-manifest-staging-error-v1` with conservative stagingMayExist and
-published=false. No permission or publication frame is accepted.
+published=false. On success the child's native owners remain through result
+output; on exceptions they unwind before the error frame. The parent must keep
+its own original pins through reap on both paths. No permission or publication
+frame is accepted.
 
 The result is read-only stage evidence after the child exits, not a live stage
 capability, publication permission, adopted Session or restart/replay token.
@@ -46,7 +50,8 @@ Actual-process tests hold original parent pins through child reap and check a
 valid staged record/bytes plus old protocols, wrong worker/checker PID, duplicate
 or historical fields, changed original root, stale context, altered checker
 facts, byte/memory limits, cancellation before EOF, trailing/oversized/non-ASCII
-input, an existing operation, path traversal and old inner control schema.
+input, an existing operation, path traversal, old inner control schema and
+Ctrl+Z followed by trailing bytes.
 Original source/project facts and parent credits are preserved. Existing CTest
 inventory/deadlines and validators remain unchanged. Exact-head Linux/native
 Windows execution, Codex/Claude reviews and original evidence retention remain
