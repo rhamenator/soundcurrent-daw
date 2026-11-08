@@ -1822,6 +1822,87 @@ void manifestNativeStage(unsigned mode){
         "Manifest stage published receipt");
     if(mode!=4)check(bytes(f.source)==originalSource,"Manifest stage modified source");
 }
+void isolatedManifestStage(unsigned mode){
+    Fixture f;resetCold(f);const auto memory=f.controller->resourceLedger();const auto baseline=memory.usage();const auto operation=Id::generate();
+    if(mode==15)std::filesystem::create_directory(f.root/operation.str());
+    const auto before=physical(f.root);
+    {
+        auto audit=inspectSavedManifestAsset(f.root,f.initial->session->id,f.asset.id,1024,memory);
+        const auto native=f.source.filename().u8string();const std::string name(reinterpret_cast<const char *>(native.data()),native.size());
+        const SavedRestorationSourceContext context{0,0,811,1};SavedManifestSourceTicket ticket(audit,name,context,memory);
+        std::shared_ptr<const WaveCheckSnapshot> checked;
+        {WaveCheckOptions options;options.memory=memory;WaveCheckController checker(options);
+         check(checker.submitReplacement(f.source)==Admission::Accepted,"Manifest worker checker admission refused");checked=finishSource(checker);}
+        check(checked->job==context.job&&checked->report&&checked->childPid&&checked->childExit==0&&!checked->error,"Manifest worker lacks actual checker");
+        auto control=ticket.copyControlProtocol(audit,*checked->report,context,checked->childPid,memory);
+        auto report=checked->report->copyProtocol(memory);auto bank=memory.reserve(4*65536);
+        ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
+        ticket.verifyFile(audit,*checked->report,context,checked->childPid,source,memory);
+        if(mode==5)std::filesystem::create_directory(f.root/"changed-before-worker");
+        auto pathHex=[](const std::filesystem::path &path){const auto value=path.u8string();return savedControlHex(std::string_view(reinterpret_cast<const char *>(value.data()),value.size()));};
+        QProcess child;
+        struct Retire {QProcess &child;~Retire(){if(child.state()!=QProcess::NotRunning){child.kill();child.waitForFinished(15000);}}} retire{child};
+        child.setProcessChannelMode(QProcess::SeparateChannels);std::uint64_t pid=0;
+        QObject::connect(&child,&QProcess::started,[&]{pid=static_cast<std::uint64_t>(child.processId());});
+#ifdef _WIN32
+        const auto executable=QCoreApplication::applicationDirPath()+QStringLiteral("/sc-saved-manifest-worker.exe");
+#else
+        const auto executable=QCoreApplication::applicationDirPath()+QStringLiteral("/sc-saved-manifest-worker");
+#endif
+        QStringList arguments{QStringLiteral("--maximum-source-bytes"),QStringLiteral("1024")};
+        if(mode==12)arguments<<QStringLiteral("--memory-bytes")<<QStringLiteral("4096");
+        child.start(executable,arguments);check(child.waitForStarted(3000)||pid!=0,"Manifest staging child launch failed");check(pid!=0,"Manifest staging child has no observed PID");
+        const SavedRestorationRecordContext current{context,812,813,814,pid};
+        nlohmann::json request{{"protocol","sc-saved-manifest-staging-worker-v1"},{"project",f.initial->session->id.str()},{"asset",f.asset.id.str()},
+            {"operation",operation.str()},{"rootHex",pathHex(f.root)},{"sourceRootHex",pathHex(f.source.parent_path())},{"sourceLeafHex",pathHex(f.source.filename())},
+            {"sourceControlHex",savedControlHex(control.bytes())},{"checkReportHex",savedControlHex(report.bytes())},{"checkPid",checked->childPid},{"maximumBytes",1024U},
+            {"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},{"sourceRequest",context.request},{"sourceJob",context.job},
+            {"preparationJob",current.preparationJob},{"request",current.request},{"job",current.job},{"workerPid",pid}};
+        if(mode==1)request["protocol"]="sc-saved-staging-worker-v1";
+        if(mode==2)request["workerPid"]=pid+1;
+        if(mode==4)request["historyOperation"]=Id::generate().str();
+        if(mode==6)request["checkPid"]=checked->childPid+1;
+        if(mode==7)request["sourceJob"]=context.job+1;
+        if(mode==8){auto changed=nlohmann::json::parse(report.bytes());changed["frames"]=3;changed["decodedFrames"]=3;request["checkReportHex"]=savedControlHex(changed.dump());}
+        if(mode==9)request["maximumBytes"]=1U;
+        if(mode==16)request["sourceLeafHex"]=savedControlHex("../escape.wav");
+        if(mode==17){auto changed=nlohmann::json::parse(control.bytes());changed["schema"]="sc-saved-source-control-v1";request["sourceControlHex"]=savedControlHex(changed.dump());}
+        auto wire=request.dump()+"\n";
+        if(mode==3)wire="{\"job\":814,"+wire.substr(1);
+        if(mode==11)wire+="{}\n";
+        if(mode==13)wire=std::string(65537,'x')+"\n";
+        if(mode==14)wire=std::string(1,char(0xc3))+"\n";
+        if(mode!=12)check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Manifest worker input queue failed");
+        if(mode==10){
+            check(child.waitForBytesWritten(3000)||child.bytesToWrite()==0,"Manifest request was not sent before cancellation");
+            check(!child.waitForFinished(30)&&!std::filesystem::exists(f.root/operation.str()),"Manifest worker mutated before exact request EOF");
+            child.kill();check(child.waitForFinished(15000),"Manifest child cancellation did not reap");
+        }else{
+            child.closeWriteChannel();check(child.state()==QProcess::NotRunning||child.waitForFinished(15000),"Manifest staging child exceeded test deadline");
+        }
+        check(nativeReadPin(f.root/"project.json")&&nativeReadPin(f.source),"Manifest parent pins retired before child reap");
+        const auto out=child.readAllStandardOutput(),err=child.readAllStandardError();check(out.size()<=32768&&err.size()<=32768,"Manifest child output exceeded banks");
+        if(mode==0){
+            check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()==0&&err.isEmpty(),"Manifest staging child refused valid input");
+            const auto result=nlohmann::json::parse(out.toStdString());check(result.size()==4&&result.at("protocol")=="sc-saved-manifest-staging-result-v1"&&
+                result.at("workerPid")==pid&&result.at("published")==false,"Manifest worker terminal protocol/PID changed");
+            auto record=decodeSavedRestorationRecord(savedControlUnhex(result.at("recordHex").get<std::string>()),memory);
+            verifySavedRestorationRecord(record,f.initial->session->id,f.asset,{checked->report->audio().sourceBytes,checked->report->audio().sourceSha256},
+                current,operation,SavedRestorationPhase::Planned,memory);
+            check(bytes(f.root/operation.str()/"media.partial")==f.data,"Manifest worker staged different bytes");
+        }else if(mode!=10){
+            check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()!=0&&out.isEmpty(),"Invalid manifest worker input succeeded");
+            const auto failure=nlohmann::json::parse(err.toStdString());check(failure.at("protocol")=="sc-saved-manifest-staging-error-v1"&&
+                failure.at("workerPid")==pid&&failure.at("published")==false&&failure.contains("errorCode"),"Manifest worker failure lost actual facts");
+        }
+    }
+    check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest worker parent native pins leaked");
+    check(memory.usage().reservedBytes==baseline.reservedBytes&&memory.usage().owners==baseline.owners,"Manifest worker parent credit leaked");
+    auto after=physical(f.root);if(mode==5)after.erase("changed-before-worker");
+    if(mode==0){for(const auto &[path,value]:before)check(after.contains(path)&&after.at(path)==value,"Manifest worker changed original project facts");}
+    else check(after==before,"Refused/canceled manifest worker mutated saved project");
+    check(bytes(f.source)==f.data&&!std::filesystem::exists(f.canonical)&&!std::filesystem::exists(f.root/operation.str()/"receipt.json"),"Manifest worker published/adopted or changed source");
+}
 ProjectCommand manifestSource(const Fixture &f,const ControllerSnapshot &cold,std::uint64_t request=1){
     ProjectCommand c{CommandKind::PrepareSavedManifestSource};c.path=f.root;c.restorationSource=f.source;
     c.savedManifestSource=SavedManifestSourceRequest{f.initial->session->id,f.asset.id,cold.projectEpoch,cold.modelRevision,request};return c;
@@ -2067,4 +2148,4 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<15;++mode)manifestNativeStage(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<15;++mode)manifestNativeStage(mode);for(unsigned mode=0;mode<18;++mode)isolatedManifestStage(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
