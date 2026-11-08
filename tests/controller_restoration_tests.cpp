@@ -2045,8 +2045,23 @@ void manifestStagingSupervisor(unsigned mode){
         const auto admitted=memory.usage();if(mode==13)memory.configure(admitted.reservedBytes+512*1024*1024-1);
         if(mode==14)options.savedStagingAfterSpawn=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
         if(mode==15)options.savedStagingAfterVerification=[&]{cancel=true;};
-        auto actual=*checked;if(mode==2)++actual.childPid;
-        const auto r=runSavedManifestStagingProcess(original,f.root,f.source,*ticket,mode==1?std::string_view("{}"):control->bytes(),
+        if(mode==16)options.savedManifestStagingBeforeInput=[&]{cancel=true;};
+        if(mode==17)options.savedManifestStagingBeforeEof=[&]{cancel=true;};
+        if(mode==18)options.savedStagingAfterSpawn=[] {throw 7;};
+        if(mode==22){
+#ifdef _WIN32
+            options.savedManifestStagingWorkerProgram=std::filesystem::path(QCoreApplication::applicationDirPath().toStdWString())/L"sc-saved-restoration-worker.exe";
+#else
+            options.savedManifestStagingWorkerProgram=std::filesystem::path(QCoreApplication::applicationDirPath().toStdString())/"sc-saved-restoration-worker";
+#endif
+        }
+        if(mode==23)options.savedStagingTerminalHook=[](std::string &wire,std::size_t){wire+=wire;};
+        if(mode==24)options.savedStagingTerminalHook=[](std::string &wire,std::size_t){wire.resize(wire.size()/2);wire+='\n';};
+        auto selectedPath=f.source;
+        if(mode==19){selectedPath=f.source.parent_path()/"same-bytes-other-name.wav";write(selectedPath,f.data);}
+        if(mode==20){const auto other=f.owned.path/"different-source-directory";std::filesystem::create_directory(other);selectedPath=other/f.source.filename();write(selectedPath,f.data);}
+        auto actual=*checked;if(mode==2)++actual.childPid;if(mode==21)actual.selection.reset();
+        const auto r=runSavedManifestStagingProcess(original,f.root,selectedPath,*ticket,mode==1?std::string_view("{}"):control->bytes(),
             actual,742,743,744,options,memory,closing,cancel);
         if(mode==13)memory.configure(admitted.limitBytes);
         check(r.request==743&&r.job==744&&r.preparationJob==742,"Manifest supervisor changed private job identities");
@@ -2057,20 +2072,27 @@ void manifestStagingSupervisor(unsigned mode){
                 "Manifest parent supervisor did not independently verify real child stage");
         }else{
             check(r.error.has_value()&&!r.recordVerified&&!r.stagedBytesVerified,"Manifest supervisor refusal invented qualified evidence");
-            if(mode<=5||mode==13)check(!r.launchAttempted&&!r.childPid&&!r.childExit&&!r.normalExit&&!r.operation&&!r.requestSent&&
+            if(mode<=5||mode==13||(mode>=19&&mode<=21))check(!r.launchAttempted&&!r.childPid&&!r.childExit&&!r.normalExit&&!r.operation&&!r.requestSent&&
                 !r.reaped&&!r.stagingMayExist&&afterReap==0&&beforeKill==0,"Manifest prelaunch refusal invented child observations");
             else check(r.launchAttempted&&r.launchRetired,"Manifest supervisor failed actual launch retirement");
             if(mode==11)check(!r.childPid&&!r.childExit&&!r.normalExit&&!r.reaped&&!r.operation&&!r.requestSent,
                 "Manifest failed launch invented PID/exit/reap");
-            if(mode==6||mode==7||mode==10||mode==14)check(r.childPid&&r.reaped&&r.operation&&r.stagingMayExist&&r.killRequested&&
+            if(mode==6||mode==7||mode==10||mode==14||mode==16||mode==18)check(r.childPid&&r.reaped&&r.operation&&r.stagingMayExist&&r.killRequested&&
                 !r.requestSent&&beforeKill==1&&afterReap==1,"Manifest pre-input failure lost actual child kill/reap/pins");
-            if(mode==8||mode==9||mode==12||mode==15)check(r.childPid&&r.reaped&&r.childExit==0&&r.normalExit==true&&r.requestSent&&
+            if(mode==17)check(r.childPid&&r.reaped&&r.operation&&r.stagingMayExist&&r.killRequested&&
+                r.requestSent&&beforeKill==1&&afterReap==1&&!std::filesystem::exists(f.root/r.operation->str()),
+                "Manifest cancellation before EOF allowed filesystem work or lost actual input/retirement facts");
+            if(mode==8||mode==9||mode==12||mode==15||mode==23||mode==24)check(r.childPid&&r.reaped&&r.childExit==0&&r.normalExit==true&&r.requestSent&&
                 !r.killRequested&&beforeKill==0&&afterReap==1,"Manifest terminal refusal lost actual successful child observations");
-            if(mode==5||mode==6||mode==7||mode==8||mode==15)check(r.error==ErrorCode::Canceled&&r.cancellationObserved,"Manifest cancellation lost category");
+            if(mode==5||mode==6||mode==7||mode==8||mode==15||mode==16||mode==17)check(r.error==ErrorCode::Canceled&&r.cancellationObserved,"Manifest cancellation lost category");
             if(mode==14)check(r.error==ErrorCode::Io&&!r.cancellationObserved,"Manifest deadline fabricated owner cancellation");
+            if(mode==22)check(r.childPid&&r.reaped&&r.requestSent&&r.childExit&&*r.childExit!=0&&r.normalExit==true&&
+                !r.killRequested&&beforeKill==0&&afterReap==1&&!std::filesystem::exists(f.root/r.operation->str()),
+                "Manifest supervisor accepted foreign worker protocol or lost actual nonzero exit");
+            if(mode==18)check(r.error==ErrorCode::Io&&!r.cancellationObserved,"Nonstandard hook exception escaped actual retirement");
             if(mode==13)check(r.error==ErrorCode::ResourceLimit,"Manifest supervisor bypassed child credit admission");
         }
-        if(mode==0||mode==8||mode==9||mode==12||mode==15){
+        if(mode==0||mode==8||mode==9||mode==12||mode==15||mode==23||mode==24){
             check(r.operation&&bytes(f.root/r.operation->str()/"media.partial")==f.data,"Manifest actual child staged different bytes");
             check(std::filesystem::exists(f.root/r.operation->str()/"intent.json")&&!std::filesystem::exists(f.root/r.operation->str()/"receipt.json"),
                 "Manifest stage fabricated publication receipt");
@@ -2330,4 +2352,4 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuar
 #ifndef _WIN32
         isolatedManifestStage(19);
 #endif
-        for(unsigned mode=0;mode<16;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

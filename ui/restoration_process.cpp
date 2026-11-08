@@ -383,7 +383,7 @@ SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceR
     std::stop_source workStop;const auto stop=workStop.get_token();std::jthread watchdog;
     try {
         poll();check(preparationJob&&requestId&&job&&checked.job&&checked.childPid&&checked.childExit==0&&checked.report&&
-            checked.phase==WaveCheckPhase::Complete&&!checked.busy&&!checked.closed&&!checked.error&&!checked.replacement,
+            checked.phase==WaveCheckPhase::Complete&&!checked.busy&&!checked.closed&&!checked.error&&!checked.timedOut&&!checked.replacement&&checked.selection,
             "Manifest staging private checker is not complete");
         const auto bytes=checked.report->audio().sourceBytes;
         check(bytes&&bytes<=options.restorationInspectionMaximumBytes&&allowance&&
@@ -397,6 +397,10 @@ SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceR
         const auto rootBytes=native(root),sourceRootBytes=native(source.parent_path()),leafBytes=native(source.filename());
         const auto pathBytes=[](const std::string &v,std::size_t maximum){return !v.empty()&&v.size()<=maximum&&v.find('\0')==v.npos&&validUtf8(v);};
         check(pathBytes(rootBytes,4096)&&pathBytes(sourceRootBytes,4096)&&pathBytes(leafBytes,1024),"Manifest staging UTF-8 path extent");
+        check(memory.owns(checked.selection->lease)&&checked.selection->selectedFilename&&
+            checked.selection->root==source.parent_path()&&checked.selection->relative==leafBytes&&
+            checked.report->relative()==leafBytes&&bytes<=checked.selection->maximumBytes,
+            "Manifest staging differs from original private checker selection",ErrorCode::MediaMismatch);
         watchdog=std::jthread([&](std::stop_token retired){while(!retired.stop_requested()){
             if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)||expired()){workStop.request_stop();return;}
             std::this_thread::sleep_for(std::chrono::milliseconds(2));}});
@@ -443,8 +447,10 @@ SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceR
         if(options.savedStagingAfterSpawn)options.savedStagingAfterSpawn();poll();
         dispatch.verifyBeforeLaunch(owner,audit,ticket,selected,*checked.report,checked.childPid,memory,stop);
         packet["workerPid"]=out.childPid;const auto wire=packet.dump()+"\n";
+        if(options.savedManifestStagingBeforeInput)options.savedManifestStagingBeforeInput();poll();
         out.requestSent=true;
         check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Manifest staging request channel",ErrorCode::Io);
+        if(options.savedManifestStagingBeforeEof)options.savedManifestStagingBeforeEof();poll();
         child.closeWriteChannel(); // The child refuses filesystem work until exact EOF.
         std::string output;output.reserve(32768);std::array<char,32768> errors{};std::size_t errorUsed=0;
         const auto drain=[&]{
@@ -476,7 +482,7 @@ SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceR
         if(options.savedStagingAfterVerification)options.savedStagingAfterVerification();poll();
     }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled&&!closing.load(std::memory_order_acquire)&&
         !cancel.load(std::memory_order_acquire)&&expired())out.error=ErrorCode::Io;}
-    catch(const std::exception &){out.error=ErrorCode::Io;}
+    catch(...){out.error=ErrorCode::Io;}
     const auto probe=[&](bool retired){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(retired);}
         catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}};
     if(child.state()!=QProcess::NotRunning){probe(false);out.killRequested=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
