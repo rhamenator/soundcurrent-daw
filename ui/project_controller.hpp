@@ -273,7 +273,6 @@ struct ControllerSnapshot {
 struct ControllerOptions {
     // I/O worker only. Used for cancellation/slow storage/failure qualification.
     std::function<void()> beforeIo;
-    std::function<void(IoOperation)> afterIoResultPublished; // Trusted qualification only; owns no completed job.
     std::function<void()> beforeSavePublish;
     std::function<void()> beforeCommand;        // Control-worker admission/failure fixture only.
     std::function<void()> beforeInitialPublish; // Control-worker startup qualification only.
@@ -316,6 +315,7 @@ struct ControllerOptions {
     std::uint64_t autosaveIntervalMilliseconds = 0;
     // Control-worker clock seam; production uses steady_clock. Never audio.
     std::function<std::uint64_t()> autosaveNowMilliseconds;
+    std::function<void(IoOperation)> afterIoResultPublished; // Trusted nonthrowing qualification only; owns no completed job.
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
 // to the control worker; blocking filesystem operations to a separate I/O worker.

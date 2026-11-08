@@ -2194,7 +2194,7 @@ void manifestControllerStaging(unsigned mode){
     if(mode==15){
         await(*f.controller,[&](const auto &v){return reached&&v.io==IoOperation::None;});
         check(f.controller->memoryResources().reservedBytes==baseline,"Published idle state retained an I/O duplicate preparation lease");
-        ProjectCommand policy{CommandKind::MemoryLimits};policy.memoryRequest=9911;policy.memoryBytes=baseline+1;
+        ProjectCommand policy{CommandKind::MemoryLimits};policy.memoryRequest=9911;policy.memoryBytes=baseline?baseline:1; // Positive floor only for an empty ledger.
         submit(*f.controller,policy);auto limited=await(*f.controller,[](const auto &v){return v.memoryCompleted.request==9911;});
         check(!limited->memoryCompleted.error,"Immediate exact idle budget refused while I/O thread still held after publication");
         release=true;
