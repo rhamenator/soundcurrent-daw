@@ -360,4 +360,136 @@ SavedPublicationProcessResult runSavedPublicationProcess(const RestorationInspec
     runSavedPublicationProcessInto(out,original,root,source,ticket,checked,preparationJob,request,job,options,memory,closing,cancel,permissionMutex);
     return out;
 }
+
+SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceRequest &original,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedManifestSourceTicket &ticket,std::string_view originalControl,const WaveCheckSnapshot &checked,
+    std::uint64_t preparationJob,std::uint64_t requestId,std::uint64_t job,const ControllerOptions &options,
+    ResourceLedger memory,const std::atomic<bool> &closing,const std::atomic<bool> &cancel) {
+    SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
+    QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
+    // Native owners outlive ALL exception scopes and actual process retirement.
+    std::optional<SavedManifestAudit> auditOwner;
+    std::optional<ApprovedMediaRoot> sourceRootOwner;
+    std::optional<ApprovedMediaFile> sourceOwner;
+    std::optional<SavedManifestDispatchTicket> dispatchOwner;
+    std::optional<OwnedInspectionProtocol> reportOwner;
+    const auto now=[&]()->std::uint64_t{return options.savedStagingNowMilliseconds?options.savedStagingNowMilliseconds():
+        static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());};
+    const auto begun=now();std::uint64_t allowance=options.savedStagingDeadlineMilliseconds;
+    const auto expired=[&]() noexcept{try{const auto current=now();return current<begun||current-begun>=allowance;}catch(...){return true;}};
+    const auto poll=[&]{check(!closing.load(std::memory_order_acquire)&&!cancel.load(std::memory_order_acquire),"Manifest staging canceled",ErrorCode::Canceled);
+        check(!expired(),"Manifest staging deadline",ErrorCode::Io);};
+    std::stop_source workStop;const auto stop=workStop.get_token();std::jthread watchdog;
+    try {
+        poll();check(preparationJob&&requestId&&job&&checked.job&&checked.childPid&&checked.childExit==0&&checked.report&&
+            checked.phase==WaveCheckPhase::Complete&&!checked.busy&&!checked.closed&&!checked.error&&!checked.replacement,
+            "Manifest staging private checker is not complete");
+        const auto bytes=checked.report->audio().sourceBytes;
+        check(bytes&&bytes<=options.restorationInspectionMaximumBytes&&allowance&&
+            allowance<=options.savedStagingMaximumDeadlineMilliseconds,"Manifest staging trusted policy invalid");
+        const auto mib=bytes/(1024*1024)+(bytes%(1024*1024)!=0),remaining=options.savedStagingMaximumDeadlineMilliseconds-allowance;
+        const auto per=options.savedStagingMillisecondsPerMiB;
+        allowance+=per&&mib>remaining/per?remaining:mib*static_cast<std::uint64_t>(per);
+        bank=memory.reserve(childCredit+3*1024*1024); // Admission, not a process RSS sandbox.
+        check(root.is_absolute()&&source.is_absolute()&&root.native().size()<=4096&&source.native().size()<=4096,
+            "Manifest staging explicit native path extent");
+        const auto rootBytes=native(root),sourceRootBytes=native(source.parent_path()),leafBytes=native(source.filename());
+        const auto pathBytes=[](const std::string &v,std::size_t maximum){return !v.empty()&&v.size()<=maximum&&v.find('\0')==v.npos&&validUtf8(v);};
+        check(pathBytes(rootBytes,4096)&&pathBytes(sourceRootBytes,4096)&&pathBytes(leafBytes,1024),"Manifest staging UTF-8 path extent");
+        watchdog=std::jthread([&](std::stop_token retired){while(!retired.stop_requested()){
+            if(closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)||expired()){workStop.request_stop();return;}
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));}});
+        const SavedRestorationSourceContext context{original.projectEpoch,original.modelRevision,original.request,checked.job};
+        const SavedRestorationOwnerView owner{root,{context,preparationJob,requestId,job}};
+        auto &audit=auditOwner.emplace(inspectSavedManifestAsset(root,original.project,original.asset,
+            options.restorationInspectionMaximumBytes,memory,options.admission,stop));
+        auto &sourceRoot=sourceRootOwner.emplace(source.parent_path(),memory,ApprovedMediaLimits{1});
+        auto &selected=sourceOwner.emplace(sourceRoot.openSelectedFilename(source.filename(),options.restorationInspectionMaximumBytes,stop));
+        ticket.verifyFile(audit,*checked.report,context,checked.childPid,selected,memory,stop,[&]{
+            poll();if(options.savedStagingBeforeSourceChunk)options.savedStagingBeforeSourceChunk();poll();});
+        if(options.savedStagingBeforeDestination)options.savedStagingBeforeDestination();poll();
+        const auto operation=Id::generate();
+        auto &dispatch=dispatchOwner.emplace(SavedManifestDispatchTicket::bind(owner,audit,ticket,selected,originalControl,
+            *checked.report,checked.childPid,operation,memory,stop));
+        auto &report=reportOwner.emplace(checked.report->copyProtocol(memory,stop));
+        auto packet=nlohmann::json({{"protocol","sc-saved-manifest-staging-worker-v1"},{"project",original.project.str()},
+            {"asset",original.asset.str()},{"operation",operation.str()},{"rootHex",hex(rootBytes)},
+            {"sourceRootHex",hex(sourceRootBytes)},{"sourceLeafHex",hex(leafBytes)},{"sourceControlHex",hex(originalControl)},
+            {"checkReportHex",hex(report.bytes())},{"checkPid",checked.childPid},{"maximumBytes",options.restorationInspectionMaximumBytes},
+            {"projectEpoch",context.projectEpoch},{"modelRevision",context.modelRevision},{"sourceRequest",context.request},
+            {"sourceJob",context.job},{"preparationJob",preparationJob},{"request",requestId},{"job",job},{"workerPid",UINT32_MAX}});
+        check(packet.dump().size()+1<=65537,"Manifest staging request extent");
+        const auto &configured=options.savedManifestStagingWorkerProgram;
+        const QString program=configured.empty()?QCoreApplication::applicationDirPath()+
+#ifdef _WIN32
+            QStringLiteral("/sc-saved-manifest-worker.exe"):
+#else
+            QStringLiteral("/sc-saved-manifest-worker"):
+#endif
+            QString::fromUtf8(native(configured).c_str());
+        check(QFileInfo(program).isAbsolute(),"Manifest staging worker must be absolute");
+        if(options.savedStagingBeforeSpawn)options.savedStagingBeforeSpawn();poll();
+        dispatch.verifyBeforeLaunch(owner,audit,ticket,selected,*checked.report,checked.childPid,memory,stop);
+        child.setProcessChannelMode(QProcess::SeparateChannels);
+        QObject::connect(&child,&QProcess::started,&child,[&]{out.childPid=static_cast<std::size_t>(child.processId());out.stagingMayExist=true;});
+        out.launchAttempted=true;
+        child.start(program,{QStringLiteral("--memory-bytes"),QString::number(childCredit),
+            QStringLiteral("--maximum-source-bytes"),QString::number(options.restorationInspectionMaximumBytes)},QIODevice::ReadWrite);
+        if(options.savedStagingAfterLaunch)options.savedStagingAfterLaunch();poll();
+        while(child.state()==QProcess::Starting){child.waitForStarted(20);poll();}
+        check(child.state()==QProcess::Running&&out.childPid&&out.childPid<=UINT32_MAX,"Manifest staging child did not start",ErrorCode::Io);
+        out.operation=operation;
+        if(options.savedStagingAfterSpawn)options.savedStagingAfterSpawn();poll();
+        dispatch.verifyBeforeLaunch(owner,audit,ticket,selected,*checked.report,checked.childPid,memory,stop);
+        packet["workerPid"]=out.childPid;const auto wire=packet.dump()+"\n";
+        out.requestSent=true;
+        check(child.write(wire.data(),static_cast<qint64>(wire.size()))==static_cast<qint64>(wire.size()),"Manifest staging request channel",ErrorCode::Io);
+        child.closeWriteChannel(); // The child refuses filesystem work until exact EOF.
+        std::string output;output.reserve(32768);std::array<char,32768> errors{};std::size_t errorUsed=0;
+        const auto drain=[&]{
+            child.setReadChannel(QProcess::StandardError);
+            while(child.bytesAvailable()){
+                check(errorUsed<errors.size(),"Manifest staging stderr overflow",ErrorCode::ResourceLimit);
+                const auto n=child.read(errors.data()+errorUsed,static_cast<qint64>(errors.size()-errorUsed));
+                check(n>=0,"Manifest staging stderr",ErrorCode::Io);if(!n)break;errorUsed+=static_cast<std::size_t>(n);
+                if(options.savedStagingDiagnosticHook)options.savedStagingDiagnosticHook(std::string_view(errors.data(),errorUsed));}
+            child.setReadChannel(QProcess::StandardOutput);
+            while(child.bytesAvailable()){
+                check(output.size()<32768,"Manifest staging stdout overflow",ErrorCode::ResourceLimit);std::array<char,4096> chunk{};
+                const auto n=child.read(chunk.data(),static_cast<qint64>(std::min(chunk.size(),32768-output.size())));
+                check(n>=0,"Manifest staging stdout",ErrorCode::Io);if(!n)break;output.append(chunk.data(),static_cast<std::size_t>(n));}
+        };
+        while(child.state()!=QProcess::NotRunning){child.waitForReadyRead(20);drain();poll();}
+        out.childExit=child.exitCode();out.reaped=out.childPid!=0;out.normalExit=child.exitStatus()==QProcess::NormalExit;
+        bank.resize(bank.bytes()-childCredit);drain();poll();
+        check(out.reaped&&out.normalExit==true&&out.childExit==0&&!errorUsed,"Manifest staging child refused",ErrorCode::Io);
+        if(options.savedStagingBeforeTerminal)options.savedStagingBeforeTerminal();poll();
+        if(options.savedStagingTerminalHook)options.savedStagingTerminalHook(output,out.childPid);poll();
+        check(!output.empty()&&output.find('\n')==output.size()-1,"Manifest staging terminal framing");
+        const auto terminal=frame(output,{"protocol","workerPid","published","recordHex"});
+        check(terminal.at("protocol")=="sc-saved-manifest-staging-result-v1"&&integer(terminal.at("workerPid"))==out.childPid&&
+            !boolean(terminal.at("published")),"Manifest staging terminal identity");
+        auto record=decodeSavedRestorationRecord(unhex(terminal.at("recordHex"),savedRestorationRecordMaximumBytes),memory,stop);
+        dispatch.inspectStaged(owner,audit,ticket,selected,*checked.report,checked.childPid,out.childPid,record,memory,stop,poll);
+        out.recordVerified=true;out.stagedBytesVerified=true;
+        if(options.savedStagingAfterVerification)options.savedStagingAfterVerification();poll();
+    }catch(const ProjectError &e){out.error=e.code();if(e.code()==ErrorCode::Canceled&&!closing.load(std::memory_order_acquire)&&
+        !cancel.load(std::memory_order_acquire)&&expired())out.error=ErrorCode::Io;}
+    catch(const std::exception &){out.error=ErrorCode::Io;}
+    const auto probe=[&](bool retired){try{if(options.savedStagingRetirementProbe)options.savedStagingRetirementProbe(retired);}
+        catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}};
+    if(child.state()!=QProcess::NotRunning){probe(false);out.killRequested=true;child.kill();while(child.state()!=QProcess::NotRunning)child.waitForFinished(20);}
+    out.launchRetired=out.launchAttempted&&child.state()==QProcess::NotRunning;
+    if(out.childPid){out.childExit=child.exitCode();out.reaped=true;out.normalExit=child.exitStatus()==QProcess::NormalExit;}
+    if(out.launchRetired)probe(true);
+    watchdog.request_stop();if(watchdog.joinable())watchdog.join();
+    dispatchOwner.reset();sourceOwner.reset();sourceRootOwner.reset();auditOwner.reset();reportOwner.reset();
+    try{if(options.savedStagingAfterNativeRetirement)options.savedStagingAfterNativeRetirement();}
+    catch(...){out.qualificationProbeFailed=true;if(!out.error)out.error=ErrorCode::Io;}
+    out.cancellationObserved=closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)||out.error==ErrorCode::Canceled;
+    if(out.cancellationObserved&&!out.error)out.error=ErrorCode::Canceled;
+    if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
+    return out;
+}
 }

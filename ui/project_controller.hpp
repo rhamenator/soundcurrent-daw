@@ -282,6 +282,7 @@ struct ControllerOptions {
     std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
     std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
     std::filesystem::path savedStagingWorkerProgram = {};
+    std::filesystem::path savedManifestStagingWorkerProgram = {}; // Trusted parent configuration, not project data.
     std::filesystem::path savedPublicationWorkerProgram = {};
     std::function<void()> savedPublicationBeforePermit = {},savedPublicationAfterPermit = {};
     std::function<void(std::string &,std::size_t)> savedPublicationReadyHook = {}; // Qualification only.
