@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/saved_manifest_source.hpp>
 #include <soundcurrent/saved_manifest_stage.hpp>
+#include <soundcurrent/saved_manifest_dispatch.hpp>
 #include <algorithm>
 #include <nlohmann/json.hpp>
 #ifdef _WIN32
@@ -285,5 +286,110 @@ void SavedManifestStage::reverify(std::stop_token stop) {
     require(s.source.size()==d.content.bytes && s.source.digest(stop)==d.content.sha256,
         "Manifest stage source changed",ErrorCode::MediaMismatch);
     verify();poll(stop);
+}
+
+namespace {
+void manifestDispatchOwner(const SavedRestorationOwnerView &owner,std::stop_token stop) {
+    poll(stop);
+    require(!owner.acceptedProject && !owner.closing && !owner.ioActive && !owner.publicationAmbiguous,
+        "Manifest dispatch owner is not available");
+    require(owner.root.is_absolute() && !owner.root.empty() && owner.root.native().size()<=4096,
+        "Manifest dispatch root is not explicit");
+    require(owner.context.source.request && owner.context.source.job && owner.context.preparationJob &&
+        owner.context.request && owner.context.job,"Manifest dispatch context is incomplete");
+}
+}
+SavedManifestDispatchTicket::SavedManifestDispatchTicket(ResourceLease grant,OwnedInspectionProtocol control,
+    const SavedRestorationOwnerView &owner,const SavedManifestAudit &audit,const SavedManifestSourceTicket &source,
+    const WaveCheckReport &report,std::size_t pid,Id operation)
+    :lease_(std::move(grant)),originalControl_(std::move(control)),root_(owner.root),context_(owner.context),
+     originalRoot_(audit.state().stamp),originalFingerprint_(source.fingerprint()),
+     identity_(std::move(operation),audit.manifest().id,audit.asset().id),checkerPid_(pid) {
+    const auto &asset=audit.asset();const auto &audio=report.audio();
+    identity_.context={context_.source,context_.preparationJob,context_.request,context_.job,0};
+    identity_.relativePath=asset.relativePath;identity_.content={audio.sourceBytes,audio.sourceSha256};
+    identity_.frames=asset.frames;identity_.rate=asset.sampleRate;identity_.layout=asset.layout;
+}
+SavedManifestDispatchTicket SavedManifestDispatchTicket::bind(const SavedRestorationOwnerView &owner,
+    SavedManifestAudit &audit,const SavedManifestSourceTicket &source,std::string_view originalControl,
+    const WaveCheckReport &report,std::size_t pid,Id operation,ResourceLedger memory,std::stop_token stop) {
+    manifestDispatchOwner(owner,stop);
+    require(!originalControl.empty() && originalControl.size()<=savedManifestSourceControlMaximumBytes,
+        "Manifest original control extent");
+    PayloadCharge metadata("Manifest dispatch metadata",SIZE_MAX);
+    metadata.add(sizeof(SavedManifestDispatchTicket)+4096);
+    metadata.add(owner.root.native().size(),sizeof(std::filesystem::path::value_type)*4);
+    metadata.add(audit.asset().relativePath.size(),4);
+    auto grant=memory.reserve(metadata.bytes());
+    source.verify(audit,report,owner.context.source,pid,memory,stop);
+    require(audit.canonical()==RestorationMediaObservation::Missing,"Manifest dispatch needs missing media");
+    auto control=source.copyControlProtocol(audit,report,owner.context.source,pid,memory,stop);
+    require(control.bytes()==originalControl,"Manifest dispatch differs from original private control",ErrorCode::MediaMismatch);
+    SavedManifestDispatchTicket result(std::move(grant),std::move(control),owner,audit,source,report,pid,std::move(operation));
+    result.verifyBeforeLaunch(owner,audit,source,report,pid,memory,stop);return result;
+}
+void SavedManifestDispatchTicket::verifyOwner(const SavedRestorationOwnerView &owner,ResourceLedger memory,
+    std::stop_token stop) const {
+    manifestDispatchOwner(owner,stop);
+    require(memory.owns(lease_) && originalControl_.ownedBy(memory),"Manifest dispatch ledger mismatch");
+    require(owner.root==root_ && owner.context==context_,"Manifest dispatch current owner changed");
+}
+void SavedManifestDispatchTicket::verifyBeforeLaunch(const SavedRestorationOwnerView &owner,SavedManifestAudit &audit,
+    const SavedManifestSourceTicket &source,const WaveCheckReport &report,std::size_t pid,
+    ResourceLedger memory,std::stop_token stop) const {
+    verifyOwner(owner,memory,stop);require(pid==checkerPid_,"Manifest dispatch checker changed");
+    source.verify(audit,report,context_.source,pid,memory,stop);
+    require(audit.state().stamp==originalRoot_ && source.fingerprint()==originalFingerprint_,
+        "Manifest original dispatch fingerprint changed",ErrorCode::MediaMismatch);
+    auto control=source.copyControlProtocol(audit,report,context_.source,pid,memory,stop);
+    require(control.bytes()==originalControl_.bytes(),"Manifest original dispatch control changed",ErrorCode::MediaMismatch);
+}
+void SavedManifestDispatchTicket::inspectStaged(const SavedRestorationOwnerView &owner,SavedManifestAudit &audit,
+    const SavedManifestSourceTicket &source,ApprovedMediaFile &originalSource,const WaveCheckReport &report,
+    std::size_t pid,std::size_t workerPid,const SavedRestorationRecord &record,ResourceLedger memory,
+    std::stop_token stop,const std::function<void()> &beforeChunk) const {
+    verifyOwner(owner,memory,stop);
+    require(pid==checkerPid_ && pid && workerPid && workerPid<=UINT32_MAX && report.workerPid()==pid &&
+        report.ownedBy(memory) && audit.ownedBy(memory) && originalSource.ownedBy(memory) && memory.owns(source.lease_),
+        "Manifest stage observation scope or PID changed");
+    require(source.fingerprint()==originalFingerprint_ && source.context_==context_.source &&
+        source.selectedLeaf_==report.relative() && audit.state().stamp==originalRoot_ &&
+        audit.manifest().id==identity_.project && audit.asset().id==identity_.asset &&
+        audit.canonical()==RestorationMediaObservation::Missing,
+        "Manifest observation lost original preparation",ErrorCode::MediaMismatch);
+    const auto &audio=report.audio();
+    require(audio.sourceBytes==identity_.content.bytes && audio.sourceSha256==identity_.content.sha256 &&
+        audio.frames==static_cast<std::uint64_t>(identity_.frames) && audio.rate==identity_.rate &&
+        audio.channels==identity_.layout.channels,
+        "Manifest observation report changed",ErrorCode::MediaMismatch);
+    const SavedRestorationRecordContext current{context_.source,context_.preparationJob,context_.request,context_.job,workerPid};
+    verifySavedRestorationRecord(record,identity_.project,audit.asset(),identity_.content,current,identity_.operation,
+        SavedRestorationPhase::Planned,memory,stop);
+    const auto root=[&]{
+        poll(stop);const auto held=audit.state().root.directoryStamp();
+        require(held.identity[0]==originalRoot_.identity[0] && held.identity[1]==originalRoot_.identity[1],
+            "Manifest observation original native root changed",ErrorCode::MediaMismatch);
+        ApprovedMediaRoot named(root_,memory,{1});require(named.directoryStamp()==held,
+            "Manifest observation named root changed",ErrorCode::MediaMismatch);
+    };
+    // This narrow friend can recheck original pinned/named files after the child
+    // changed the directory. It never changes audit.state().stamp or calls a
+    // publication API; ordinary audit/source verification remains strict.
+    root();audit.reverifyFiles(stop);root();
+    originalSource.verifyUnchanged();
+    require(originalSource.size()==identity_.content.bytes && originalSource.digest(stop,beforeChunk)==identity_.content.sha256,
+        "Manifest observation original source changed",ErrorCode::MediaMismatch);originalSource.verifyUnchanged();
+    {
+        auto file=audit.state().root.open(identity_.operation.str()+"/media.partial",identity_.content.bytes,stop);
+        require(file.size()==identity_.content.bytes && file.digest(stop,beforeChunk)==identity_.content.sha256,
+            "Manifest observed stage bytes differ",ErrorCode::MediaMismatch);file.verifyUnchanged();
+    }
+    {
+        auto file=audit.state().root.open(identity_.operation.str()+"/intent.json",savedRestorationRecordMaximumBytes,stop);
+        auto wire=read(file,memory,stop);auto intent=decodeSavedRestorationRecord(wire.bytes(),memory,stop);
+        verifySavedRestorationRecord(intent,identity_.project,audit.asset(),identity_.content,current,identity_.operation,
+            SavedRestorationPhase::Planned,memory,stop);file.verifyUnchanged();
+    }
+    root();audit.reverifyFiles(stop);root();poll(stop);
 }
 } // namespace soundcurrent::daw

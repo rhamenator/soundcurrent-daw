@@ -23,6 +23,7 @@ class SavedManifestAudit {
   private:
     friend class SavedManifestSourceTicket;
     friend class SavedManifestStage;
+    friend class SavedManifestDispatchTicket;
     friend SavedManifestAudit inspectSavedManifestAsset(const std::filesystem::path &,const Id &,const Id &,
         std::uint64_t,ResourceLedger,ProjectBudget,std::stop_token);
     explicit SavedManifestAudit(std::unique_ptr<SavedManifestAuditState>);
@@ -53,6 +54,7 @@ class SavedManifestSourceTicket {
         std::size_t actualPid,ApprovedMediaFile &,ResourceLedger,std::stop_token = {},
         const std::function<void()> &beforeChunk = {}) const;
   private:
+    friend class SavedManifestDispatchTicket;
     std::array<char,193> fingerprint() const;
     ResourceLease lease_;
     Id asset_;

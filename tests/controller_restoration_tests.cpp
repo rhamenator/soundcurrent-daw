@@ -3,6 +3,7 @@
 #include <soundcurrent/saved_restoration_record.hpp>
 #include <soundcurrent/saved_manifest_source.hpp>
 #include <soundcurrent/saved_manifest_stage.hpp>
+#include <soundcurrent/saved_manifest_dispatch.hpp>
 #include <soundcurrent/saved_restoration_stage.hpp>
 #include <soundcurrent/saved_restoration_dispatch.hpp>
 #include <soundcurrent/saved_restoration_permit.hpp>
@@ -1838,6 +1839,23 @@ void isolatedManifestStage(unsigned mode){
         auto report=checked->report->copyProtocol(memory);auto bank=memory.reserve(4*65536);
         ApprovedMediaRoot selected(f.source.parent_path(),memory,{1});auto source=selected.openSelectedFilename(f.source.filename(),1024);
         ticket.verifyFile(audit,*checked->report,context,checked->childPid,source,memory);
+        const SavedRestorationOwnerView owner{f.root,{context,812,813,814}};
+        std::optional<SavedManifestDispatchTicket> dispatch;
+        if(mode==0){
+            dispatch.emplace(SavedManifestDispatchTicket::bind(owner,audit,ticket,control.bytes(),*checked->report,
+                checked->childPid,operation,memory));
+            dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid,memory);++checks;
+            for(unsigned bad=0;bad<11;++bad){auto changed=owner;
+                if(bad==0)changed.acceptedProject=true;if(bad==1)changed.closing=true;if(bad==2)changed.ioActive=true;
+                if(bad==3)changed.publicationAmbiguous=true;if(bad==4)++changed.context.source.projectEpoch;
+                if(bad==5)++changed.context.source.modelRevision;if(bad==6)++changed.context.source.request;
+                if(bad==7)++changed.context.source.job;if(bad==8)++changed.context.preparationJob;
+                if(bad==9)++changed.context.request;if(bad==10)++changed.context.job;
+                savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(changed,audit,ticket,*checked->report,checked->childPid,memory);});}
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid+1,memory);});
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid,ResourceLedger{});});
+            savedRecordRefuses([&]{SavedManifestDispatchTicket::bind(owner,audit,ticket,"{}",*checked->report,checked->childPid,operation,memory);},ErrorCode::MediaMismatch);
+        }
         if(mode==5)std::filesystem::create_directory(f.root/"changed-before-worker");
         auto pathHex=[](const std::filesystem::path &path){const auto value=path.u8string();return savedControlHex(std::string_view(reinterpret_cast<const char *>(value.data()),value.size()));};
         QProcess child;
@@ -1891,6 +1909,34 @@ void isolatedManifestStage(unsigned mode){
             verifySavedRestorationRecord(record,f.initial->session->id,f.asset,{checked->report->audio().sourceBytes,checked->report->audio().sourceSha256},
                 current,operation,SavedRestorationPhase::Planned,memory);
             check(bytes(f.root/operation.str()/"media.partial")==f.data,"Manifest worker staged different bytes");
+            check(child.state()==QProcess::NotRunning,"Manifest dispatch observation precedes actual reap");
+            const auto inspect=[&](std::size_t actualPid=0){dispatch->inspectStaged(owner,audit,ticket,source,*checked->report,
+                checked->childPid,actualPid?actualPid:pid,record,memory);};
+            inspect();++checks;
+            // Observation must never rebase strict preparation/staging authority.
+            savedRecordRefuses([&]{audit.reverify();},ErrorCode::MediaMismatch);
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid,memory);},ErrorCode::MediaMismatch);
+            savedRecordRefuses([&]{inspect(pid+1);});
+            auto moved=std::move(*dispatch);dispatch.reset();
+            moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);++checks;
+            std::stop_source stopped;stopped.request_stop();
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory,stopped.get_token());},ErrorCode::Canceled);
+            const auto intent=f.root/operation.str()/"intent.json",staged=f.root/operation.str()/"media.partial";
+            const auto originalIntent=bytes(intent);auto wrong=nlohmann::json::parse(originalIntent);wrong["job"]=999;
+            write(intent,wrong.dump());savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);});
+            write(intent,originalIntent);auto changed=f.data;changed.back()^=1;write(staged,changed);
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);},ErrorCode::MediaMismatch);
+            write(staged,f.data);write(f.canonical,f.data);
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);},ErrorCode::MediaMismatch);
+            std::filesystem::remove(f.canonical);
+            moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);++checks;
+#ifndef _WIN32
+            changed=f.data;changed.back()^=1;write(f.source,changed);
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);},ErrorCode::MediaMismatch);
+            write(f.source,f.data);
+#else
+            check(nativeReadPin(f.source),"Manifest observation retired the Windows source pin");
+#endif
         }else if(mode!=10){
             check(child.exitStatus()==QProcess::NormalExit&&child.exitCode()!=0&&out.isEmpty(),"Invalid manifest worker input succeeded");
             const auto failure=nlohmann::json::parse(err.toStdString());check(failure.at("protocol")=="sc-saved-manifest-staging-error-v1"&&
