@@ -2114,14 +2114,15 @@ void manifestControllerStaging(unsigned mode){
     std::atomic<bool> reached=false,release=false;std::atomic<std::uint64_t> clock=111;ControllerOptions options;
     auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
     options.savedStagingNowMilliseconds=[&]{return clock.load();};options.savedStagingMillisecondsPerMiB=0;
-    const bool held=mode==0||mode==1||mode==2||mode==5||mode==9||mode==10||mode==16||mode==17;
-    if(held&&mode!=5&&mode!=9&&mode!=10&&mode!=16&&mode!=17)options.savedManifestStagingBeforeInput=hold;
+    const bool held=mode==0||mode==1||mode==2||mode==5||mode==9||mode==10||mode==16||mode==17||mode==18||mode==19;
+    if(held&&mode!=5&&mode!=9&&mode!=10&&mode!=16&&mode!=17&&mode<18)options.savedManifestStagingBeforeInput=hold;
     if(mode==5)options.savedStagingAfterSpawn=hold;
     if(mode==9)options.savedManifestStagingBeforeEof=hold;
     if(mode==10||mode==16||mode==17)options.savedStagingAfterVerification=hold;
     if(mode==15)options.afterIoResultPublished=[&](IoOperation op){if(op==IoOperation::StageSavedManifest)hold();};
-    if(mode==3)options.savedStagingTerminalHook=[](std::string &wire,std::size_t pid){auto j=nlohmann::json::parse(wire);j["workerPid"]=pid+1;wire=j.dump()+"\n";};
-    if(mode==4)options.savedStagingAfterSpawn=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
+    if(mode==18||mode==19)options.savedStagingAfterNativeRetirement=hold;
+    if(mode==3||mode==18)options.savedStagingTerminalHook=[](std::string &wire,std::size_t pid){auto j=nlohmann::json::parse(wire);j["workerPid"]=pid+1;wire=j.dump()+"\n";};
+    if(mode==4||mode==19)options.savedStagingAfterSpawn=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
     if(mode==6){options.memoryBytes=384*1024*1024;options.snapshotBytes=64*1024*1024;}
     if(mode==13||mode==14||mode==16||mode==17)options.savedManifestStagingBeforeReturn=[=]{if(mode==13||mode==16)throw std::runtime_error("Manifest epilogue failure");throw 7;};
     if(mode==7)options.savedManifestStagingWorkerProgram=std::filesystem::temp_directory_path()/"absent-controller-manifest-worker";
@@ -2150,7 +2151,8 @@ void manifestControllerStaging(unsigned mode){
     if(held){auto active=await(*f.controller,[&](const auto &v){return reached&&v.io==IoOperation::StageSavedManifest;});coldOwner(*active);
         check(active->savedManifestStagingJob&&!active->savedManifestPreparedSource&&!active->restorationPreparedSource,
             "Manifest staging did not consume its private preparation only after dispatch");
-        check(nativeReadPin(f.root/"project.json")&&nativeReadPin(f.source),"Manifest controller lost parent native pins during active child ownership");
+        if(mode<18)check(nativeReadPin(f.root/"project.json")&&nativeReadPin(f.source),"Manifest controller lost parent native pins during active child ownership");
+        else check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Late-failure barrier preceded native owner retirement");
         if(mode==0){for(const auto kind:{CommandKind::Create,CommandKind::Open,CommandKind::Save,CommandKind::Parameter,CommandKind::CancelGesture,
             CommandKind::Undo,CommandKind::Redo,CommandKind::AttachRecording,CommandKind::Routing,CommandKind::Monitoring,CommandKind::Structural,
             CommandKind::HistoryLimits,CommandKind::SnapshotLimits,CommandKind::MemoryLimits,CommandKind::Autosave,CommandKind::AcquireAutosaveInhibition,
@@ -2165,12 +2167,12 @@ void manifestControllerStaging(unsigned mode){
         ProjectCommand wrong{CommandKind::CancelSavedManifestStaging};wrong.savedManifestStagingJob=active->savedManifestStagingJob+1;
         auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,wrong);auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
         check(refused->io==IoOperation::StageSavedManifest,"Wrong manifest cancel retired active owner");
-        if(mode==2||mode==17)f.controller->requestShutdown();
+        if(mode==2||mode==17||mode==19)f.controller->requestShutdown();
         else if(mode!=0){ProjectCommand cancel{CommandKind::CancelSavedManifestStaging};cancel.savedManifestStagingJob=active->savedManifestStagingJob;submit(*f.controller,cancel);
             ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=991;submit(*f.controller,barrier);await(*f.controller,[](const auto &v){return v.lastBarrier==991;});}
         release=true;
     }
-    const bool close=mode==2||mode==17;
+    const bool close=mode==2||mode==17||mode==19;
     auto done=close?await(*f.controller,[](const auto &v){return v.closed;}):await(*f.controller,[](const auto &v){return v.savedManifestStagingCompleted.request==1&&v.io==IoOperation::None;});
     const auto r=done->savedManifestStagingCompleted;coldOwner(*done);
     check(r.preparationJob==preparation&&r.request==1&&r.job&&!done->savedManifestPreparedSource&&!done->restorationPreparedSource&&
@@ -2185,6 +2187,13 @@ void manifestControllerStaging(unsigned mode){
         if(mode==9)check(r.killRequested&&r.requestSent&&!std::filesystem::exists(f.root/r.operation->str()),"Manifest pre-EOF cancel admitted worker filesystem work");
         if(mode==10||mode==16||mode==17)check(!r.killRequested&&r.childExit==0&&r.normalExit==true&&r.stagingMayExist,"Late controller cancellation erased actual normal-exit/staging observations");
         if(mode==4)check(r.error==ErrorCode::Io&&!r.cancellationObserved,"Manifest controller deadline fabricated cancellation");
+        if(mode==18||mode==19)check(r.error==(mode==18?ErrorCode::InvalidState:ErrorCode::Io)&&r.cancellationObserved&&
+            r.childPid&&r.reaped&&r.launchRetired&&!r.recordVerified&&!r.stagedBytesVerified,
+            "Late manifest cancel/close overwrote the first protocol/deadline failure");
+        if(mode==18)check(r.requestSent&&r.stagingMayExist&&r.operation&&r.normalExit==true&&r.childExit==0&&!r.killRequested,
+            "Late cancel erased actual normally exited manifest child/stage facts");
+        if(mode==19)check(!r.requestSent&&r.killRequested&&physical(f.root)==before,
+            "Late close after deadline invented filesystem work or lost actual child cleanup");
         if(mode==6||mode==8)check(!r.launchAttempted&&!r.childPid&&!r.operation,"Manifest admission/source refusal launched a child");
         if(mode==6)check(r.error==ErrorCode::ResourceLimit,"Manifest controller bypassed child credit admission");
         if(mode==13||mode==14)check(r.error==ErrorCode::Io&&r.childPid&&r.reaped&&r.normalExit==true&&r.childExit==0&&
@@ -2450,4 +2459,4 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuar
 #ifndef _WIN32
         isolatedManifestStage(19);
 #endif
-        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<18;++mode)manifestControllerStaging(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<20;++mode)manifestControllerStaging(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -20,7 +20,8 @@ owner retirement complete. Only passive barriers and correctly scoped cancel
 commands can progress. Close/cancel never convert an in-flight operation into a
 verified stage. Finish rechecks the actual empty owner, epoch/revision and job,
 and preserves conservative process/staging facts while clearing verification
-flags on error or cancellation.
+flags on error or cancellation. A late cancel/close preserves the first genuine
+failure category while separately recording observed cancellation.
 
 The distinct completion is passive evidence, not a publication permit. Its
 requestSent field means input write attempted or queued, without proving child
@@ -29,13 +30,14 @@ childExit=0. A killed child's raw exit-code observation alone is not evidence of
 normal execution. Prepared readiness is spent even when staging fails; a fresh
 explicit preparation is required for another stage.
 
-Eighteen real controller workflows cover successful checking/staging, competing
+Twenty real controller workflows cover successful checking/staging, competing
 command exclusion, wrong cancel and preparation IDs, foreign historical fields,
 pre-input/pre-EOF/late cancellation, close, malformed terminal PID, deadline,
 child admission and failed launch, changed source, missing private preparation,
 spent-ID replay, escaping standard/nonstandard epilogue exceptions, native owner
 retirement, immediate idle credit return while the I/O thread is held, and
-cancel/close combined with escaping epilogue exceptions. Caller-owned completion storage preserves
+cancel/close combined with escaping epilogue exceptions, and a real terminal-PID
+refusal followed by late cancel plus a deadline refusal followed by late close. Caller-owned completion storage preserves
 actual process facts even if an exception escapes the supervisor epilogue. The existing
 controller CTest deadlines and CI shard inventory remain unchanged. Actual Linux
 and native Windows execution and full original audit retention are qualification

@@ -1387,8 +1387,8 @@ struct ProjectController::State : QThread {
             value.preparationJob=result.job.manifestPreparation->request->job;value.error=result.error;
             QMutexLocker permission(&io.restorationPermitMutex);
             const bool canceled=closing.load(std::memory_order_acquire)||io.restorationCancel.load(std::memory_order_acquire);
-            value.cancellationObserved=canceled||value.error==ErrorCode::Canceled;
-            if(canceled)value.error=ErrorCode::Canceled;
+            value.cancellationObserved=value.cancellationObserved||canceled||value.error==ErrorCode::Canceled;
+            if(canceled&&!value.error)value.error=ErrorCode::Canceled;
             if(!value.error){
                 const bool complete=value.launchAttempted&&value.launchRetired&&value.childPid&&value.operation&&
                     value.reaped&&value.normalExit==true&&value.childExit==0&&value.requestSent&&value.stagingMayExist&&
