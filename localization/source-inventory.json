@@ -40,7 +40,7 @@
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "a20591cf2fc9b83995f8432644fb32f35090372cf8fc66be1815d0082df3a7a6",
     "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
-    "ui/project_controller.cpp": "cd97594985a6ff9aa32cdb5a89b56f8c295490e8b7fe8698ffdb9cc5b17bf9c3",
+    "ui/project_controller.cpp": "25b41fd94317b041712968ea3d6911d5af7945b618567bf9fb06a98d7f19ef35",
     "ui/project_controller.hpp": "1537bba11482994ccff68cefe7a50b4fc569cd000856b2e7410b4837051e3217",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",

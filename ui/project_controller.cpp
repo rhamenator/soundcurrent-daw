@@ -260,8 +260,11 @@ class IoWorker : public QThread {
                             p.ticket,p.control.bytes(),*p.checked,original.job,next.manifestStagingRequest,next.manifestStagingJob,
                             options,*next.restorationMemory,closing,restorationCancel);
                         finished.error=finished.savedStaging.error;
-                    }catch(...){finished.error=closing.load(std::memory_order_acquire)||restorationCancel.load(std::memory_order_acquire)||
-                        finished.savedStaging.cancellationObserved?ErrorCode::Canceled:ErrorCode::Io;} // Preserve facts and actual cancellation.
+                    }catch(...){
+                        finished.error=finished.savedStaging.error; // An escaping epilogue must not replace the first failure.
+                        if(!finished.error)finished.error=closing.load(std::memory_order_acquire)||restorationCancel.load(std::memory_order_acquire)||
+                            finished.savedStaging.cancellationObserved?ErrorCode::Canceled:ErrorCode::Io;
+                    }
                 }
                 else if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
