@@ -2121,7 +2121,8 @@ void manifestControllerStaging(unsigned mode){
     if(mode==10)options.savedStagingAfterVerification=hold;
     if(mode==3)options.savedStagingTerminalHook=[](std::string &wire,std::size_t pid){auto j=nlohmann::json::parse(wire);j["workerPid"]=pid+1;wire=j.dump()+"\n";};
     if(mode==4)options.savedStagingAfterSpawn=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
-    if(mode==6){options.memoryBytes=256*1024*1024;options.snapshotBytes=64*1024*1024;}
+    if(mode==6){options.memoryBytes=384*1024*1024;options.snapshotBytes=64*1024*1024;}
+    if(mode==13||mode==14)options.savedManifestStagingBeforeReturn=[=]{if(mode==13)throw std::runtime_error("Manifest epilogue failure");throw 7;};
     if(mode==7)options.savedManifestStagingWorkerProgram=std::filesystem::temp_directory_path()/"absent-controller-manifest-worker";
     Fixture f;resetCold(f,options);Release guard{release};const auto initial=f.controller->snapshot();const auto baseline=f.controller->memoryResources().reservedBytes;
     const auto before=physical(f.root);
@@ -2129,8 +2130,9 @@ void manifestControllerStaging(unsigned mode){
         check(refused->savedManifestStagingRejected.request==1&&!refused->savedManifestStagingJob&&!refused->savedManifestStagingCompleted.job,"Opaque preparation ID alone created a manifest stage");
         check(physical(f.root)==before,"Unprepared manifest stage mutated project");return;}
     submit(*f.controller,manifestSource(f,*initial));auto prepared=await(*f.controller,[](const auto &v){return v.savedManifestSourceCompleted.request==1&&v.io==IoOperation::None;});
-    check(prepared->savedManifestSourceCompleted.sourcePrepared&&prepared->savedManifestPreparedSource&&
-        !nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest controller lacks metadata-only original private preparation");
+    if(!prepared->savedManifestSourceCompleted.sourcePrepared||!prepared->savedManifestPreparedSource||
+        nativeReadPin(f.root/"project.json")||nativeReadPin(f.source))throw std::runtime_error(
+            "Manifest controller lacks metadata-only original private preparation, mode="+std::to_string(mode)+" diagnostic="+prepared->diagnostic);++checks;
     const auto preparation=prepared->savedManifestPreparedSource;
     if(mode==11){for(unsigned bad=0;bad<10;++bad){auto c=stageManifest(preparation);
         if(bad==0)++c.savedManifestPreparationJob;if(bad==1)c.savedManifestStagingRequest=0;
@@ -2183,6 +2185,8 @@ void manifestControllerStaging(unsigned mode){
         if(mode==4)check(r.error==ErrorCode::Io&&!r.cancellationObserved,"Manifest controller deadline fabricated cancellation");
         if(mode==6||mode==8)check(!r.launchAttempted&&!r.childPid&&!r.operation,"Manifest admission/source refusal launched a child");
         if(mode==6)check(r.error==ErrorCode::ResourceLimit,"Manifest controller bypassed child credit admission");
+        if(mode==13||mode==14)check(r.error==ErrorCode::Io&&r.childPid&&r.reaped&&r.normalExit==true&&r.childExit==0&&
+            r.requestSent&&r.stagingMayExist&&r.operation&&!r.killRequested,"Escaping manifest epilogue erased caller-owned actual process/staging facts");
         if(mode==7)check(r.launchAttempted&&r.launchRetired&&!r.childPid&&!r.childExit&&!r.reaped,"Manifest failed launch fabricated child identity/reap");}
     check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest controller completion retained native pins");
     if(mode!=2){const auto serial=done->errorSerial;submit(*f.controller,stageManifest(preparation,2));auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
@@ -2436,4 +2440,4 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuar
 #ifndef _WIN32
         isolatedManifestStage(19);
 #endif
-        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<13;++mode)manifestControllerStaging(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<15;++mode)manifestControllerStaging(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

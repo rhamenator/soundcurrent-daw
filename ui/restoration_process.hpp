@@ -41,6 +41,12 @@ SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceR
     const SavedManifestSourceTicket &,std::string_view originalControl,const WaveCheckSnapshot &,
     std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,
     const ControllerOptions &,ResourceLedger,const std::atomic<bool> &closing,const std::atomic<bool> &cancel);
+// Caller-owned process observations survive an exception escaping the epilogue.
+void runSavedManifestStagingProcessInto(SavedStagingCompletion &,const SavedManifestSourceRequest &,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedManifestSourceTicket &,std::string_view originalControl,const WaveCheckSnapshot &,
+    std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,
+    const ControllerOptions &,ResourceLedger,const std::atomic<bool> &closing,const std::atomic<bool> &cancel);
 // Parent supervisor only. Caller freezes the actual empty owner/context and
 // uses THIS mutex for cancel/close as well; no GUI command/adoption is implied.
 using SavedPublicationProcessResult=SavedPublicationCompletion;

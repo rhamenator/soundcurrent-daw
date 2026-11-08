@@ -24,11 +24,13 @@ childExit=0. A killed child's raw exit-code observation alone is not evidence of
 normal execution. Prepared readiness is spent even when staging fails; a fresh
 explicit preparation is required for another stage.
 
-Thirteen real controller workflows cover successful checking/staging, competing
+Fifteen real controller workflows cover successful checking/staging, competing
 command exclusion, wrong cancel and preparation IDs, foreign historical fields,
 pre-input/pre-EOF/late cancellation, close, malformed terminal PID, deadline,
 child admission and failed launch, changed source, missing private preparation,
-spent-ID replay, native owner retirement and memory-credit return. The existing
+spent-ID replay, escaping standard/nonstandard epilogue exceptions, native owner
+retirement and memory-credit return. Caller-owned completion storage preserves
+actual process facts even if an exception escapes the supervisor epilogue. The existing
 controller CTest deadlines and CI shard inventory remain unchanged. Actual Linux
 and native Windows execution and full original audit retention are qualification
 gates; source preparation alone does not establish execution.

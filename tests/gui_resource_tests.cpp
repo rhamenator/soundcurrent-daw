@@ -175,7 +175,10 @@ void policy(StudioWindow &window, std::size_t bytes, std::uint64_t request) {
     c.memoryRequest = request;
     check(window.submitEdit(c), "Memory policy queue refused");
     await([&] { return window.snapshot()->memoryCompleted.request == request; });
-    check(!window.snapshot()->memoryCompleted.error, "Memory policy rejected");
+    const auto result=window.snapshot();
+    if(result->memoryCompleted.error)throw std::runtime_error("Memory policy rejected request="+std::to_string(request)+
+        " requested="+std::to_string(bytes)+" actualReserved="+std::to_string(window.memoryResources().reservedBytes)+
+        " diagnostic="+result->diagnostic);++checks;
 }
 void desktop(const std::filesystem::path &root) {
     const auto original = large();

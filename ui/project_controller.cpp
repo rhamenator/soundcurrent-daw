@@ -255,10 +255,12 @@ class IoWorker : public QThread {
                 }
                 else if(next.operation==IoOperation::StageSavedManifest) {
                     const auto &p=*next.manifestPreparation;const auto &original=*p.request;
-                    finished.savedStaging=runSavedManifestStagingProcess(original.input,original.root,original.source,
-                        p.ticket,p.control.bytes(),*p.checked,original.job,next.manifestStagingRequest,next.manifestStagingJob,
-                        options,*next.restorationMemory,closing,restorationCancel);
-                    finished.error=finished.savedStaging.error;
+                    try {
+                        runSavedManifestStagingProcessInto(finished.savedStaging,original.input,original.root,original.source,
+                            p.ticket,p.control.bytes(),*p.checked,original.job,next.manifestStagingRequest,next.manifestStagingJob,
+                            options,*next.restorationMemory,closing,restorationCancel);
+                        finished.error=finished.savedStaging.error;
+                    }catch(...){finished.error=ErrorCode::Io;} // Keep independently observed child/staging facts.
                 }
                 else if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;

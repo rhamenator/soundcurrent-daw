@@ -259,7 +259,7 @@ struct ControllerSnapshot {
     std::uint64_t savedManifestSourceJob=0,savedManifestPreparedSource=0;
     SavedStagingCompletion savedManifestStagingCompleted;
     AttachmentCompletion savedManifestStagingRejected;
-    std::uint64_t savedManifestStagingJob=0;
+    std::uint64_t savedManifestStagingJob=0; // Last dispatched ID; io determines active ownership.
     SavedStagingCompletion savedStagingCompleted;
     AttachmentCompletion savedStagingRejected;
     std::uint64_t savedStagingJob=0;
@@ -306,7 +306,7 @@ struct ControllerOptions {
     std::string savedStagingFixtureMode = {}; // Qualification only; production worker rejects this argument.
     std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};
     std::function<void(std::string &,std::size_t)> savedStagingTerminalHook = {};
-    std::function<void()> savedManifestStagingBeforeInput = {},savedManifestStagingBeforeEof = {}; // Trusted qualification only.
+    std::function<void()> savedManifestStagingBeforeInput = {},savedManifestStagingBeforeEof = {},savedManifestStagingBeforeReturn = {}; // Trusted qualification only.
     HistoryBudget historyBudget{};
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
