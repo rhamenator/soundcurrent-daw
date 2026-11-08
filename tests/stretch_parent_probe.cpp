@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QThread>
 #include <QTimer>
+#include <array>
 #include <bit>
 #include <chrono>
 #include <fstream>
@@ -29,10 +30,25 @@ void fixture(const std::filesystem::path &root){
     require(std::filesystem::create_directory(root),"Fixture already exists");std::filesystem::create_directory(root/"media");
     constexpr unsigned frames=1048576;std::ofstream out(root/"media"/utf8Path("raw-été.wav"),std::ios::binary);
     out<<"RIFF";put(out,36+frames*8ULL,4);out<<"WAVEfmt ";put(out,16,4);put(out,3,2);put(out,2,2);put(out,48000,4);put(out,48000*8,4);put(out,8,2);put(out,32,2);out<<"data";put(out,frames*8ULL,4);
-    for(unsigned f=0;f<frames;++f)for(unsigned ch=0;ch<2;++ch)put(out,std::bit_cast<std::uint32_t>(float(int((f+ch*17)%1024)-512)/256.f),4);
+    std::cerr<<"sc-parent-fixture source.begin expectedBytes="<<44+frames*8ULL<<'\n';
+    // Preserve the original little-endian Float32 waveform with bounded block
+    // I/O, avoiding one stream call per byte on low-priority native runners.
+    std::array<char,64*1024> block{};std::size_t used=0;
+    for(unsigned f=0;f<frames;++f)for(unsigned ch=0;ch<2;++ch){
+        const auto value=std::bit_cast<std::uint32_t>(float(int((f+ch*17)%1024)-512)/256.f);
+        for(unsigned byte=0;byte<4;++byte)block[used++]=char((value>>(8*byte))&255);
+        if(used==block.size()){out.write(block.data(),static_cast<std::streamsize>(used));require(bool(out),"Cannot write fixture block");used=0;}
+    }
+    if(used)out.write(block.data(),static_cast<std::streamsize>(used));
     out.close();require(bool(out),"Cannot write source fixture");
-    auto s=makeOneTrackSession("Owned abrupt parent probe","Audio");Asset a;a.relativePath="media/raw-été.wav";a.frames=frames;a.layout={LayoutKind::Stereo,2};a.sha256=hashMediaFile(root/utf8Path(a.relativePath));s.assets={a};s.tracks[0]=makeAudioTrack("Audio",a.layout,s.sampleRate);
-    Clip clip;clip.assetId=a.id;clip.lengthFrames=frames;s.tracks[0].clips={clip};validate(s);ProjectStore(root).save(s);
+    const auto media=root/utf8Path("media/raw-été.wav");
+    require(std::filesystem::file_size(media)==44+frames*8ULL,"Fixture WAV extent changed");
+    std::cerr<<"sc-parent-fixture source.end bytes="<<std::filesystem::file_size(media)<<'\n';
+    auto s=makeOneTrackSession("Owned abrupt parent probe","Audio");Asset a;a.relativePath="media/raw-été.wav";a.frames=frames;a.layout={LayoutKind::Stereo,2};a.sha256=hashMediaFile(media);
+    require(a.sha256=="2e029427d8769d639b7d12eea4868da6385afed2b9f1fa56e6f665c68780d44b","Fixture WAV differs from original qualified bytes");
+    std::cerr<<"sc-parent-fixture source.hash-verified\n";
+    s.assets={a};s.tracks[0]=makeAudioTrack("Audio",a.layout,s.sampleRate);
+    Clip clip;clip.assetId=a.id;clip.lengthFrames=frames;s.tracks[0].clips={clip};validate(s);std::cerr<<"sc-parent-fixture project-save.begin\n";ProjectStore(root).save(s);std::cerr<<"sc-parent-fixture project-save.end\n";
 }
 StretchOptions options(QString helper){StretchOptions o;o.program=std::move(helper);o.policy.deadlineMilliseconds=5000;o.policy.maximumInputFrames=2000000;o.policy.maximumSourceBytes=16*1024*1024;o.policy.maximumOutputBytes=16*1024*1024;return o;}
 }
