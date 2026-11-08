@@ -17,7 +17,7 @@ ticket can inspect passive stage evidence. It checks the original native and
 named root identity, original pinned and named manifest/canonical facts, original
 source bytes, exact planned record/current context/observed worker PID, staged
 bytes and on-disk intent. Original file facts and root identity bracket the
-inspection. The full root and operation-directory change stamps remain stable throughout; both stage files stay pinned while their names and contents are checked again. Cancellation and resource ownership remain explicit.
+inspection. An inspected audit must match the original ticket’s manifest hash and canonical presence/hash/extent, not only its cached directory stamp. The full root and operation-directory change stamps remain stable throughout; both stage files stay pinned while their names and contents are checked again. Cancellation and resource ownership remain explicit.
 
 This is a separate observation boundary. A child legitimately adds a stage
 folder, so the original directory change stamp no longer passes ordinary audit
@@ -40,3 +40,5 @@ The next integration step is the shared parent supervisor and serialized
 ProjectController command consuming `SavedManifestPreparation` directly. This
 change supplies its proof boundary; it does not yet expose that command or add
 publication permission. Linux and native Windows execute the same C++ source.
+
+The Linux in-place-manifest regression preserves the directory stamp, acquires a new audit/control for changed manifest bytes, and lets the real worker produce that stage. The original dispatch must reject the substitute audit even though its own pinned files match the changed project. Windows retains native write exclusion for the original pinned manifest.

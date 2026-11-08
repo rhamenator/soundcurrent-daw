@@ -365,6 +365,9 @@ void SavedManifestDispatchTicket::inspectStaged(const SavedRestorationOwnerView 
         source.asset_==identity_.asset && source.sourceSha_==identity_.content.sha256 && source.frames_==identity_.frames &&
         source.rate_==identity_.rate && source.layout_==identity_.layout && originalSource.identityStamp()==originalSource_ &&
         source.selectedLeaf_==report.relative() && audit.state().path==root_ && audit.state().stamp==originalRoot_ &&
+        audit.state().manifestSha==source.manifestSha_ && bool(audit.state().canonical)==source.canonicalPresent_ &&
+        audit.state().canonicalSha==source.canonicalSha_ &&
+        (audit.state().canonical ? audit.state().canonical->size() : 0)==source.canonicalBytes_ &&
         audit.manifest().id==identity_.project && audit.asset().id==identity_.asset &&
         audit.canonical()==RestorationMediaObservation::Missing,
         "Manifest observation lost original preparation",ErrorCode::MediaMismatch);
