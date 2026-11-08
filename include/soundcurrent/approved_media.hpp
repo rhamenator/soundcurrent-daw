@@ -17,6 +17,11 @@ struct ApprovedDirectoryStamp {
     std::array<std::uint64_t,7> identity{};
     bool operator==(const ApprovedDirectoryStamp &) const = default;
 };
+// Read-only native file identity/change snapshot; never an opening capability.
+struct ApprovedFileStamp {
+    std::array<std::uint64_t,7> identity{};
+    bool operator==(const ApprovedFileStamp &) const=default;
+};
 // Control/I/O only. A root and its files have one serialized caller, including
 // retirement. No Qt, audio callbacks, implicit root selection or foreign code.
 // Files keep the approved directory handle/credit alive beyond its facade.
@@ -27,6 +32,7 @@ class ApprovedMediaFile {
     ApprovedMediaFile(const ApprovedMediaFile &) = delete;
     ApprovedMediaFile &operator=(const ApprovedMediaFile &) = delete;
     std::uint64_t size() const;
+    ApprovedFileStamp identityStamp() const;
     // Caller-owned buffer, at most 64KiB. Exact positional read; no path reopen.
     void readAt(std::uint64_t offset, std::span<char>, std::stop_token = {});
     void verifyUnchanged() const;

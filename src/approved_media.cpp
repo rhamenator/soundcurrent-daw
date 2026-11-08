@@ -223,6 +223,11 @@ ApprovedMediaFile::ApprovedMediaFile(std::unique_ptr<ApprovedMediaFileState> sta
 ApprovedMediaFile::ApprovedMediaFile(ApprovedMediaFile &&) noexcept=default;
 ApprovedMediaFile::~ApprovedMediaFile()=default;
 std::uint64_t ApprovedMediaFile::size() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->initial.size; }
+ApprovedFileStamp ApprovedMediaFile::identityStamp() const {
+    verifyUnchanged();const auto &v=state_->initial;
+    return {{{v.volume,v.object,v.size,static_cast<std::uint64_t>(v.modified),
+        static_cast<std::uint64_t>(v.modifiedExtra),static_cast<std::uint64_t>(v.changed),static_cast<std::uint64_t>(v.changedExtra)}}};
+}
 std::size_t ApprovedMediaFile::chargedBytes() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->lease.bytes(); }
 ResourceLedger ApprovedMediaFile::resourceLedger() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->root->resources; }
 bool ApprovedMediaFile::ownedBy(ResourceLedger memory) const {

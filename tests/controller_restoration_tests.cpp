@@ -1842,20 +1842,29 @@ void isolatedManifestStage(unsigned mode){
         const SavedRestorationOwnerView owner{f.root,{context,812,813,814}};
         std::optional<SavedManifestDispatchTicket> dispatch;
         if(mode==0){
-            dispatch.emplace(SavedManifestDispatchTicket::bind(owner,audit,ticket,control.bytes(),*checked->report,
+            dispatch.emplace(SavedManifestDispatchTicket::bind(owner,audit,ticket,source,control.bytes(),*checked->report,
                 checked->childPid,operation,memory));
-            dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid,memory);++checks;
+            dispatch->verifyBeforeLaunch(owner,audit,ticket,source,*checked->report,checked->childPid,memory);++checks;
             for(unsigned bad=0;bad<11;++bad){auto changed=owner;
                 if(bad==0)changed.acceptedProject=true;if(bad==1)changed.closing=true;if(bad==2)changed.ioActive=true;
                 if(bad==3)changed.publicationAmbiguous=true;if(bad==4)++changed.context.source.projectEpoch;
                 if(bad==5)++changed.context.source.modelRevision;if(bad==6)++changed.context.source.request;
                 if(bad==7)++changed.context.source.job;if(bad==8)++changed.context.preparationJob;
                 if(bad==9)++changed.context.request;if(bad==10)++changed.context.job;
-                savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(changed,audit,ticket,*checked->report,checked->childPid,memory);});}
-            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid+1,memory);});
-            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid,ResourceLedger{});});
-            savedRecordRefuses([&]{SavedManifestDispatchTicket::bind(owner,audit,ticket,"{}",*checked->report,checked->childPid,operation,memory);},ErrorCode::MediaMismatch);
+                savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(changed,audit,ticket,source,*checked->report,checked->childPid,memory);});}
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,source,*checked->report,checked->childPid+1,memory);});
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,source,*checked->report,checked->childPid,ResourceLedger{});});
+            savedRecordRefuses([&]{SavedManifestDispatchTicket::bind(owner,audit,ticket,source,"{}",*checked->report,checked->childPid,operation,memory);},ErrorCode::MediaMismatch);
+            const auto differentRoot=f.owned.path/"different-manifest-root";std::filesystem::create_directory(differentRoot);
+            const SavedRestorationOwnerView wrongRoot{differentRoot,owner.context};
+            savedRecordRefuses([&]{SavedManifestDispatchTicket::bind(wrongRoot,audit,ticket,source,control.bytes(),*checked->report,checked->childPid,operation,memory);},ErrorCode::MediaMismatch);
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(wrongRoot,audit,ticket,source,*checked->report,checked->childPid,memory);});
+            const auto copied=f.owned.path/"same-bytes-before-launch.wav";write(copied,f.data);
+            ApprovedMediaRoot copiedRoot(f.owned.path,memory,{1});auto copiedFile=copiedRoot.openSelectedFilename(copied.filename(),1024);
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,copiedFile,*checked->report,checked->childPid,memory);},ErrorCode::MediaMismatch);
         }
+        if(mode==15)savedRecordRefuses([&]{SavedManifestDispatchTicket::bind(owner,audit,ticket,source,control.bytes(),*checked->report,
+            checked->childPid,operation,memory);},ErrorCode::MediaMismatch);
         if(mode==5)std::filesystem::create_directory(f.root/"changed-before-worker");
         auto pathHex=[](const std::filesystem::path &path){const auto value=path.u8string();return savedControlHex(std::string_view(reinterpret_cast<const char *>(value.data()),value.size()));};
         QProcess child;
@@ -1915,10 +1924,29 @@ void isolatedManifestStage(unsigned mode){
             inspect();++checks;
             // Observation must never rebase strict preparation/staging authority.
             savedRecordRefuses([&]{audit.reverify();},ErrorCode::MediaMismatch);
-            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,*checked->report,checked->childPid,memory);},ErrorCode::MediaMismatch);
+            savedRecordRefuses([&]{dispatch->verifyBeforeLaunch(owner,audit,ticket,source,*checked->report,checked->childPid,memory);},ErrorCode::MediaMismatch);
             savedRecordRefuses([&]{inspect(pid+1);});
-            auto moved=std::move(*dispatch);dispatch.reset();
+            auto moved=std::move(*dispatch);
+            savedRecordRefuses([&]{dispatch->inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);});dispatch.reset();
             moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);++checks;
+            for(unsigned bad=0;bad<11;++bad){auto changed=owner;
+                if(bad==0)changed.acceptedProject=true;if(bad==1)changed.closing=true;if(bad==2)changed.ioActive=true;
+                if(bad==3)changed.publicationAmbiguous=true;if(bad==4)++changed.context.source.projectEpoch;
+                if(bad==5)++changed.context.source.modelRevision;if(bad==6)++changed.context.source.request;
+                if(bad==7)++changed.context.source.job;if(bad==8)++changed.context.preparationJob;
+                if(bad==9)++changed.context.request;if(bad==10)++changed.context.job;
+                savedRecordRefuses([&]{moved.inspectStaged(changed,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);});}
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid+1,pid,record,memory);});
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,ResourceLedger{});});
+            const auto foreignDirectory=f.owned.path/"same-bytes-other-source";std::filesystem::create_directory(foreignDirectory);
+            const auto foreign=foreignDirectory/f.source.filename();write(foreign,f.data);
+            ApprovedMediaRoot differentSource(foreignDirectory,memory,{1});auto sameBytes=differentSource.openSelectedFilename(foreign.filename(),1024);
+            check(sameBytes.digest()==source.digest() && sameBytes.identityStamp()!=source.identityStamp(),"Source identity regression fixture is not distinct");
+            savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,sameBytes,*checked->report,checked->childPid,pid,record,memory);},ErrorCode::MediaMismatch);
+            for(const bool nested:{false,true}){const auto namespaceChange=(nested?f.root/operation.str():f.root)/"changed-during-passive-inspection";bool changedNamespace=false;
+                savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory,{},[&]{
+                    if(!changedNamespace){changedNamespace=true;check(std::filesystem::create_directory(namespaceChange),"Namespace regression fixture failed");}});},ErrorCode::MediaMismatch);
+                check(changedNamespace,"Namespace regression did not run inside hashing");std::filesystem::remove(namespaceChange);}
             std::stop_source stopped;stopped.request_stop();
             savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory,stopped.get_token());},ErrorCode::Canceled);
             const auto intent=f.root/operation.str()/"intent.json",staged=f.root/operation.str()/"media.partial";
@@ -1929,6 +1957,9 @@ void isolatedManifestStage(unsigned mode){
             write(staged,f.data);write(f.canonical,f.data);
             savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);},ErrorCode::MediaMismatch);
             std::filesystem::remove(f.canonical);
+            for(const auto *name:{"receipt.json","receipt.partial"}){const auto receipt=f.root/operation.str()/name;write(receipt,originalIntent);
+                savedRecordRefuses([&]{moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);},ErrorCode::MediaMismatch);
+                std::filesystem::remove(receipt);}
             moved.inspectStaged(owner,audit,ticket,source,*checked->report,checked->childPid,pid,record,memory);++checks;
 #ifndef _WIN32
             changed=f.data;changed.back()^=1;write(f.source,changed);
