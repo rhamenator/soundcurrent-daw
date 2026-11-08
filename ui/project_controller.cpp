@@ -260,7 +260,8 @@ class IoWorker : public QThread {
                             p.ticket,p.control.bytes(),*p.checked,original.job,next.manifestStagingRequest,next.manifestStagingJob,
                             options,*next.restorationMemory,closing,restorationCancel);
                         finished.error=finished.savedStaging.error;
-                    }catch(...){finished.error=ErrorCode::Io;} // Keep independently observed child/staging facts.
+                    }catch(...){finished.error=closing.load(std::memory_order_acquire)||restorationCancel.load(std::memory_order_acquire)||
+                        finished.savedStaging.cancellationObserved?ErrorCode::Canceled:ErrorCode::Io;} // Preserve facts and actual cancellation.
                 }
                 else if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
@@ -489,12 +490,17 @@ class IoWorker : public QThread {
                 finished.error = ErrorCode::Io;
                 finished.diagnostic = e.what();
             }
+            const auto completedOperation=finished.job.operation;
+            // The result/control worker owns the completed job. Retire the I/O
+            // duplicate BEFORE handing off: io==None must not race its leases.
+            next=IoJob{};
             {
                 QMutexLocker lock(&mutex);
                 result = std::move(finished);
                 if (quit)
                     return;
             }
+            if(options.afterIoResultPublished)options.afterIoResultPublished(completedOperation);
         }
     }
 };
@@ -1382,8 +1388,12 @@ struct ProjectController::State : QThread {
             QMutexLocker permission(&io.restorationPermitMutex);
             const bool canceled=closing.load(std::memory_order_acquire)||io.restorationCancel.load(std::memory_order_acquire);
             value.cancellationObserved=canceled||value.error==ErrorCode::Canceled;
+            if(canceled)value.error=ErrorCode::Canceled;
             if(!value.error){
-                if(canceled)value.error=ErrorCode::Canceled;
+                const bool complete=value.launchAttempted&&value.launchRetired&&value.childPid&&value.operation&&
+                    value.reaped&&value.normalExit==true&&value.childExit==0&&value.requestSent&&value.stagingMayExist&&
+                    value.recordVerified&&value.stagedBytesVerified&&!value.killRequested&&!value.qualificationProbeFailed;
+                if(!complete)value.error=ErrorCode::InvalidState;
                 else if(model || view.session || !view.root.empty() || view.savedManifestStagingJob!=value.job ||
                     view.projectEpoch!=result.job.projectEpoch || view.modelRevision!=result.job.revision ||
                     view.root!=result.job.root || view.session!=result.job.session)value.error=ErrorCode::InvalidState;

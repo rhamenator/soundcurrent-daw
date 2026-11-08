@@ -2114,15 +2114,16 @@ void manifestControllerStaging(unsigned mode){
     std::atomic<bool> reached=false,release=false;std::atomic<std::uint64_t> clock=111;ControllerOptions options;
     auto hold=[&]{reached=true;while(!release)QThread::msleep(1);};
     options.savedStagingNowMilliseconds=[&]{return clock.load();};options.savedStagingMillisecondsPerMiB=0;
-    const bool held=mode==0||mode==1||mode==2||mode==5||mode==9||mode==10;
-    if(held&&mode!=5&&mode!=9&&mode!=10)options.savedManifestStagingBeforeInput=hold;
+    const bool held=mode==0||mode==1||mode==2||mode==5||mode==9||mode==10||mode==16||mode==17;
+    if(held&&mode!=5&&mode!=9&&mode!=10&&mode!=16&&mode!=17)options.savedManifestStagingBeforeInput=hold;
     if(mode==5)options.savedStagingAfterSpawn=hold;
     if(mode==9)options.savedManifestStagingBeforeEof=hold;
-    if(mode==10)options.savedStagingAfterVerification=hold;
+    if(mode==10||mode==16||mode==17)options.savedStagingAfterVerification=hold;
+    if(mode==15)options.afterIoResultPublished=[&](IoOperation op){if(op==IoOperation::StageSavedManifest)hold();};
     if(mode==3)options.savedStagingTerminalHook=[](std::string &wire,std::size_t pid){auto j=nlohmann::json::parse(wire);j["workerPid"]=pid+1;wire=j.dump()+"\n";};
     if(mode==4)options.savedStagingAfterSpawn=[&]{clock=111+options.savedStagingDeadlineMilliseconds;};
     if(mode==6){options.memoryBytes=384*1024*1024;options.snapshotBytes=64*1024*1024;}
-    if(mode==13||mode==14)options.savedManifestStagingBeforeReturn=[=]{if(mode==13)throw std::runtime_error("Manifest epilogue failure");throw 7;};
+    if(mode==13||mode==14||mode==16||mode==17)options.savedManifestStagingBeforeReturn=[=]{if(mode==13||mode==16)throw std::runtime_error("Manifest epilogue failure");throw 7;};
     if(mode==7)options.savedManifestStagingWorkerProgram=std::filesystem::temp_directory_path()/"absent-controller-manifest-worker";
     Fixture f;resetCold(f,options);Release guard{release};const auto initial=f.controller->snapshot();const auto baseline=f.controller->memoryResources().reservedBytes;
     const auto before=physical(f.root);
@@ -2132,7 +2133,7 @@ void manifestControllerStaging(unsigned mode){
     submit(*f.controller,manifestSource(f,*initial));auto prepared=await(*f.controller,[](const auto &v){return v.savedManifestSourceCompleted.request==1&&v.io==IoOperation::None;});
     if(!prepared->savedManifestSourceCompleted.sourcePrepared||!prepared->savedManifestPreparedSource||
         nativeReadPin(f.root/"project.json")||nativeReadPin(f.source))throw std::runtime_error(
-            "Manifest controller lacks metadata-only original private preparation, mode="+std::to_string(mode)+" diagnostic="+prepared->diagnostic);++checks;
+            "Manifest controller lacks metadata-only original private preparation, mode="+std::to_string(mode)+" errorCode="+(prepared->savedManifestSourceCompleted.error?std::to_string(static_cast<unsigned>(*prepared->savedManifestSourceCompleted.error)):"none")+" diagnostic="+prepared->diagnostic);++checks;
     const auto preparation=prepared->savedManifestPreparedSource;
     if(mode==11){for(unsigned bad=0;bad<10;++bad){auto c=stageManifest(preparation);
         if(bad==0)++c.savedManifestPreparationJob;if(bad==1)c.savedManifestStagingRequest=0;
@@ -2164,24 +2165,25 @@ void manifestControllerStaging(unsigned mode){
         ProjectCommand wrong{CommandKind::CancelSavedManifestStaging};wrong.savedManifestStagingJob=active->savedManifestStagingJob+1;
         auto serial=f.controller->snapshot()->errorSerial;submit(*f.controller,wrong);auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
         check(refused->io==IoOperation::StageSavedManifest,"Wrong manifest cancel retired active owner");
-        if(mode==2)f.controller->requestShutdown();
+        if(mode==2||mode==17)f.controller->requestShutdown();
         else if(mode!=0){ProjectCommand cancel{CommandKind::CancelSavedManifestStaging};cancel.savedManifestStagingJob=active->savedManifestStagingJob;submit(*f.controller,cancel);
             ProjectCommand barrier{CommandKind::Barrier};barrier.barrier=991;submit(*f.controller,barrier);await(*f.controller,[](const auto &v){return v.lastBarrier==991;});}
         release=true;
     }
-    auto done=mode==2?await(*f.controller,[](const auto &v){return v.closed;}):await(*f.controller,[](const auto &v){return v.savedManifestStagingCompleted.request==1&&v.io==IoOperation::None;});
+    const bool close=mode==2||mode==17;
+    auto done=close?await(*f.controller,[](const auto &v){return v.closed;}):await(*f.controller,[](const auto &v){return v.savedManifestStagingCompleted.request==1&&v.io==IoOperation::None;});
     const auto r=done->savedManifestStagingCompleted;coldOwner(*done);
     check(r.preparationJob==preparation&&r.request==1&&r.job&&!done->savedManifestPreparedSource&&!done->restorationPreparedSource&&
         !done->savedStagingCompleted.job&&!done->savedPublicationCompleted.staging.job&&!done->savedPublicationNeedsReconciliation,
         "Manifest stage fabricated historical owner/publication/adoption or retained spent private preparation");
-    if(mode==0||mode==11)check(!r.error&&r.childPid&&r.childExit==0&&r.normalExit==true&&r.reaped&&r.recordVerified&&r.stagedBytesVerified,
+    if(mode==0||mode==11||mode==15)check(!r.error&&r.childPid&&r.childExit==0&&r.normalExit==true&&r.reaped&&r.recordVerified&&r.stagedBytesVerified,
         "Manifest controller did not independently verify actual stage");
     else{check(r.error.has_value()&&!r.recordVerified&&!r.stagedBytesVerified,"Manifest controller refusal created positive verification");
-        if(mode==1||mode==2||mode==5||mode==9||mode==10)check(r.error==ErrorCode::Canceled&&r.cancellationObserved&&r.childPid&&r.reaped,
+        if(mode==1||mode==2||mode==5||mode==9||mode==10||mode==16||mode==17)check(r.error==ErrorCode::Canceled&&r.cancellationObserved&&r.childPid&&r.reaped,
             "Manifest controller cancel/close lost actual child retirement");
         if(mode==1||mode==2||mode==5)check(r.killRequested&&!r.requestSent,"Manifest pre-input cancellation sent input or skipped child retirement");
         if(mode==9)check(r.killRequested&&r.requestSent&&!std::filesystem::exists(f.root/r.operation->str()),"Manifest pre-EOF cancel admitted worker filesystem work");
-        if(mode==10)check(!r.killRequested&&r.childExit==0&&r.normalExit==true&&r.stagingMayExist,"Late controller cancellation erased actual normal-exit/staging observations");
+        if(mode==10||mode==16||mode==17)check(!r.killRequested&&r.childExit==0&&r.normalExit==true&&r.stagingMayExist,"Late controller cancellation erased actual normal-exit/staging observations");
         if(mode==4)check(r.error==ErrorCode::Io&&!r.cancellationObserved,"Manifest controller deadline fabricated cancellation");
         if(mode==6||mode==8)check(!r.launchAttempted&&!r.childPid&&!r.operation,"Manifest admission/source refusal launched a child");
         if(mode==6)check(r.error==ErrorCode::ResourceLimit,"Manifest controller bypassed child credit admission");
@@ -2189,7 +2191,15 @@ void manifestControllerStaging(unsigned mode){
             r.requestSent&&r.stagingMayExist&&r.operation&&!r.killRequested,"Escaping manifest epilogue erased caller-owned actual process/staging facts");
         if(mode==7)check(r.launchAttempted&&r.launchRetired&&!r.childPid&&!r.childExit&&!r.reaped,"Manifest failed launch fabricated child identity/reap");}
     check(!nativeReadPin(f.root/"project.json")&&!nativeReadPin(f.source),"Manifest controller completion retained native pins");
-    if(mode!=2){const auto serial=done->errorSerial;submit(*f.controller,stageManifest(preparation,2));auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
+    if(mode==15){
+        await(*f.controller,[&](const auto &v){return reached&&v.io==IoOperation::None;});
+        check(f.controller->memoryResources().reservedBytes==baseline,"Published idle state retained an I/O duplicate preparation lease");
+        ProjectCommand policy{CommandKind::MemoryLimits};policy.memoryRequest=9911;policy.memoryBytes=baseline+1;
+        submit(*f.controller,policy);auto limited=await(*f.controller,[](const auto &v){return v.memoryCompleted.request==9911;});
+        check(!limited->memoryCompleted.error,"Immediate exact idle budget refused while I/O thread still held after publication");
+        release=true;
+    }
+    if(!close){const auto serial=done->errorSerial;submit(*f.controller,stageManifest(preparation,2));auto refused=await(*f.controller,[&](const auto &v){return v.errorSerial>serial;});
         check(refused->savedManifestStagingCompleted.job==r.job&&!refused->savedManifestPreparedSource,"Spent preparation ID replay recreated authority");}
     await(*f.controller,[&](const auto &){return f.controller->memoryResources().reservedBytes==baseline;});++checks;
     check(!std::filesystem::exists(f.canonical)&&bytes(f.root/"project.json")==f.manifest,"Manifest controller staging published or changed manifest");
@@ -2440,4 +2450,4 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuar
 #ifndef _WIN32
         isolatedManifestStage(19);
 #endif
-        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<15;++mode)manifestControllerStaging(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+        for(unsigned mode=0;mode<25;++mode)manifestStagingSupervisor(mode);for(unsigned mode=0;mode<18;++mode)manifestControllerStaging(mode);for(unsigned mode=0;mode<19;++mode)savedManifestPreparation(mode);savedPreparationSuccess();savedPreparationRefusals();for(unsigned mode=0;mode<6;++mode)savedPreparationCancelClose(mode);std::cout<<checks<<" actual controller-owned restoration checks passed; accepted-prefix guards, exact child/PID/bytes, cancel/close/reap, ambiguous permission latch; no full recovery UI\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

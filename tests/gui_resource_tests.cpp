@@ -178,7 +178,7 @@ void policy(StudioWindow &window, std::size_t bytes, std::uint64_t request) {
     const auto result=window.snapshot();
     if(result->memoryCompleted.error)throw std::runtime_error("Memory policy rejected request="+std::to_string(request)+
         " requested="+std::to_string(bytes)+" actualReserved="+std::to_string(window.memoryResources().reservedBytes)+
-        " diagnostic="+result->diagnostic);++checks;
+        " errorCode="+std::to_string(static_cast<unsigned>(*result->memoryCompleted.error))+" receipt="+result->memoryCompleted.diagnostic);++checks;
 }
 void desktop(const std::filesystem::path &root) {
     const auto original = large();
