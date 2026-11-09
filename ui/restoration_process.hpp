@@ -2,6 +2,7 @@
 #pragma once
 #include "wave_check_controller.hpp"
 #include <soundcurrent/restoration_permit.hpp>
+#include <soundcurrent/saved_manifest_dispatch.hpp>
 #include <atomic>
 #include <QMutex>
 namespace soundcurrent::daw::ui {
@@ -32,6 +33,14 @@ SavedStagingCompletion runSavedStagingProcess(const RestorationInspectionRequest
     const SavedRestorationSourceTicket &,const WaveCheckSnapshot &,std::uint64_t preparationJob,
     std::uint64_t request,std::uint64_t job,const ControllerOptions &,ResourceLedger,
     const std::atomic<bool> &closing,const std::atomic<bool> &cancel);
+// Manifest-only trusted parent I/O. The serialized controller must freeze its
+// actual empty owner/context and retain the original private preparation until
+// return. No history operation, publication permission or adoption is created.
+SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceRequest &original,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedManifestSourceTicket &,std::string_view originalControl,const WaveCheckSnapshot &,
+    std::uint64_t preparationJob,std::uint64_t request,std::uint64_t job,
+    const ControllerOptions &,ResourceLedger,const std::atomic<bool> &closing,const std::atomic<bool> &cancel);
 // Parent supervisor only. Caller freezes the actual empty owner/context and
 // uses THIS mutex for cancel/close as well; no GUI command/adoption is implied.
 using SavedPublicationProcessResult=SavedPublicationCompletion;

@@ -282,6 +282,7 @@ struct ControllerOptions {
     std::function<void(std::string &,std::size_t)> restorationReadyHook = {}; // Qualification only.
     std::function<void(std::string &,std::size_t)> restorationTerminalHook = {}; // Qualification only.
     std::filesystem::path savedStagingWorkerProgram = {};
+    std::filesystem::path savedManifestStagingWorkerProgram = {}; // Trusted parent configuration, not project data.
     std::filesystem::path savedPublicationWorkerProgram = {};
     std::function<void()> savedPublicationBeforePermit = {},savedPublicationAfterPermit = {};
     std::function<void(std::string &,std::size_t)> savedPublicationReadyHook = {}; // Qualification only.
@@ -298,6 +299,7 @@ struct ControllerOptions {
     std::string savedStagingFixtureMode = {}; // Qualification only; production worker rejects this argument.
     std::function<void()> savedStagingBeforeSpawn = {},savedStagingAfterSpawn = {},savedStagingBeforeTerminal = {};
     std::function<void(std::string &,std::size_t)> savedStagingTerminalHook = {};
+    std::function<void()> savedManifestStagingBeforeInput = {},savedManifestStagingBeforeEof = {}; // Trusted qualification only.
     HistoryBudget historyBudget{};
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
