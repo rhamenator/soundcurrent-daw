@@ -7,10 +7,12 @@ import io
 import json
 from pathlib import Path
 import tempfile
+import subprocess
 import unittest
 from unittest.mock import Mock, patch
 
 from parent_observation_timing import ObservationTimeline
+from parent_fixture_initialization import initialize_fixture
 
 spec = importlib.util.spec_from_file_location(
     "windows_interruption_observer", Path(__file__).with_name("stretch_parent_interruption_windows.py"))
@@ -151,6 +153,85 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             process.kill(observer.PARENT_EXIT)
         process.request_termination.assert_called_once_with(observer.PARENT_EXIT)
+
+
+class FixtureInitializationTests(unittest.TestCase):
+    def test_explicit_output_and_unchanged_deadline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            def run(command, **options):
+                self.assertEqual(options["timeout"], 10)
+                self.assertTrue(options["check"])
+                self.assertEqual(options["creationflags"], 0x08004000)
+                self.assertEqual(options["stderr"], subprocess.STDOUT)
+                options["stdout"].write(b"sc-parent-fixture source.hash-verified\r\n"
+                                        b"sc-parent-fixture project-save.end\r\n")
+                return subprocess.CompletedProcess(command, 0)
+            with patch("parent_fixture_initialization.subprocess.run", side_effect=run) as child, \
+                    patch("parent_fixture_initialization.sys.stderr", new_callable=io.StringIO) as stderr:
+                initialize_fixture("probe", "project", directory, creationflags=0x08004000)
+            child.assert_called_once()
+            receipt = json.loads((Path(directory) / "fixture-init.json").read_text())
+            self.assertEqual(receipt["childReturncode"], 0)
+            self.assertFalse(receipt["timedOut"])
+            self.assertTrue(receipt["diagnosticsComplete"])
+            self.assertIn("source.hash-verified", stderr.getvalue())
+
+    def test_timeout_keeps_prefix_without_inventing_exit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            failure = subprocess.TimeoutExpired(["probe"], 10)
+            def run(command, **options):
+                options["stdout"].write(b"sc-parent-fixture source.begin\n")
+                raise failure
+            with patch("parent_fixture_initialization.subprocess.run", side_effect=run) as child, \
+                    patch("parent_fixture_initialization.sys.stderr", new_callable=io.StringIO), \
+                    self.assertRaises(subprocess.TimeoutExpired) as raised:
+                initialize_fixture("probe", "project", directory)
+            self.assertIs(raised.exception, failure)
+            child.assert_called_once()
+            receipt = json.loads((Path(directory) / "fixture-init.json").read_text())
+            self.assertTrue(receipt["timedOut"])
+            self.assertIsNone(receipt["childReturncode"])
+            self.assertIn("source.begin", receipt["output"])
+
+    def test_receipt_failure_preserves_original_timeout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            failure = subprocess.TimeoutExpired(["probe"], 10)
+            with patch("parent_fixture_initialization.subprocess.run", side_effect=failure), \
+                    patch.object(Path, "write_text", side_effect=OSError("receipt refused")), \
+                    self.assertRaises(subprocess.TimeoutExpired) as raised:
+                initialize_fixture("probe", "project", directory)
+            self.assertIs(raised.exception, failure)
+            self.assertIn("receipt refused", " ".join(failure.__notes__))
+
+    def test_nonzero_exit_keeps_full_log_and_bounds_replayed_prefix(self):
+        with tempfile.TemporaryDirectory() as directory:
+            failure = subprocess.CalledProcessError(7, ["probe"])
+            def run(command, **options):
+                options["stdout"].write(b"x" * 16400)
+                raise failure
+            with patch("parent_fixture_initialization.subprocess.run", side_effect=run), \
+                    patch("parent_fixture_initialization.sys.stderr", new_callable=io.StringIO) as stderr, \
+                    self.assertRaises(subprocess.CalledProcessError) as raised:
+                initialize_fixture("probe", "project", directory)
+            self.assertIs(raised.exception, failure)
+            receipt = json.loads((Path(directory) / "fixture-init.json").read_text())
+            self.assertEqual(receipt["childReturncode"], 7)
+            self.assertFalse(receipt["timedOut"])
+            self.assertTrue(receipt["outputTruncated"])
+            self.assertEqual(receipt["outputBytes"], 16400)
+            self.assertEqual(len(stderr.getvalue()), 16384)
+            self.assertEqual((Path(directory) / "fixture-init.log").stat().st_size, 16400)
+
+    def test_zero_exit_without_hash_marker_is_not_qualified(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with patch("parent_fixture_initialization.subprocess.run",
+                       return_value=subprocess.CompletedProcess(["probe"], 0)), \
+                    self.assertRaisesRegex(RuntimeError, "diagnostics incomplete"):
+                initialize_fixture("probe", "project", directory)
+            receipt = json.loads((Path(directory) / "fixture-init.json").read_text())
+            self.assertEqual(receipt["childReturncode"], 0)
+            self.assertEqual(receipt["outputBytes"], 0)
+            self.assertFalse(receipt["diagnosticsComplete"])
 
 
 if __name__ == "__main__":
