@@ -8,6 +8,7 @@
 #include <soundcurrent/saved_restoration_dispatch.hpp>
 #include <soundcurrent/saved_restoration_permit.hpp>
 #include <QCoreApplication>
+#include <QStringList>
 #include <QProcess>
 #include <QElapsedTimer>
 #include <exception>
@@ -31,6 +32,24 @@ using namespace soundcurrent::daw::ui;
 namespace {
 unsigned checks=0;
 void check(bool ok,const char *text){++checks;if(!ok)throw std::runtime_error(text);}
+// Test-only explicit component root. Preserve intentional per-case fault programs.
+std::filesystem::path installedWorkerRoot;
+ControllerOptions installedPrograms(ControllerOptions options){
+    if(installedWorkerRoot.empty())return options;
+    auto bind=[&](std::filesystem::path &program,const char *name){
+        if(!program.empty())return;
+        program=installedWorkerRoot/name;
+#ifdef _WIN32
+        program+=".exe";
+#endif
+        check(std::filesystem::is_regular_file(program),"Installed production worker missing");
+    };
+    bind(options.restorationWorkerProgram,"sc-asset-restoration-worker");
+    bind(options.savedStagingWorkerProgram,"sc-saved-restoration-worker");
+    bind(options.savedPublicationWorkerProgram,"sc-saved-restoration-live-worker");
+    bind(options.savedManifestStagingWorkerProgram,"sc-saved-manifest-worker");
+    return options;
+}
 template<class F>auto await(ProjectController &c,F predicate){const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(15);for(;;){auto s=c.snapshot();if(predicate(*s))return s;if(std::chrono::steady_clock::now()>end)throw std::runtime_error("Restoration controller deadline: "+s->diagnostic);QThread::msleep(1);}}
 void submit(ProjectController &c,ProjectCommand command){check(c.submit(std::move(command))==Admission::Accepted,"Restoration command queue refused");}
 void put(std::string &s,unsigned n,unsigned count){for(unsigned i=0;i<count;++i)s+=char((n>>(8*i))&255);}
@@ -60,7 +79,7 @@ struct Fixture {
          asset.sha256.assign(checked->report->audio().sourceSha256.begin(),checked->report->audio().sourceSha256.end());}
         asset.relativePath="media/missing.wav";asset.frames=frames;asset.sampleRate=48000;asset.layout={LayoutKind::Mono,1};
         auto session=makeOneTrackSession("Recovery","Track");session.assets.push_back(asset);ProjectStore(root).save(session);manifest=bytes(root/"project.json");
-        controller=std::make_unique<ProjectController>(options);ProjectCommand open{CommandKind::Open};open.path=root;submit(*controller,std::move(open));initial=await(*controller,[](const auto &s){return s.session&&s.io==IoOperation::None;});
+        controller=std::make_unique<ProjectController>(installedPrograms(std::move(options)));ProjectCommand open{CommandKind::Open};open.path=root;submit(*controller,std::move(open));initial=await(*controller,[](const auto &s){return s.session&&s.io==IoOperation::None;});
         if(dirty){const auto revision=initial->modelRevision;submit(*controller,edit(*initial));initial=await(*controller,[&](const auto &v){return v.modelRevision>revision;});}
         WaveCheckOptions checking;checking.memory=controller->resourceLedger();WaveCheckController checker(checking);
         check(checker.submitAssetReplacement(source,*initial,asset.id,1)==Admission::Accepted,"Replacement checking refused");
@@ -350,7 +369,7 @@ void coldOwner(const ControllerSnapshot &s){
     check(!s.session&&s.root.empty()&&!s.projectEpoch&&!s.modelRevision&&!s.savedRevision&&!s.dirty&&
         !s.autosaveInhibitionToken&&!s.assetRestorationNeedsReconciliation,"Saved inspection adopted a project or owner");
 }
-void resetCold(Fixture &f,ControllerOptions o={}){f.controller.reset();f.controller=std::make_unique<ProjectController>(std::move(o));coldOwner(*f.controller->snapshot());}
+void resetCold(Fixture &f,ControllerOptions o={}){f.controller.reset();f.controller=std::make_unique<ProjectController>(installedPrograms(std::move(o)));coldOwner(*f.controller->snapshot());}
 auto physical(const std::filesystem::path &root){
     std::map<std::filesystem::path,std::string> result;
     for(const auto &e:std::filesystem::recursive_directory_iterator(root)){
@@ -2456,7 +2475,22 @@ void savedControllerStage(unsigned mode){
 }
 
 }
-int main(int argc,char **argv){QCoreApplication app(argc,argv);try{normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<15;++mode)manifestNativeStage(mode);for(unsigned mode=0;mode<19;++mode)isolatedManifestStage(mode);
+int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
+    const auto arguments=app.arguments();
+    if(arguments.size()==3&&arguments.at(1)==QStringLiteral("--installed-workers")){
+#ifdef _WIN32
+        installedWorkerRoot=std::filesystem::path(arguments.at(2).toStdWString());
+#else
+        installedWorkerRoot=utf8Path(arguments.at(2).toUtf8().toStdString());
+#endif
+        check(installedWorkerRoot.is_absolute()&&std::filesystem::is_directory(installedWorkerRoot)
+            &&!std::filesystem::is_symlink(installedWorkerRoot),"Invalid installed worker root");
+        normalAndGuards();savedControllerStage(0);savedControllerPublication(0);manifestControllerStaging(0);
+        std::cout<<checks<<" actual installed controller-owned restoration checks passed; four production roles; existing positive operation/PID/bytes/history guards\n";
+        return 0;
+    }
+    if(arguments.size()!=1)throw std::runtime_error("Unknown restoration test arguments");
+    normalAndGuards();beforePermitCancelOrClose(false);beforePermitCancelOrClose(true);beforeSpawnClose();malformedReady();malformedTerminal();deadline();activeIo();ambiguousPermission();staleAndInhibited();inspectionStates();inspectionGuardsAndCancel();inspectionStaleAndRefusals();inspectionPinnedAndClosing(false);inspectionPinnedAndClosing(true);inspectionKeepsAmbiguousLatch();reconciliationSuccess();reconciliationFailures();reconciliationAvailableWithoutReceipt();reconciliationPinnedCancelClose(0);reconciliationPinnedCancelClose(1);reconciliationPinnedCancelClose(2);savedInspectionStates();savedInspectionRefusals();savedInspectionThenExplicitOpen();for(unsigned mode=0;mode<5;++mode)savedInspectionCancelClose(mode);savedSourceBinding();savedSourceDifferentContent();savedSourceFileBinding();savedRestorationRecords();savedControlProtocols();for(unsigned mode=0;mode<31;++mode)savedPublicationPermits(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedStage(mode);for(unsigned mode=0;mode<10;++mode)isolatedSavedPublication(mode);for(unsigned mode=0;mode<25;++mode)savedPublicationSupervisor(mode);for(unsigned mode=0;mode<21;++mode)savedNativeStage(mode);for(unsigned mode=0;mode<13;++mode)ownedStagingAudit(mode);for(unsigned mode=0;mode<35;++mode)savedControllerStage(mode);for(unsigned mode=0;mode<23;++mode)savedControllerPublication(mode);for(unsigned mode=0;mode<13;++mode)savedControllerReconciliation(mode);manifestSourceTicketBinding();for(unsigned mode=0;mode<15;++mode)manifestNativeStage(mode);for(unsigned mode=0;mode<19;++mode)isolatedManifestStage(mode);
 #ifndef _WIN32
         isolatedManifestStage(19);
 #endif

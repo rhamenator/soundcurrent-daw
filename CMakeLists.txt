@@ -1371,6 +1371,18 @@ if(SC_BUILD_DESKTOP)
     add_dependencies(sc-controller-tests sc-controller-restoration-tests)
     add_test(NAME desktop-controller-restoration COMMAND sc-controller-restoration-tests)
     set_tests_properties(desktop-controller-restoration PROPERTIES TIMEOUT 120)
+    if(NOT CMAKE_CROSSCOMPILING)
+      add_test(NAME installed-restoration-controller COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/installed_restoration_controller_tests.py
+        --cmake ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --config=$<CONFIG>
+        --source ${CMAKE_CURRENT_SOURCE_DIR} --controller $<TARGET_FILE:sc-controller-restoration-tests>
+        --asset $<TARGET_FILE:sc-asset-restoration-worker>
+        --saved $<TARGET_FILE:sc-saved-restoration-worker>
+        --live $<TARGET_FILE:sc-saved-restoration-live-worker>
+        --manifest $<TARGET_FILE:sc-saved-manifest-worker>)
+      # Existing controller subprocess budget stays 120s; install adds at most 20s.
+      set_tests_properties(installed-restoration-controller PROPERTIES TIMEOUT 150)
+    endif()
     add_test(NAME desktop-controller COMMAND sc-controller-tests)
     set_tests_properties(desktop-controller PROPERTIES TIMEOUT 60)
     add_test(NAME desktop-configured-preflight COMMAND sc-controller-tests --configured-preflight-only)
