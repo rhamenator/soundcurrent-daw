@@ -40,6 +40,7 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Qualify Ubuntu mirror preparation
         run: python3 tests/ubuntu_mirror_tests.py
       - name: Prepare the primary Ubuntu archive
@@ -50,10 +51,18 @@ jobs:
           sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y ninja-build libssl-dev libsndfile1-dev qt6-base-dev qt6-l10n-tools
       - name: Configure without a native audio daemon
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSC_BUILD_DESKTOP=ON -DSC_BUILD_PIPEWIRE=OFF -DSC_BUILD_WARP_MAP_PROBE=ON -DSC_BUILD_PROTECTED_WARP_PROBE=ON
+      - name: Capture restoration worker build inputs
+        env:
+          SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --snapshot-inputs .cache/restoration-worker-build-inputs.json
       - name: Build
         run: cmake --build build --parallel 2
       - name: Test synthetic workflows
         run: python3 .github/scripts/run-linux-test-shard.py build ${{ matrix.shard }} --count 5
+      - name: Collect native restoration images and repository source
+        env:
+          SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --build build --inputs .cache/restoration-worker-build-inputs.json --output build/restoration-worker-images --allow-absent
       - name: Verify controller failure retention
         if: always()
         run: python3 tests/controller_retention_tests.py
@@ -76,6 +85,7 @@ jobs:
             build/ci-shard-plan.json
             build/installed-restoration-evidence/**
             build/installed-restoration-controller-evidence/**
+            build/restoration-worker-images/**
             build/controller-failure-projects/**
             build/comp-assembly-state-evidence/**
             build/comp-assembly-job-evidence/**
@@ -417,7 +427,7 @@ jobs:
             name: Windows desktop workflows
             artifact: windows-desktop-import-test-log
             targets: sc-asset-restoration-worker sc-saved-restoration-worker sc-saved-restoration-live-worker sc-saved-manifest-worker sc-controller-tests sc-track-version-ui-tests sc-crossfade-ui-tests sc-native-panel-tests sc-ui-tests sc-playback-controller-tests soundcurrent-daw sc-manual-panel-tests sc-stretch-parent-probe sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-waveform-controller-tests sc-waveform-cache-tests sc-timeline-waveform-tests sc-studio-waveform-tests sc-import-media-ui-tests sc-localization-tests sc-stretch-artifact-tests sc-protected-warp-probe
-            tests: "^(installed-restoration-controller|installed-restoration-refusal|desktop-controller-restoration|desktop-controller|desktop-track-versions|desktop-take-audition|desktop-paired-crossfade|desktop-native-recording-panel|desktop-loop-recording|desktop-loop-controls|desktop-playback-controller|desktop-retained-takes|desktop-manual-recording|desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-waveform-controller|desktop-waveform-cache|desktop-timeline-waveforms|desktop-studio-waveforms|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$"
+            tests: "^(restoration-worker-image-inputs|installed-restoration-controller|installed-restoration-refusal|desktop-controller-restoration|desktop-controller|desktop-track-versions|desktop-take-audition|desktop-paired-crossfade|desktop-native-recording-panel|desktop-loop-recording|desktop-loop-controls|desktop-playback-controller|desktop-retained-takes|desktop-manual-recording|desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-waveform-controller|desktop-waveform-cache|desktop-timeline-waveforms|desktop-studio-waveforms|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$"
           - suite: comp
             name: Windows comp desktop workflows
             artifact: windows-comp-desktop-log
@@ -478,6 +488,14 @@ jobs:
           set "SC_PARENT_TIMING_EVIDENCE=%CD%\build-desktop-native\parent-observation-timing"
           ctest --test-dir build-desktop-native -R "%SC_DESKTOP_TESTS%" --output-on-failure --no-tests=error -V
           if errorlevel 1 exit /b 1
+      - name: Collect native restoration images and repository source
+        if: matrix.suite == 'main'
+        shell: pwsh
+        env:
+          SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python tools/restoration_worker_images.py --expected-source $env:SC_RESTORATION_SOURCE --build build-desktop-native --inputs .cache/windows-preview-build-inputs.json --output build-desktop-native/restoration-worker-images
+          if ($LASTEXITCODE -ne 0) { throw "Restoration image/source collection failed" }
       - name: Collect native preview deployment inputs (not an installer)
         if: matrix.suite == 'main' && (github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'codex/windows-'))
         shell: pwsh
@@ -535,6 +553,7 @@ jobs:
             build-desktop-native/Testing/Temporary/*.log
             build-desktop-native/installed-restoration-evidence/**
             build-desktop-native/installed-restoration-controller-evidence/**
+            build-desktop-native/restoration-worker-images/**
             build-desktop-native/Testing/crossfade-ui/*.png
             build-desktop-native/controller-failure-projects/**
             build-desktop-native/parent-observation-timing/*.json
