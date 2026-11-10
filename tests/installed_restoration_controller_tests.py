@@ -9,7 +9,7 @@ import stat
 import subprocess
 import tempfile
 import uuid
-from installed_restoration_tests import digest, require
+from installed_restoration_tests import digest, require, INSTALL_PATH_LABEL, INSTALL_PATH_PROFILE
 
 
 def main():
@@ -30,12 +30,14 @@ def main():
     require(all(p.is_file() for p in workers.values()), 'Build the four production worker targets first')
     environment = dict(os.environ, PATH=str(driver.parent) + os.pathsep + os.environ.get('PATH', ''))
     environment.pop('DESTDIR', None)
-    with tempfile.TemporaryDirectory(prefix='installed controller workers ', dir=build) as temporary:
+    with tempfile.TemporaryDirectory(prefix='installed controller workers ' + INSTALL_PATH_LABEL + ' ', dir=build) as temporary:
         prefix = Path(temporary)
+        installation_path = dict(profile=INSTALL_PATH_PROFILE, label=INSTALL_PATH_LABEL, prefix=str(prefix))
         command = [args.cmake, '--install', str(build), '--prefix', str(prefix),
                    '--component', 'restoration-qualification']
         if args.config:
             command.extend(['--config', args.config])
+        (evidence / 'install-command.json').write_text(json.dumps(command, indent=2) + '\n')
         try:
             result = subprocess.run(command, capture_output=True, timeout=20, env=environment)
         except subprocess.TimeoutExpired as error:
@@ -95,6 +97,7 @@ def main():
         require(all(digest(prefix / 'bin' / p.name) == digest(p) for p in workers.values()),
                 'Controller changed installed executable bytes')
     receipt.write_text(json.dumps(dict(runDirectory=evidence.name, component='restoration-qualification',
+                                      installationPath=installation_path,
                                       roles=roles, controller=observation, checks=int(matches[0]),
                                       positiveCases=['normalAndGuards', 'savedControllerStage0',
                                                      'savedControllerPublication0', 'manifestControllerStaging0'],
