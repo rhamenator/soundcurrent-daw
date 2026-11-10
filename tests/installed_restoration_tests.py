@@ -14,6 +14,9 @@ import subprocess
 import tempfile
 import uuid
 
+INSTALL_PATH_LABEL = '\u00c5ngstr\u00f6m e\u0301 \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac \u041a\u0438\u0457\u0432'
+INSTALL_PATH_PROFILE = 'europe-unicode-v1'
+
 
 def require(condition, message):
     if not condition:
@@ -47,12 +50,14 @@ def main():
     rows = []
     for role, _, _ in roles:
         require(Path(getattr(args, role)).is_file(), 'Build the production worker target first: ' + role)
-    with tempfile.TemporaryDirectory(prefix='restoration install ', dir=build) as temporary:
+    with tempfile.TemporaryDirectory(prefix='restoration install ' + INSTALL_PATH_LABEL + ' ', dir=build) as temporary:
         prefix = Path(temporary)
+        installation_path = dict(profile=INSTALL_PATH_PROFILE, label=INSTALL_PATH_LABEL, prefix=str(prefix))
         command = [args.cmake, '--install', str(build),
                    '--prefix', str(prefix), '--component', 'restoration-qualification']
         if args.config:
             command.extend(['--config', args.config])
+        (evidence / 'install-command.json').write_text(json.dumps(command, indent=2) + '\n')
         install_environment = dict(os.environ)
         install_environment.pop('DESTDIR', None)
         try:
@@ -85,7 +90,9 @@ def main():
                         'Installed executable mode differs: ' + role)
             # Empty-object framing reaches each compiled parser's completeness check without
             # providing a root, permit, operation, or publication authority.
-            process = subprocess.Popen([str(installed)], stdin=subprocess.PIPE,
+            command = [str(installed)]
+            (evidence / (role + '.command.json')).write_text(json.dumps(command, indent=2) + '\n')
+            process = subprocess.Popen(command, stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                        cwd=prefix, env=dict(os.environ, PATH=str(original.parent)
                                                           + os.pathsep + os.environ.get('PATH', '')))
@@ -137,6 +144,7 @@ def main():
                              refusal=reply))
         require(len({r['executableSha256'] for r in rows}) == 4, 'Worker roles share executable bytes')
     receipt.write_text(json.dumps(dict(runDirectory=evidence.name, component='restoration-qualification', roles=rows,
+                                      installationPath=installation_path,
                                       exactFileSet=True, installedBytesMatch=True,
                                       nativeRefusalOnly=True,
                                       successfulRestorationQualified=False,
