@@ -2,7 +2,7 @@
 
 The installed controller tests establish four positive workflows and retain
 executable hashes. The collection step additionally preserves the actual four
-production executable images so future package qualification can independently
+helper executable images from the configured native CI build so future package qualification can independently
 rehash the bytes that match those observations.
 
 `tools/restoration_worker_images.py` captures the clean requested source commit,
@@ -14,6 +14,9 @@ PID/exit/source/command/output records, or an existing output directory. It copi
 the four images and positive workflow records, then rechecks the inputs and
 images before writing a success-only collection manifest. CMake configuration
 identity is recorded without copying arbitrary cache variables.
+The manifest labels the build type explicitly: Linux CI collects Debug images
+and Windows CI collects Release images. Debug images establish development
+execution evidence; they do not qualify an optimized production package.
 
 The repository build-source archive contains the captured source, vendored code,
 fixtures, licenses and scripts. Historical `tests/results` media is excluded,
@@ -23,7 +26,10 @@ every captured input digest. This is repository-source evidence; external
 dependency-source bundles and standalone dependency qualification remain open.
 
 On Linux, collection runs only on the shard with the successful positive
-controller receipt. Other shards validate their source capture and explicitly
+controller receipt. Every shard requires a valid build/source root and successful
+complete partition assigning the positive controller test exactly once. Its
+assigned shard must provide the receipt; missing or misplaced receipts fail.
+Other shards validate their source capture and explicitly
 produce no collection. Windows collection runs after the native desktop main
 suite. Both retain the material under `restoration-worker-images` in the existing
 original CI artifact, alongside refusal and positive receipts. Final audit must

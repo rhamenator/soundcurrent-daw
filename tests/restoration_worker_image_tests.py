@@ -47,7 +47,7 @@ class Images(unittest.TestCase):
         self.input_path = self.top / 'inputs.json'
         write_json(self.input_path, self.inputs)
         (self.build / 'CMakeCache.txt').write_text(
-            'CMAKE_HOME_DIRECTORY:INTERNAL=' + str(self.source) + '\n', encoding='utf-8')
+            'CMAKE_HOME_DIRECTORY:INTERNAL=' + str(self.source) + '\nCMAKE_BUILD_TYPE:STRING=Debug\n', encoding='utf-8')
         driver = self.build / 'sc-controller-restoration-tests'
         driver.write_bytes(elf('driver'))
         self.receipt = self.build / 'installed-restoration-controller-evidence/receipt.json'
@@ -81,6 +81,7 @@ class Images(unittest.TestCase):
         tool.collect(self.args, self.source, 'linux')
         data = tool.read_json(self.args.output / 'collection.json')
         self.assertEqual(len(data['images']), 4)
+        self.assertEqual(data['buildType'], 'Debug')
         self.assertFalse(data['installerQualified'])
         self.assertFalse(data['dependencySourceBundleQualified'])
         tool.audit_source(self.args.output / data['sourceArchive']['path'], self.inputs)
@@ -153,8 +154,22 @@ class Images(unittest.TestCase):
     def test_absent_shard_never_creates_collection(self):
         self.receipt.unlink()
         self.args.allow_absent = True
+        plan = dict(shards=[dict(names=['another-test']), dict(names=['installed-restoration-controller'])],
+                    shard=0, allTestsAssignedExactlyOnce=True, exitCode=0, inventoryCount=2)
+        write_json(self.build / 'ci-shard-plan.json', plan)
         tool.collect(self.args, self.source, 'linux')
         self.assertFalse(self.args.output.exists())
+        plan['shard'] = 1
+        write_json(self.build / 'ci-shard-plan.json', plan)
+        with self.assertRaises(RuntimeError):
+            tool.collect(self.args, self.source, 'linux')
+        plan['shards'][1]['names'] = ['renamed-positive-test']
+        write_json(self.build / 'ci-shard-plan.json', plan)
+        with self.assertRaises(RuntimeError):
+            tool.collect(self.args, self.source, 'linux')
+        (self.build / 'CMakeCache.txt').unlink()
+        with self.assertRaises(RuntimeError):
+            tool.collect(self.args, self.source, 'linux')
         self.args.expected_source = '0' * 40
         with self.assertRaises(RuntimeError):
             tool.collect(self.args, self.source, 'linux')

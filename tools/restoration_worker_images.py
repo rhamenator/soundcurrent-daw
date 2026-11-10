@@ -153,9 +153,27 @@ def audit_source(path, inputs):
 def collect(args, root=ROOT, platform=sys.platform):
     inputs = read_json(args.inputs)
     require(inputs == source_snapshot(root, args.expected_source), 'Source differs from pre-build capture')
-    if args.allow_absent and not (args.build / 'installed-restoration-controller-evidence/receipt.json').exists():
-        print(json.dumps({'collected': False, 'reason': 'No positive controller test on this shard'}))
-        return
+    require(args.build.is_dir() and not linked(args.build), 'Invalid native build directory')
+    cache = read(args.build / 'CMakeCache.txt').decode('utf-8')
+    homes = [line.split('=', 1)[1] for line in cache.splitlines() if line.startswith('CMAKE_HOME_DIRECTORY:INTERNAL=')]
+    require(len(homes) == 1 and Path(homes[0]).resolve() == root.resolve(), 'Wrong CMake source root')
+    types = [line.split('=', 1)[1] for line in cache.splitlines() if line.startswith('CMAKE_BUILD_TYPE:STRING=')]
+    require(len(types) == 1 and types[0] in ('Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel'), 'Missing explicit native build configuration')
+    if args.allow_absent:
+        plan = read_json(args.build / 'ci-shard-plan.json')
+        shards, selected = plan['shards'], plan['shard']
+        require(platform == 'linux' and type(selected) is int and 0 <= selected < len(shards)
+                and plan['allTestsAssignedExactlyOnce'] is True and type(plan['exitCode']) is int
+                and plan['exitCode'] == 0, 'Incomplete native shard execution')
+        names = [name for shard in shards for name in shard['names']]
+        require(len(names) == len(set(names)) == plan['inventoryCount']
+                and names.count('installed-restoration-controller') == 1, 'Missing/duplicate positive controller shard assignment')
+        owns_test = 'installed-restoration-controller' in shards[selected]['names']
+        has_receipt = (args.build / 'installed-restoration-controller-evidence/receipt.json').exists()
+        require(owns_test == has_receipt, 'Positive controller collection missing or on wrong shard')
+        if not owns_test:
+            print(json.dumps({'collected': False, 'reason': 'Positive controller test assigned to another successful shard'}))
+            return
     data, records, rows = materials(args.build, root, inputs, platform)
     cache_sha = digest(args.build / 'CMakeCache.txt')
     cache = read(args.build / 'CMakeCache.txt').decode('utf-8')
@@ -184,7 +202,7 @@ def collect(args, root=ROOT, platform=sys.platform):
             and digest(args.build / 'CMakeCache.txt') == cache_sha,
             'Source or native images changed during collection')
     result = dict(format='sc-restoration-worker-images-v1', sourceCommit=inputs['sourceCommit'], sourceTree=inputs['sourceTree'],
-                  nativePlatform=platform, images=rows, sourceInputsUnchanged=True, repositorySourceArchived=True,
+                  nativePlatform=platform, buildType=types[0], images=rows, sourceInputsUnchanged=True, repositorySourceArchived=True,
                   sourceArchive=dict(path=source.name, bytes=source.stat().st_size, sha256=digest(source)),
                   cmakeCacheSha256=cache_sha, buildConfiguration=configuration,
                   positiveReceiptSha256=digest(proof / 'positive-receipt.json'), nativeImageEvidenceOnly=True,
