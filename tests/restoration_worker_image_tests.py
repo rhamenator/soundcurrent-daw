@@ -46,7 +46,8 @@ class Images(unittest.TestCase):
         self.inputs = tool.source_snapshot(self.source, self.head)
         self.input_path = self.top / 'inputs.json'
         write_json(self.input_path, self.inputs)
-        (self.build / 'CMakeCache.txt').write_text('CMAKE_HOME_DIRECTORY:INTERNAL=' + str(self.source) + '\n')
+        (self.build / 'CMakeCache.txt').write_text(
+            'CMAKE_HOME_DIRECTORY:INTERNAL=' + str(self.source) + '\n', encoding='utf-8')
         driver = self.build / 'sc-controller-restoration-tests'
         driver.write_bytes(elf('driver'))
         self.receipt = self.build / 'installed-restoration-controller-evidence/receipt.json'
