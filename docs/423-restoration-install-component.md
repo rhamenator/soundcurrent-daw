@@ -23,3 +23,12 @@ operation/permit binding. Successful installed native workflows, trusted package
 qualification inputs, default payload integration, GPL/source provenance, native
 installer lifecycle and installed GUI authorization remain separate work. No
 project root or publication permit is supplied by this test.
+
+Qualification requires a byte-preserving install configuration. Install-time
+stripping or RPATH rewriting is refused by the byte identity gate; a passing run
+must not be reused to qualify those different executable bytes. This fail-closed
+requirement matches the existing preview builders' exact executable binding.
+The test clears DESTDIR for its temporary installation, excludes cross builds,
+uses fresh per-run output directories, and rescans installed files and executable
+bytes after each refusal. The top-level success receipt is removed before each
+attempt; prior raw run directories are preserved and cannot imply current success.

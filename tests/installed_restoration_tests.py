@@ -12,6 +12,7 @@ from pathlib import Path
 import stat
 import subprocess
 import tempfile
+import uuid
 
 
 def require(condition, message):
@@ -30,10 +31,12 @@ def main():
     args = parser.parse_args()
     build = Path(args.build).resolve()
     source = Path(args.source).resolve()
-    evidence = build / 'installed-restoration-evidence'
-    evidence.mkdir(exist_ok=True)
+    evidence_root = build / 'installed-restoration-evidence'
+    evidence_root.mkdir(exist_ok=True)
+    evidence = evidence_root / ('run-' + uuid.uuid4().hex)
+    evidence.mkdir()
     # Never leave a stale success receipt after a failed repeat.
-    receipt = evidence / 'receipt.json'
+    receipt = evidence_root / 'receipt.json'
     receipt.unlink(missing_ok=True)
     roles = [
         ('asset', 'sc-restoration-worker-error-v1', 'tools/asset_restoration_worker.cpp'),
@@ -44,15 +47,20 @@ def main():
     rows = []
     with tempfile.TemporaryDirectory(prefix='restoration install ', dir=build) as temporary:
         prefix = Path(temporary)
-        command = [args.cmake, '--install', str(build), '--config', args.config,
+        command = [args.cmake, '--install', str(build),
                    '--prefix', str(prefix), '--component', 'restoration-qualification']
-        install = subprocess.run(command, capture_output=True, timeout=20)
+        if args.config:
+            command.extend(['--config', args.config])
+        install_environment = dict(os.environ)
+        install_environment.pop('DESTDIR', None)
+        install = subprocess.run(command, capture_output=True, timeout=20, env=install_environment)
         (evidence / 'install.stdout').write_bytes(install.stdout)
         (evidence / 'install.stderr').write_bytes(install.stderr)
         require(install.returncode == 0, 'Qualification component install failed')
         expected = {Path('bin') / Path(getattr(args, role)).name for role, _, _ in roles}
         files = {p.relative_to(prefix) for p in prefix.rglob('*') if p.is_file()}
-        require(files == expected, 'Qualification component file set differs')
+        require(files == expected and {p.relative_to(prefix) for p in prefix.rglob('*')}
+                == expected | {Path('bin')}, 'Qualification component file set differs')
         require(not any(p.is_symlink() for p in prefix.rglob('*')), 'Installed symlink refused')
         for role, protocol, source_name in roles:
             original = Path(getattr(args, role)).resolve()
@@ -62,7 +70,7 @@ def main():
             if os.name != 'nt':
                 require(stat.S_IMODE(installed.stat().st_mode) == 0o755,
                         'Installed executable mode differs: ' + role)
-            # Empty-object framing reaches each compiled protocol parser without
+            # Empty-object framing reaches each compiled parser's completeness check without
             # providing a root, permit, operation, or publication authority.
             process = subprocess.Popen([str(installed)], stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -74,6 +82,9 @@ def main():
                 process.kill()
                 process.wait()
                 raise
+            (evidence / (role + '.process.json')).write_text(json.dumps(
+                dict(role=role, nativePid=process.pid, exitCode=process.returncode,
+                     executableSha256=sha, installedSha256=digest(installed)), indent=2) + '\n')
             (evidence / (role + '.stdout')).write_bytes(stdout)
             (evidence / (role + '.stderr')).write_bytes(stderr)
             require(process.returncode == 1 and stdout == b'', 'Invalid request was not refused: ' + role)
@@ -90,12 +101,20 @@ def main():
                         'Refusal claimed staging or publication: ' + role)
                 if role == 'live':
                     require(reply['publicationMayExist'] is False, 'Refusal claimed publication')
+            after = {p.relative_to(prefix) for p in prefix.rglob('*') if p.is_file()}
+            require(after == expected and {p.relative_to(prefix) for p in prefix.rglob('*')}
+                    == expected | {Path('bin')}
+                    and not any(p.is_symlink() for p in prefix.rglob('*')),
+                    'Refusal changed installed file set: ' + role)
+            require(all(digest(prefix / 'bin' / Path(getattr(args, name)).name)
+                        == digest(Path(getattr(args, name))) for name, _, _ in roles),
+                    'Refusal changed installed executable bytes: ' + role)
             rows.append(dict(role=role, executable=original.name, executableSha256=sha,
                              source=source_name, sourceSha256=digest(source / source_name),
                              nativePid=process.pid, exitCode=process.returncode,
                              refusal=reply))
         require(len({r['executableSha256'] for r in rows}) == 4, 'Worker roles share executable bytes')
-    receipt.write_text(json.dumps(dict(component='restoration-qualification', roles=rows,
+    receipt.write_text(json.dumps(dict(runDirectory=evidence.name, component='restoration-qualification', roles=rows,
                                       exactFileSet=True, installedBytesMatch=True,
                                       nativeRefusalOnly=True,
                                       successfulRestorationQualified=False,

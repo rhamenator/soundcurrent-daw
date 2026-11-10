@@ -368,10 +368,10 @@ if(SC_BUILD_MEDIA)
   install(TARGETS sc-asset-restoration-worker sc-saved-restoration-worker
           sc-saved-restoration-live-worker sc-saved-manifest-worker
           RUNTIME DESTINATION bin COMPONENT restoration-qualification EXCLUDE_FROM_ALL)
-  if(BUILD_TESTING)
+  if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
     add_test(NAME installed-restoration-refusal COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/installed_restoration_tests.py
-      --cmake ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --config $<CONFIG>
+      --cmake ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --config=$<CONFIG>
       --source ${CMAKE_CURRENT_SOURCE_DIR}
       --asset $<TARGET_FILE:sc-asset-restoration-worker>
       --saved $<TARGET_FILE:sc-saved-restoration-worker>
