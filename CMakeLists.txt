@@ -363,6 +363,22 @@ if(SC_BUILD_MEDIA)
   add_executable(sc-asset-restoration-worker tools/asset_restoration_worker.cpp)
   target_include_directories(sc-asset-restoration-worker SYSTEM PRIVATE third_party)
   target_link_libraries(sc-asset-restoration-worker PRIVATE sc-asset-restoration)
+  # Explicit qualification component: excluded from ordinary preview installs.
+  # Package/installer promotion still requires per-role native workflow evidence.
+  install(TARGETS sc-asset-restoration-worker sc-saved-restoration-worker
+          sc-saved-restoration-live-worker sc-saved-manifest-worker
+          RUNTIME DESTINATION bin COMPONENT restoration-qualification EXCLUDE_FROM_ALL)
+  if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
+    add_test(NAME installed-restoration-refusal COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/installed_restoration_tests.py
+      --cmake ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --config=$<CONFIG>
+      --source ${CMAKE_CURRENT_SOURCE_DIR}
+      --asset $<TARGET_FILE:sc-asset-restoration-worker>
+      --saved $<TARGET_FILE:sc-saved-restoration-worker>
+      --live $<TARGET_FILE:sc-saved-restoration-live-worker>
+      --manifest $<TARGET_FILE:sc-saved-manifest-worker>)
+    set_tests_properties(installed-restoration-refusal PROPERTIES TIMEOUT 60)
+  endif()
   add_library(sc-waveform src/waveform.cpp src/waveform_protocol.cpp src/waveform_projection.cpp)
   target_link_libraries(sc-waveform PUBLIC sc-wave-validation)
   add_executable(sc-waveform-worker tools/waveform_worker.cpp)
