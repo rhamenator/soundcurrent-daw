@@ -55,7 +55,9 @@ enum class CommandKind {
     CancelSavedPublication,
     ReconcileSavedPublication,
     PrepareSavedManifestSource,
-    CancelSavedManifestSource
+    CancelSavedManifestSource,
+    StageSavedManifest,
+    CancelSavedManifestStaging
 };
 struct StructuralGuard {
     std::uint64_t projectEpoch;
@@ -121,6 +123,7 @@ struct ProjectCommand {
     std::uint64_t restorationJob=0; // Cancel only; exact current dispatch identity.
     std::optional<SavedManifestSourceRequest> savedManifestSource;
     std::uint64_t savedManifestSourceJob=0; // Cancel only; exact active manifest-only dispatch.
+    std::uint64_t savedManifestPreparationJob=0,savedManifestStagingRequest=0,savedManifestStagingJob=0; // Distinct private manifest owner namespace.
     std::optional<RestorationInspectionRequest> restorationInspection;
     std::uint64_t restorationInspectionJob=0; // Cancel only, exact active dispatch.
     std::filesystem::path restorationSource; // Explicit selected file for saved-source preparation only.
@@ -129,7 +132,7 @@ struct ProjectCommand {
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration, PublishSavedRestoration, PrepareSavedManifestSource };
+enum class IoOperation { None, Create, Open, Save, AttachRecording, Autosave, InspectAutosave, RestoreAutosave, RestoreAsset, InspectAssetRestoration, StageSavedRestoration, PublishSavedRestoration, PrepareSavedManifestSource, StageSavedManifest };
 struct AttachmentCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
@@ -194,6 +197,7 @@ struct SavedStagingCompletion {
     std::size_t childPid=0;
     std::optional<int> childExit;
     bool reaped=false,requestSent=false,stagingMayExist=false,recordVerified=false,stagedBytesVerified=false;
+    // requestSent conservatively means a write was attempted/queued, not child consumption.
     std::optional<bool> normalExit; // Present only after an actually reaped child; exitCode alone is not normal-exit proof.
     bool killRequested=false; // An issued request, not attribution if exit raced it.
     bool launchAttempted=false,launchRetired=false,qualificationProbeFailed=false,cancellationObserved=false;
@@ -253,6 +257,9 @@ struct ControllerSnapshot {
     SavedManifestSourceCompletion savedManifestSourceCompleted;
     AttachmentCompletion savedManifestSourceRejected;
     std::uint64_t savedManifestSourceJob=0,savedManifestPreparedSource=0;
+    SavedStagingCompletion savedManifestStagingCompleted;
+    AttachmentCompletion savedManifestStagingRejected;
+    std::uint64_t savedManifestStagingJob=0; // Last dispatched ID; io determines active ownership.
     SavedStagingCompletion savedStagingCompleted;
     AttachmentCompletion savedStagingRejected;
     std::uint64_t savedStagingJob=0;
@@ -308,6 +315,8 @@ struct ControllerOptions {
     std::uint64_t autosaveIntervalMilliseconds = 0;
     // Control-worker clock seam; production uses steady_clock. Never audio.
     std::function<std::uint64_t()> autosaveNowMilliseconds;
+    std::function<void(IoOperation)> afterIoResultPublished; // Trusted nonthrowing qualification only; owns no completed job.
+    std::function<void()> savedManifestStagingBeforeReturn = {}; // Trusted I/O epilogue qualification; appended for aggregate compatibility.
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
 // to the control worker; blocking filesystem operations to a separate I/O worker.

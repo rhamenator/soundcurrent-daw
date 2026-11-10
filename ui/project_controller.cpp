@@ -126,6 +126,8 @@ struct IoJob {
     std::uint64_t savedPublicationRequest=0,savedPublicationJob=0;
     SavedRestorationRecordContext savedReconciliationContext;
     std::shared_ptr<const SavedManifestSourceJobData> manifestSource;
+    std::shared_ptr<const SavedManifestPreparation> manifestPreparation;
+    std::uint64_t manifestStagingRequest=0,manifestStagingJob=0;
 };
 struct IoResult {
     IoJob job;
@@ -250,6 +252,19 @@ class IoWorker : public QThread {
                     value.sourceBytes=checked->report->audio().sourceBytes;value.checkedSourceSha256=checked->report->audio().sourceSha256;value.canonical=audit.canonical();
                     finished.manifestPrepared=std::make_shared<const SavedManifestPreparation>(next.restorationMemory->reserve(sizeof(SavedManifestPreparation)+4096),
                         next.manifestSource,std::move(ticket),std::move(checked),std::move(protocol),std::move(control));
+                }
+                else if(next.operation==IoOperation::StageSavedManifest) {
+                    const auto &p=*next.manifestPreparation;const auto &original=*p.request;
+                    try {
+                        runSavedManifestStagingProcessInto(finished.savedStaging,original.input,original.root,original.source,
+                            p.ticket,p.control.bytes(),*p.checked,original.job,next.manifestStagingRequest,next.manifestStagingJob,
+                            options,*next.restorationMemory,closing,restorationCancel);
+                        finished.error=finished.savedStaging.error;
+                    }catch(...){
+                        finished.error=finished.savedStaging.error; // An escaping epilogue must not replace the first failure.
+                        if(!finished.error)finished.error=closing.load(std::memory_order_acquire)||restorationCancel.load(std::memory_order_acquire)||
+                            finished.savedStaging.cancellationObserved?ErrorCode::Canceled:ErrorCode::Io;
+                    }
                 }
                 else if(next.operation==IoOperation::PublishSavedRestoration) {
                     const auto &p=*next.savedPreparation;const auto &original=*p.request;
@@ -478,12 +493,17 @@ class IoWorker : public QThread {
                 finished.error = ErrorCode::Io;
                 finished.diagnostic = e.what();
             }
+            const auto completedOperation=finished.job.operation;
+            // The result/control worker owns the completed job. Retire the I/O
+            // duplicate BEFORE handing off: io==None must not race its leases.
+            next=IoJob{};
             {
                 QMutexLocker lock(&mutex);
                 result = std::move(finished);
                 if (quit)
                     return;
             }
+            if(options.afterIoResultPublished)options.afterIoResultPublished(completedOperation);
         }
     }
 };
@@ -514,6 +534,7 @@ struct ProjectController::State : QThread {
     std::shared_ptr<const SavedSourcePreparation> preparedSource;
     std::shared_ptr<const SavedManifestPreparation> manifestPreparedSource;
     std::uint64_t lastManifestSourceRequest=0,lastManifestSourceJob=0;
+    std::uint64_t lastManifestStagingRequest=0,lastManifestStagingJob=0;
     std::uint64_t lastSavedStagingRequest=0,lastSavedStagingJob=0;
     std::uint64_t lastSavedPublicationRequest=0,lastSavedPublicationJob=0;
     // Retain the original admitted private preparation, not a completion DTO.
@@ -646,9 +667,9 @@ struct ProjectController::State : QThread {
         return bytes.bytes();
     }
     void execute(ProjectCommand &command) {
-        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration || view.io==IoOperation::PublishSavedRestoration || view.io==IoOperation::PrepareSavedManifestSource;
+        const bool restorationIo=view.io==IoOperation::RestoreAsset || view.io==IoOperation::InspectAssetRestoration || view.io==IoOperation::StageSavedRestoration || view.io==IoOperation::PublishSavedRestoration || view.io==IoOperation::PrepareSavedManifestSource || view.io==IoOperation::StageSavedManifest;
         const bool passive=command.kind==CommandKind::Barrier || command.kind==CommandKind::CancelAssetRestoration ||
-            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging || command.kind==CommandKind::CancelSavedPublication || command.kind==CommandKind::CancelSavedManifestSource;
+            command.kind==CommandKind::CancelAssetRestorationInspection || command.kind==CommandKind::CancelSavedRestorationStaging || command.kind==CommandKind::CancelSavedPublication || command.kind==CommandKind::CancelSavedManifestSource || command.kind==CommandKind::CancelSavedManifestStaging;
         if(view.savedPublicationNeedsReconciliation && command.kind!=CommandKind::Barrier &&
             command.kind!=CommandKind::ReconcileSavedPublication && command.kind!=CommandKind::CancelAssetRestorationInspection)
             throw ProjectError(ErrorCode::InvalidState,"Saved publication requires fresh reconciliation before another command");
@@ -784,6 +805,33 @@ struct ProjectController::State : QThread {
         case CommandKind::CancelSavedPublication:
             if(view.io!=IoOperation::PublishSavedRestoration || !command.savedPublicationJob || command.savedPublicationJob!=view.savedPublicationJob)
                 throw ProjectError(ErrorCode::InvalidState,"Saved publication cancellation owner differs");
+            {QMutexLocker permission(&io.restorationPermitMutex);io.restorationCancel.store(true,std::memory_order_release);}break;
+        case CommandKind::StageSavedManifest: {
+            if(model || view.session || !view.root.empty() || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
+                !manifestPreparedSource || !command.savedManifestPreparationJob ||
+                command.savedManifestPreparationJob!=view.savedManifestPreparedSource ||
+                command.savedManifestPreparationJob!=manifestPreparedSource->request->job ||
+                !command.savedManifestStagingRequest || command.savedManifestStagingRequest<=lastManifestStagingRequest ||
+                lastManifestStagingJob==UINT64_MAX || manifestPreparedSource->request->input.projectEpoch!=view.projectEpoch ||
+                manifestPreparedSource->request->input.modelRevision!=view.modelRevision ||
+                !command.path.empty() || !command.restorationSource.empty() || command.restorationInspection || command.restoration ||
+                command.savedManifestSource || command.savedManifestSourceJob || command.savedManifestStagingJob ||
+                command.savedPreparationJob || command.savedStagingRequest || command.savedStagingJob ||
+                command.savedPublicationRequest || command.savedPublicationJob)
+                throw ProjectError(ErrorCode::InvalidState,"Manifest staging needs the exact current private preparation");
+            IoJob job{IoOperation::StageSavedManifest,view.root,view.session,view.modelRevision};job.projectEpoch=view.projectEpoch;
+            job.manifestPreparation=manifestPreparedSource;job.manifestStagingRequest=command.savedManifestStagingRequest;
+            job.manifestStagingJob=lastManifestStagingJob+1;job.restorationMemory=memory;
+            QMutexLocker permission(&io.restorationPermitMutex);
+            if(closing.load(std::memory_order_acquire))throw ProjectError(ErrorCode::Canceled,"Manifest staging closing");
+            io.restorationCancel.store(false,std::memory_order_release);startIo(std::move(job));
+            lastManifestStagingRequest=command.savedManifestStagingRequest;++lastManifestStagingJob;
+            view.savedManifestStagingJob=lastManifestStagingJob;view.io=IoOperation::StageSavedManifest;break;
+        }
+        case CommandKind::CancelSavedManifestStaging:
+            if(view.io!=IoOperation::StageSavedManifest || !command.savedManifestStagingJob ||
+                command.savedManifestStagingJob!=view.savedManifestStagingJob)
+                throw ProjectError(ErrorCode::InvalidState,"Manifest staging cancellation owner differs");
             {QMutexLocker permission(&io.restorationPermitMutex);io.restorationCancel.store(true,std::memory_order_release);}break;
         case CommandKind::StageSavedRestoration: {
             if(model || view.session || !view.root.empty() || view.io!=IoOperation::None || activeGesture || view.autosaveInhibitionToken ||
@@ -1337,6 +1385,29 @@ struct ProjectController::State : QThread {
                 view.savedPublicationNeedsReconciliation?"Saved publication requires reconciliation; media may be visible":"Saved publication refused before permission; stage files may exist");
             return; // No accepted Session/root/history/revision or automatic adoption.
         }
+        if(result.job.operation==IoOperation::StageSavedManifest) {
+            auto value=std::move(result.savedStaging);value.request=result.job.manifestStagingRequest;value.job=result.job.manifestStagingJob;
+            value.preparationJob=result.job.manifestPreparation->request->job;value.error=result.error;
+            QMutexLocker permission(&io.restorationPermitMutex);
+            const bool canceled=closing.load(std::memory_order_acquire)||io.restorationCancel.load(std::memory_order_acquire);
+            value.cancellationObserved=value.cancellationObserved||canceled||value.error==ErrorCode::Canceled;
+            if(canceled&&!value.error)value.error=ErrorCode::Canceled;
+            if(!value.error){
+                const bool complete=value.launchAttempted&&value.launchRetired&&value.childPid&&value.operation&&
+                    value.reaped&&value.normalExit==true&&value.childExit==0&&value.requestSent&&value.stagingMayExist&&
+                    value.recordVerified&&value.stagedBytesVerified&&!value.killRequested&&!value.qualificationProbeFailed;
+                if(!complete)value.error=ErrorCode::InvalidState;
+                else if(model || view.session || !view.root.empty() || view.savedManifestStagingJob!=value.job ||
+                    view.projectEpoch!=result.job.projectEpoch || view.modelRevision!=result.job.revision ||
+                    view.root!=result.job.root || view.session!=result.job.session)value.error=ErrorCode::InvalidState;
+            }
+            if(value.error){value.recordVerified=false;value.stagedBytesVerified=false;}
+            view.savedManifestStagingCompleted=std::move(value);
+            if(view.savedManifestStagingCompleted.error)error(*view.savedManifestStagingCompleted.error,
+                view.savedManifestStagingCompleted.stagingMayExist?"Manifest staging requires inspection; partial files may exist":
+                view.savedManifestStagingCompleted.launchAttempted?"Manifest staging launch retired without verified stage":"Manifest staging refused before launch");
+            return; // Passive stage evidence only; no model/root/history/publication adoption.
+        }
         if(result.job.operation==IoOperation::StageSavedRestoration) {
             auto value=std::move(result.savedStaging);value.request=result.job.savedStagingRequest;value.job=result.job.savedStagingJob;
             value.preparationJob=result.job.savedPreparation->request->job;value.error=result.error;
@@ -1577,6 +1648,8 @@ struct ProjectController::State : QThread {
                         view.savedPublicationRejected={command->savedPublicationRequest,e.code(),"Saved publication owner refused"};
                     if(command->kind==CommandKind::StageSavedRestoration)
                         view.savedStagingRejected={command->savedStagingRequest,e.code(),"Saved staging owner refused"};
+                    if(command->kind==CommandKind::StageSavedManifest)
+                        view.savedManifestStagingRejected={command->savedManifestStagingRequest,e.code(),"Manifest staging owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,e.code(),"Restoration owner refused"};
                     if (command->kind == CommandKind::AcquireAutosaveInhibition ||
@@ -1610,6 +1683,8 @@ struct ProjectController::State : QThread {
                         view.savedPublicationRejected={command->savedPublicationRequest,ErrorCode::Io,"Saved publication owner refused"};
                     if(command->kind==CommandKind::StageSavedRestoration)
                         view.savedStagingRejected={command->savedStagingRequest,ErrorCode::Io,"Saved staging owner refused"};
+                    if(command->kind==CommandKind::StageSavedManifest)
+                        view.savedManifestStagingRejected={command->savedManifestStagingRequest,ErrorCode::Io,"Manifest staging owner refused"};
                     if(command->kind==CommandKind::RestoreAsset)
                         view.assetRestorationRejected={command->restoration?command->restoration->request:0,ErrorCode::Io,"Restoration owner refused"};
                     if (command->kind == CommandKind::AcquireAutosaveInhibition ||

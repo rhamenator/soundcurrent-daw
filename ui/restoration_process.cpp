@@ -361,12 +361,12 @@ SavedPublicationProcessResult runSavedPublicationProcess(const RestorationInspec
     return out;
 }
 
-SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceRequest &original,
+void runSavedManifestStagingProcessInto(SavedStagingCompletion &out,const SavedManifestSourceRequest &original,
     const std::filesystem::path &root,const std::filesystem::path &source,
     const SavedManifestSourceTicket &ticket,std::string_view originalControl,const WaveCheckSnapshot &checked,
     std::uint64_t preparationJob,std::uint64_t requestId,std::uint64_t job,const ControllerOptions &options,
     ResourceLedger memory,const std::atomic<bool> &closing,const std::atomic<bool> &cancel) {
-    SavedStagingCompletion out;out.request=requestId;out.job=job;out.preparationJob=preparationJob;
+    out={};out.request=requestId;out.job=job;out.preparationJob=preparationJob;
     QProcess child;ResourceLease bank;constexpr std::size_t childCredit=512*1024*1024;
     // Native owners outlive ALL exception scopes and actual process retirement.
     std::optional<SavedManifestAudit> auditOwner;
@@ -496,6 +496,15 @@ SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceR
     out.cancellationObserved=closing.load(std::memory_order_acquire)||cancel.load(std::memory_order_acquire)||out.error==ErrorCode::Canceled;
     if(out.cancellationObserved&&!out.error)out.error=ErrorCode::Canceled;
     if(out.error){out.recordVerified=false;out.stagedBytesVerified=false;}
+    if(options.savedManifestStagingBeforeReturn)options.savedManifestStagingBeforeReturn(); // Caller owns actual facts before an escaping epilogue.
+}
+SavedStagingCompletion runSavedManifestStagingProcess(const SavedManifestSourceRequest &original,
+    const std::filesystem::path &root,const std::filesystem::path &source,
+    const SavedManifestSourceTicket &ticket,std::string_view control,const WaveCheckSnapshot &checked,
+    std::uint64_t preparation,std::uint64_t request,std::uint64_t job,const ControllerOptions &options,
+    ResourceLedger memory,const std::atomic<bool> &closing,const std::atomic<bool> &cancel){
+    SavedStagingCompletion out;
+    runSavedManifestStagingProcessInto(out,original,root,source,ticket,control,checked,preparation,request,job,options,memory,closing,cancel);
     return out;
 }
 }
