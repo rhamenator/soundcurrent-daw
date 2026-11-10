@@ -45,6 +45,8 @@ def main():
         ('manifest', 'sc-saved-manifest-staging-error-v1', 'tools/saved_restoration_worker.cpp'),
     ]
     rows = []
+    for role, _, _ in roles:
+        require(Path(getattr(args, role)).is_file(), 'Build the production worker target first: ' + role)
     with tempfile.TemporaryDirectory(prefix='restoration install ', dir=build) as temporary:
         prefix = Path(temporary)
         command = [args.cmake, '--install', str(build),
@@ -53,12 +55,19 @@ def main():
             command.extend(['--config', args.config])
         install_environment = dict(os.environ)
         install_environment.pop('DESTDIR', None)
-        install = subprocess.run(command, capture_output=True, timeout=20, env=install_environment)
+        try:
+            install = subprocess.run(command, capture_output=True, timeout=20, env=install_environment)
+        except subprocess.TimeoutExpired as error:
+            (evidence / 'install.stdout').write_bytes(error.stdout or b'')
+            (evidence / 'install.stderr').write_bytes(error.stderr or b'')
+            raise
         (evidence / 'install.stdout').write_bytes(install.stdout)
         (evidence / 'install.stderr').write_bytes(install.stderr)
         require(install.returncode == 0, 'Qualification component install failed')
         expected = {Path('bin') / Path(getattr(args, role)).name for role, _, _ in roles}
         files = {p.relative_to(prefix) for p in prefix.rglob('*') if p.is_file()}
+        (evidence / 'installed-files.json').write_text(json.dumps(
+            sorted(str(p.relative_to(prefix)) for p in prefix.rglob('*')), indent=2) + '\n')
         require(files == expected and {p.relative_to(prefix) for p in prefix.rglob('*')}
                 == expected | {Path('bin')}, 'Qualification component file set differs')
         require(not any(p.is_symlink() for p in prefix.rglob('*')), 'Installed symlink refused')
@@ -66,7 +75,11 @@ def main():
             original = Path(getattr(args, role)).resolve()
             installed = prefix / 'bin' / original.name
             sha = digest(original)
-            require(digest(installed) == sha, 'Installed executable bytes differ: ' + role)
+            installed_sha = digest(installed)
+            (evidence / (role + '.identity.json')).write_text(json.dumps(
+                dict(executable=original.name, buildExeSha256=sha, installedSha256=installed_sha),
+                indent=2) + '\n')
+            require(installed_sha == sha, 'Installed executable bytes differ: ' + role)
             if os.name != 'nt':
                 require(stat.S_IMODE(installed.stat().st_mode) == 0o755,
                         'Installed executable mode differs: ' + role)
@@ -93,9 +106,18 @@ def main():
             reply = json.loads(stderr)
             require(reply['protocol'] == protocol and type(reply['workerPid']) is int
                     and reply['workerPid'] == process.pid, 'Wrong native role/PID: ' + role)
-            require(type(reply['errorCode']) is int, 'Missing error code: ' + role)
+            # ErrorCode::InvalidState is 1 (session.hpp); Canceled/framing or
+            # resource-limit failures cannot substitute for incomplete-object refusal.
+            require(type(reply['errorCode']) is int and reply['errorCode'] == 1,
+                    'Wrong incomplete-request error code: ' + role)
+            keys = {'protocol', 'workerPid', 'errorCode'}
+            keys |= {'messageId', 'reconciliationRequired'} if role == 'asset' else {'published', 'stagingMayExist'}
+            if role == 'live':
+                keys.add('publicationMayExist')
+            require(set(reply) == keys, 'Wrong refusal frame keys: ' + role)
             if role == 'asset':
-                require(reply['reconciliationRequired'] is False, 'Refusal touched destination')
+                require(reply['messageId'] == 'restoration.worker_failed'
+                        and reply['reconciliationRequired'] is False, 'Refusal touched destination')
             else:
                 require(reply['published'] is False and reply['stagingMayExist'] is False,
                         'Refusal claimed staging or publication: ' + role)
