@@ -53,9 +53,9 @@ def main():
             (run / 'child.stdout').write_bytes(stdout)
             (run / 'child.stderr').write_bytes(stderr)
         assert len(stdout) <= 2 * 1024 * 1024 and len(stderr) <= 2 * 1024 * 1024
-        assert process.returncode == 1 and b'Injected manual panel retention failure' in stderr
         marker = collector.MANUAL_PANEL_MARKER.encode('ascii')
-        lines = [line for line in (stdout + stderr).splitlines() if line.startswith(marker)]
+        lines = [line for stream in (stdout, stderr)
+                 for line in stream.splitlines() if line.startswith(marker)]
         assert len(lines) == 1
         candidate = Path(lines[0][len(marker):].decode('utf-8', errors='strict'))
         assert candidate.parent == Path(tempfile.gettempdir()) / collector.POLICIES[collector.MANUAL_PANEL_MARKER]
@@ -63,6 +63,7 @@ def main():
         collector.plain(candidate.parent, True)
         collector.plain(candidate, True)
         source = candidate
+        assert process.returncode == 1 and b'Injected manual panel retention failure' in stderr
         sandbox = run / 'fixture'
         logs = sandbox / 'Testing' / 'Temporary'
         logs.mkdir(parents=True)
@@ -80,8 +81,8 @@ def main():
             assert digest(original) == digest(copied) == row['sha256']
         try:
             collector.retain(sandbox)
-        except ValueError:
-            pass
+        except ValueError as error:
+            assert str(error) == 'Existing controller snapshot refused'
         else:
             raise AssertionError('Failure snapshot overwrite accepted')
         result = dict(nativePlatform=sys.platform, pid=process.pid, exitCode=process.returncode,
