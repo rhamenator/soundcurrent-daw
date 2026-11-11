@@ -2,6 +2,9 @@
 """Mutation tests for evidence collection; fixtures are not native qualification."""
 import argparse
 import copy
+import io
+import gzip
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -109,6 +112,70 @@ class Images(unittest.TestCase):
         context.update(changes)
         return tool.verify_package_profile(self.args.output, **context)
 
+    def rebind(self):
+        manifest = self.args.output / 'collection.json'
+        data = tool.read_json(manifest)
+        data['fileBindings'] = [dict(path=p.relative_to(self.args.output).as_posix(),
+                                     bytes=p.stat().st_size, sha256=tool.digest(p))
+                                for p in sorted(self.args.output.rglob('*'))
+                                if p.is_file() and p != manifest]
+        write_json(manifest, data)
+
+    def test_reader_pin_binds_every_proof_and_input_byte(self):
+        tool.collect(self.args, self.source, 'linux')
+        for name in ['proof/controller.stderr', 'proof/controller.stdout',
+                     'proof/controller-command.json', 'build-inputs.json']:
+            path = self.args.output / name
+            old = path.read_bytes()
+            if name.endswith('command.json'):
+                changed = tool.decode_json(old)
+                changed[2] = '/another/installation/bin'
+                raw = json.dumps(changed).encode()
+            elif name == 'build-inputs.json':
+                raw = old + b' '
+            else: raw = old + b'previously unbound detail\n'
+            path.write_bytes(raw)
+            with self.subTest(name=name), self.assertRaisesRegex(RuntimeError, 'manifest binding'):
+                self.verify()
+            path.write_bytes(old)
+
+    def test_reader_refuses_legacy_missing_or_duplicate_bindings(self):
+        tool.collect(self.args, self.source, 'linux')
+        path = self.args.output / 'collection.json'
+        original = tool.read_json(path)
+        for case in ['legacy', 'missing', 'duplicate', 'unknown']:
+            data = copy.deepcopy(original)
+            if case == 'legacy': data['format'] = 'sc-restoration-worker-images-v1'
+            elif case == 'missing': data['fileBindings'].pop()
+            elif case == 'duplicate': data['fileBindings'][-1] = data['fileBindings'][0]
+            else: data['fileBindings'][0]['unreviewed'] = True
+            write_json(path, data)
+            with self.subTest(case=case), self.assertRaises(RuntimeError): self.verify()
+
+    def test_tar_budget_includes_pax_headers_padding_and_trailing_bytes(self):
+        stream = io.BytesIO()
+        payload = b'valid'
+        info = tarfile.TarInfo('soundcurrent-daw/a')
+        info.size = len(payload)
+        info.pax_headers = {'comment': 'x' * (70 * 1024)}
+        with tarfile.open(fileobj=stream, mode='w:gz') as tar:
+            tar.addfile(info, io.BytesIO(payload))
+        inputs = dict(files=[dict(name='a', sha256=hashlib.sha256(payload).hexdigest())])
+        archive = self.top / 'pax.tar.gz'
+        archive.write_bytes(stream.getvalue())
+        with mock.patch.object(tool, 'SOURCE_TAR_LIMIT', 64 * 1024):
+            with self.assertRaisesRegex(RuntimeError, 'decompressed source tar'):
+                tool.audit_source(archive, inputs)
+        # A normal archive with expanded trailing bytes must use the same budget.
+        plain = io.BytesIO()
+        info.pax_headers = {}
+        with tarfile.open(fileobj=plain, mode='w:') as tar:
+            tar.addfile(info, io.BytesIO(payload))
+        archive.write_bytes(gzip.compress(plain.getvalue() + b'0' * (70 * 1024)))
+        with mock.patch.object(tool, 'SOURCE_TAR_LIMIT', 64 * 1024):
+            with self.assertRaisesRegex(RuntimeError, 'decompressed source tar'):
+                tool.audit_source(archive, inputs)
+
     def test_profile_reader_is_read_only_and_requires_caller_context(self):
         tool.collect(self.args, self.source, 'linux')
         before = {p.relative_to(self.args.output): p.read_bytes()
@@ -141,6 +208,7 @@ class Images(unittest.TestCase):
             profile_path.write_bytes(raw)
             manifest['packageProfile'].update(bytes=len(raw), sha256=tool.digest(profile_path))
             write_json(manifest_path, manifest)
+            self.rebind()
             # Supply the changed pin to exercise schema validation beyond hash refusal.
             # Such a self-derived pin does not independently qualify these fixtures.
             with self.subTest(mutation=mutation), self.assertRaises(RuntimeError):

@@ -14,10 +14,16 @@ python3 tools/restoration_worker_images.py --verify-profile /path/to/collection 
   --collection-sha256 "$qualified_collection_sha256"
 ```
 
-Verification requires the exact plain-file inventory, pinned manifest bytes,
+The v2 collection manifest binds the byte count and SHA-256 of every other file
+in the exact inventory, including the controller command, full stdout/stderr and
+captured input list. Historical v1 collections remain historical evidence and
+are not accepted by this reader. Verification requires pinned manifest bytes,
 profile schema and serialization, four platform-specific helper images and their
 source/native identities, captured build context, installed-controller proof and
-complete repository source archive. Duplicate JSON keys, changed payload paths,
+repository source archive consistent with the independently qualified captured
+input list. The reader does not reopen Git or recompute the source tree; the
+caller’s qualification must establish that relationship and the CMake cache hash.
+Duplicate JSON keys, changed payload paths,
 qualification flags, extra/missing files and linked entries are refused. Recorded
 controller commands are inspected as evidence; their old absolute paths are not
 executed or reopened.
@@ -25,7 +31,9 @@ executed or reopened.
 The reader binds the parsed manifest and profile to the same bytes it hashes. It
 also audits the same compressed source bytes whose hash it checks. Metadata reads
 are limited to 2 MiB, controller output to 1 MiB, compressed source to 128 MiB,
-each source member to 64 MiB and total uncompressed source to 256 MiB. Existing
+each source file to 64 MiB and the total decompressed tar stream to 256 MiB,
+including PAX/GNU metadata, padding
+and trailing bytes before any tar parser consumes them. Existing
 image limits remain 256 MiB each and 512 MiB total. These checks do not provide an
 atomic filesystem snapshot: a future builder must verify the actual copied
 payload before admission and preserve the qualified evidence.
@@ -36,9 +44,11 @@ self-derived pin checks internal consistency; independent exact-head native
 execution and external artifact qualification remain required. A failed readback
 leaves an incomplete pending collection and never publishes a final manifest.
 
-Synthetic mutation tests cover the contract only. Hosted Linux and native Windows
-collector executions exercise this publication step using actual installed
-controller evidence. Verification receipts explicitly report no new native
+Synthetic mutation tests cover the contract only. Exact-head hosted Linux and
+native Windows collector executions must exercise
+this publication step using actual installed controller evidence before merge,
+with final manifests retained and no pending manifests. Verification receipts
+explicitly report no new native
 execution and no package admission. Default preview inventories, dependency source
 bundles, standalone qualification, installers and installed GUI qualification
 remain separate gates; this change produces no release.
