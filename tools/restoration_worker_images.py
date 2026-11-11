@@ -150,6 +150,50 @@ def audit_source(path, inputs):
     require(seen == set(expected), 'Source archive inputs missing')
 
 
+def package_profile(rows, inputs, platform, *, build_type, cache_sha256, positive_receipt_sha256):
+    """Bind an explicit helper-only payload plan, without granting package admission."""
+    require(platform in ('linux', 'win32'), 'Unsupported package profile platform')
+    require(build_type in ('Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel')
+            and all(isinstance(value, str) and re.fullmatch('[0-9a-f]{64}', value)
+                    for value in (cache_sha256, positive_receipt_sha256)), 'Invalid package build context')
+    require(isinstance(inputs, dict) and isinstance(inputs.get('files'), list)
+            and all(isinstance(row, dict) and set(row) == {'name', 'sha256'}
+                    and isinstance(row['name'], str) and isinstance(row['sha256'], str)
+                    and re.fullmatch('[0-9a-f]{64}', row['sha256']) for row in inputs['files']),
+            'Invalid package source inputs')
+    require(all(isinstance(inputs.get(key), str) and re.fullmatch('[0-9a-f]{40}', inputs[key])
+                for key in ('sourceCommit', 'sourceTree')), 'Invalid package source identity')
+    pins = {row['name']: row['sha256'] for row in inputs['files']}
+    require(len(pins) == len(inputs['files']), 'Duplicate package source input')
+    require(isinstance(rows, list) and len(rows) == 4
+            and all(isinstance(row, dict) and set(row) ==
+                    {'role', 'path', 'bytes', 'sha256', 'nativeIdentity', 'source', 'sourceSha256'}
+                    and isinstance(row['role'], str) for row in rows)
+            and {row['role'] for row in rows} == set(ROLES), 'Wrong package role set/fields')
+    payload = []
+    for row in sorted(rows, key=lambda row: row['role']):
+        name, source = ROLES[row['role']]
+        name += '.exe' if platform == 'win32' else ''
+        identity = 'PE-amd64' if platform == 'win32' else 'ELF64-amd64'
+        require(row['path'] == name and row['source'] == source and source in pins
+                and row['sourceSha256'] == pins[source]
+                and isinstance(row['sourceSha256'], str) and isinstance(row['sha256'], str)
+                and re.fullmatch('[0-9a-f]{64}', row['sourceSha256'])
+                and re.fullmatch('[0-9a-f]{64}', row['sha256'])
+                and row['nativeIdentity'] == identity and type(row['bytes']) is int
+                and 0 < row['bytes'] <= 256 * 1024 * 1024, 'Package role/image/source mismatch')
+        payload.append(dict(row, payloadPath=name if platform == 'win32' else 'usr/bin/' + name))
+    require(len({row['sha256'] for row in payload}) == 4
+            and sum(row['bytes'] for row in payload) <= 512 * 1024 * 1024, 'Aliased/excess package images')
+    return dict(format='sc-restoration-package-profile-v1', profile='restoration-workers-v1',
+                sourceCommit=inputs['sourceCommit'], sourceTree=inputs['sourceTree'], nativePlatform=platform,
+                buildType=build_type, cmakeCacheSha256=cache_sha256,
+                positiveReceiptSha256=positive_receipt_sha256,
+                payload=payload, helperOnly=True, defaultPreviewInventoryChanged=False,
+                dependencySourceBundleQualified=False, standaloneBundleQualified=False,
+                installerQualified=False, installedGuiQualified=False)
+
+
 def collect(args, root=ROOT, platform=sys.platform):
     inputs = read_json(args.inputs)
     require(inputs == source_snapshot(root, args.expected_source), 'Source differs from pre-build capture')
@@ -201,13 +245,21 @@ def collect(args, root=ROOT, platform=sys.platform):
     require(source_snapshot(root, args.expected_source) == inputs and materials(args.build, root, inputs, platform)[2] == rows
             and digest(args.build / 'CMakeCache.txt') == cache_sha,
             'Source or native images changed during collection')
+    profile = package_profile(rows, inputs, platform, build_type=types[0], cache_sha256=cache_sha,
+                              positive_receipt_sha256=digest(proof / 'positive-receipt.json'))
+    profile_path = args.output / 'package-profile.json'
+    profile_bytes = (json.dumps(profile, indent=2) + '\n').encode('utf-8')
+    profile_path.write_bytes(profile_bytes)
+    require(read(profile_path) == profile_bytes, 'Package profile byte readback differs')
     result = dict(format='sc-restoration-worker-images-v1', sourceCommit=inputs['sourceCommit'], sourceTree=inputs['sourceTree'],
                   nativePlatform=platform, buildType=types[0], images=rows, sourceInputsUnchanged=True, repositorySourceArchived=True,
                   sourceArchive=dict(path=source.name, bytes=source.stat().st_size, sha256=digest(source)),
                   cmakeCacheSha256=cache_sha, buildConfiguration=configuration,
                   positiveReceiptSha256=digest(proof / 'positive-receipt.json'), nativeImageEvidenceOnly=True,
                   dependencySourceBundleQualified=False, standaloneBundleQualified=False, installerQualified=False,
-                  installedGuiQualified=False, sourceExclusions=EXCLUDED)
+                  installedGuiQualified=False, sourceExclusions=EXCLUDED,
+                  packageProfile=dict(path=profile_path.name, bytes=profile_path.stat().st_size,
+                                      sha256=digest(profile_path)))
     (args.output / 'collection.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     print(json.dumps({'sourceCommit': inputs['sourceCommit'], 'nativeImages': 4, 'installerQualified': False}))
 
