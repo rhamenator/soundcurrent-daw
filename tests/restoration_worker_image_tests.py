@@ -78,6 +78,12 @@ class Images(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
+    def profile(self, rows, inputs, platform, **overrides):
+        context = dict(build_type='Debug', cache_sha256=tool.digest(self.build / 'CMakeCache.txt'),
+                       positive_receipt_sha256=tool.digest(self.receipt))
+        context.update(overrides)
+        return tool.package_profile(rows, inputs, platform, **context)
+
     def test_collect_binds_four_images_and_exact_repository_source(self):
         tool.collect(self.args, self.source, 'linux')
         data = tool.read_json(self.args.output / 'collection.json')
@@ -88,7 +94,7 @@ class Images(unittest.TestCase):
         profile_path = self.args.output / data['packageProfile']['path']
         profile = tool.read_json(profile_path)
         self.assertEqual(data['packageProfile']['sha256'], tool.digest(profile_path))
-        self.assertEqual(profile, tool.package_profile(data['images'], self.inputs, 'linux'))
+        self.assertEqual(profile, self.profile(data['images'], self.inputs, 'linux'))
         self.assertTrue(profile['helperOnly'])
         self.assertFalse(profile['defaultPreviewInventoryChanged'])
         tool.audit_source(self.args.output / data['sourceArchive']['path'], self.inputs)
@@ -98,31 +104,46 @@ class Images(unittest.TestCase):
 
     def test_package_profile_requires_exact_platform_roles_and_source_binding(self):
         rows = tool.materials(self.build, self.source, self.inputs, 'linux')[2]
-        linux = tool.package_profile(rows, self.inputs, 'linux')
+        linux = self.profile(rows, self.inputs, 'linux')
         self.assertTrue(all(row['payloadPath'] == 'usr/bin/' + row['path'] for row in linux['payload']))
         # Contract-only PE rows, not a claim of native Windows execution.
         windows = [dict(row, path=row['path'] + '.exe', nativeIdentity='PE-amd64') for row in rows]
-        profile = tool.package_profile(windows, self.inputs, 'win32')
+        profile = self.profile(windows, self.inputs, 'win32')
         self.assertTrue(all(row['payloadPath'] == row['path'] for row in profile['payload']))
         for role_rows, platform in [(rows, 'win32'), (windows, 'linux'), (rows, 'darwin'),
                                     (rows[:-1], 'linux'), (rows + [rows[0]], 'linux')]:
             with self.assertRaises(RuntimeError):
-                tool.package_profile(role_rows, self.inputs, platform)
+                self.profile(role_rows, self.inputs, platform)
         for field, value in [('path', '../sc-asset-restoration-worker'), ('sourceSha256', '0' * 64),
                              ('source', 'foreign.cpp'), ('sha256', 'bad'), ('bytes', True),
                              ('bytes', 256 * 1024 * 1024 + 1), ('nativeIdentity', 'PE-amd64')]:
             changed = copy.deepcopy(rows)
             changed[0][field] = value
             with self.assertRaises(RuntimeError):
-                tool.package_profile(changed, self.inputs, 'linux')
+                self.profile(changed, self.inputs, 'linux')
+        for change in ['extra', 'missing', 'aggregate']:
+            changed = copy.deepcopy(rows)
+            if change == 'extra': changed[0]['unreviewed'] = True
+            elif change == 'missing': del changed[0]['role']
+            else:
+                for row in changed: row['bytes'] = 200 * 1024 * 1024
+            with self.assertRaises(RuntimeError):
+                self.profile(changed, self.inputs, 'linux')
+        for context in [dict(build_type='unknown'), dict(cache_sha256='bad'),
+                        dict(positive_receipt_sha256='bad')]:
+            with self.assertRaises(RuntimeError):
+                self.profile(rows, self.inputs, 'linux', **context)
+        for inputs in [{}, dict(self.inputs, files=[{}])]:
+            with self.assertRaises(RuntimeError):
+                self.profile(rows, inputs, 'linux')
         changed = copy.deepcopy(rows)
         changed[1]['sha256'] = changed[0]['sha256']
         with self.assertRaises(RuntimeError):
-            tool.package_profile(changed, self.inputs, 'linux')
+            self.profile(changed, self.inputs, 'linux')
         inputs = copy.deepcopy(self.inputs)
         inputs['files'].append(inputs['files'][0])
         with self.assertRaises(RuntimeError):
-            tool.package_profile(rows, inputs, 'linux')
+            self.profile(rows, inputs, 'linux')
 
     def test_refuse_image_changed_after_positive_execution(self):
         (self.build / 'sc-saved-manifest-worker').write_bytes(elf('replacement'))

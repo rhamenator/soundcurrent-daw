@@ -3,10 +3,15 @@
 The native restoration-image collector now emits `package-profile.json` with
 profile `restoration-workers-v1`. The same implementation binds all four
 production roles to the captured repository commit/tree, source hashes, native
-image identity, byte count and executable hash. Linux payload destinations are
+image identity, byte count and executable hash. Build configuration, the CMake
+cache hash and the installed positive-controller receipt hash are also bound. Linux payload destinations are
 `usr/bin/<executable>`; Windows destinations are the corresponding flat `.exe`
 names beside the application. Unexpected roles, fields, paths, source bindings,
 platform identities, aliased images and excess bytes are refused.
+
+Future package admission must cross-check this profile against the matching
+collection and its positive process/image/source evidence. A profile alone is
+not native execution proof.
 
 The collection receipt records the profile file's byte count and SHA-256.
 Collection still requires the existing actual installed positive controller
