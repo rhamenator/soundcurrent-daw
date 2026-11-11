@@ -125,6 +125,8 @@ jobs:
             build/comp-span-worker-evidence/**
             build/comp-span-evidence/**
             build/comp-media-review-evidence/**
+          # Bounded owned failure snapshots include original dotfiles/locks.
+          include-hidden-files: true
           if-no-files-found: ignore
   linux-retained-evidence:
     name: Retained workflow evidence (no native replay)
