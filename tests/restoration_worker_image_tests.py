@@ -10,6 +10,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('worker_images', ROOT / 'tools/restoration_worker_images.py')
@@ -101,6 +102,78 @@ class Images(unittest.TestCase):
         with tarfile.open(self.args.output / data['sourceArchive']['path']) as archive:
             self.assertIn('soundcurrent-daw/LICENSE', archive.getnames())
             self.assertNotIn('soundcurrent-daw/tests/results/history.txt', archive.getnames())
+
+    def verify(self, **changes):
+        context = dict(expected_source=self.head, platform='linux',
+                       collection_sha256=changes.get('collection_sha256') or tool.digest(self.args.output / 'collection.json'))
+        context.update(changes)
+        return tool.verify_package_profile(self.args.output, **context)
+
+    def test_profile_reader_is_read_only_and_requires_caller_context(self):
+        tool.collect(self.args, self.source, 'linux')
+        before = {p.relative_to(self.args.output): p.read_bytes()
+                  for p in self.args.output.rglob('*') if p.is_file()}
+        result = self.verify()
+        self.assertEqual(len(result['payload']), 4)
+        self.assertFalse(result['nativeExecutionPerformed'])
+        self.assertFalse(result['packageAdmissionGranted'])
+        self.assertEqual(before, {p.relative_to(self.args.output): p.read_bytes()
+                                 for p in self.args.output.rglob('*') if p.is_file()})
+        for context in [dict(collection_sha256='0' * 64), dict(expected_source='0' * 40),
+                        dict(platform='win32'), dict(platform='darwin')]:
+            with self.subTest(context=context), self.assertRaises(RuntimeError):
+                self.verify(**context)
+
+    def test_profile_reader_refuses_rehashed_profile_schema_and_layout_changes(self):
+        tool.collect(self.args, self.source, 'linux')
+        profile_path = self.args.output / 'package-profile.json'
+        manifest_path = self.args.output / 'collection.json'
+        original = profile_path.read_bytes()
+        manifest = tool.read_json(manifest_path)
+        for mutation in ['path', 'authority', 'unknown', 'duplicate']:
+            profile = tool.decode_json(original)
+            if mutation == 'path': profile['payload'][0]['payloadPath'] = '../worker'
+            elif mutation == 'authority': profile['installerQualified'] = True
+            elif mutation == 'unknown': profile['extra'] = True
+            if mutation == 'duplicate':
+                raw = original.replace(b'{', b'{"helperOnly":true,', 1)
+            else: raw = (json.dumps(profile, indent=2) + '\n').encode()
+            profile_path.write_bytes(raw)
+            manifest['packageProfile'].update(bytes=len(raw), sha256=tool.digest(profile_path))
+            write_json(manifest_path, manifest)
+            # Supply the changed pin to exercise schema validation beyond hash refusal.
+            # Such a self-derived pin does not independently qualify these fixtures.
+            with self.subTest(mutation=mutation), self.assertRaises(RuntimeError):
+                self.verify()
+
+    def test_profile_reader_refuses_broken_inventory_image_and_proof(self):
+        tool.collect(self.args, self.source, 'linux')
+        for name in ['images/sc-saved-manifest-worker', 'proof/manifest.identity.json',
+                     'proof/controller-process.json', 'application-build-source.tar.gz']:
+            path = self.args.output / name
+            old = path.read_bytes()
+            path.write_bytes(b'changed')
+            with self.subTest(name=name), self.assertRaises((RuntimeError, ValueError)):
+                self.verify()
+            path.write_bytes(old)
+        extra = self.args.output / 'unexpected'
+        extra.write_bytes(b'extra')
+        with self.assertRaises(RuntimeError): self.verify()
+        extra.unlink()
+        path = self.args.output / 'proof/controller.stderr'
+        path.rename(path.with_suffix('.saved'))
+        with self.assertRaises(RuntimeError): self.verify()
+        path.with_suffix('.saved').rename(path)
+        with mock.patch.object(tool, 'linked', side_effect=lambda p: p == path):
+            with self.assertRaises(RuntimeError): self.verify()
+
+    def test_collection_is_published_only_after_reader_success(self):
+        with mock.patch.object(tool, 'verify_package_profile', side_effect=RuntimeError('reader refusal')):
+            with self.assertRaisesRegex(RuntimeError, 'reader refusal'):
+                tool.collect(self.args, self.source, 'linux')
+        self.assertFalse((self.args.output / 'collection.json').exists())
+        self.assertTrue((self.args.output / 'collection.pending.json').is_file())
+        with self.assertRaises(RuntimeError): self.verify(collection_sha256='0' * 64)
 
     def test_package_profile_requires_exact_platform_roles_and_source_binding(self):
         rows = tool.materials(self.build, self.source, self.inputs, 'linux')[2]

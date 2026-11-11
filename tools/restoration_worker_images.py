@@ -3,8 +3,9 @@
 """Collect native worker images and repository source; never qualify an installer."""
 import argparse
 import hashlib
+import io
 import json
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import shutil
 import struct
@@ -43,14 +44,18 @@ def read(path, maximum=2 * 1024 * 1024):
     return data
 
 
-def read_json(path):
+def decode_json(data):
     def unique(pairs):
         result = {}
         for key, value in pairs:
             require(key not in result, 'Duplicate evidence key')
             result[key] = value
         return result
-    return json.loads(read(path), object_pairs_hook=unique)
+    return json.loads(data, object_pairs_hook=unique)
+
+
+def read_json(path):
+    return decode_json(read(path))
 
 
 def git(root, *args):
@@ -138,12 +143,16 @@ def materials(build, source, inputs, platform):
     return data, records, sorted(rows, key=lambda row: row['role'])
 
 
-def audit_source(path, inputs):
+def audit_source(path, inputs, *, source_bytes=None):
     expected = {'soundcurrent-daw/' + row['name']: row['sha256'] for row in inputs['files']}
-    seen = set()
-    with tarfile.open(path, 'r:gz') as archive:
+    require(len(expected) == len(inputs['files']) <= 100000, 'Duplicate/excess source archive inputs')
+    seen = set(); total = 0
+    with tarfile.open(name=path if source_bytes is None else None, mode='r:gz',
+                      fileobj=None if source_bytes is None else io.BytesIO(source_bytes)) as archive:
         for member in archive:
             require(member.isfile() and member.name in expected and member.name not in seen, 'Unexpected source archive entry')
+            total += member.size
+            require(0 <= member.size <= 64 * 1024 * 1024 and total <= 256 * 1024 * 1024, 'Excess source archive bytes')
             seen.add(member.name)
             with archive.extractfile(member) as stream:
                 require(hashlib.file_digest(stream, 'sha256').hexdigest() == expected[member.name], 'Source archive bytes differ')
@@ -158,7 +167,11 @@ def package_profile(rows, inputs, platform, *, build_type, cache_sha256, positiv
                     for value in (cache_sha256, positive_receipt_sha256)), 'Invalid package build context')
     require(isinstance(inputs, dict) and isinstance(inputs.get('files'), list)
             and all(isinstance(row, dict) and set(row) == {'name', 'sha256'}
-                    and isinstance(row['name'], str) and isinstance(row['sha256'], str)
+                    and isinstance(row['name'], str) and row['name'] != ''
+                    and not PurePosixPath(row['name']).is_absolute()
+                    and '..' not in PurePosixPath(row['name']).parts and '\\' not in row['name']
+                    and PurePosixPath(row['name']).as_posix() == row['name']
+                    and isinstance(row['sha256'], str)
                     and re.fullmatch('[0-9a-f]{64}', row['sha256']) for row in inputs['files']),
             'Invalid package source inputs')
     require(all(isinstance(inputs.get(key), str) and re.fullmatch('[0-9a-f]{40}', inputs[key])
@@ -192,6 +205,102 @@ def package_profile(rows, inputs, platform, *, build_type, cache_sha256, positiv
                 payload=payload, helperOnly=True, defaultPreviewInventoryChanged=False,
                 dependencySourceBundleQualified=False, standaloneBundleQualified=False,
                 installerQualified=False, installedGuiQualified=False)
+
+
+def verify_package_profile(directory, *, expected_source, platform, collection_sha256,
+                           _manifest_name='collection.json'):
+    """Read-only verification against a caller's qualified pin, never package admission."""
+    require(platform in ('linux', 'win32') and isinstance(expected_source, str)
+            and re.fullmatch('[0-9a-f]{40}', expected_source) and isinstance(collection_sha256, str)
+            and re.fullmatch('[0-9a-f]{64}', collection_sha256), 'Invalid requested collection context')
+    require(_manifest_name in ('collection.json', 'collection.pending.json'), 'Invalid manifest selection')
+    require(directory.is_dir() and not linked(directory), 'Invalid collection directory')
+    names = set()
+    for index, path in enumerate(directory.rglob('*')):
+        require(index < 32 and not linked(path), 'Linked/excess collection entry')
+        relative = path.relative_to(directory).as_posix()
+        if path.is_dir():
+            require(relative in ('images', 'proof'), 'Unexpected collection directory')
+        else:
+            require(path.is_file(), 'Non-plain collection entry')
+            names.add(relative)
+    suffix = '.exe' if platform == 'win32' else ''
+    proof_names = ['controller.stdout', 'controller.stderr', 'controller-process.json', 'controller-command.json']
+    expected = {_manifest_name, 'package-profile.json', 'build-inputs.json', 'application-build-source.tar.gz',
+                'proof/positive-receipt.json'} | {'images/' + name + suffix for name, _ in ROLES.values()}
+    expected |= {'proof/' + name for name in proof_names} | {'proof/' + role + '.identity.json' for role in ROLES}
+    require(names == expected, 'Collection file set differs')
+    manifest_path = directory / _manifest_name
+    raw_manifest = read(manifest_path)
+    require(hashlib.sha256(raw_manifest).hexdigest() == collection_sha256, 'Collection differs from caller pin')
+    m = decode_json(raw_manifest)
+    require(isinstance(m, dict) and set(m) == {'format', 'sourceCommit', 'sourceTree', 'nativePlatform', 'buildType', 'images',
+                      'sourceInputsUnchanged', 'repositorySourceArchived', 'sourceArchive', 'cmakeCacheSha256',
+                      'buildConfiguration', 'positiveReceiptSha256', 'nativeImageEvidenceOnly',
+                      'dependencySourceBundleQualified', 'standaloneBundleQualified', 'installerQualified',
+                      'installedGuiQualified', 'sourceExclusions', 'packageProfile'}, 'Unknown collection schema')
+    require(m['format'] == 'sc-restoration-worker-images-v1' and m['sourceCommit'] == expected_source
+            and m['nativePlatform'] == platform and m['sourceInputsUnchanged'] is True
+            and m['repositorySourceArchived'] is True and m['nativeImageEvidenceOnly'] is True
+            and m['sourceExclusions'] == EXCLUDED, 'Collection context differs')
+    for flag in ('dependencySourceBundleQualified', 'standaloneBundleQualified', 'installerQualified', 'installedGuiQualified'):
+        require(m[flag] is False, 'Collection grants unsupported qualification')
+    inputs = read_json(directory / 'build-inputs.json')
+    require(isinstance(inputs, dict) and inputs.get('sourceCommit') == expected_source and inputs.get('sourceTree') == m['sourceTree']
+            and inputs['excluded'] == EXCLUDED, 'Captured source identity differs')
+    expected_profile = package_profile(m['images'], inputs, platform, build_type=m['buildType'],
+                                      cache_sha256=m['cmakeCacheSha256'], positive_receipt_sha256=m['positiveReceiptSha256'])
+    pointer = m['packageProfile']; raw_profile = read(directory / 'package-profile.json')
+    require(isinstance(pointer, dict) and set(pointer) == {'path', 'bytes', 'sha256'} and pointer['path'] == 'package-profile.json'
+            and type(pointer['bytes']) is int and len(raw_profile) == pointer['bytes']
+            and hashlib.sha256(raw_profile).hexdigest() == pointer['sha256'], 'Profile bytes differ')
+    require(raw_profile == (json.dumps(expected_profile, indent=2) + '\n').encode('utf-8')
+            and decode_json(raw_profile) == expected_profile, 'Profile schema/layout/context differs')
+    pins = {row['name']: row['sha256'] for row in inputs['files']}
+    raw_positive = read(directory / 'proof/positive-receipt.json')
+    positive = decode_json(raw_positive)
+    require(isinstance(positive, dict) and hashlib.sha256(raw_positive).hexdigest() == m['positiveReceiptSha256']
+            and positive['component'] == 'restoration-qualification' and positive['positiveCases'] == CASES
+            and positive['exactFileSet'] is True and positive['installedBytesMatch'] is True
+            and positive['installedControllerWorkflows'] is True and positive['standaloneBundleQualified'] is False
+            and positive['installedGuiQualified'] is False and len(positive['roles']) == 4
+            and {row['role'] for row in positive['roles']} == set(ROLES), 'Positive evidence differs')
+    driver = positive['controller']
+    require(read_json(directory / 'proof/controller-process.json') == driver
+            and driver['sourceSha256'] == pins['tests/controller_restoration_tests.cpp']
+            and type(driver['pid']) is int and driver['pid'] > 0
+            and type(driver['exitCode']) is int and driver['exitCode'] == 0, 'Controller process evidence differs')
+    command = read_json(directory / 'proof/controller-command.json')
+    require(isinstance(command, list) and len(command) == 3 and all(isinstance(v, str) for v in command)
+            and command[1] == '--installed-workers'
+            and any(kind(command[0]).is_absolute() and kind(command[0]).name == 'sc-controller-restoration-tests' + suffix
+                    and kind(command[2]).is_absolute() and kind(command[2]).name == 'bin'
+                    for kind in (PurePosixPath, PureWindowsPath)), 'Controller command evidence differs')
+    output = read(directory / 'proof/controller.stdout', 1024 * 1024)
+    read(directory / 'proof/controller.stderr', 1024 * 1024)
+    matches = re.findall(rb'(?m)^(\d+) actual installed controller-owned restoration checks passed; four production roles; existing positive operation/PID/bytes/history guards\r?$', output)
+    require(len(matches) == 1 and type(positive['checks']) is int and int(matches[0]) == positive['checks'] > 0,
+            'Positive completion evidence differs')
+    for row in m['images']:
+        image = directory / 'images' / row['path']
+        original = next(p for p in positive['roles'] if p['role'] == row['role'])
+        require(image.stat().st_size == row['bytes'] and digest(image) == row['sha256']
+                and native_identity(image, platform) == row['nativeIdentity']
+                and original['executable'] == row['path'] and original['source'] == row['source']
+                and original['sourceSha256'] == row['sourceSha256']
+                and original['executableSha256'] == original['installedSha256'] == row['sha256']
+                and read_json(directory / ('proof/' + row['role'] + '.identity.json')) == original, 'Image/proof differs')
+    source = m['sourceArchive']; archive = directory / 'application-build-source.tar.gz'
+    require(isinstance(source, dict) and set(source) == {'path', 'bytes', 'sha256'} and source['path'] == archive.name
+            and type(source['bytes']) is int and 0 < source['bytes'] <= 128 * 1024 * 1024
+            and archive.stat().st_size == source['bytes'], 'Source archive differs')
+    raw_source = read(archive, 128 * 1024 * 1024)
+    require(len(raw_source) == source['bytes'] and hashlib.sha256(raw_source).hexdigest() == source['sha256'], 'Source archive hash differs')
+    audit_source(archive, inputs, source_bytes=raw_source)
+    return dict(format='sc-restoration-package-profile-verification-v1', sourceCommit=expected_source,
+                nativePlatform=platform, collectionSha256=collection_sha256, profileSha256=pointer['sha256'],
+                payload=expected_profile['payload'], nativeExecutionPerformed=False, packageAdmissionGranted=False,
+                standaloneBundleQualified=False, installerQualified=False, installedGuiQualified=False)
 
 
 def collect(args, root=ROOT, platform=sys.platform):
@@ -260,8 +369,13 @@ def collect(args, root=ROOT, platform=sys.platform):
                   installedGuiQualified=False, sourceExclusions=EXCLUDED,
                   packageProfile=dict(path=profile_path.name, bytes=profile_path.stat().st_size,
                                       sha256=digest(profile_path)))
-    (args.output / 'collection.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
-    print(json.dumps({'sourceCommit': inputs['sourceCommit'], 'nativeImages': 4, 'installerQualified': False}))
+    pending = args.output / 'collection.pending.json'
+    pending.write_bytes((json.dumps(result, indent=2) + '\n').encode('utf-8'))
+    verify_package_profile(args.output, expected_source=args.expected_source, platform=platform,
+                           collection_sha256=digest(pending), _manifest_name=pending.name)
+    pending.rename(args.output / 'collection.json')
+    print(json.dumps({'sourceCommit': inputs['sourceCommit'], 'nativeImages': 4,
+                      'profileReadbackVerified': True, 'installerQualified': False}))
 
 
 if __name__ == '__main__':
@@ -272,8 +386,16 @@ if __name__ == '__main__':
     parser.add_argument('--inputs', type=Path)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--allow-absent', action='store_true')
+    parser.add_argument('--verify-profile', type=Path)
+    parser.add_argument('--collection-sha256')
     args = parser.parse_args()
-    if args.snapshot_inputs:
+    require(args.verify_profile is not None or args.collection_sha256 is None, 'Collection pin requires verification mode')
+    if args.verify_profile:
+        require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent))
+                and args.collection_sha256 is not None, 'Conflicting/incomplete profile verification inputs')
+        print(json.dumps(verify_package_profile(args.verify_profile, expected_source=args.expected_source,
+                                               platform=sys.platform, collection_sha256=args.collection_sha256)))
+    elif args.snapshot_inputs:
         require(not any((args.build, args.inputs, args.output)) and not args.snapshot_inputs.exists(), 'Conflicting/existing snapshot output')
         args.snapshot_inputs.parent.mkdir(parents=True, exist_ok=True)
         args.snapshot_inputs.write_text(json.dumps(source_snapshot(ROOT, args.expected_source), indent=2) + '\n', encoding='utf-8')

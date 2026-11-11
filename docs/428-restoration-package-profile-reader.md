@@ -1,0 +1,44 @@
+# Restoration package profile reader
+
+The shared `tools/restoration_worker_images.py` reader checks a collected helper
+profile before a future package builder uses its payload plan. The caller supplies
+an independently qualified collection SHA-256, expected source commit and native
+platform. Hashing an unchecked collection and passing that hash is not independent
+qualification. The reader does not execute helpers or grant package admission.
+
+For example, on the native platform:
+
+```sh
+python3 tools/restoration_worker_images.py --verify-profile /path/to/collection \
+  --expected-source "$qualified_source_commit" \
+  --collection-sha256 "$qualified_collection_sha256"
+```
+
+Verification requires the exact plain-file inventory, pinned manifest bytes,
+profile schema and serialization, four platform-specific helper images and their
+source/native identities, captured build context, installed-controller proof and
+complete repository source archive. Duplicate JSON keys, changed payload paths,
+qualification flags, extra/missing files and linked entries are refused. Recorded
+controller commands are inspected as evidence; their old absolute paths are not
+executed or reopened.
+
+The reader binds the parsed manifest and profile to the same bytes it hashes. It
+also audits the same compressed source bytes whose hash it checks. Metadata reads
+are limited to 2 MiB, controller output to 1 MiB, compressed source to 128 MiB,
+each source member to 64 MiB and total uncompressed source to 256 MiB. Existing
+image limits remain 256 MiB each and 512 MiB total. These checks do not provide an
+atomic filesystem snapshot: a future builder must verify the actual copied
+payload before admission and preserve the qualified evidence.
+
+The producer now writes `collection.pending.json`, invokes the same read-only
+reader, and publishes `collection.json` only after successful readback. Its local
+self-derived pin checks internal consistency; independent exact-head native
+execution and external artifact qualification remain required. A failed readback
+leaves an incomplete pending collection and never publishes a final manifest.
+
+Synthetic mutation tests cover the contract only. Hosted Linux and native Windows
+collector executions exercise this publication step using actual installed
+controller evidence. Verification receipts explicitly report no new native
+execution and no package admission. Default preview inventories, dependency source
+bundles, standalone qualification, installers and installed GUI qualification
+remain separate gates; this change produces no release.
