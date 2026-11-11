@@ -95,7 +95,9 @@ def main():
         print('Native manual-panel failure project retained with exact bytes and overwrite refusal')
     except BaseException:
         if source is not None:
-            print(collector.MANUAL_PANEL_MARKER + str(source), file=sys.stderr)
+            sys.stderr.buffer.write(
+                (collector.MANUAL_PANEL_MARKER + str(source) + '\n').encode('utf-8'))
+            sys.stderr.buffer.flush()
         raise
 
 

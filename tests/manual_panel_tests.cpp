@@ -71,7 +71,11 @@ struct Fixture : ManualPanelRoot {
     std::atomic<bool> refuseProjectCommand{false};
     std::unique_ptr<StudioWindow> window;
     Fixture() {
-        std::cerr << "Owned manual panel project: " << root << '\n';
+        const auto path = root.generic_u8string();
+        std::cerr << "Owned manual panel project: ";
+        std::cerr.write(reinterpret_cast<const char *>(path.data()),
+                        static_cast<std::streamsize>(path.size()));
+        std::cerr << '\n';
         initial.tracks.push_back(makeAudioTrack("Guitar β", {}, initial.sampleRate));
         for (auto &t : initial.tracks)
             t.monitoring = RecordingMonitor::PostEq;
