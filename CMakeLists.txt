@@ -1459,6 +1459,10 @@ if(SC_BUILD_DESKTOP)
     set_tests_properties(desktop-retained-takes PROPERTIES TIMEOUT 60 ENVIRONMENT "QT_QPA_PLATFORM=offscreen" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
     add_test(NAME desktop-manual-recording COMMAND sc-manual-panel-tests)
     set_tests_properties(desktop-manual-recording PROPERTIES TIMEOUT 60 ENVIRONMENT "QT_QPA_PLATFORM=offscreen" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+    add_test(NAME desktop-manual-panel-retention COMMAND ${Python3_EXECUTABLE}
+      "${CMAKE_SOURCE_DIR}/tests/manual_panel_retention_tests.py"
+      --driver $<TARGET_FILE:sc-manual-panel-tests> --build "${CMAKE_BINARY_DIR}")
+    set_tests_properties(desktop-manual-panel-retention PROPERTIES TIMEOUT 45 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
   endif()
   install(TARGETS soundcurrent-daw sc-waveform-worker sc-import-inspect-worker sc-approved-wave-probe sc-media-import-worker RUNTIME DESTINATION bin)
   install(FILES reuse/equipment/upstream/data/equipment/LICENSE

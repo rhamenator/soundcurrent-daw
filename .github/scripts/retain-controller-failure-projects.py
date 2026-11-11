@@ -8,7 +8,8 @@ OWNER_MARKER = 'Retained owner fixture '
 PARENT_MARKER = 'Retained parent interruption fixture '
 RESTORATION_MARKER = 'Retained restoration fixture '
 LOCALIZATION_MARKER = 'Retained localization fixture '
-POLICIES = {LOCALIZATION_MARKER:'sc-localization-failure-',RESTORATION_MARKER:'sc-restore-Κиїв-',MARKER:'sc-pw-controller-é-',PANEL_MARKER:'sc-native-panel-é-',OWNER_MARKER:'sc-pw-owner-é-',PARENT_MARKER:'sc-parent-interruption-'}
+MANUAL_PANEL_MARKER = 'Retained manual panel fixture '
+POLICIES = {MANUAL_PANEL_MARKER:'sc-manual-panel-é-',LOCALIZATION_MARKER:'sc-localization-failure-',RESTORATION_MARKER:'sc-restore-Κиїв-',MARKER:'sc-pw-controller-é-',PANEL_MARKER:'sc-native-panel-é-',OWNER_MARKER:'sc-pw-owner-é-',PARENT_MARKER:'sc-parent-interruption-'}
 UUID = re.compile(r'^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$')
 def plain(path, directory=False):
     s=path.lstat()
@@ -54,7 +55,7 @@ def retain(build):
                     plain(item);size+=info.st_size
                     if size>512*1024*1024:raise ValueError('Controller byte bound exceeded')
                     files.append((item,item.relative_to(source),info.st_size))
-        prefix={'sc-localization-failure-':'localization-','sc-restore-Κиїв-':'restoration-','sc-native-panel-é-':'panel-','sc-pw-owner-é-':'owner-','sc-pw-controller-é-':'controller-','sc-parent-interruption-':'parent-'}[source.parent.name]
+        prefix={'sc-manual-panel-é-':'manual-panel-','sc-localization-failure-':'localization-','sc-restore-Κиїв-':'restoration-','sc-native-panel-é-':'panel-','sc-pw-owner-é-':'owner-','sc-pw-controller-é-':'controller-','sc-parent-interruption-':'parent-'}[source.parent.name]
         target=destination/(prefix+source.name)
         if target.exists():raise ValueError('Existing controller snapshot refused')
         target.mkdir(parents=True);manifest=[]
