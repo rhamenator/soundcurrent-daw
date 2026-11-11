@@ -681,7 +681,11 @@ void closePreview(bool keep) {
     timer.start(1);
     f.counts->holdStop = false;
     if (keep) {
-        await([&] { return f.window->snapshot()->closed; });
+        // The project and manual workers publish shutdown on independent queues.
+        // Observe both acknowledgements within the existing wait budget.
+        await([&] {
+            return f.window->snapshot()->closed && f.window->manualRecordingSnapshot()->closed;
+        });
         check(f.window->manualRecordingSnapshot()->closed &&
                   f.window->manualRecordingSnapshot()->groups.empty(),
               "Keep-close did not drain previews");
