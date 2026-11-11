@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Mutation tests for evidence collection; fixtures are not native qualification."""
 import argparse
+import copy
 import importlib.util
 import json
 from pathlib import Path
@@ -84,10 +85,44 @@ class Images(unittest.TestCase):
         self.assertEqual(data['buildType'], 'Debug')
         self.assertFalse(data['installerQualified'])
         self.assertFalse(data['dependencySourceBundleQualified'])
+        profile_path = self.args.output / data['packageProfile']['path']
+        profile = tool.read_json(profile_path)
+        self.assertEqual(data['packageProfile']['sha256'], tool.digest(profile_path))
+        self.assertEqual(profile, tool.package_profile(data['images'], self.inputs, 'linux'))
+        self.assertTrue(profile['helperOnly'])
+        self.assertFalse(profile['defaultPreviewInventoryChanged'])
         tool.audit_source(self.args.output / data['sourceArchive']['path'], self.inputs)
         with tarfile.open(self.args.output / data['sourceArchive']['path']) as archive:
             self.assertIn('soundcurrent-daw/LICENSE', archive.getnames())
             self.assertNotIn('soundcurrent-daw/tests/results/history.txt', archive.getnames())
+
+    def test_package_profile_requires_exact_platform_roles_and_source_binding(self):
+        rows = tool.materials(self.build, self.source, self.inputs, 'linux')[2]
+        linux = tool.package_profile(rows, self.inputs, 'linux')
+        self.assertTrue(all(row['payloadPath'] == 'usr/bin/' + row['path'] for row in linux['payload']))
+        # Contract-only PE rows, not a claim of native Windows execution.
+        windows = [dict(row, path=row['path'] + '.exe', nativeIdentity='PE-amd64') for row in rows]
+        profile = tool.package_profile(windows, self.inputs, 'win32')
+        self.assertTrue(all(row['payloadPath'] == row['path'] for row in profile['payload']))
+        for role_rows, platform in [(rows, 'win32'), (windows, 'linux'), (rows, 'darwin'),
+                                    (rows[:-1], 'linux'), (rows + [rows[0]], 'linux')]:
+            with self.assertRaises(RuntimeError):
+                tool.package_profile(role_rows, self.inputs, platform)
+        for field, value in [('path', '../sc-asset-restoration-worker'), ('sourceSha256', '0' * 64),
+                             ('source', 'foreign.cpp'), ('sha256', 'bad'), ('bytes', True),
+                             ('bytes', 256 * 1024 * 1024 + 1), ('nativeIdentity', 'PE-amd64')]:
+            changed = copy.deepcopy(rows)
+            changed[0][field] = value
+            with self.assertRaises(RuntimeError):
+                tool.package_profile(changed, self.inputs, 'linux')
+        changed = copy.deepcopy(rows)
+        changed[1]['sha256'] = changed[0]['sha256']
+        with self.assertRaises(RuntimeError):
+            tool.package_profile(changed, self.inputs, 'linux')
+        inputs = copy.deepcopy(self.inputs)
+        inputs['files'].append(inputs['files'][0])
+        with self.assertRaises(RuntimeError):
+            tool.package_profile(rows, inputs, 'linux')
 
     def test_refuse_image_changed_after_positive_execution(self):
         (self.build / 'sc-saved-manifest-worker').write_bytes(elf('replacement'))
