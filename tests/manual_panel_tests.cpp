@@ -43,18 +43,39 @@ template <class F> void await(F f, std::source_location loc = std::source_locati
         QTest::qWait(2);
     }
 }
-struct Fixture {
+struct ManualPanelRoot {
     std::filesystem::path root =
-        std::filesystem::temp_directory_path() / ("sc-manual-panel-" + Id::generate().str());
+        std::filesystem::temp_directory_path() / utf8Path("sc-manual-panel-é-") / Id::generate().str();
+    bool success = false;
+    ~ManualPanelRoot() {
+        try {
+            if (success) {
+                std::error_code error;
+                std::filesystem::remove_all(root, error);
+            } else if (std::filesystem::is_directory(root)) {
+                const auto path = root.generic_u8string();
+                std::cerr << "Retained manual panel fixture ";
+                std::cerr.write(reinterpret_cast<const char *>(path.data()),
+                                static_cast<std::streamsize>(path.size()));
+                std::cerr << '\n';
+            }
+        } catch (...) {
+        }
+    }
+};
+struct Fixture : ManualPanelRoot {
     Session initial = makeOneTrackSession("Studio — Ελληνικά", "Vocal α");
     std::shared_ptr<manual_fixture::Counters> counts = std::make_shared<manual_fixture::Counters>();
     std::atomic<bool> holdProjectIo{false}, projectIoEntered{false};
     std::atomic<std::uint64_t> autosaveNow{0}, autosaveClockCalls{0};
     std::atomic<bool> refuseProjectCommand{false};
     std::unique_ptr<StudioWindow> window;
-    bool success = false;
     Fixture() {
-        std::cerr << "Owned manual panel project: " << root << '\n';
+        const auto path = root.generic_u8string();
+        std::cerr << "Owned manual panel project: ";
+        std::cerr.write(reinterpret_cast<const char *>(path.data()),
+                        static_cast<std::streamsize>(path.size()));
+        std::cerr << '\n';
         initial.tracks.push_back(makeAudioTrack("Guitar β", {}, initial.sampleRate));
         for (auto &t : initial.tracks)
             t.monitoring = RecordingMonitor::PostEq;
@@ -218,10 +239,6 @@ struct Fixture {
         holdProjectIo = false;
         counts->holdFactory = counts->holdStop = counts->holdService = false;
         window.reset();
-        if (success) {
-            std::error_code e;
-            std::filesystem::remove_all(root, e);
-        }
     }
 };
 void autosaveGuard() {
@@ -706,6 +723,14 @@ void closePreview(bool keep) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--retention-failure-only") {
+            Fixture f;
+            f.prepare();
+            f.routes();
+            f.start();
+            f.take();
+            throw std::runtime_error("Injected manual panel retention failure");
+        }
         if (argc > 1 && std::string_view(argv[1]) == "--retained-takes-only") { retainedWorkflow(); return 0; }
         if (argc > 1 && std::string_view(argv[1]) == "--attachment-review-only") {
             attachmentReviewReplay = true;
