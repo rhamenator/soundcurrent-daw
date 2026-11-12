@@ -486,6 +486,10 @@ def verify_staged_payload(directory, *, expected_source, platform, collection_sh
 
 
 def collect(args, root=ROOT, platform=sys.platform):
+    require(getattr(args, 'dependency_output', None) is not None or getattr(args, 'dependency_tool', None) is None,
+            'Dependency tool requires report output')
+    require(getattr(args, 'dependency_output', None) is None or getattr(args, 'stage_output', None) is not None,
+            'Dependency reports require staged output')
     inputs = read_json(args.inputs)
     require(inputs == source_snapshot(root, args.expected_source), 'Source differs from pre-build capture')
     require(args.build.is_dir() and not linked(args.build), 'Invalid native build directory')

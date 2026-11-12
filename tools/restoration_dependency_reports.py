@@ -4,6 +4,9 @@
 import argparse
 import hashlib
 import json
+import os
+import queue
+import signal
 from pathlib import Path
 import shutil
 import subprocess
@@ -17,50 +20,84 @@ MAX_LOG = 1024 * 1024
 
 
 def run_report(argv, stdout, stderr, *, timeout=30, maximum=MAX_LOG):
-    """Bound both pipe drains before writing; stop only this inspector on refusal."""
+    """Bound process/output work, then perform bounded owned-process cleanup."""
     require(type(maximum) is int and 0 < maximum <= MAX_LOG
             and type(timeout) in (int, float) and 0 < timeout <= 30, 'Invalid inspector resource bounds')
-    errors = []
-    started = time.monotonic()
+    started = time.monotonic(); deadline = started + timeout
+    events = queue.Queue(maxsize=4); stopped = threading.Event()
+    errors = []; counts = [0, 0]; closed = set(); code = None
     with stdout.open('xb') as out, stderr.open('xb') as err:
-        process = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, bufsize=0, start_new_session=os.name != 'nt')
 
-        def drain(stream, output):
-            count = 0
+        def emit(value):
+            while not stopped.is_set():
+                try:
+                    events.put(value, timeout=.05)
+                    return
+                except queue.Full:
+                    pass
+
+        def drain(index, stream):
             try:
-                while True:
+                while not stopped.is_set():
                     block = stream.read(65536)
+                    emit((index, block))
                     if not block:
-                        break
-                    count += len(block)
-                    if count > maximum:
-                        errors.append('Inspector output exceeds bound')
-                        process.kill()
-                        break
-                    output.write(block)
+                        return
             except Exception as error:
-                errors.append(type(error).__name__)
-                if process.poll() is None:
-                    process.kill()
+                emit((index, type(error).__name__))
 
-        threads = [threading.Thread(target=drain, args=pair, daemon=True)
-                   for pair in [(process.stdout, out), (process.stderr, err)]]
+        threads = [threading.Thread(target=drain, args=(index, stream), daemon=True)
+                   for index, stream in enumerate([process.stdout, process.stderr])]
         for thread in threads:
             thread.start()
         try:
-            code = process.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            errors.append('Inspector deadline exceeded')
-            process.kill()
-            code = process.wait(timeout=5)
-        for thread in threads:
-            thread.join(timeout=5)
-        require(not any(t.is_alive() for t in threads), 'Inspector pipe did not close')
-        process.stdout.close()
-        process.stderr.close()
+            while len(closed) != 2:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    errors.append('Inspector deadline exceeded')
+                    break
+                try:
+                    index, block = events.get(timeout=min(.05, remaining))
+                except queue.Empty:
+                    continue
+                if isinstance(block, str):
+                    errors.append(block)
+                    break
+                if not block:
+                    closed.add(index)
+                    continue
+                counts[index] += len(block)
+                if counts[index] > maximum:
+                    errors.append('Inspector output exceeds bound')
+                    break
+                [out, err][index].write(block)
+            if not errors:
+                try:
+                    code = process.wait(timeout=max(.001, deadline - time.monotonic()))
+                except subprocess.TimeoutExpired:
+                    errors.append('Inspector deadline exceeded')
+        finally:
+            stopped.set()
+            if errors or process.poll() is None:
+                if os.name != 'nt':
+                    # The session contains only this inspector and its children.
+                    try: os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError: pass
+                elif process.poll() is None:
+                    process.kill()
+            try:
+                code = process.wait(timeout=5)
+            finally:
+                # Raw FileIO close does not wait on BufferedReader's read lock.
+                process.stdout.close(); process.stderr.close()
+                for thread in threads:
+                    thread.join(timeout=.25)
+                if any(thread.is_alive() for thread in threads):
+                    errors.append('Inspector pipe did not close')
     result = dict(exitCode=code, seconds=time.monotonic() - started,
-                  stdoutBytes=stdout.stat().st_size, stderrBytes=stderr.stat().st_size,
-                  errors=errors)
+                  stdoutBytes=stdout.stat().st_size, stderrBytes=stderr.stat().st_size, errors=errors)
     stdout.with_suffix('.result.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     require(not errors and code == 0 and result['stdoutBytes'] > 0, 'Inspector failed; preserve pending reports')
     return result
@@ -72,9 +109,9 @@ def resolve_inspector(platform, inspector=None):
     selected = inspector or shutil.which(name)
     require(selected is not None, 'Native dependency inspector unavailable: ' + name)
     tool = Path(selected).resolve(strict=True)
-    require(tool.is_file() and not linked(tool) and 0 < tool.stat().st_size <= 64 * 1024 * 1024,
+    require(tool.is_file() and 0 < tool.stat().st_size <= 64 * 1024 * 1024,
             'Invalid native inspector')
-    require((platform == 'linux' and tool.name.endswith('readelf'))
+    require((platform == 'linux' and tool.name in ('readelf', 'x86_64-linux-gnu-readelf'))
             or (platform == 'win32' and tool.name.lower() == name), 'Unexpected native inspector name')
     return tool
 

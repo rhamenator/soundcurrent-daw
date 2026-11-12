@@ -2,6 +2,10 @@
 """Bounded inspector contracts; synthetic layouts do not qualify native execution."""
 import importlib.util
 import json
+import os
+import re
+import subprocess
+import time
 from pathlib import Path
 import sys
 import tempfile
@@ -107,11 +111,70 @@ class Reports(unittest.TestCase):
         self.f.args.stage_output = self.f.top / 'candidate'
         self.f.args.dependency_output = self.output
         self.f.args.dependency_tool = Path(sys.executable)
-        with mock.patch.object(reports, 'capture_dependencies') as capture:
+        def observed(candidate, output, **context):
+            self.assertTrue((candidate / 'candidate.json').is_file())
+            self.assertFalse((candidate / 'candidate.pending.json').exists())
+            checked = reports.verify_staged_payload(candidate, expected_source=context['expected_source'],
+                        platform=context['platform'], collection_sha256=context['collection_sha256'],
+                        candidate_sha256=context['candidate_sha256'])
+            self.assertTrue(checked['provenanceVerified'])
+        with mock.patch.object(reports, 'capture_dependencies', side_effect=observed) as capture:
             fixtures.tool.collect(self.f.args, self.f.source, 'linux')
         capture.assert_called_once()
         self.assertTrue((self.f.args.stage_output / 'candidate.json').exists())
         self.assertEqual(capture.call_args.kwargs['expected_source'], self.f.head)
+
+    def test_library_request_without_staging_is_rejected_before_source_work(self):
+        self.f.args.dependency_output = self.output
+        self.f.args.stage_output = None
+        with mock.patch.object(fixtures.tool, 'source_snapshot', side_effect=AssertionError('source work started')):
+            with self.assertRaises(RuntimeError): fixtures.tool.collect(self.f.args, self.f.source, 'linux')
+        self.assertFalse(self.output.exists())
+
+    def test_cli_dependency_mode_conflicts_do_not_create_output(self):
+        common = [sys.executable, str(ROOT / 'tools/restoration_worker_images.py'), '--expected-source', self.f.head]
+        output = str(self.output); stage = str(self.f.top / 'candidate')
+        cases = [(['--dependency-tool', 'unused'], 'Dependency tool requires report output'),
+                 (['--dependency-output', output], 'Dependency reports require staged output'),
+                 (['--verify-staged', stage, '--collection-sha256', '0'*64, '--candidate-sha256', '0'*64,
+                   '--stage-output', stage, '--dependency-output', output], 'Conflicting/incomplete staged'),
+                 (['--verify-profile', stage, '--collection-sha256', '0'*64, '--stage-output', stage,
+                   '--dependency-output', output], 'Conflicting/incomplete profile'),
+                 (['--snapshot-inputs', str(self.f.top / 'snapshot.json'), '--stage-output', stage,
+                   '--dependency-output', output], 'Conflicting/existing snapshot')]
+        for args, message in cases:
+            result = subprocess.run(common + args, capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(message, result.stderr)
+            self.assertFalse(self.output.exists())
+
+    def test_capture_output_bound_failure_keeps_pending(self):
+        fixtures.tool.collect(self.f.args, self.f.source, 'linux'); self.f.stage()
+        real_run = reports.run_report
+        def failed(argv, stdout, stderr):
+            return real_run([sys.executable, '-c', "print('x'*65536)"], stdout, stderr, maximum=512)
+        self.fake_report = failed
+        with self.assertRaises(RuntimeError): self.capture()
+        self.assertTrue((self.output / 'reports.pending.json').is_file())
+        self.assertFalse((self.output / 'reports.json').exists())
+        self.assertLessEqual((self.output / 'asset.stdout').stat().st_size, 512)
+
+    def test_inspector_resolver_checks_names_and_extent(self):
+        tool = self.f.top / 'readelf'; tool.write_bytes(b'x')
+        self.assertEqual(reports.resolve_inspector('linux', tool), tool.resolve())
+        wrong = self.f.top / 'evilreadelf'; wrong.write_bytes(b'x')
+        with self.assertRaises(RuntimeError): reports.resolve_inspector('linux', wrong)
+        tool.write_bytes(b'')
+        with self.assertRaises(RuntimeError): reports.resolve_inspector('linux', tool)
+        with self.assertRaises(RuntimeError): reports.resolve_inspector('darwin', tool)
+        win = self.f.top / 'dumpbin.exe'; win.write_bytes(b'x')
+        self.assertEqual(reports.resolve_inspector('win32', win), win.resolve())
+
+    def test_native_windows_main_selects_the_report_contract(self):
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text()
+        main = workflow.split('suite: main', 1)[1]
+        selection = re.search(r'tests: "([^"]+)"', main).group(1)
+        self.assertIsNotNone(re.fullmatch(selection, 'restoration-dependency-reports'))
 
     def test_host_platform_mismatch_does_not_create_output(self):
         with mock.patch.object(reports.sys, 'platform', 'linux'):
@@ -130,6 +193,18 @@ class BoundedProcess(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     reports.run_report([sys.executable, '-c', "print('unexpected')"], root / 'out', root / 'err', **kwargs)
                 self.assertFalse((root / 'out').exists())
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX owned inspector process-group cleanup contract')
+    def test_pipe_holding_child_cannot_extend_the_work_deadline(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            program = "import subprocess,sys;subprocess.Popen([sys.executable,'-c','import time;time.sleep(10)'])"
+            started = time.monotonic()
+            with self.assertRaises(RuntimeError):
+                reports.run_report([sys.executable, '-c', program], root / 'child.stdout', root / 'child.stderr', timeout=.1)
+            self.assertLess(time.monotonic() - started, 2)
+            result = json.loads((root / 'child.result.json').read_text())
+            self.assertIn('Inspector deadline exceeded', result['errors'])
 
     def test_success_failure_size_and_deadline_contracts(self):
         with tempfile.TemporaryDirectory() as temp:
