@@ -47,6 +47,10 @@ def run_report(argv, stdout, stderr, *, timeout=30, maximum=MAX_LOG):
                         return
             except Exception as error:
                 emit((index, type(error).__name__))
+            finally:
+                # Only the reader closes its pipe. Closing from the parent can
+                # block behind an in-flight CRT read on Windows.
+                stream.close()
 
         threads = [threading.Thread(target=drain, args=(index, stream), daemon=True)
                    for index, stream in enumerate([process.stdout, process.stderr])]
@@ -89,9 +93,9 @@ def run_report(argv, stdout, stderr, *, timeout=30, maximum=MAX_LOG):
                     process.kill()
             try:
                 code = process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                errors.append('Inspector did not terminate')
             finally:
-                # Raw FileIO close does not wait on BufferedReader's read lock.
-                process.stdout.close(); process.stderr.close()
                 for thread in threads:
                     thread.join(timeout=.25)
                 if any(thread.is_alive() for thread in threads):

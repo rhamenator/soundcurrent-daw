@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import time
+import threading
 from pathlib import Path
 import sys
 import tempfile
@@ -193,6 +194,37 @@ class BoundedProcess(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     reports.run_report([sys.executable, '-c', "print('unexpected')"], root / 'out', root / 'err', **kwargs)
                 self.assertFalse((root / 'out').exists())
+
+    def test_blocked_pipe_close_and_process_wait_cannot_prevent_failure_record(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            released = threading.Event()
+            readers = []
+            class Pipe:
+                def read(self, size):
+                    readers.append(threading.current_thread())
+                    released.wait(3)
+                    return b''
+                def close(self):
+                    if threading.current_thread() is threading.main_thread():
+                        raise AssertionError('Parent must not close a blocked pipe')
+            process = mock.Mock(stdout=Pipe(), stderr=Pipe())
+            process.wait.side_effect = subprocess.TimeoutExpired('inspector', 5)
+            start = time.monotonic()
+            try:
+                with mock.patch.object(reports.subprocess, 'Popen', return_value=process), \
+                     mock.patch.object(reports.os, 'killpg', create=True):
+                    with self.assertRaises(RuntimeError):
+                        reports.run_report(['inspector'], root / 'blocked.stdout',
+                                           root / 'blocked.stderr', timeout=.05)
+                self.assertLess(time.monotonic() - start, 2)
+                result = json.loads((root / 'blocked.result.json').read_text())
+                self.assertIn('Inspector did not terminate', result['errors'])
+                self.assertIn('Inspector pipe did not close', result['errors'])
+            finally:
+                released.set()
+                for reader in readers:
+                    reader.join(timeout=1)
 
     @unittest.skipIf(os.name == 'nt', 'POSIX owned inspector process-group cleanup contract')
     def test_pipe_holding_child_cannot_extend_the_work_deadline(self):
