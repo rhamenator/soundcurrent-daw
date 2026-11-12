@@ -62,7 +62,7 @@ jobs:
       - name: Collect native restoration images and repository source
         env:
           SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --build build --inputs .cache/restoration-worker-build-inputs.json --output build/restoration-worker-images --allow-absent
+        run: python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --build build --inputs .cache/restoration-worker-build-inputs.json --output build/restoration-worker-images --stage-output build/restoration-worker-payload --allow-absent
       - name: Verify controller failure retention
         if: always()
         run: python3 tests/controller_retention_tests.py
@@ -87,6 +87,7 @@ jobs:
             build/installed-restoration-controller-evidence/**
             build/manual-panel-retention-evidence/**
             build/restoration-worker-images/**
+            build/restoration-worker-payload/**
             build/controller-failure-projects/**
             build/comp-assembly-state-evidence/**
             build/comp-assembly-job-evidence/**
@@ -497,7 +498,7 @@ jobs:
         env:
           SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          python tools/restoration_worker_images.py --expected-source $env:SC_RESTORATION_SOURCE --build build-desktop-native --inputs .cache/windows-preview-build-inputs.json --output build-desktop-native/restoration-worker-images
+          python tools/restoration_worker_images.py --expected-source $env:SC_RESTORATION_SOURCE --build build-desktop-native --inputs .cache/windows-preview-build-inputs.json --output build-desktop-native/restoration-worker-images --stage-output build-desktop-native/restoration-worker-payload
           if ($LASTEXITCODE -ne 0) { throw "Restoration image/source collection failed" }
       - name: Collect native preview deployment inputs (not an installer)
         if: matrix.suite == 'main' && (github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'codex/windows-'))
@@ -558,6 +559,7 @@ jobs:
             build-desktop-native/installed-restoration-controller-evidence/**
             build-desktop-native/manual-panel-retention-evidence/**
             build-desktop-native/restoration-worker-images/**
+            build-desktop-native/restoration-worker-payload/**
             build-desktop-native/Testing/crossfade-ui/*.png
             build-desktop-native/controller-failure-projects/**
             build-desktop-native/parent-observation-timing/*.json

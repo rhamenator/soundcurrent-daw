@@ -358,6 +358,81 @@ def verify_package_profile(directory, *, expected_source, platform, collection_s
                 standaloneBundleQualified=False, installerQualified=False, installedGuiQualified=False)
 
 
+def copy_bound(source, destination, size, sha256, *, executable=False):
+    """Copy exact pinned bytes without overwriting, then independently read back."""
+    require(source.is_file() and not linked(source) and source.stat().st_size == size, 'Copy source differs')
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    copied = 0; digest_value = hashlib.sha256()
+    with source.open('rb') as incoming, destination.open('xb') as outgoing:
+        while True:
+            chunk = incoming.read(65536)
+            if not chunk: break
+            copied += len(chunk)
+            require(copied <= size, 'Copy source grew beyond pinned extent')
+            digest_value.update(chunk); outgoing.write(chunk)
+    require(copied == size and digest_value.hexdigest() == sha256, 'Copied bytes differ from pin')
+    destination.chmod(0o755 if executable else 0o644)
+    require(destination.stat().st_size == size and digest(destination, size) == sha256, 'Copied byte readback differs')
+
+
+def stage_package_profile(directory, output, *, expected_source, platform, collection_sha256):
+    """Stage candidate bytes and complete provenance; no package admission or execution."""
+    verified = verify_package_profile(directory, expected_source=expected_source, platform=platform,
+                                      collection_sha256=collection_sha256)
+    require(not output.exists() and not linked(output), 'Candidate output exists; preserve prior evidence')
+    require(output.parent.is_dir() and not linked(output.parent)
+            and not output.resolve().is_relative_to(directory.resolve()), 'Invalid/nested candidate output')
+    raw_manifest = read(directory / 'collection.json')
+    require(hashlib.sha256(raw_manifest).hexdigest() == collection_sha256, 'Collection changed before copy')
+    manifest = decode_json(raw_manifest)
+    output.mkdir(mode=0o700)
+    pending = output / 'candidate.pending.json'
+    pending.write_text(json.dumps(dict(format='sc-restoration-payload-pending-v1', sourceCommit=expected_source)) + '\n', encoding='utf-8')
+    provenance = output / 'provenance'
+    provenance.mkdir()
+    copy_bound(directory / 'collection.json', provenance / 'collection.json', len(raw_manifest), collection_sha256)
+    for row in manifest['fileBindings']:
+        copy_bound(directory / row['path'], provenance / row['path'], row['bytes'], row['sha256'])
+    payload = []
+    for row in verified['payload']:
+        path = 'payload/' + row['payloadPath']
+        copy_bound(provenance / 'images' / row['path'], output / path,
+                   row['bytes'], row['sha256'], executable=platform == 'linux')
+        payload.append(dict(row, stagedPath=path))
+    copied = verify_package_profile(provenance, expected_source=expected_source, platform=platform,
+                                    collection_sha256=collection_sha256)
+    require(copied == verified, 'Copied collection verification differs')
+    for row in payload:
+        path = output / row['stagedPath']
+        require(path.stat().st_size == row['bytes'] and digest(path, row['bytes']) == row['sha256'],
+                'Final candidate payload readback differs')
+    expected = {'candidate.pending.json', 'provenance/collection.json'}
+    expected |= {'provenance/' + row['path'] for row in manifest['fileBindings']}
+    expected |= {row['stagedPath'] for row in payload}
+    directories = {'provenance', 'provenance/images', 'provenance/proof', 'payload'}
+    if platform == 'linux': directories |= {'payload/usr', 'payload/usr/bin'}
+    files = set()
+    for count, path in enumerate(output.rglob('*')):
+        require(count < 64 and not linked(path), 'Linked/excess staged entry')
+        name = path.relative_to(output).as_posix()
+        if path.is_dir(): require(name in directories, 'Unexpected staged directory')
+        else:
+            require(path.is_file(), 'Non-plain staged entry'); files.add(name)
+    require(files == expected, 'Candidate staged file set differs')
+    result = dict(format='sc-restoration-worker-payload-stage-v1', sourceCommit=expected_source,
+                  nativePlatform=platform, collectionSha256=collection_sha256,
+                  profileSha256=verified['profileSha256'], copiedCollection='provenance',
+                  copiedCollectionVerified=True, payload=payload, payloadBytesReadbackVerified=True,
+                  nativeExecutionPerformed=False, packageAdmissionGranted=False,
+                  defaultPreviewInventoryChanged=False, dependencySourceBundleQualified=False,
+                  standaloneBundleQualified=False, installerQualified=False, installedGuiQualified=False)
+    raw_result = (json.dumps(result, indent=2) + '\n').encode('utf-8')
+    pending.write_bytes(raw_result)
+    require(read(pending) == raw_result, 'Candidate receipt byte readback differs')
+    pending.rename(output / 'candidate.json')
+    return result
+
+
 def collect(args, root=ROOT, platform=sys.platform):
     inputs = read_json(args.inputs)
     require(inputs == source_snapshot(root, args.expected_source), 'Source differs from pre-build capture')
@@ -431,6 +506,9 @@ def collect(args, root=ROOT, platform=sys.platform):
     verify_package_profile(args.output, expected_source=args.expected_source, platform=platform,
                            collection_sha256=digest(pending), _manifest_name=pending.name)
     pending.rename(args.output / 'collection.json')
+    if getattr(args, 'stage_output', None) is not None:
+        stage_package_profile(args.output, args.stage_output, expected_source=args.expected_source,
+                              platform=platform, collection_sha256=digest(args.output / 'collection.json'))
     print(json.dumps({'sourceCommit': inputs['sourceCommit'], 'nativeImages': 4,
                       'profileReadbackVerified': True, 'installerQualified': False}))
 
@@ -445,15 +523,21 @@ if __name__ == '__main__':
     parser.add_argument('--allow-absent', action='store_true')
     parser.add_argument('--verify-profile', type=Path)
     parser.add_argument('--collection-sha256')
+    parser.add_argument('--stage-output', type=Path)
     args = parser.parse_args()
     require(args.verify_profile is not None or args.collection_sha256 is None, 'Collection pin requires verification mode')
     if args.verify_profile:
         require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent))
                 and args.collection_sha256 is not None, 'Conflicting/incomplete profile verification inputs')
-        print(json.dumps(verify_package_profile(args.verify_profile, expected_source=args.expected_source,
-                                               platform=sys.platform, collection_sha256=args.collection_sha256)))
+        if args.stage_output is not None:
+            print(json.dumps(stage_package_profile(args.verify_profile, args.stage_output,
+                             expected_source=args.expected_source, platform=sys.platform,
+                             collection_sha256=args.collection_sha256)))
+        else:
+            print(json.dumps(verify_package_profile(args.verify_profile, expected_source=args.expected_source,
+                                                   platform=sys.platform, collection_sha256=args.collection_sha256)))
     elif args.snapshot_inputs:
-        require(not any((args.build, args.inputs, args.output)) and not args.snapshot_inputs.exists(), 'Conflicting/existing snapshot output')
+        require(not any((args.build, args.inputs, args.output, args.stage_output)) and not args.snapshot_inputs.exists(), 'Conflicting/existing snapshot output')
         args.snapshot_inputs.parent.mkdir(parents=True, exist_ok=True)
         args.snapshot_inputs.write_text(json.dumps(source_snapshot(ROOT, args.expected_source), indent=2) + '\n', encoding='utf-8')
     else:

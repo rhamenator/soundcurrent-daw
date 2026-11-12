@@ -7,6 +7,8 @@ import gzip
 import hashlib
 import importlib.util
 import json
+import os
+import stat
 from pathlib import Path
 import struct
 import subprocess
@@ -242,6 +244,93 @@ class Images(unittest.TestCase):
         self.assertFalse((self.args.output / 'collection.json').exists())
         self.assertTrue((self.args.output / 'collection.pending.json').is_file())
         with self.assertRaises(RuntimeError): self.verify(collection_sha256='0' * 64)
+
+    def stage(self, output=None, **context):
+        context.setdefault('expected_source', self.head)
+        context.setdefault('platform', 'linux')
+        context.setdefault('collection_sha256', tool.digest(self.args.output / 'collection.json'))
+        return tool.stage_package_profile(self.args.output, output or self.top / 'candidate', **context)
+
+    def test_stage_pins_payload_and_copies_complete_provenance(self):
+        tool.collect(self.args, self.source, 'linux')
+        result = self.stage()
+        out = self.top / 'candidate'
+        self.assertEqual(len([p for p in out.rglob('*') if p.is_file()]), 22)
+        self.assertFalse((out / 'candidate.pending.json').exists())
+        self.assertEqual(tool.read_json(out / 'candidate.json'), result)
+        self.assertFalse(result['packageAdmissionGranted'])
+        self.assertFalse(result['nativeExecutionPerformed'])
+        self.assertFalse(result['installerQualified'])
+        self.assertEqual((out / 'provenance/collection.json').read_bytes(),
+                         (self.args.output / 'collection.json').read_bytes())
+        for row in result['payload']:
+            path = out / row['stagedPath']
+            self.assertEqual(row['stagedPath'], 'payload/usr/bin/' + row['path'])
+            self.assertEqual(tool.digest(path), row['sha256'])
+            if os.name != 'nt': self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o755)
+        self.assertEqual(tool.verify_package_profile(out / 'provenance', expected_source=self.head,
+                         platform='linux', collection_sha256=result['collectionSha256']), self.verify())
+
+    def test_stage_windows_contract_uses_flat_exe_payload(self):
+        # Synthetic PE contract fixture; only actual native CI qualifies execution.
+        def pe(tag):
+            data = bytearray(256); data[:2] = b'MZ'
+            struct.pack_into('<I', data, 60, 128); data[128:132] = b'PE\0\0'
+            struct.pack_into('<H', data, 132, 0x8664)
+            return bytes(data) + tag.encode()
+        driver = self.build / 'sc-controller-restoration-tests.exe'
+        driver.write_bytes(pe('driver'))
+        self.data['controller']['executableSha256'] = tool.digest(driver)
+        write_json(self.records / 'controller-process.json', self.data['controller'])
+        write_json(self.records / 'controller-command.json', [str(driver), '--installed-workers', str(self.build / 'installed workers x/bin')])
+        for row in self.data['roles']:
+            row['executable'] += '.exe'; path = self.build / row['executable']; path.write_bytes(pe(row['role']))
+            row['executableSha256'] = row['installedSha256'] = tool.digest(path)
+            write_json(self.records / (row['role'] + '.identity.json'), row)
+        write_json(self.receipt, self.data)
+        tool.collect(self.args, self.source, 'win32')
+        result = self.stage(platform='win32')
+        self.assertEqual(len(result['payload']), 4)
+        self.assertTrue(all(r['stagedPath'] == 'payload/' + r['path'] and r['path'].endswith('.exe') for r in result['payload']))
+
+    def test_stage_refuses_existing_nested_and_wrong_pin_without_overwrite(self):
+        tool.collect(self.args, self.source, 'linux')
+        out = self.top / 'candidate'; out.mkdir(); marker = out / 'prior'; marker.write_bytes(b'preserve')
+        with self.assertRaises(RuntimeError): self.stage()
+        self.assertEqual(marker.read_bytes(), b'preserve')
+        nested = self.args.output / 'nested'
+        with self.assertRaises(RuntimeError): self.stage(nested)
+        self.assertFalse(nested.exists())
+        other = self.top / 'bad-pin'
+        with self.assertRaises(RuntimeError): self.stage(other, collection_sha256='0' * 64)
+        self.assertFalse(other.exists())
+
+    def test_stage_rejects_payload_and_provenance_tampering_before_publication(self):
+        tool.collect(self.args, self.source, 'linux')
+        real_copy = tool.copy_bound
+        for mutation in ['payload', 'provenance']:
+            out = self.top / mutation
+            def changed(source, destination, *args, **kwargs):
+                real_copy(source, destination, *args, **kwargs)
+                if destination.relative_to(out).as_posix().startswith('payload/'):
+                    target = destination if mutation == 'payload' else out / 'provenance/proof/controller.stderr'
+                    target.write_bytes(b'changed after copy')
+            with mock.patch.object(tool, 'copy_bound', side_effect=changed):
+                with self.assertRaises(RuntimeError): self.stage(out)
+            self.assertTrue((out / 'candidate.pending.json').exists())
+            self.assertFalse((out / 'candidate.json').exists())
+
+    def test_collect_optional_stage_and_absent_shard_omit_candidates(self):
+        self.args.stage_output = self.top / 'collected-candidate'
+        tool.collect(self.args, self.source, 'linux')
+        self.assertTrue((self.args.stage_output / 'candidate.json').is_file())
+        self.args.output = self.top / 'absent-collection'; self.args.stage_output = self.top / 'absent-candidate'
+        self.receipt.unlink(); self.args.allow_absent = True
+        write_json(self.build / 'ci-shard-plan.json', dict(shards=[dict(names=['another-test']),
+                   dict(names=['installed-restoration-controller'])], shard=0,
+                   allTestsAssignedExactlyOnce=True, exitCode=0, inventoryCount=2))
+        tool.collect(self.args, self.source, 'linux')
+        self.assertFalse(self.args.output.exists()); self.assertFalse(self.args.stage_output.exists())
 
     def test_package_profile_requires_exact_platform_roles_and_source_binding(self):
         rows = tool.materials(self.build, self.source, self.inputs, 'linux')[2]
