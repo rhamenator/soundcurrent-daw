@@ -1,0 +1,9 @@
+# Checked reader for staged restoration payloads
+
+The read-only `verify_staged_payload` API accepts a staged directory, expected source commit and platform, and separate caller-supplied SHA-256 pins for the original collection manifest and final candidate receipt. It checks the complete copied provenance through the existing strict collection reader, the exact candidate schema and authority flags, the permitted 22-file inventory, all four payload byte counts and hashes, and Linux executable permissions. Linked, extra, incomplete, or changed entries fail verification. Boolean fields cannot be substituted with JSON numbers.
+
+Use `--verify-staged DIRECTORY --expected-source COMMIT --collection-sha256 COLLECTION_PIN --candidate-sha256 CANDIDATE_PIN` for command-line verification. This mode cannot collect, stage, snapshot, overwrite, or execute helpers. The receipt describes successful byte verification and continues to deny package admission, dependency source qualification, standalone bundle qualification, installer qualification, and installed GUI qualification.
+
+The collector also reads its newly staged output through this API. Those producer-selected pins establish consistency only. A downstream package builder must receive independently qualified pins and verify the admitted bytes before use. Verification is a point-in-time read; it does not promise filesystem locking, protection from subsequent mutation, or crash durability.
+
+Focused contracts exercise matching Linux and synthetic Windows layouts, wrong pins/source/platform, changed payload and provenance, permission changes, unexpected/pending/linked entries, authority mutation, duplicate JSON keys, and numeric boolean substitution. Synthetic PE fixtures are not native Windows execution evidence; exact-head hosted Linux and native Windows execution, original artifact retention, independent qualification and reviews remain separate gates.

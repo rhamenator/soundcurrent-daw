@@ -251,6 +251,64 @@ class Images(unittest.TestCase):
         context.setdefault('collection_sha256', tool.digest(self.args.output / 'collection.json'))
         return tool.stage_package_profile(self.args.output, output or self.top / 'candidate', **context)
 
+    def verify_stage(self, **context):
+        directory = self.top / 'candidate'
+        context.setdefault('expected_source', self.head)
+        context.setdefault('platform', 'linux')
+        context.setdefault('collection_sha256', tool.digest(directory / 'provenance/collection.json'))
+        context.setdefault('candidate_sha256', tool.digest(directory / 'candidate.json'))
+        return tool.verify_staged_payload(directory, **context)
+
+    def test_staged_reader_accepts_pinned_complete_copy_without_admission(self):
+        tool.collect(self.args, self.source, 'linux'); self.stage()
+        result = self.verify_stage()
+        self.assertEqual(len(result['payload']), 4)
+        self.assertTrue(result['provenanceVerified'])
+        for flag in ['nativeExecutionPerformed', 'packageAdmissionGranted', 'dependencySourceBundleQualified',
+                     'standaloneBundleQualified', 'installerQualified', 'installedGuiQualified']:
+            self.assertIs(result[flag], False)
+        with self.assertRaises(RuntimeError): self.verify_stage(candidate_sha256='0' * 64)
+        with self.assertRaises(RuntimeError): self.verify_stage(collection_sha256='0' * 64)
+        with self.assertRaises(RuntimeError): self.verify_stage(expected_source='0' * 40)
+        with self.assertRaises(RuntimeError): self.verify_stage(platform='win32')
+
+    def test_staged_reader_refuses_unbound_extra_pending_and_link(self):
+        tool.collect(self.args, self.source, 'linux'); self.stage()
+        directory = self.top / 'candidate'
+        for name in ['extra', 'candidate.pending.json']:
+            path = directory / name; path.write_bytes(b'x')
+            with self.assertRaises(RuntimeError): self.verify_stage()
+            path.unlink()
+        path = directory / 'extra-dir'; path.mkdir()
+        with self.assertRaises(RuntimeError): self.verify_stage()
+        path.rmdir()
+        if os.name != 'nt':
+            path = directory / 'extra-link'; path.symlink_to(directory / 'candidate.json')
+            with self.assertRaises(RuntimeError): self.verify_stage()
+            path.unlink()
+
+    def test_staged_reader_refuses_payload_provenance_and_mode_tamper(self):
+        tool.collect(self.args, self.source, 'linux'); result = self.stage()
+        directory = self.top / 'candidate'
+        for name in [result['payload'][0]['stagedPath'], 'provenance/proof/controller.stdout']:
+            path = directory / name; old = path.read_bytes(); path.write_bytes(b'x' * len(old))
+            with self.assertRaises(RuntimeError): self.verify_stage()
+            path.write_bytes(old)
+        if os.name != 'nt':
+            path = directory / result['payload'][0]['stagedPath']; path.chmod(0o644)
+            with self.assertRaises(RuntimeError): self.verify_stage()
+
+    def test_staged_reader_refuses_receipt_authority_and_boolean_aliases(self):
+        tool.collect(self.args, self.source, 'linux'); result = self.stage()
+        path = self.top / 'candidate/candidate.json'
+        for key, value in [('packageAdmissionGranted', True), ('nativeExecutionPerformed', True),
+                           ('copiedCollectionVerified', 1), ('payloadBytesReadbackVerified', 1),
+                           ('sourceCommit', '0' * 40), ('unexpected', False)]:
+            changed = dict(result); changed[key] = value; write_json(path, changed)
+            with self.assertRaises(RuntimeError): self.verify_stage()
+        path.write_text('{"format":1,"format":2}')
+        with self.assertRaises(RuntimeError): self.verify_stage()
+
     def test_stage_pins_payload_and_copies_complete_provenance(self):
         tool.collect(self.args, self.source, 'linux')
         result = self.stage()
@@ -290,6 +348,7 @@ class Images(unittest.TestCase):
         write_json(self.receipt, self.data)
         tool.collect(self.args, self.source, 'win32')
         result = self.stage(platform='win32')
+        self.assertTrue(self.verify_stage(platform='win32')['provenanceVerified'])
         self.assertEqual(len(result['payload']), 4)
         self.assertTrue(all(r['stagedPath'] == 'payload/' + r['path'] and r['path'].endswith('.exe') for r in result['payload']))
 
