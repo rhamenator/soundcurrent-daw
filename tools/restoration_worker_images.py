@@ -6,6 +6,8 @@ import hashlib
 import gzip
 import io
 import json
+import os
+import stat
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import shutil
@@ -433,6 +435,56 @@ def stage_package_profile(directory, output, *, expected_source, platform, colle
     return result
 
 
+
+def verify_staged_payload(directory, *, expected_source, platform, collection_sha256, candidate_sha256):
+    """Verify staged bytes against two caller pins; never execute or admit a package."""
+    require(isinstance(candidate_sha256, str) and re.fullmatch('[0-9a-f]{64}', candidate_sha256),
+            'Invalid candidate receipt pin')
+    require(directory.is_dir() and not linked(directory), 'Invalid candidate directory')
+    raw = read(directory / 'candidate.json')
+    require(hashlib.sha256(raw).hexdigest() == candidate_sha256, 'Candidate differs from caller pin')
+    data = decode_json(raw)
+    verified = verify_package_profile(directory / 'provenance', expected_source=expected_source,
+                                      platform=platform, collection_sha256=collection_sha256)
+    payload = [dict(row, stagedPath='payload/' + row['payloadPath']) for row in verified['payload']]
+    expected_receipt = dict(format='sc-restoration-worker-payload-stage-v1', sourceCommit=expected_source,
+                  nativePlatform=platform, collectionSha256=collection_sha256,
+                  profileSha256=verified['profileSha256'], copiedCollection='provenance',
+                  copiedCollectionVerified=True, payload=payload, payloadBytesReadbackVerified=True,
+                  nativeExecutionPerformed=False, packageAdmissionGranted=False,
+                  defaultPreviewInventoryChanged=False, dependencySourceBundleQualified=False,
+                  standaloneBundleQualified=False, installerQualified=False, installedGuiQualified=False)
+    # JSON comparison preserves bool/int distinctions, unlike Python dictionary equality.
+    require(json.dumps(data, sort_keys=True) == json.dumps(expected_receipt, sort_keys=True),
+            'Candidate receipt schema/context differs')
+    manifest = read_json(directory / 'provenance/collection.json')
+    expected = {'candidate.json', 'provenance/collection.json'}
+    expected |= {'provenance/' + row['path'] for row in manifest['fileBindings']}
+    expected |= {row['stagedPath'] for row in payload}
+    directories = {'provenance', 'provenance/images', 'provenance/proof', 'payload'}
+    if platform == 'linux': directories |= {'payload/usr', 'payload/usr/bin'}
+    files = set()
+    for count, path in enumerate(directory.rglob('*')):
+        require(count < 64 and not linked(path), 'Linked/excess candidate entry')
+        relative = path.relative_to(directory).as_posix()
+        if path.is_dir(): require(relative in directories, 'Unexpected candidate directory')
+        else:
+            require(path.is_file(), 'Non-plain candidate entry'); files.add(relative)
+    require(files == expected, 'Candidate file set differs')
+    for row in payload:
+        path = directory / row['stagedPath']
+        require(path.stat().st_size == row['bytes'] and digest(path, row['bytes']) == row['sha256'],
+                'Candidate payload differs')
+        if platform == 'linux' and os.name != 'nt':
+            require(stat.S_IMODE(path.stat().st_mode) == 0o755, 'Candidate executable mode differs')
+    require(read(directory / 'candidate.json') == raw, 'Candidate receipt changed during verification')
+    return dict(format='sc-restoration-staged-payload-verification-v1', sourceCommit=expected_source,
+                nativePlatform=platform, collectionSha256=collection_sha256, candidateSha256=candidate_sha256,
+                payload=payload, provenanceVerified=True, nativeExecutionPerformed=False,
+                packageAdmissionGranted=False, dependencySourceBundleQualified=False,
+                standaloneBundleQualified=False, installerQualified=False, installedGuiQualified=False)
+
+
 def collect(args, root=ROOT, platform=sys.platform):
     inputs = read_json(args.inputs)
     require(inputs == source_snapshot(root, args.expected_source), 'Source differs from pre-build capture')
@@ -509,6 +561,10 @@ def collect(args, root=ROOT, platform=sys.platform):
     if getattr(args, 'stage_output', None) is not None:
         stage_package_profile(args.output, args.stage_output, expected_source=args.expected_source,
                               platform=platform, collection_sha256=digest(args.output / 'collection.json'))
+        # Producer consistency check only; qualification still requires independently admitted pins.
+        verify_staged_payload(args.stage_output, expected_source=args.expected_source, platform=platform,
+                              collection_sha256=digest(args.output / 'collection.json'),
+                              candidate_sha256=digest(args.stage_output / 'candidate.json'))
     print(json.dumps({'sourceCommit': inputs['sourceCommit'], 'nativeImages': 4,
                       'profileReadbackVerified': True, 'installerQualified': False}))
 
@@ -522,11 +578,23 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path)
     parser.add_argument('--allow-absent', action='store_true')
     parser.add_argument('--verify-profile', type=Path)
+    parser.add_argument('--verify-staged', type=Path)
+    parser.add_argument('--candidate-sha256')
     parser.add_argument('--collection-sha256')
     parser.add_argument('--stage-output', type=Path)
     args = parser.parse_args()
-    require(args.verify_profile is not None or args.collection_sha256 is None, 'Collection pin requires verification mode')
-    if args.verify_profile:
+    require(args.verify_profile is not None or args.verify_staged is not None or args.collection_sha256 is None,
+            'Collection pin requires verification mode')
+    require(args.verify_staged is not None or args.candidate_sha256 is None, 'Candidate pin requires staged mode')
+    if args.verify_staged:
+        require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent,
+                         args.verify_profile, args.stage_output))
+                and args.collection_sha256 is not None and args.candidate_sha256 is not None,
+                'Conflicting/incomplete staged verification inputs')
+        print(json.dumps(verify_staged_payload(args.verify_staged, expected_source=args.expected_source,
+                         platform=sys.platform, collection_sha256=args.collection_sha256,
+                         candidate_sha256=args.candidate_sha256)))
+    elif args.verify_profile:
         require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent))
                 and args.collection_sha256 is not None, 'Conflicting/incomplete profile verification inputs')
         if args.stage_output is not None:
