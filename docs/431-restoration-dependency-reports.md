@@ -1,0 +1,11 @@
+# Native restoration dependency reports
+
+The four restoration helpers now have a separate dependency-report capture path. It consumes the checked staged payload using explicit collection and candidate receipt pins, then invokes the host's `readelf --dynamic --wide` on Linux or Visual Studio `dumpbin /nologo /dependents` on native Windows. The inspector reads image metadata; helpers are not executed by this step.
+
+The reports are raw evidence for later dependency-closure review. They do not claim complete dynamic-load discovery, transitive dependency closure, corresponding dependency source, standalone installation, package admission, installed GUI acceptance, or release qualification. All those authority flags remain false. Default preview application inventories remain unchanged.
+
+Each inspector process has a 30-second deadline and independently bounded stdout/stderr drains of at most 1 MiB each, with no shell invocation. Failure, timeout, excessive output, changed helper/candidate/inspector bytes, or inventory mismatch leaves `reports.pending.json`; the final `reports.json` is published only after all four successful reports and readback. The inspector binary hash, helper byte pins, command/result records and all 16 report-file hashes are retained. The output contains exactly 17 files. This is point-in-time capture, without an atomic snapshot or crash-durability guarantee.
+
+The collector's optional `--dependency-output` requires `--stage-output`; `--dependency-tool` is accepted only with report output. Non-owning Linux shards return before collection, staging and report capture. The owning Linux shard and native Windows main desktop suite retain reports alongside the original collection and staged payload. Windows resolves `dumpbin.exe` beside the configured native CMake linker, because the preceding command shell's developer environment does not persist into PowerShell.
+
+Standalone capture uses `tools/restoration_dependency_reports.py --candidate DIRECTORY --output NEW_DIRECTORY --expected-source COMMIT --collection-sha256 PIN --candidate-sha256 PIN` and an optional `--inspector PATH`. Capture requires the actual native host platform. Producer-selected pins prove consistency only; independent exact-head Linux/Windows execution, original artifact integrity, report semantics and reviews remain merge requirements.

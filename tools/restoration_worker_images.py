@@ -565,6 +565,12 @@ def collect(args, root=ROOT, platform=sys.platform):
         verify_staged_payload(args.stage_output, expected_source=args.expected_source, platform=platform,
                               collection_sha256=digest(args.output / 'collection.json'),
                               candidate_sha256=digest(args.stage_output / 'candidate.json'))
+        if getattr(args, 'dependency_output', None) is not None:
+            from restoration_dependency_reports import capture_dependencies
+            capture_dependencies(args.stage_output, args.dependency_output, expected_source=args.expected_source,
+                                 platform=platform, collection_sha256=digest(args.output / 'collection.json'),
+                                 candidate_sha256=digest(args.stage_output / 'candidate.json'),
+                                 inspector=getattr(args, 'dependency_tool', None))
     print(json.dumps({'sourceCommit': inputs['sourceCommit'], 'nativeImages': 4,
                       'profileReadbackVerified': True, 'installerQualified': False}))
 
@@ -582,20 +588,24 @@ if __name__ == '__main__':
     parser.add_argument('--candidate-sha256')
     parser.add_argument('--collection-sha256')
     parser.add_argument('--stage-output', type=Path)
+    parser.add_argument('--dependency-output', type=Path)
+    parser.add_argument('--dependency-tool', type=Path)
     args = parser.parse_args()
     require(args.verify_profile is not None or args.verify_staged is not None or args.collection_sha256 is None,
             'Collection pin requires verification mode')
     require(args.verify_staged is not None or args.candidate_sha256 is None, 'Candidate pin requires staged mode')
+    require(args.dependency_output is not None or args.dependency_tool is None, 'Dependency tool requires report output')
+    require(args.dependency_output is None or args.stage_output is not None, 'Dependency reports require staged output')
     if args.verify_staged:
         require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent,
-                         args.verify_profile, args.stage_output))
+                         args.verify_profile, args.stage_output, args.dependency_output, args.dependency_tool))
                 and args.collection_sha256 is not None and args.candidate_sha256 is not None,
                 'Conflicting/incomplete staged verification inputs')
         print(json.dumps(verify_staged_payload(args.verify_staged, expected_source=args.expected_source,
                          platform=sys.platform, collection_sha256=args.collection_sha256,
                          candidate_sha256=args.candidate_sha256)))
     elif args.verify_profile:
-        require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent))
+        require(not any((args.snapshot_inputs, args.build, args.inputs, args.output, args.allow_absent, args.dependency_output, args.dependency_tool))
                 and args.collection_sha256 is not None, 'Conflicting/incomplete profile verification inputs')
         if args.stage_output is not None:
             print(json.dumps(stage_package_profile(args.verify_profile, args.stage_output,
@@ -605,7 +615,7 @@ if __name__ == '__main__':
             print(json.dumps(verify_package_profile(args.verify_profile, expected_source=args.expected_source,
                                                    platform=sys.platform, collection_sha256=args.collection_sha256)))
     elif args.snapshot_inputs:
-        require(not any((args.build, args.inputs, args.output, args.stage_output)) and not args.snapshot_inputs.exists(), 'Conflicting/existing snapshot output')
+        require(not any((args.build, args.inputs, args.output, args.stage_output, args.dependency_output, args.dependency_tool)) and not args.snapshot_inputs.exists(), 'Conflicting/existing snapshot output')
         args.snapshot_inputs.parent.mkdir(parents=True, exist_ok=True)
         args.snapshot_inputs.write_text(json.dumps(source_snapshot(ROOT, args.expected_source), indent=2) + '\n', encoding='utf-8')
     else:
