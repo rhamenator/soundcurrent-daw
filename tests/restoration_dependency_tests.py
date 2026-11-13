@@ -185,6 +185,177 @@ class Reports(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
 
+class ReportReader(unittest.TestCase):
+    def setUp(self):
+        self.f = Reports(); self.f.setUp()
+        fixtures.tool.collect(self.f.f.args, self.f.f.source, 'linux'); self.f.f.stage()
+        self.f.capture()
+        self.directory = self.f.output; self.candidate = self.f.f.top / 'candidate'
+        self.data = json.loads((self.directory / 'reports.json').read_text())
+        self.data['inspector']['path'] = '/usr/bin/readelf'
+        for row in self.data['reports']:
+            p = self.directory / row['command']; command = json.loads(p.read_text())
+            command['argv'][0] = '/usr/bin/readelf'; p.write_text(json.dumps(command))
+        self.repin()
+        self.original = {p.name: p.read_bytes() for p in self.directory.iterdir()}
+        self.context = dict(expected_source=self.f.f.head, platform='linux',
+                            collection_sha256=reports.digest(self.candidate / 'provenance/collection.json'),
+                            candidate_sha256=reports.digest(self.candidate / 'candidate.json'))
+
+    def tearDown(self):
+        self.f.tearDown()
+
+    def repin(self):
+        for row in self.data['fileBindings']:
+            p = self.directory / row['path']; row.update(bytes=p.stat().st_size, sha256=reports.digest(p))
+        (self.directory / 'reports.json').write_text(json.dumps(self.data))
+        self.pin = reports.digest(self.directory / 'reports.json')
+
+    def verify(self, **changes):
+        context = dict(self.context, reports_sha256=self.pin); context.update(changes)
+        with mock.patch.object(reports.subprocess, 'Popen', side_effect=AssertionError('Reader executed a process')):
+            return reports.verify_reports(self.directory, self.candidate, **context)
+
+    def test_synthetic_windows_reports_remain_readable_without_native_execution(self):
+        other = Reports(); other.setUp()
+        try:
+            other.f.test_stage_windows_contract_uses_flat_exe_payload(); data = other.capture('win32')
+            data['inspector']['path'] = r'C:\tools\dumpbin.exe'
+            for row in data['reports']:
+                p = other.output / row['command']; command = json.loads(p.read_text())
+                command['argv'][0] = data['inspector']['path']
+                command['argv'][3] = 'C:/bundle/' + row['imagePath']; p.write_text(json.dumps(command))
+            for row in data['fileBindings']:
+                p = other.output / row['path']; row.update(bytes=p.stat().st_size, sha256=reports.digest(p))
+            manifest = other.output / 'reports.json'; manifest.write_text(json.dumps(data))
+            with mock.patch.object(reports.subprocess, 'Popen', side_effect=AssertionError('Reader executed a process')):
+                result = reports.verify_reports(other.output, other.f.top / 'candidate', expected_source=other.f.head,
+                        platform='win32', collection_sha256=data['collectionSha256'],
+                        candidate_sha256=data['candidateSha256'], reports_sha256=reports.digest(manifest))
+            self.assertTrue(result['reportsVerified']); self.assertEqual(result['nativePlatform'], 'win32')
+            self.assertIs(result['nativeExecutionPerformed'], False)
+        finally:
+            other.tearDown()
+
+    def test_reader_is_read_only_and_keeps_authority_false(self):
+        before = {p.name: p.read_bytes() for p in self.directory.iterdir()}
+        result = self.verify()
+        self.assertTrue(result['reportsVerified']); self.assertEqual(result['reportsSha256'], self.pin)
+        for name in ['nativeExecutionPerformed', 'dependencyClosureQualified', 'dependencySourceBundleQualified',
+                     'standaloneBundleQualified', 'packageAdmissionGranted', 'installerQualified', 'installedGuiQualified']:
+            self.assertIs(result[name], False)
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.directory.iterdir()})
+        with self.assertRaises(RuntimeError): self.verify(reports_sha256='0' * 64)
+        with self.assertRaises(RuntimeError): self.verify(reports_sha256=True)
+        with self.assertRaises(RuntimeError): self.verify(expected_source='0' * 40)
+        with self.assertRaises(RuntimeError): self.verify(platform='win32')
+        with self.assertRaises(RuntimeError): self.verify(candidate_sha256='0' * 64)
+        with self.assertRaises(RuntimeError): self.verify(collection_sha256='0' * 64)
+
+    def test_semantic_mutations_are_refused_even_with_new_manifest_pin(self):
+        mutations = [
+            lambda d: d.update(packageAdmissionGranted=True),
+            lambda d: d.update(reportsCaptured=1),
+            lambda d: d.update(extra='unknown'),
+            lambda d: d.update(sourceCommit='0' * 40),
+            lambda d: d.update(candidateSha256='0' * 64),
+            lambda d: d['inspector'].update(bytes=True),
+            lambda d: d['inspector'].update(path='/usr/bin/other'),
+            lambda d: d['reports'][0].update(imageBytes=True),
+            lambda d: d['reports'][0].update(imageSha256='0' * 64),
+            lambda d: d['reports'][0].update(exitCode=False),
+            lambda d: d['reports'][0].update(stdout='../escape'),
+            lambda d: d['reports'].append(d['reports'][0]),
+            lambda d: d['fileBindings'].append(d['fileBindings'][0]),
+            lambda d: d['fileBindings'][0].update(path='../escape'),
+            lambda d: d['fileBindings'][0].update(bytes=True),
+        ]
+        original = json.loads(self.original['reports.json'])
+        for index, change in enumerate(mutations):
+            with self.subTest(mutation=index):
+                self.data = json.loads(json.dumps(original)); change(self.data)
+                path = self.directory / 'reports.json'; path.write_text(json.dumps(self.data)); self.pin = reports.digest(path)
+                with self.assertRaises(RuntimeError): self.verify()
+
+    def test_command_and_result_semantics_are_checked_beyond_hashes(self):
+        report = self.data['reports'][0]
+        cases = [('command', lambda d: d['argv'].__setitem__(1, '--execute')),
+                 ('command', lambda d: d['argv'].__setitem__(3, '/different/helper')),
+                 ('command', lambda d: d['argv'].__setitem__(3, 'relative/' + report['imagePath'])),
+                 ('result', lambda d: d.update(seconds=float('nan'))),
+                 ('result', lambda d: d.update(exitCode=False)),
+                 ('result', lambda d: d.update(stdoutBytes=True)),
+                 ('result', lambda d: d.update(errors=['failure']))]
+        for key, change in cases:
+            with self.subTest(key=key, change=str(change)):
+                for name, content in self.original.items(): (self.directory / name).write_bytes(content)
+                self.data = json.loads(self.original['reports.json'])
+                path = self.directory / report[key]; data = json.loads(path.read_text()); change(data)
+                path.write_text(json.dumps(data)); self.repin()
+                with self.assertRaises(RuntimeError): self.verify()
+
+    def test_changed_linked_pending_extra_and_duplicate_json_are_refused(self):
+        name = self.data['reports'][0]['stdout']; path = self.directory / name
+        path.write_bytes(b'changed')
+        with self.assertRaises(RuntimeError): self.verify()
+        path.write_bytes(self.original[name])
+        for name in ['extra', 'reports.pending.json']:
+            p = self.directory / name; p.write_bytes(b'pending')
+            with self.assertRaises(RuntimeError): self.verify()
+            p.unlink()
+        p = self.directory / 'extra'; p.mkdir()
+        with self.assertRaises(RuntimeError): self.verify()
+        p.rmdir()
+        try:
+            path.unlink(); path.symlink_to(self.candidate / 'candidate.json')
+        except OSError:
+            pass  # Native Windows may deny unprivileged symlinks; other refusals still run.
+        else:
+            with self.assertRaises(RuntimeError): self.verify()
+        finally:
+            if path.is_symlink(): path.unlink()
+            path.write_bytes(self.original[path.name])
+        manifest = self.directory / 'reports.json'; raw = manifest.read_bytes()
+        manifest.write_bytes(raw[:-1] + b',"reportsCaptured":true}')
+        self.pin = reports.digest(manifest)
+        with self.assertRaises(RuntimeError): self.verify()
+
+    def test_final_report_and_candidate_readback_refuse_mutation(self):
+        real_read = reports.read; target = self.directory / self.data['reports'][0]['stdout']; seen = 0
+        def changed(path, maximum=2 * 1024 * 1024):
+            nonlocal seen
+            raw = real_read(path, maximum)
+            if path == target:
+                seen += 1
+                if seen == 1: target.write_bytes(b'changed')
+            return raw
+        with mock.patch.object(reports, 'read', side_effect=changed):
+            with self.assertRaises(RuntimeError): self.verify()
+        target.write_bytes(self.original[target.name]); real_verify = reports.verify_staged_payload; calls = 0
+        def changed_candidate(*args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 2: raise RuntimeError('Injected candidate mutation')
+            return real_verify(*args, **kwargs)
+        with mock.patch.object(reports, 'verify_staged_payload', side_effect=changed_candidate):
+            with self.assertRaises(RuntimeError): self.verify()
+
+    def test_cli_reads_and_rejects_conflicting_modes_without_output(self):
+        cmd = [sys.executable, str(ROOT / 'tools/restoration_dependency_reports.py'), '--candidate', str(self.candidate),
+               '--expected-source', self.context['expected_source'], '--collection-sha256', self.context['collection_sha256'],
+               '--candidate-sha256', self.context['candidate_sha256']]
+        read_args = ['--verify-reports', str(self.directory), '--platform', 'linux', '--reports-sha256', self.pin]
+        p = subprocess.run(cmd + read_args, capture_output=True)
+        self.assertEqual(p.returncode, 0, p.stderr); self.assertTrue(json.loads(p.stdout)['reportsVerified'])
+        output = self.f.f.top / 'never-created'
+        for extra in [['--output', str(output)], ['--inspector', '/missing']]:
+            self.assertNotEqual(subprocess.run(cmd + read_args + extra, capture_output=True).returncode, 0)
+        for extra in [[], ['--verify-reports', str(self.directory)], ['--output', str(output), '--platform', 'linux'],
+                      ['--output', str(output), '--reports-sha256', self.pin]]:
+            self.assertNotEqual(subprocess.run(cmd + extra, capture_output=True).returncode, 0)
+        self.assertFalse(output.exists())
+
+
 class BoundedProcess(unittest.TestCase):
     def test_callers_cannot_raise_or_disable_resource_bounds(self):
         with tempfile.TemporaryDirectory() as temp:
