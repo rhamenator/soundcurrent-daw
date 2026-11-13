@@ -2,6 +2,7 @@
 """Direct names are an unresolved inventory, not dependency closure evidence."""
 import importlib.util
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -38,6 +39,15 @@ class Names(unittest.TestCase):
         result = direct.dependency_names(windows(['KERNEL32.dll', 'MSVCP140.DLL', 'KERNEL32.dll']), 'win32')
         self.assertEqual([r['lookupName'] for r in result], ['kernel32.dll', 'msvcp140.dll', 'kernel32.dll'])
         self.assertTrue(all(r['kind'] == 'import' for r in result))
+
+    def test_empty_linux_table_has_no_direct_names_and_no_closure_claim(self):
+        self.assertEqual(direct.dependency_names(linux([]), 'linux'), [])
+
+    def test_native_windows_main_selects_direct_inventory_contract(self):
+        source = (ROOT / '.github/workflows/ci.yml').read_text()
+        main = source.split('suite: main', 1)[1].split('suite:', 1)[0]
+        pattern = re.search(r'tests: "([^"\n]+)"', main)[1]
+        self.assertIsNotNone(re.fullmatch(pattern, 'restoration-direct-dependencies'))
 
     def test_malformed_unsafe_and_incomplete_reports_refuse(self):
         cases = [(b'', 'linux'), (b'unknown report', 'linux'), (linux(['libc.so.6'])[:-20], 'linux'),
@@ -104,6 +114,44 @@ class Inventory(unittest.TestCase):
             return result
         with mock.patch.object(direct, 'verify_reports', side_effect=changed):
             with self.assertRaises(RuntimeError): self.inventory()
+
+    def test_synthetic_windows_inventory_api_and_cli_keep_native_names(self):
+        other = fixtures.Reports(); other.setUp()
+        try:
+            other.f.test_stage_windows_contract_uses_flat_exe_payload(); data = other.capture('win32')
+            data['inspector']['path'] = r'C:\VS\dumpbin.exe'
+            for row in data['reports']:
+                raw = windows(['KERNEL32.dll', 'sndfile.dll', 'KERNEL32.dll'])
+                (other.output / row['stdout']).write_bytes(raw)
+                path = other.output / row['result']; result = json.loads(path.read_text())
+                result['stdoutBytes'] = len(raw); path.write_text(json.dumps(result))
+                path = other.output / row['command']; command = json.loads(path.read_text())
+                command['argv'][0] = data['inspector']['path']
+                command['argv'][3] = 'C:/bundle/' + row['imagePath']; path.write_text(json.dumps(command))
+            for row in data['fileBindings']:
+                path = other.output / row['path']; row.update(bytes=path.stat().st_size, sha256=reports.digest(path))
+            manifest = other.output / 'reports.json'; manifest.write_text(json.dumps(data))
+            pin = reports.digest(manifest); candidate = other.f.top / 'candidate'
+            context = dict(expected_source=other.f.head, platform='win32', collection_sha256=data['collectionSha256'],
+                           candidate_sha256=data['candidateSha256'], reports_sha256=pin)
+            before = {p.name: p.read_bytes() for p in other.output.iterdir()}
+            with mock.patch.object(subprocess, 'Popen', side_effect=AssertionError('Inventory executed a process')):
+                result = direct.inventory_dependencies(other.output, candidate, **context)
+            self.assertTrue(all([d['name'] for d in r['dependencies']] == ['KERNEL32.dll', 'sndfile.dll', 'KERNEL32.dll']
+                                for r in result['roles']))
+            self.assertTrue(all([d['lookupName'] for d in r['dependencies']] == ['kernel32.dll', 'sndfile.dll', 'kernel32.dll']
+                                for r in result['roles']))
+            cmd = [sys.executable, str(ROOT / 'tools/restoration_direct_dependencies.py'), '--reports', str(other.output),
+                   '--candidate', str(candidate), '--platform', 'win32', '--expected-source', other.f.head,
+                   '--collection-sha256', data['collectionSha256'], '--candidate-sha256', data['candidateSha256'],
+                   '--reports-sha256', pin]
+            child = subprocess.run(cmd, capture_output=True, timeout=10)
+            self.assertEqual(child.returncode, 0, child.stderr)
+            self.assertEqual(json.loads(child.stdout), result)
+            self.assertTrue(all(result[name] is False for name in direct.FLAGS))
+            self.assertEqual(before, {p.name: p.read_bytes() for p in other.output.iterdir()})
+        finally:
+            other.tearDown()
 
     def test_cli_inventory_has_no_output_files(self):
         cmd = [sys.executable, str(ROOT / 'tools/restoration_direct_dependencies.py'),
