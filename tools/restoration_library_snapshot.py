@@ -42,10 +42,13 @@ def snapshot_libraries(directory, candidate, selections, output, *, selections_s
     selection_raw = read(selections, 1024 * 1024)
     require(hashlib.sha256(selection_raw).hexdigest() == selections_sha256, 'Selection changed before snapshot')
     output = output.absolute()
-    require('..' not in output.parts and not any(output.is_relative_to(p.resolve()) for p in (directory, candidate)),
-            'Snapshot output overlaps a checked report or candidate directory')
+    require('..' not in output.parts, 'Ambiguous snapshot output path')
     for parent in output.parents: require(not linked(parent), 'Linked snapshot parent')
     require(not output.exists() and not linked(output), 'Snapshot output must be new')
+    # Normalize both sides: Windows short-name aliases can differ from resolve().
+    canonical_output = output.resolve(strict=False)
+    require(not any(canonical_output.is_relative_to(p.resolve()) for p in (directory, candidate)),
+            'Snapshot output overlaps a checked report or candidate directory')
     output.mkdir()
     marker = encoded(dict(format='sc-restoration-library-snapshot-pending-v1', sourceCommit=binding['sourceCommit']))
     with (output/'snapshot.pending.json').open('xb') as stream: stream.write(marker)

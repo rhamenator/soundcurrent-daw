@@ -78,6 +78,17 @@ class Snapshot(unittest.TestCase):
         with self.assertRaises(RuntimeError): self.capture()
         self.assertFalse(self.output.exists())
 
+    def test_resolved_alias_overlap_refuses_before_creating_output(self):
+        self.output = self.f.f.directory/'new-output'
+        real = Path.resolve; canonical = self.output.parent.parent/'canonical-name'
+        def resolved(path, *args, **kwargs):
+            if path == self.f.f.directory: return canonical
+            if path == self.output: return canonical/'new-output'
+            return real(path, *args, **kwargs)
+        with mock.patch.object(Path, 'resolve', resolved):
+            with self.assertRaises(RuntimeError): self.capture()
+        self.assertFalse(self.output.exists())
+
     def test_changed_provenance_refuses_publication(self):
         real = snapshot.bind_libraries; calls = []
         def changed(*args, **kwargs):
