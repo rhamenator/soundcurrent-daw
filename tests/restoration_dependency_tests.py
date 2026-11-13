@@ -236,6 +236,19 @@ class ReportReader(unittest.TestCase):
                         candidate_sha256=data['candidateSha256'], reports_sha256=reports.digest(manifest))
             self.assertTrue(result['reportsVerified']); self.assertEqual(result['nativePlatform'], 'win32')
             self.assertIs(result['nativeExecutionPerformed'], False)
+            # Windows accepts its native separators and case-insensitive components.
+            for row in data['reports']:
+                p = other.output / row['command']; command = json.loads(p.read_text())
+                command['argv'][3] = 'C:' + chr(92) + 'bundle' + chr(92) + row['imagePath'].replace('/', chr(92)).upper()
+                p.write_text(json.dumps(command))
+            for row in data['fileBindings']:
+                p = other.output / row['path']; row.update(bytes=p.stat().st_size, sha256=reports.digest(p))
+            manifest.write_text(json.dumps(data))
+            with mock.patch.object(reports.subprocess, 'Popen', side_effect=AssertionError('Reader executed a process')):
+                result = reports.verify_reports(other.output, other.f.top / 'candidate', expected_source=other.f.head,
+                        platform='win32', collection_sha256=data['collectionSha256'],
+                        candidate_sha256=data['candidateSha256'], reports_sha256=reports.digest(manifest))
+            self.assertTrue(result['reportsVerified'])
         finally:
             other.tearDown()
 
@@ -285,6 +298,7 @@ class ReportReader(unittest.TestCase):
                  ('command', lambda d: d['argv'].__setitem__(3, '/different/helper')),
                  ('command', lambda d: d['argv'].__setitem__(3, 'relative/' + report['imagePath'])),
                  ('command', lambda d: d['argv'].__setitem__(3, 'C:/bundle/' + report['imagePath'])),
+                 ('command', lambda d: d['argv'].__setitem__(3, '/bundle/' + report['imagePath'].replace('/', chr(92)))),
                  ('result', lambda d: d.update(seconds=float('nan'))),
                  ('result', lambda d: d.update(exitCode=False)),
                  ('result', lambda d: d.update(stdoutBytes=True)),

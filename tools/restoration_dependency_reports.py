@@ -249,7 +249,8 @@ def verify_reports(directory, candidate, *, expected_source, platform, collectio
                 and argv[0] == tool['path'] and argv[1:3] == options, 'Report inspector command differs')
         image_path = path_type(argv[3])
         require(image_path.is_absolute() and '..' not in image_path.parts
-                and argv[3].replace('\\', '/').endswith('/' + image['stagedPath']), 'Report image path differs')
+                and path_type(*image_path.parts[-len(path_type(image['stagedPath']).parts):])
+                == path_type(image['stagedPath']), 'Report image path differs')
         result = decode_json(pins[row['result']])
         require(type(result) is dict and set(result) == {'exitCode', 'seconds', 'stdoutBytes', 'stderrBytes', 'errors'}
                 and type(result['exitCode']) is int and result['exitCode'] == 0 and result['errors'] == []
