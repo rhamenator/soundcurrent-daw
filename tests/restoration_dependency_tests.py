@@ -195,7 +195,9 @@ class ReportReader(unittest.TestCase):
         self.data['inspector']['path'] = '/usr/bin/readelf'
         for row in self.data['reports']:
             p = self.directory / row['command']; command = json.loads(p.read_text())
-            command['argv'][0] = '/usr/bin/readelf'; p.write_text(json.dumps(command))
+            command['argv'][0] = '/usr/bin/readelf'
+            command['argv'][3] = '/bundle/' + row['imagePath']
+            p.write_text(json.dumps(command))
         self.repin()
         self.original = {p.name: p.read_bytes() for p in self.directory.iterdir()}
         self.context = dict(expected_source=self.f.f.head, platform='linux',
@@ -282,6 +284,7 @@ class ReportReader(unittest.TestCase):
         cases = [('command', lambda d: d['argv'].__setitem__(1, '--execute')),
                  ('command', lambda d: d['argv'].__setitem__(3, '/different/helper')),
                  ('command', lambda d: d['argv'].__setitem__(3, 'relative/' + report['imagePath'])),
+                 ('command', lambda d: d['argv'].__setitem__(3, 'C:/bundle/' + report['imagePath'])),
                  ('result', lambda d: d.update(seconds=float('nan'))),
                  ('result', lambda d: d.update(exitCode=False)),
                  ('result', lambda d: d.update(stdoutBytes=True)),

@@ -64,7 +64,8 @@ jobs:
           SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --build build --inputs .cache/restoration-worker-build-inputs.json --output build/restoration-worker-images --stage-output build/restoration-worker-payload --dependency-output build/restoration-worker-dependencies --allow-absent
-          if [ -f build/restoration-worker-dependencies/reports.json ]; then
+          if [ -f build/restoration-worker-payload/candidate.json ]; then
+            test -f build/restoration-worker-dependencies/reports.json
             python3 tools/restoration_dependency_reports.py --verify-reports build/restoration-worker-dependencies --candidate build/restoration-worker-payload --platform linux --expected-source "$SC_RESTORATION_SOURCE" --collection-sha256 "$(sha256sum build/restoration-worker-payload/provenance/collection.json | cut -d ' ' -f 1)" --candidate-sha256 "$(sha256sum build/restoration-worker-payload/candidate.json | cut -d ' ' -f 1)" --reports-sha256 "$(sha256sum build/restoration-worker-dependencies/reports.json | cut -d ' ' -f 1)" > build/restoration-worker-dependency-verification.json
           fi
       - name: Verify controller failure retention
