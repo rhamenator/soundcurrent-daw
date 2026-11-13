@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +57,26 @@ class Bindings(unittest.TestCase):
     def test_empty_selection_keeps_every_name_unbound(self):
         self.data['files'] = []; self.repin()
         self.assertEqual(self.bind()['unboundNames'], ['libc.so.6', 'libcrypto.so.3'])
+
+    def test_path_and_handle_ctime_domains_may_differ(self):
+        real = os.fstat
+        def different_domain(fd):
+            value = real(fd)
+            fields = {k: getattr(value, k) for k in ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns']}
+            fields['st_ctime_ns'] += 123456789
+            return SimpleNamespace(**fields)
+        with mock.patch.object(os, 'fstat', side_effect=different_domain):
+            self.assertEqual(self.bind()['selectedFiles'], [self.row])
+
+    def test_handle_ctime_change_still_refuses(self):
+        real = os.fstat; calls = []
+        def changed(fd):
+            value = real(fd); calls.append(1)
+            fields = {k: getattr(value, k) for k in ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns']}
+            fields['st_ctime_ns'] += len(calls)
+            return SimpleNamespace(**fields)
+        with mock.patch.object(os, 'fstat', side_effect=changed):
+            with self.assertRaises(RuntimeError): self.bind()
 
     def test_context_schema_name_and_extent_refusals(self):
         original = json.loads(json.dumps(self.data))

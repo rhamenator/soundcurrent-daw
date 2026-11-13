@@ -43,10 +43,14 @@ def selected_bytes(row):
             if not block: break
             size += len(block); require(size <= row['bytes'], 'Selected library grew'); digest.update(block)
         after = os.fstat(stream.fileno())
-    fingerprint = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+    # Some Windows Python versions expose creation time through path stat's
+    # ctime and change time through fstat's ctime. Compare each API with itself.
+    identity = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns)
     for part in (path, *path.parents):
         require(not linked(part), 'Linked selected library path after read')
-    require(fingerprint(before) == fingerprint(opened) == fingerprint(after) == fingerprint(path.stat())
+    final = path.stat()
+    require(identity(before) == identity(opened) == identity(after) == identity(final)
+            and before.st_ctime_ns == final.st_ctime_ns and opened.st_ctime_ns == after.st_ctime_ns
             and not linked(path) and size == row['bytes'] and digest.hexdigest() == row['sha256'],
             'Selected library bytes changed or differ from pin')
     return dict(row)
