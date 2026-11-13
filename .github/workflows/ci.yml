@@ -62,7 +62,12 @@ jobs:
       - name: Collect native restoration images and repository source
         env:
           SC_RESTORATION_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --build build --inputs .cache/restoration-worker-build-inputs.json --output build/restoration-worker-images --stage-output build/restoration-worker-payload --dependency-output build/restoration-worker-dependencies --allow-absent
+        run: |
+          python3 tools/restoration_worker_images.py --expected-source "$SC_RESTORATION_SOURCE" --build build --inputs .cache/restoration-worker-build-inputs.json --output build/restoration-worker-images --stage-output build/restoration-worker-payload --dependency-output build/restoration-worker-dependencies --allow-absent
+          if [ -f build/restoration-worker-payload/candidate.json ]; then
+            test -f build/restoration-worker-dependencies/reports.json
+            python3 tools/restoration_dependency_reports.py --verify-reports build/restoration-worker-dependencies --candidate build/restoration-worker-payload --platform linux --expected-source "$SC_RESTORATION_SOURCE" --collection-sha256 "$(sha256sum build/restoration-worker-payload/provenance/collection.json | cut -d ' ' -f 1)" --candidate-sha256 "$(sha256sum build/restoration-worker-payload/candidate.json | cut -d ' ' -f 1)" --reports-sha256 "$(sha256sum build/restoration-worker-dependencies/reports.json | cut -d ' ' -f 1)" > build/restoration-worker-dependency-verification.json
+          fi
       - name: Verify controller failure retention
         if: always()
         run: python3 tests/controller_retention_tests.py
@@ -89,6 +94,7 @@ jobs:
             build/restoration-worker-images/**
             build/restoration-worker-payload/**
             build/restoration-worker-dependencies/**
+            build/restoration-worker-dependency-verification.json
             build/controller-failure-projects/**
             build/comp-assembly-state-evidence/**
             build/comp-assembly-job-evidence/**
@@ -506,6 +512,11 @@ jobs:
           if (!(Test-Path -LiteralPath $dumpbin -PathType Leaf)) { throw "Native dependency inspector unavailable" }
           python tools/restoration_worker_images.py --expected-source $env:SC_RESTORATION_SOURCE --build build-desktop-native --inputs .cache/windows-preview-build-inputs.json --output build-desktop-native/restoration-worker-images --stage-output build-desktop-native/restoration-worker-payload --dependency-output build-desktop-native/restoration-worker-dependencies --dependency-tool "$dumpbin"
           if ($LASTEXITCODE -ne 0) { throw "Restoration image/source collection failed" }
+          $collectionPin = (Get-FileHash -LiteralPath build-desktop-native/restoration-worker-payload/provenance/collection.json -Algorithm SHA256).Hash.ToLowerInvariant()
+          $candidatePin = (Get-FileHash -LiteralPath build-desktop-native/restoration-worker-payload/candidate.json -Algorithm SHA256).Hash.ToLowerInvariant()
+          $reportsPin = (Get-FileHash -LiteralPath build-desktop-native/restoration-worker-dependencies/reports.json -Algorithm SHA256).Hash.ToLowerInvariant()
+          python tools/restoration_dependency_reports.py --verify-reports build-desktop-native/restoration-worker-dependencies --candidate build-desktop-native/restoration-worker-payload --platform win32 --expected-source $env:SC_RESTORATION_SOURCE --collection-sha256 $collectionPin --candidate-sha256 $candidatePin --reports-sha256 $reportsPin | Out-File -Encoding utf8 build-desktop-native/restoration-worker-dependency-verification.json
+          if ($LASTEXITCODE -ne 0) { throw "Dependency report verification failed" }
       - name: Collect native preview deployment inputs (not an installer)
         if: matrix.suite == 'main' && (github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'codex/windows-'))
         shell: pwsh
@@ -567,6 +578,7 @@ jobs:
             build-desktop-native/restoration-worker-images/**
             build-desktop-native/restoration-worker-payload/**
             build-desktop-native/restoration-worker-dependencies/**
+            build-desktop-native/restoration-worker-dependency-verification.json
             build-desktop-native/Testing/crossfade-ui/*.png
             build-desktop-native/controller-failure-projects/**
             build-desktop-native/parent-observation-timing/*.json
