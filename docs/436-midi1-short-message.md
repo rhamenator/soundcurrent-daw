@@ -19,7 +19,10 @@ in particular, live status FF denotes Reset, not an SMF meta-event prefix.
 Construction and access have fixed storage, bounded work, no exceptions and no
 allocation, locks or I/O. Tests cover every status and supplied length, every byte
 in each data position, every legal pair of data values, source-buffer independence,
-constant evaluation and the runtime allocation/lock audit.
+constant evaluation and the available runtime audit instrumentation. Linux wraps
+C allocation and pthread mutex entry points as well as C++ allocation; Windows
+instruments C++ allocation only. A zero count is limited to those intercepted
+paths and does not establish complete platform callback safety.
 
 This provides a message representation for subsequent shared controller and
 sample-timed event work. It does not add ports, recording, device reconnect,

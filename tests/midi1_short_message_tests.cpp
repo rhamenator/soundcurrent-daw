@@ -71,7 +71,7 @@ int main() {
         require(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree &&
                 !rt_audit::counts.cAllocate && !rt_audit::counts.cFree &&
                 !rt_audit::counts.blockingLock);
-        std::cout << "MIDI1 short messages: all statuses/lengths/data bytes, owned bytes, allocation/lock audit0\n";
+        std::cout << "MIDI1 short messages: all statuses/lengths/data bytes, owned bytes, instrumented audit0\n";
         return 0;
     } catch (const std::exception &error) {
         std::cerr << error.what() << '\n'; return 1;
