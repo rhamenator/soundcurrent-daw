@@ -1,0 +1,114 @@
+{
+  "run": 38642154345,
+  "head": "426313713300099076c9f494c58756d65a5875e4",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 116120075867,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "conclusion": "success",
+      "logBytes": 101847,
+      "logSha256": "1545448f7dc10516540038bc3a055d56b58dbcf63bb296883a9c512e575240aa"
+    },
+    {
+      "id": 116120076219,
+      "name": "Windows native packet ownership tests",
+      "conclusion": "success",
+      "logBytes": 1304954,
+      "logSha256": "a046910a69913b1361316f84acf774568d5810dbd5165becaae6d57c7582dc67"
+    },
+    {
+      "id": 116120076333,
+      "name": "Linux desktop and synthetic tests",
+      "conclusion": "failure",
+      "logBytes": 236289,
+      "logSha256": "c771440ff64f3820386ccfbf688e62fb62344cf359dc4654be502aa6e7760328"
+    },
+    {
+      "id": 116120076351,
+      "name": "Windows desktop import and localization tests",
+      "conclusion": "failure",
+      "logBytes": 1468797,
+      "logSha256": "5a848db4bab963bbb1336af54ef8a46f9126b4b79006927c3d186725d4b5db49"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11932002605,
+      "name": "linux-synthetic-test-log",
+      "bytes": 196384056,
+      "sha256": "sha256:b0c0d6c6ab12793bcacf2bab9eecd4cf106e6d8d1754db769ef7e1b23700b64c",
+      "entries": 4743,
+      "pngs": 12
+    },
+    {
+      "id": 11931870782,
+      "name": "windows-native-packet-unit-log",
+      "bytes": 141069661,
+      "sha256": "sha256:69e20d606d684ef14354adccfd4b8117b6b2d7263dcb85bd8cda32c3a3cb0cda",
+      "entries": 1838,
+      "pngs": 0
+    },
+    {
+      "id": 11931404068,
+      "name": "windows-media-build-review",
+      "bytes": 438050,
+      "sha256": "sha256:f75f151dc6b19342e577b39de298482a20c85f3ca61018a9ce2b1b7ff277fbe3",
+      "entries": 7,
+      "pngs": 0
+    },
+    {
+      "id": 11930894291,
+      "name": "windows-desktop-import-test-log",
+      "bytes": 85266677,
+      "sha256": "sha256:1e4c0cfb61627fb3492024e5b2202cc0b79cd241f918e79579c5149cef4c8cfc",
+      "entries": 3004,
+      "pngs": 12
+    }
+  ],
+  "workflows": {
+    "linux/comp-assembly-ui": {
+      "complete": true,
+      "cases": 6,
+      "checks": 87
+    },
+    "linux/comp-assembly-controller": {
+      "complete": true,
+      "cases": 15,
+      "checks": 171
+    },
+    "linux/comp-transition-ui": {
+      "complete": true,
+      "cases": 8,
+      "checks": 174
+    },
+    "windows/comp-assembly-ui": {
+      "complete": true,
+      "cases": 6,
+      "checks": 87
+    },
+    "windows/comp-assembly-controller": {
+      "complete": true,
+      "cases": 15,
+      "checks": 171
+    },
+    "windows/comp-transition-ui": {
+      "complete": false,
+      "completedRateReports": [
+        44100
+      ],
+      "failure": "Unicode path converted through Windows legacy code page in missing-helper case; no complete 48/96 kHz report"
+    }
+  },
+  "originalWindowsMixedEncodingLogAcceptedWithoutModification": true,
+  "originalWindowsCTestLogSha256": "be26766200fe1283e3e20c2e5a797b9cf1ebfed943188480d7cc81df14d6e22a",
+  "allOriginalArchivesAndPngsRetained": true,
+  "fullOriginalLogsAndApisRetained": true,
+  "windowsDeploymentBundleProduced": false,
+  "windowsDeploymentBundleAudit": "Unavailable: desktop test failure skipped collection; no new installation claim",
+  "linuxFailure": "desktop-paired-crossfade: 350px dialog, viewport312/body323/horizontal11; wrapping option captions corrected locally",
+  "windowsFailure": "desktop-comp-transition-create: mode4 filesystem path .string conversion; corrected to explicit UTF8",
+  "windowsRetentionFailure": "Mixed-encoding unrelated diagnostic caused strict whole-log decode; marker-only strict UTF8 verified on retained original log",
+  "qualityAdmission": false,
+  "newNativeWindowsQualification": false
+}

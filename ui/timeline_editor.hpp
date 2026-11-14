@@ -26,18 +26,21 @@ class TimelineEditor : public QGroupBox {
     explicit TimelineEditor(QWidget *parent = nullptr, ResourceLedger = ResourceLedger{});
     struct Prepared;
     std::shared_ptr<Prepared> prepareModel(std::shared_ptr<const Session>, std::uint64_t epoch,
-                                           bool editable) const;
+                                           bool editable, std::filesystem::path root = {}) const;
     void commitModel(std::shared_ptr<Prepared>);
     std::optional<Id> preparedTrack(const std::shared_ptr<Prepared> &) const;
     void editing(bool);
+    void shutdownWaveforms() { view_->shutdownWaveforms(); }
+    bool waveformsClosed() const { return view_->waveformsClosed(); }
     std::size_t resourceBytes() const;
     std::function<bool(std::shared_ptr<const Session>, std::optional<Id>)> selectionAdmission;
     ~TimelineEditor() override;
     std::function<bool(std::vector<SessionEdit>)> submit;
     std::function<void()> selectionChanged;
     std::function<void(Id, Id)> pitchStretchRequested;
+    std::function<bool(PrepareCompTransition,Frame,std::uint64_t)> compRenderRequested;
     std::function<bool(Id, Id, std::uint64_t)> takeAuditionRequested;
-    void updateModel(std::shared_ptr<const Session>, std::uint64_t epoch, bool editable);
+    void updateModel(std::shared_ptr<const Session>, std::uint64_t epoch, bool editable, std::filesystem::path root = {});
     std::optional<Id> selectedTrack() const {
         return track_;
     }
@@ -48,10 +51,12 @@ class TimelineEditor : public QGroupBox {
 
   private:
     std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>, std::uint64_t, bool,
-                                      std::optional<Id>, std::optional<Id>, bool) const;
+                                      std::optional<Id>, std::optional<Id>, bool, std::filesystem::path) const;
     bool select(std::optional<Id>, std::optional<Id>);
+    ResourceLedger versionMemory_;
     std::shared_ptr<const Session> model_;
     std::uint64_t epoch_ = 0;
+    std::filesystem::path root_;
     bool editable_ = false, refreshing_ = false;
     std::optional<Id> track_, clip_, pendingTrack_;
     QListView *tracks_;
@@ -65,6 +70,7 @@ class TimelineEditor : public QGroupBox {
     const TakeLane *takeLane() const;
     void refreshTake(bool force);
     void editCrossfade();
+    void editTrackVersions();
     QLineEdit *name_, *start_, *source_, *length_, *split_, *consumed_;
     QLabel *sourceTiming_;
     QComboBox *layout_, *destination_, *asset_, *clips_;

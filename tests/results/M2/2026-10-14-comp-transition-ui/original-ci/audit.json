@@ -1,0 +1,485 @@
+{
+  "run": 38636449748,
+  "head": "d2ec165d597e2e17fe71a5a09f60bdaef395a6a6",
+  "conclusion": "success",
+  "allFourOriginalJobsSuccessful": true,
+  "allFullJobLogsRetained": true,
+  "artifacts": [
+    {
+      "id": 11929875158,
+      "name": "windows-preview-build-inputs",
+      "bytes": 124011650,
+      "sha256": "8f854228b4b8299bccf67616ce9a3a1cf2b1490adb20252da9b5941de29ee69a",
+      "entries": 47,
+      "pngs": []
+    },
+    {
+      "id": 11929871683,
+      "name": "linux-synthetic-test-log",
+      "bytes": 152988715,
+      "sha256": "ba93f12a8c2dd875c8a8a25ff5a62db7d76acc310b65e3fb327fa7f074d8bd05",
+      "entries": 3139,
+      "pngs": []
+    },
+    {
+      "id": 11929835260,
+      "name": "windows-media-build-review",
+      "bytes": 438050,
+      "sha256": "8cc1c469d4aee5ff6003eb76946cb6b27e6c51d250d53be2e85cc7e5c490ffa0",
+      "entries": 7,
+      "pngs": []
+    },
+    {
+      "id": 11928633478,
+      "name": "windows-native-packet-unit-log",
+      "bytes": 141069894,
+      "sha256": "e7842590fe3190eb051c958117d36e9ad7a0caa93cdf9d174b1101270521f4a9",
+      "entries": 1838,
+      "pngs": []
+    },
+    {
+      "id": 11928529037,
+      "name": "windows-desktop-import-test-log",
+      "bytes": 46326453,
+      "sha256": "8244ed8bea6d4a5fd292ab6e0642a7e6a99b128fb4153ec19e6e5042229d74dc",
+      "entries": 1578,
+      "pngs": [
+        "build-desktop-native/Testing/crossfade-ui/default.png",
+        "build-desktop-native/Testing/crossfade-ui/small.png"
+      ]
+    }
+  ],
+  "adoption": [
+    {
+      "artifact": "linux-synthetic-test-log",
+      "path": "comp-assembly-job-evidence/run-afepmxie/report.json",
+      "reports": [
+        {
+          "actualPowerLossTested": false,
+          "adoption": {
+            "exportBlockFrames": 127,
+            "exportFileSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+            "exportPeak": 4.117021560668945,
+            "exportSampleSha256": "c2c9143ad551c584229fe3d2069549fadf8eece79f876ff1a48f342148ab7016",
+            "liveCallbackFrames": 193,
+            "liveCoreSamples": 71332,
+            "liveEqualsExport": true,
+            "mainWindow": false,
+            "physicalAudio": false,
+            "registeredProjectRestored": true,
+            "savedReopened": true,
+            "schema": "1.23",
+            "undoRedo": true
+          },
+          "canceledJobs": 1,
+          "checks": 291,
+          "comparedSamples": 71436,
+          "completedJobs": 1,
+          "executorSha256": "c1e610ccc5c99b0bac4eb878b6e358af9f95c9614cece48758095a6b2d9eca2b",
+          "interruptedJobs": 2,
+          "jobs": [
+            {
+              "case": "complete",
+              "operation": "d14a4aad-3642-4b2e-a129-66abbf74eb1f",
+              "requestDigest": "ad6198d72ee1b6111e84cfe43cf2a61a3f9fa16f647f5a0b430ce788f7510385"
+            },
+            {
+              "case": "after-close",
+              "operation": "0effc03a-dae0-4739-8774-71ad168168b1",
+              "requestDigest": "487e709fd5caa20e0d47bc53ece9f3ae36d36f4b8a075d8216f61de6a37dc31d"
+            },
+            {
+              "case": "cancel-after-first-file",
+              "operation": "20170244-39b0-4015-a78e-0f4f049cd9fe",
+              "requestDigest": "b2077e078e8732b190451a9a4fdb198731537d828488decf8a6b6c846c4c72ba"
+            },
+            {
+              "case": "before-completion",
+              "operation": "973cea28-4255-4469-b03c-72f37af5a6a9",
+              "requestDigest": "ced111030a28f4ad3e4d70fcd614ee8fe4ab56dbad6b77bef9772bcbdea5f77c"
+            },
+            {
+              "case": "precancel",
+              "operation": "4b6bf9c7-5817-4fcb-a68d-1c17ca7ddc36",
+              "requestDigest": "0c05c80160eff98b9885483e8fad8433a1b39b0d34313c6b373b5da2818d771c"
+            }
+          ],
+          "modelAdoptionChanged": true,
+          "osMemoryCeilingClaimed": false,
+          "qualityAdmission": false,
+          "requestReferenceInProject": true,
+          "requestSidecarReopenRelocation": true,
+          "sourceBasedFullPcmRefusal": true
+        },
+        {
+          "actualPowerLossTested": false,
+          "adoption": {
+            "exportBlockFrames": 127,
+            "exportFileSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+            "exportPeak": 3.6371512413024902,
+            "exportSampleSha256": "be451893d986e0f36c1ab7ede4464379edd9c02df51200d18f838ab10b609e09",
+            "liveCallbackFrames": 193,
+            "liveCoreSamples": 98304,
+            "liveEqualsExport": true,
+            "mainWindow": false,
+            "physicalAudio": false,
+            "registeredProjectRestored": true,
+            "savedReopened": true,
+            "schema": "1.23",
+            "undoRedo": true
+          },
+          "canceledJobs": 1,
+          "checks": 361,
+          "comparedSamples": 98408,
+          "completedJobs": 1,
+          "executorSha256": "c1e610ccc5c99b0bac4eb878b6e358af9f95c9614cece48758095a6b2d9eca2b",
+          "interruptedJobs": 2,
+          "jobs": [
+            {
+              "case": "complete",
+              "operation": "d344bdfc-7cb5-4823-839a-d63f2e447e03",
+              "requestDigest": "4b7417cdc0d3978f33bcdb075931b275b986376a9c78dd4715048ae26b8b8746"
+            },
+            {
+              "case": "after-close",
+              "operation": "62fdcff0-897c-4aa3-8f1a-39a3b17e46c0",
+              "requestDigest": "981096cb575ef2ba771972d61034e871e36bd774080c7a15670918bb04912971"
+            },
+            {
+              "case": "cancel-after-first-file",
+              "operation": "d4e9acb5-3267-47dd-a9cc-12e03b74bcc1",
+              "requestDigest": "ad808def2e724cc759eb5bb493c0ca1b02a742928199ded1fd539622071e7c9a"
+            },
+            {
+              "case": "before-completion",
+              "operation": "6eab4d41-44ce-401b-8fa5-66859c37e9fd",
+              "requestDigest": "8a442e3ef633bef301e8064cece4f6093c3e4ff1a09dedebc81623a6aeb25f84"
+            },
+            {
+              "case": "precancel",
+              "operation": "21dac315-0306-47f1-9617-db092c332551",
+              "requestDigest": "dbeaa3f008739a731ff137d0beebad29b51fcb2223e5b759532aca6af1450582"
+            }
+          ],
+          "modelAdoptionChanged": true,
+          "osMemoryCeilingClaimed": false,
+          "qualityAdmission": false,
+          "requestReferenceInProject": true,
+          "requestSidecarReopenRelocation": true,
+          "sourceBasedFullPcmRefusal": true
+        },
+        {
+          "actualPowerLossTested": false,
+          "adoption": {
+            "exportBlockFrames": 127,
+            "exportFileSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+            "exportPeak": 3.8511574268341064,
+            "exportSampleSha256": "2b9c5829d3cc5965376e58c27296012a8796498f4c770034c5bd8e38f7b7a588",
+            "liveCallbackFrames": 193,
+            "liveCoreSamples": 32768,
+            "liveEqualsExport": true,
+            "mainWindow": false,
+            "physicalAudio": false,
+            "registeredProjectRestored": true,
+            "savedReopened": true,
+            "schema": "1.23",
+            "undoRedo": true
+          },
+          "canceledJobs": 1,
+          "checks": 191,
+          "comparedSamples": 32872,
+          "completedJobs": 1,
+          "executorSha256": "c1e610ccc5c99b0bac4eb878b6e358af9f95c9614cece48758095a6b2d9eca2b",
+          "interruptedJobs": 2,
+          "jobs": [
+            {
+              "case": "complete",
+              "operation": "95a733c0-0929-40f2-a338-a9720e10697e",
+              "requestDigest": "3f0b009e7560485c79d0f587ae9fd7c710127d22a07c30398811bdd97028f9de"
+            },
+            {
+              "case": "after-close",
+              "operation": "2f8ae37b-e738-4245-9946-7cdf8f6cedd4",
+              "requestDigest": "32013cfb2cba5ce69652dddac6f87a74b461d098aebfcdc5e8994186a8ea66ad"
+            },
+            {
+              "case": "cancel-after-first-file",
+              "operation": "c8c7dd98-a5d9-47c1-bc24-520bea3303ca",
+              "requestDigest": "8af7f5ae8d237dfadca7796b8feb86687743145298519b31f80f5c4792b6667a"
+            },
+            {
+              "case": "before-completion",
+              "operation": "4907f409-b39d-4293-bd92-d946b79dff9a",
+              "requestDigest": "55ca5a8e8e7912c42a91e81c06a259995f4f79cc9c6ab7828d99bec7463b20e7"
+            },
+            {
+              "case": "precancel",
+              "operation": "52afb382-4a19-4de2-9bd5-130b7ea8b934",
+              "requestDigest": "e79676b90ee33c69c37d6e2d05dd5364326db273dc856fe47c0d6e8e2f0b1e03"
+            }
+          ],
+          "modelAdoptionChanged": true,
+          "osMemoryCeilingClaimed": false,
+          "qualityAdmission": false,
+          "requestReferenceInProject": true,
+          "requestSidecarReopenRelocation": true,
+          "sourceBasedFullPcmRefusal": true
+        }
+      ]
+    },
+    {
+      "artifact": "windows-native-packet-unit-log",
+      "path": "comp-assembly-job-evidence/run-mw_f0r2a/report.json",
+      "reports": [
+        {
+          "actualPowerLossTested": false,
+          "adoption": {
+            "exportBlockFrames": 127,
+            "exportFileSha256": "1657f2c0d2ca9a15060f170325714782ff0f29f309ff172cf12da380ff833659",
+            "exportPeak": 4.117021560668945,
+            "exportSampleSha256": "c1600ece153d0616b41d04dacc870aa9c23a7de553cf59e24bdb78e118423bcc",
+            "liveCallbackFrames": 193,
+            "liveCoreSamples": 71332,
+            "liveEqualsExport": true,
+            "mainWindow": false,
+            "physicalAudio": false,
+            "registeredProjectRestored": true,
+            "savedReopened": true,
+            "schema": "1.23",
+            "undoRedo": true
+          },
+          "canceledJobs": 1,
+          "checks": 291,
+          "comparedSamples": 71436,
+          "completedJobs": 1,
+          "executorSha256": "6459dc8458ea9ee31ac00e6e08b82f8c7505bfaeb0deb936d5e75b2ce5ebeea9",
+          "interruptedJobs": 2,
+          "jobs": [
+            {
+              "case": "complete",
+              "operation": "acb5993a-9ace-400d-8dbb-ac5e43c7cf42",
+              "requestDigest": "d84099d56325e9369e4741ecc40ae0e9a1060ea20b3c4a57652068df2385d0b2"
+            },
+            {
+              "case": "after-close",
+              "operation": "8d7c8afa-65c6-42a5-8c96-1cac9d61b011",
+              "requestDigest": "80db812137bc41aac178ef075eec1f977c034b3b004ce10d33f0c15c490f763f"
+            },
+            {
+              "case": "cancel-after-first-file",
+              "operation": "aecedbc1-a75b-461f-a89f-bc0405ed49f1",
+              "requestDigest": "f7ecdd0cf7671c25e1e2556c49b093342a4a4ef29691641f63a6889d05db13b0"
+            },
+            {
+              "case": "before-completion",
+              "operation": "0aa35491-4721-403a-a474-d4fd1f4d1ac0",
+              "requestDigest": "6984c3a529ed1f598f847fbb1b1e6cefa50daa8d4fed4aef097115090d933bbd"
+            },
+            {
+              "case": "precancel",
+              "operation": "38eea894-1f22-44e9-8616-25010c910298",
+              "requestDigest": "95f1e367fd65ba3a7382f63827276fabd82e4b0cb0797aca4497cf0e52ff8de1"
+            }
+          ],
+          "modelAdoptionChanged": true,
+          "osMemoryCeilingClaimed": false,
+          "qualityAdmission": false,
+          "requestReferenceInProject": true,
+          "requestSidecarReopenRelocation": true,
+          "sourceBasedFullPcmRefusal": true
+        },
+        {
+          "actualPowerLossTested": false,
+          "adoption": {
+            "exportBlockFrames": 127,
+            "exportFileSha256": "e7165fcded595d7ec6ba4bc9ccd9ac27235ef451a02396949608490e3b0049b2",
+            "exportPeak": 3.6371512413024902,
+            "exportSampleSha256": "cc3af822f241ac1c11575ba16391e43a13e1837f8dfaa355d6a9e3f62856bbf1",
+            "liveCallbackFrames": 193,
+            "liveCoreSamples": 98304,
+            "liveEqualsExport": true,
+            "mainWindow": false,
+            "physicalAudio": false,
+            "registeredProjectRestored": true,
+            "savedReopened": true,
+            "schema": "1.23",
+            "undoRedo": true
+          },
+          "canceledJobs": 1,
+          "checks": 361,
+          "comparedSamples": 98408,
+          "completedJobs": 1,
+          "executorSha256": "6459dc8458ea9ee31ac00e6e08b82f8c7505bfaeb0deb936d5e75b2ce5ebeea9",
+          "interruptedJobs": 2,
+          "jobs": [
+            {
+              "case": "complete",
+              "operation": "95873c4f-1cb7-49c2-ace3-0e87c1ac54a0",
+              "requestDigest": "1fff2de1a8c5cd9b16dcfada1702e4bb7e45394715fc208a6e2bd5897f90c8f4"
+            },
+            {
+              "case": "after-close",
+              "operation": "e7cc0544-65c6-44e0-b61e-82d14e27322a",
+              "requestDigest": "38a07638b334e6b3cfe5b94f0a2eb34134b74e5d86a8ca32006b0b865bbf6dee"
+            },
+            {
+              "case": "cancel-after-first-file",
+              "operation": "cf07db90-2c8a-42e8-bb07-6eb56be84808",
+              "requestDigest": "68ac2ad297c31a410346b7eca834c07ad13288081c1f0a75c4297eb80dbfe48c"
+            },
+            {
+              "case": "before-completion",
+              "operation": "6f8e57e5-d50a-4755-a382-be1b3fcdda71",
+              "requestDigest": "8c188d1ef7017131d589af7e0f10870e0ea3f6d55ca891bfeb02fcc7a735c04f"
+            },
+            {
+              "case": "precancel",
+              "operation": "17e77767-878c-4b94-a6e9-b8c7f692874f",
+              "requestDigest": "ece5cc0bec0ba873f4c13ebd8ab5525c3fecbd3c4d144a4367ea0c091a10033b"
+            }
+          ],
+          "modelAdoptionChanged": true,
+          "osMemoryCeilingClaimed": false,
+          "qualityAdmission": false,
+          "requestReferenceInProject": true,
+          "requestSidecarReopenRelocation": true,
+          "sourceBasedFullPcmRefusal": true
+        },
+        {
+          "actualPowerLossTested": false,
+          "adoption": {
+            "exportBlockFrames": 127,
+            "exportFileSha256": "3eb17415915801a85b4e3125b2119f32d53cbd64112decf644dd12c0cadf342c",
+            "exportPeak": 3.8511574268341064,
+            "exportSampleSha256": "513ee3e0c0649b691a96b88478d6acad11cd35c4fd74457bb9e483df5656705e",
+            "liveCallbackFrames": 193,
+            "liveCoreSamples": 32768,
+            "liveEqualsExport": true,
+            "mainWindow": false,
+            "physicalAudio": false,
+            "registeredProjectRestored": true,
+            "savedReopened": true,
+            "schema": "1.23",
+            "undoRedo": true
+          },
+          "canceledJobs": 1,
+          "checks": 191,
+          "comparedSamples": 32872,
+          "completedJobs": 1,
+          "executorSha256": "6459dc8458ea9ee31ac00e6e08b82f8c7505bfaeb0deb936d5e75b2ce5ebeea9",
+          "interruptedJobs": 2,
+          "jobs": [
+            {
+              "case": "complete",
+              "operation": "5e6be2b6-6fd5-404a-8ee1-2036d9ae9ee0",
+              "requestDigest": "542d8e81fd9dcb1b61e45130dc775cdfa0c5f8995870fa4f40a3815d02b618ed"
+            },
+            {
+              "case": "after-close",
+              "operation": "81732726-2784-440c-8174-e401f5de4ad3",
+              "requestDigest": "dc72112576e6073b30e1d080bdc0b3f1dea71e21a4f176217945ce250c49184b"
+            },
+            {
+              "case": "cancel-after-first-file",
+              "operation": "557d0339-1fe7-4740-a220-5f663f75a2e2",
+              "requestDigest": "c37b9d0ebb104f54e268d9f9871436e93686368315a4dd248b45df9ad75e0ef8"
+            },
+            {
+              "case": "before-completion",
+              "operation": "28c455b3-9322-4efb-a0cf-2d590204efae",
+              "requestDigest": "058602113d45002afc97357b09a53a7e1fae308694323285e9479fa0dc7d52e2"
+            },
+            {
+              "case": "precancel",
+              "operation": "92bdc5bb-74a7-4f39-80d8-f76afffe6118",
+              "requestDigest": "7553248fdcb3261c1cf0b17274302416294fbcae57d92eee95eed6e1dff12404"
+            }
+          ],
+          "modelAdoptionChanged": true,
+          "osMemoryCeilingClaimed": false,
+          "qualityAdmission": false,
+          "requestReferenceInProject": true,
+          "requestSidecarReopenRelocation": true,
+          "sourceBasedFullPcmRefusal": true
+        }
+      ]
+    }
+  ],
+  "controllers": [
+    {
+      "artifact": "linux-synthetic-test-log",
+      "path": "comp-assembly-controller-evidence/run-pow490c1/report.json",
+      "cases": 15,
+      "checks": 171
+    },
+    {
+      "artifact": "windows-desktop-import-test-log",
+      "path": "build-desktop-native/comp-assembly-controller-evidence/run-1cbuqcye/report.json",
+      "cases": 15,
+      "checks": 171
+    }
+  ],
+  "windowsLinuxExportsIdentical": false,
+  "crossPlatformObservation": {
+    "exports": [
+      {
+        "sourceRate": 44100,
+        "samples": 71332,
+        "differingSamples": 81,
+        "maximumAbsoluteDifference": 2.384185791015625e-07,
+        "rmsDifference": 3.3284144182621224e-09,
+        "windowsSha256": "1657f2c0d2ca9a15060f170325714782ff0f29f309ff172cf12da380ff833659",
+        "linuxSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+        "windowsFile": "comp-assembly-job-evidence/run-mw_f0r2a/inputs/run-ui48u1a5/case-44100/project-\u00e9-\u65e5\u672c/exports/assembled.wav",
+        "linuxFile": "comp-assembly-job-evidence/run-afepmxie/inputs/run-qlzhofk8/case-44100/project-\u00e9-\u65e5\u672c/exports/assembled.wav"
+      },
+      {
+        "sourceRate": 48000,
+        "samples": 98304,
+        "differingSamples": 26,
+        "maximumAbsoluteDifference": 5.960464477539063e-08,
+        "rmsDifference": 6.385179652484884e-10,
+        "windowsSha256": "e7165fcded595d7ec6ba4bc9ccd9ac27235ef451a02396949608490e3b0049b2",
+        "linuxSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+        "windowsFile": "comp-assembly-job-evidence/run-mw_f0r2a/inputs/run-ui48u1a5/case-48000/project-\u00e9-\u65e5\u672c/exports/assembled.wav",
+        "linuxFile": "comp-assembly-job-evidence/run-afepmxie/inputs/run-qlzhofk8/case-48000/project-\u00e9-\u65e5\u672c/exports/assembled.wav"
+      },
+      {
+        "sourceRate": 96000,
+        "samples": 32768,
+        "differingSamples": 16,
+        "maximumAbsoluteDifference": 1.1920928955078125e-07,
+        "rmsDifference": 1.4026755568534476e-09,
+        "windowsSha256": "3eb17415915801a85b4e3125b2119f32d53cbd64112decf644dd12c0cadf342c",
+        "linuxSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+        "windowsFile": "comp-assembly-job-evidence/run-mw_f0r2a/inputs/run-ui48u1a5/case-96000/project-\u00e9-\u65e5\u672c/exports/assembled.wav",
+        "linuxFile": "comp-assembly-job-evidence/run-afepmxie/inputs/run-qlzhofk8/case-96000/project-\u00e9-\u65e5\u672c/exports/assembled.wav"
+      }
+    ],
+    "exactCrossPlatformEquality": false,
+    "processingQualityQualified": false,
+    "note": "Original native jobs each prove live/export equality within their platform. This observation does not admit cross-platform sonic quality or require bitwise portability."
+  },
+  "bundle": {
+    "source_head": "d2ec165d597e2e17fe71a5a09f60bdaef395a6a6",
+    "source_tree": "f391f3ee781e89670ffcff22c1071fa9c61560d2",
+    "archive_bytes": 124011650,
+    "archive_sha256": "8f854228b4b8299bccf67616ce9a3a1cf2b1490adb20252da9b5941de29ee69a",
+    "archive_entries": 47,
+    "deployment_files": 14,
+    "source_files_verified_against_git_windows_checkout_filters": 1639,
+    "all_corresponding_source_archive_bytes_match_native_snapshot": true,
+    "checkout_filter": "actual bounded git -c core.autocrlf=true cat-file --filters; no ad hoc byte normalization",
+    "all_collection_artifact_hashes_verified": true,
+    "dependency_mismatches": [],
+    "two_media_builds_match_reviewed_pin": true,
+    "sndfile_sha256": "2f50a0b47e46407bf9d3d34f95dd58289356020331ebd989a0c0a924a57fb6e7",
+    "main_window_qualified": false,
+    "native_audio_qualified": false,
+    "installer_prepared": false,
+    "audit_platform": "Linux independent byte/source audit; not native execution"
+  },
+  "newUi286287Qualified": false,
+  "physicalAudio": false,
+  "qualityAdmission": false
+}

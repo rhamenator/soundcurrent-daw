@@ -1,0 +1,557 @@
+{
+  "inputWorkflow": {
+    "workerSha256": "6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d",
+    "processes": [
+      {
+        "kind": "prepare",
+        "pid": 10185,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 10186,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10192,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10187,
+        "exitCode": 0,
+        "seconds": 0.7584051559999807,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10198,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10193,
+        "exitCode": 0,
+        "seconds": 0.7582765499998914,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 10199,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10200,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10201,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 10202,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10208,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10203,
+        "exitCode": 0,
+        "seconds": 0.9066469539998252,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 10209,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10215,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10210,
+        "exitCode": 0,
+        "seconds": 1.1584236840001267,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 10216,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10217,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 10218,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10224,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10219,
+        "exitCode": 0,
+        "seconds": 0.7568391920001432,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10230,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10225,
+        "exitCode": 0,
+        "seconds": 0.7612875879999592,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 10231,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10232,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10233,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 10234,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10240,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10235,
+        "exitCode": 0,
+        "seconds": 0.9772186380000676,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 10241,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10247,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10242,
+        "exitCode": 0,
+        "seconds": 1.2613473510000404,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 10248,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10249,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 10250,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10256,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10251,
+        "exitCode": 0,
+        "seconds": 1.1011337100001128,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10262,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10257,
+        "exitCode": 0,
+        "seconds": 1.105082209999864,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 10265,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10266,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10267,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 10268,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10274,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10269,
+        "exitCode": 0,
+        "seconds": 1.411649726000178,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 10275,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10281,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10276,
+        "exitCode": 0,
+        "seconds": 1.5958251459999246,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 10282,
+        "exitCode": 0
+      }
+    ],
+    "reports": [
+      {
+        "checks": 98561,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 98272,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 98200,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 1,
+            "exactSamples": 49188,
+            "fragment": 0,
+            "frames": 24602,
+            "peakLinear": 3.6371512413024902,
+            "sha256": "130221da54ca2c345b83d4d190de6452147cfb40535670d36edfc869bcf43eea",
+            "spanSha256": "9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 1,
+            "exactSamples": 49188,
+            "fragment": 1,
+            "frames": 24602,
+            "peakLinear": 3.6371512413024902,
+            "sha256": "aa032a3a96be465d1163ad2d0e2d3f92c7ab00a210fac11253ad28c0899b9a36",
+            "spanSha256": "d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24"
+          }
+        ]
+      },
+      {
+        "checks": 71563,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 0,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 71228,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 35702,
+            "fragment": 0,
+            "frames": 17859,
+            "peakLinear": 4.117021560668945,
+            "sha256": "a877f146ce10f7333735c9b1a602b80682e4395ab5edac8145c7dfe4901de63c",
+            "spanSha256": "247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 35702,
+            "fragment": 1,
+            "frames": 17859,
+            "peakLinear": 4.117021560668945,
+            "sha256": "cddd9680d2a1d414d3cca863f15636b15c7d2a98796383f849d263a2eb4b77d4",
+            "spanSha256": "cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e"
+          }
+        ]
+      },
+      {
+        "checks": 32961,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 0,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 32664,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 16420,
+            "fragment": 0,
+            "frames": 8218,
+            "peakLinear": 3.8511574268341064,
+            "sha256": "23dcb64ea36a166fa33710402927e6c606682374aee2ae4b7708b6cc321a51f6",
+            "spanSha256": "28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 16420,
+            "fragment": 1,
+            "frames": 8218,
+            "peakLinear": 3.8511574268341064,
+            "sha256": "386c06778bd41adb88854b3bb6ff79a2cc6e2d1ed6e04a3d3264e67bb0da8259",
+            "spanSha256": "60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44"
+          }
+        ]
+      }
+    ],
+    "completedWorkers": 6,
+    "physicalFragments": 2,
+    "postSrcFragments": 4,
+    "completedNominalWorkers": 6,
+    "nominalWorkerSha256": "c0ab423691808f8f5e80247e27c806e96788a01bf14a8892ed11c58d34a09007",
+    "ownedNominalWorkflowQualified": true,
+    "nominalBinaryBoundByProtocol": false,
+    "qualityAdmission": false,
+    "modelAdoptionChanged": false
+  },
+  "controllerProcesses": [
+    {
+      "pid": 10283,
+      "exitCode": 0
+    },
+    {
+      "pid": 10303,
+      "exitCode": 0
+    },
+    {
+      "pid": 10381,
+      "exitCode": 0
+    }
+  ],
+  "reports": [
+    {
+      "actualNewJobCreation": true,
+      "cases": [
+        {
+          "actualTimelineDialog": true,
+          "asynchronousClose": true,
+          "case": 0,
+          "exportFileSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+          "exportFrames": 35666,
+          "exportPeak": 4.117021560668945,
+          "newChildren": [
+            {
+              "exitCode": 0,
+              "pid": 10299,
+              "reaped": true,
+              "stderr": "",
+              "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"cb9f0844-19ee-4373-bdfc-325577406ba7\",\"outputFrames\":24611,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[24611,24612],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16407,1,3],\"recipeDigest\":\"7b0f0a13b4d04dd0804fab3415f188a7abb0790c3861933b52bfec1c0c1831eb\",\"requestDigest\":\"646e408de7b9aec501794c36310d23a12a771d061784bd40be23b3f839c60abe\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\"}\n{\"audioSha256\":\"247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"cb9f0844-19ee-4373-bdfc-325577406ba7\",\"outputFrames\":24611,\"payloadPeakBytes\":92548289,\"peakLinear\":4.213526248931885,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[24611,24612],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16407,1,3],\"recipeDigest\":\"7b0f0a13b4d04dd0804fab3415f188a7abb0790c3861933b52bfec1c0c1831eb\",\"requestDigest\":\"646e408de7b9aec501794c36310d23a12a771d061784bd40be23b3f839c60abe\",\"sampleSha256\":\"25f71d0af6d772c886d4b527cabc1e4fe3f2cbc2f24bc4be227b6cbee8158e9b\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\",\"writtenFrames\":24611}\n"
+            },
+            {
+              "exitCode": 0,
+              "pid": 10301,
+              "reaped": true,
+              "stderr": "",
+              "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"7a2319f2-7949-4004-8dd2-3797f791153f\",\"outputFrames\":24612,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32744,1,7],\"rawSpan\":[16408,0,1],\"recipeDigest\":\"7b0f0a13b4d04dd0804fab3415f188a7abb0790c3861933b52bfec1c0c1831eb\",\"requestDigest\":\"4bf03d9f759a7db786509647938a96c214a44e6be82b0c47a91b74e4240f821d\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\"}\n{\"audioSha256\":\"cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"7a2319f2-7949-4004-8dd2-3797f791153f\",\"outputFrames\":24612,\"payloadPeakBytes\":92548289,\"peakLinear\":3.650193214416504,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32744,1,7],\"rawSpan\":[16408,0,1],\"recipeDigest\":\"7b0f0a13b4d04dd0804fab3415f188a7abb0790c3861933b52bfec1c0c1831eb\",\"requestDigest\":\"4bf03d9f759a7db786509647938a96c214a44e6be82b0c47a91b74e4240f821d\",\"sampleSha256\":\"bab45c16ee4bf3b3a7714d787e842dce018f5c4a8b9feccfcbe0146961b67e72\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\",\"writtenFrames\":24612}\n"
+            }
+          ],
+          "noAudioBeforeApply": true,
+          "stage": 6,
+          "undoRedoSaveReopen": true
+        }
+      ],
+      "checks": 46,
+      "executorSha256": "ec4f7fd595f8d848f68763502ec902c73f050aaceb79043017a0158ce321130e",
+      "physicalAudio": false,
+      "qualityAdmission": false
+    },
+    {
+      "actualNewJobCreation": true,
+      "cases": [
+        {
+          "actualTimelineDialog": true,
+          "asynchronousClose": true,
+          "case": 0,
+          "exportFileSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+          "exportFrames": 49152,
+          "exportPeak": 3.6371512413024902,
+          "newChildren": [
+            {
+              "exitCode": 0,
+              "pid": 10319,
+              "reaped": true,
+              "stderr": "",
+              "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"48e3c153-19f2-4857-90c3-499dd65ab7d6\",\"outputFrames\":24602,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"f0698914cc3958b9fbe35dcb991ba0084b0a07f4c16037b2f598f21678cf41e2\",\"requestDigest\":\"6a8e8c3071efb4f0499a390c0dd1949ceaa194f29f20b877e5043a00196a8e42\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\"}\n{\"audioSha256\":\"9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"48e3c153-19f2-4857-90c3-499dd65ab7d6\",\"outputFrames\":24602,\"payloadPeakBytes\":92548273,\"peakLinear\":3.832740068435669,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"f0698914cc3958b9fbe35dcb991ba0084b0a07f4c16037b2f598f21678cf41e2\",\"requestDigest\":\"6a8e8c3071efb4f0499a390c0dd1949ceaa194f29f20b877e5043a00196a8e42\",\"sampleSha256\":\"a3caa1a8763320b397ccb43b4e91af8e30df2f284b45d502d73bf263bf227d45\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\",\"writtenFrames\":24602}\n"
+            },
+            {
+              "exitCode": 0,
+              "pid": 10321,
+              "reaped": true,
+              "stderr": "",
+              "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"0959df12-7706-4691-8b9c-15d3745aed24\",\"outputFrames\":24602,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32750,17,21],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"f0698914cc3958b9fbe35dcb991ba0084b0a07f4c16037b2f598f21678cf41e2\",\"requestDigest\":\"ecff23680ce0071cb172af7a01b31a595c12784d3e10d38ed21a68df888640fe\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\"}\n{\"audioSha256\":\"d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"0959df12-7706-4691-8b9c-15d3745aed24\",\"outputFrames\":24602,\"payloadPeakBytes\":92548273,\"peakLinear\":3.781710624694824,\"pitchMilliCents\":700007,\"processingFrames\":16402,\"processingStep\":[24602,24603],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":48000,\"rawOrigin\":[32750,17,21],\"rawSpan\":[16401,1,3],\"recipeDigest\":\"f0698914cc3958b9fbe35dcb991ba0084b0a07f4c16037b2f598f21678cf41e2\",\"requestDigest\":\"ecff23680ce0071cb172af7a01b31a595c12784d3e10d38ed21a68df888640fe\",\"sampleSha256\":\"684b8dca11611545f1b95df4f12ac3aaf8135514bd80e26d3a2f45d73edb789a\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"2e877842044f20170a4af75b7cf9d7884a519254ce33bb87e37226bfdeb613ab\",\"writtenFrames\":24602}\n"
+            }
+          ],
+          "noAudioBeforeApply": true,
+          "stage": 6,
+          "undoRedoSaveReopen": true
+        },
+        {
+          "asynchronousClose": true,
+          "case": 1,
+          "guiTicks": 3,
+          "noChildLaunch": true,
+          "stage": 8
+        },
+        {
+          "asynchronousClose": true,
+          "case": 2,
+          "guiTicks": 3,
+          "noChildLaunch": true,
+          "stage": 7
+        },
+        {
+          "asynchronousClose": true,
+          "case": 3,
+          "guiTicks": 3,
+          "noChildLaunch": true,
+          "stage": 7
+        },
+        {
+          "asynchronousClose": true,
+          "case": 4,
+          "noChildLaunch": true,
+          "stage": 7
+        },
+        {
+          "asynchronousClose": true,
+          "case": 5,
+          "noChildLaunch": true,
+          "saveFailureRetainsAtomicRefsWithoutAudio": true,
+          "stage": 7
+        }
+      ],
+      "checks": 82,
+      "executorSha256": "ec4f7fd595f8d848f68763502ec902c73f050aaceb79043017a0158ce321130e",
+      "physicalAudio": false,
+      "qualityAdmission": false
+    },
+    {
+      "actualNewJobCreation": true,
+      "cases": [
+        {
+          "actualTimelineDialog": true,
+          "asynchronousClose": true,
+          "case": 0,
+          "exportFileSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+          "exportFrames": 16384,
+          "exportPeak": 3.8511574268341064,
+          "newChildren": [
+            {
+              "exitCode": 0,
+              "pid": 10397,
+              "reaped": true,
+              "stderr": "",
+              "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"6cdab061-1b85-4adc-9af3-26c37925c87e\",\"outputFrames\":24652,\"pitchMilliCents\":700007,\"processingFrames\":16435,\"processingStep\":[49304,49305],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16434,2,3],\"recipeDigest\":\"34e2e3f8197cbb56d7c4081254e02126ed2b4dd6da9bb598fb4194d36d6432d4\",\"requestDigest\":\"5d6475b8557bc736cfbaa7d9e76b17d48dfae9673e60f6e56b49caf591aa7808\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\"}\n{\"audioSha256\":\"28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"6cdab061-1b85-4adc-9af3-26c37925c87e\",\"outputFrames\":24652,\"payloadPeakBytes\":92548221,\"peakLinear\":3.757596492767334,\"pitchMilliCents\":700007,\"processingFrames\":16435,\"processingStep\":[49304,49305],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16434,2,3],\"recipeDigest\":\"34e2e3f8197cbb56d7c4081254e02126ed2b4dd6da9bb598fb4194d36d6432d4\",\"requestDigest\":\"5d6475b8557bc736cfbaa7d9e76b17d48dfae9673e60f6e56b49caf591aa7808\",\"sampleSha256\":\"265122741f70b3e6eee5b5102d278a4c1dff8690a982a62929788ec188ca2d7d\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\",\"writtenFrames\":24652}\n"
+            },
+            {
+              "exitCode": 0,
+              "pid": 10399,
+              "reaped": true,
+              "stderr": "",
+              "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"62accd3d-8cd4-407f-9b92-cc3236f622db\",\"outputFrames\":24654,\"pitchMilliCents\":700007,\"processingFrames\":16436,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32716,1,7],\"rawSpan\":[16436,0,1],\"recipeDigest\":\"34e2e3f8197cbb56d7c4081254e02126ed2b4dd6da9bb598fb4194d36d6432d4\",\"requestDigest\":\"0c82cf307b9e01ad23ec983af58073450f5607f81fe8ddc47f4fb3da4b43f22a\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\"}\n{\"audioSha256\":\"60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"62accd3d-8cd4-407f-9b92-cc3236f622db\",\"outputFrames\":24654,\"payloadPeakBytes\":92548221,\"peakLinear\":3.8946380615234375,\"pitchMilliCents\":700007,\"processingFrames\":16436,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":96000,\"rawOrigin\":[32716,1,7],\"rawSpan\":[16436,0,1],\"recipeDigest\":\"34e2e3f8197cbb56d7c4081254e02126ed2b4dd6da9bb598fb4194d36d6432d4\",\"requestDigest\":\"0c82cf307b9e01ad23ec983af58073450f5607f81fe8ddc47f4fb3da4b43f22a\",\"sampleSha256\":\"8b924f390acbdb28b9a83c144a911dda7b907df40bf206731ba8c2a87623b578\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"7e11626ce956acd9a9ed1a5b57451196a8fa96ac8079ab23ceeb79813b4ecb27\",\"writtenFrames\":24654}\n"
+            }
+          ],
+          "noAudioBeforeApply": true,
+          "stage": 6,
+          "undoRedoSaveReopen": true
+        }
+      ],
+      "checks": 46,
+      "executorSha256": "ec4f7fd595f8d848f68763502ec902c73f050aaceb79043017a0158ce321130e",
+      "physicalAudio": false,
+      "qualityAdmission": false
+    }
+  ]
+}

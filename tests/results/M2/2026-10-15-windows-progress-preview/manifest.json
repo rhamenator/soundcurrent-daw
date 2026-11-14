@@ -1,0 +1,14 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 955100,
+  "sha256": "50c0e4ce4943bad68a2eb3376d8c59440b7cc1697c176971895e1220238c189c",
+  "entries": 172,
+  "sourceHead": "b5dc2568dbf0e1e623dbaa7d42dcd38fd1eed3ab",
+  "nativeMainNormalExit": true,
+  "nativeHelperQualificationPassed": true,
+  "installerPrepared": true,
+  "installerTested": false,
+  "sourceArchiveVerified": true,
+  "physicalAudio": false,
+  "allVmsOff": true
+}

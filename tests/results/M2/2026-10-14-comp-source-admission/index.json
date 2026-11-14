@@ -1,0 +1,41 @@
+{
+  "sourceHead": "0e625bdbfa7d56ca82d4b5281576d8e76a9a9c1c",
+  "configurations": [
+    {
+      "configuration": "Debug",
+      "selected": [
+        "comp-clocked-span-worker",
+        "desktop-comp-repeated-transition",
+        "comp-paired-history-review",
+        "comp-repeated-pair-production"
+      ],
+      "seconds": 749.9186423060019,
+      "exitCode": 0
+    },
+    {
+      "configuration": "Release",
+      "selected": [
+        "comp-clocked-span-worker",
+        "desktop-comp-repeated-transition",
+        "comp-paired-history-review",
+        "comp-repeated-pair-production",
+        "comp-regeneration-source",
+        "comp-regeneration-history",
+        "comp-owned-span-worker",
+        "comp-verified-pair-assembly",
+        "comp-owned-assembly-publication",
+        "desktop-comp-transition-create",
+        "desktop-comp-assembly-apply"
+      ],
+      "seconds": 391.44224431202747,
+      "exitCode": 0
+    }
+  ],
+  "bytes": 19938552,
+  "sha256": "508473718b36a1d22619198d5f0deecab0493403c5af84403804ceee7c303b74",
+  "originalFiles": 12562,
+  "uniquePayloads": 2979,
+  "allPayloadsVerified": true,
+  "nativeWindowsQualified": false,
+  "fullDawParity": false
+}

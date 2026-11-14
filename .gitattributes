@@ -71,3 +71,6 @@ tests/results/M2/2026-10-09-editable-stretch/*.log -text whitespace=-blank-at-eo
 
 # Keep captured CTest bytes, including its intentional trailing spaces.
 /tests/results/M2/2026-10-10-render-restart-review/local-linux-tests.log -text whitespace=-blank-at-eol,cr-at-eol
+
+# Preserve the original native CI log, including its CRLF bytes.
+/tests/results/M2/2026-10-14-comp-span-v2/native-path-failure/*.log -text whitespace=-blank-at-eol,cr-at-eol

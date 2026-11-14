@@ -1,0 +1,274 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 897278,
+  "sha256": "febf55e57586189cf10062a1dd68ec0e70741cc6fe8e849070858049984e7557",
+  "entries": 61,
+  "baseHead": "53530fb9b663dd9cda76454343fcc45399820435",
+  "source": {
+    "localization/catalogs.json": {
+      "bytes": 11975,
+      "sha256": "37e3c02ed6af83844a32e3d55da6577128c730aed67a4e1df2d0c4daf6efe57c"
+    },
+    "localization/soundcurrent_daw_ar.ts": {
+      "bytes": 152033,
+      "sha256": "4e52dcf6f4a6e7119140ec0aece4a4652dddd448cca7d9d3675516f036830b0d"
+    },
+    "localization/soundcurrent_daw_cs.ts": {
+      "bytes": 150443,
+      "sha256": "f926a6d1a509b4296b1090abbd4fd8f401c4231ef52ea9b10bf8d77565f57b13"
+    },
+    "localization/soundcurrent_daw_da.ts": {
+      "bytes": 150316,
+      "sha256": "e80296cb0a26650d0987b1aa1dd9009132b404b3a26094f4b1be34f3337d5737"
+    },
+    "localization/soundcurrent_daw_de.ts": {
+      "bytes": 150781,
+      "sha256": "dbd04d469ddbee7870b384e6e75cde0301288f0a95a178407d5bae034317bbd3"
+    },
+    "localization/soundcurrent_daw_el.ts": {
+      "bytes": 152943,
+      "sha256": "7c8b7e643bd4ea69ed7154acb878cfac844088f5a888a53f458814f8e3d48d27"
+    },
+    "localization/soundcurrent_daw_en.qm": {
+      "bytes": 171873,
+      "sha256": "5d7bd2cf980770c37f718f3467253db8f1ddce5c85b2862f82b5edf04dd09dce"
+    },
+    "localization/soundcurrent_daw_en.ts": {
+      "bytes": 183158,
+      "sha256": "614f801b1ad3b4c083cfcb46327846d314a798e11911602ddcbe4d093d17854f"
+    },
+    "localization/soundcurrent_daw_es.ts": {
+      "bytes": 150664,
+      "sha256": "05adb3a8b235516036c1494f1ccda880b6156bb8e86f88c5005613271306aa19"
+    },
+    "localization/soundcurrent_daw_fa.ts": {
+      "bytes": 152117,
+      "sha256": "baaff763d55ec01e04f1a1607c1cd010b313abf9d5a2c1a2a77d1d6c1282c158"
+    },
+    "localization/soundcurrent_daw_fi.ts": {
+      "bytes": 150565,
+      "sha256": "59114487d7327e36d53c7f84aa018fcb1111f37cacf69fb5ab41e04c57b2c257"
+    },
+    "localization/soundcurrent_daw_fr.ts": {
+      "bytes": 150923,
+      "sha256": "e2d38e3a87b5540f0c6425a8f302177f16e28d36d8836facdccf68430173f44c"
+    },
+    "localization/soundcurrent_daw_he.ts": {
+      "bytes": 151351,
+      "sha256": "a61bc446658d97b6d50adc1d09d2d86889ac955243651bf4a16f8a5a331586e1"
+    },
+    "localization/soundcurrent_daw_hi.ts": {
+      "bytes": 154756,
+      "sha256": "b46e5c3cba0db2550075c79f84ba5cc95e8227a97b0e3bd9c73d725e6b8a75e7"
+    },
+    "localization/soundcurrent_daw_hu.ts": {
+      "bytes": 150843,
+      "sha256": "3c7b7b4c05df5f9ecd1d26044b83bf48d7e2e929359e48327781667cf4f6eecd"
+    },
+    "localization/soundcurrent_daw_id.ts": {
+      "bytes": 150372,
+      "sha256": "a93761894a804c0e8d4582ec579977e7d92d9487b1e59749fbbde81464048fe0"
+    },
+    "localization/soundcurrent_daw_it.ts": {
+      "bytes": 150661,
+      "sha256": "2eea0e4de7629375e666b37a501befcf732c4495018c5f0c0fba690a35819102"
+    },
+    "localization/soundcurrent_daw_ja.ts": {
+      "bytes": 151649,
+      "sha256": "1d7a0cea9612bf7e53e8354eba275610f23d52752bf03c19d73508f8af399f25"
+    },
+    "localization/soundcurrent_daw_ko.ts": {
+      "bytes": 151078,
+      "sha256": "12db488757e53a26c28bf204a4866722d87fb48c31ed1f76eb8a5cb2f6987dab"
+    },
+    "localization/soundcurrent_daw_nb.ts": {
+      "bytes": 150325,
+      "sha256": "7de1fd8e5164c12848849ae7f649ae361a78abf8170b4e4e35aa22668b60ac51"
+    },
+    "localization/soundcurrent_daw_nl.ts": {
+      "bytes": 150375,
+      "sha256": "914d0a285bc859a8b01a0a97e5c19f3b6d321226a5a23762e781f9adb7df62c0"
+    },
+    "localization/soundcurrent_daw_nn.ts": {
+      "bytes": 150330,
+      "sha256": "77d38a4d1aa9222d04f41b3efa435e69d0a0767ad4ea8edeeae72e4b8c55f166"
+    },
+    "localization/soundcurrent_daw_pl.ts": {
+      "bytes": 150471,
+      "sha256": "4de863d4fbfa13ba1144381e8b1d7af15e2ccf0055ba0494551a002644ffe48b"
+    },
+    "localization/soundcurrent_daw_pt-BR.ts": {
+      "bytes": 150591,
+      "sha256": "5ad85a6ffaf5e1647e0bd9fca5beeb70f7ddf66abcc85a38c9e829c2bf7abf71"
+    },
+    "localization/soundcurrent_daw_pt-PT.ts": {
+      "bytes": 150606,
+      "sha256": "4c34a9c74a12fbfa7e8662d62925d60ffe645dbbfc4c91e522b134d829920fae"
+    },
+    "localization/soundcurrent_daw_ro.ts": {
+      "bytes": 150702,
+      "sha256": "cf1d0119d6982bbf62453dff3ef208fecc3cb33df047288e059fd9a1f9e6b9e5"
+    },
+    "localization/soundcurrent_daw_ru.ts": {
+      "bytes": 152954,
+      "sha256": "3ec60c019e224bc6af4e23a64b2a54b1d580aedf87681e0a876ac5d8fe38f2a5"
+    },
+    "localization/soundcurrent_daw_sk.ts": {
+      "bytes": 150465,
+      "sha256": "7b3c443876d21ec15754ecd5c8e4a22e46acd708ac1ea4fbce8af4807e9750cf"
+    },
+    "localization/soundcurrent_daw_sv.ts": {
+      "bytes": 150463,
+      "sha256": "95a8c4f7f7387f9650f6ec2bfba1b407c618b822f5d1688eae34fe0a0bc9d113"
+    },
+    "localization/soundcurrent_daw_sw.ts": {
+      "bytes": 150435,
+      "sha256": "03d6398d68f148aa748b01d870279b76a618730fbec1bedfc59719be55a66713"
+    },
+    "localization/soundcurrent_daw_th.ts": {
+      "bytes": 153905,
+      "sha256": "47d0dc4077142c7bb43a878ef726e41b86bd22fae21e32447024ab891de46e69"
+    },
+    "localization/soundcurrent_daw_tr.ts": {
+      "bytes": 150427,
+      "sha256": "215a2c33343018bff7cbdfbe3cac471f1ef05a1c8bd9c77da2e76ac70680e43a"
+    },
+    "localization/soundcurrent_daw_uk.ts": {
+      "bytes": 152782,
+      "sha256": "fd33b5da5fb5dc526cb06ef36d3fc86d2009f55c3e74a4fe3258e5f758b4537b"
+    },
+    "localization/soundcurrent_daw_vi.ts": {
+      "bytes": 151041,
+      "sha256": "72847db45f10a8e4c3c2a5d5a45950fe3b136672979bd41eb58f4e4bc97cd4ee"
+    },
+    "localization/soundcurrent_daw_zh-Hans.ts": {
+      "bytes": 150029,
+      "sha256": "68f5e21d264f43f8264a5af2be4b9dbfa9c78b7337c7481d7dab60de975cb7cc"
+    },
+    "localization/soundcurrent_daw_zh-Hant.ts": {
+      "bytes": 150104,
+      "sha256": "e9f0100e74cc71bfbc6df6b99a0e844b2c1ff92e4a06cfcf6a0a0400a23903e5"
+    },
+    "localization/source-inventory.json": {
+      "bytes": 126900,
+      "sha256": "ccb7802b3ea350b73a09409e30b5733d2cfc8d28c480170d8e0df0ef4921c572"
+    },
+    "tests/timeline_waveform_tests.cpp": {
+      "bytes": 8268,
+      "sha256": "973d9c1a0c9b9286d5080152ba75f1bb7d56499ea282de8aad3c03fcf09730fa"
+    },
+    "ui/timeline_editor.cpp": {
+      "bytes": 49882,
+      "sha256": "62b9663aff733deaf66eb04fc61182ed9beaf6376707c09e4c0df3b704cf9f71"
+    },
+    "ui/timeline_view.cpp": {
+      "bytes": 20236,
+      "sha256": "59f2255d01a2cdf533242bbebab1a4fbc417fc3a079b7c23de806af15315a9ba"
+    },
+    "ui/timeline_waveforms.cpp": {
+      "bytes": 10723,
+      "sha256": "69b73210373a181719515eb5064d1e7958eb0f1f37767198f737d29e6e10c721"
+    },
+    "ui/timeline_waveforms.hpp": {
+      "bytes": 1510,
+      "sha256": "eaac5429264d6a103f1cd054408463661705e5f6527841374f391140e53330da"
+    }
+  },
+  "commands": [
+    {
+      "phase": "build-final",
+      "args": [
+        "cmake",
+        "--build",
+        ".cache/take-preview-linux/build",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-timeline-waveform-tests"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 7.87766743300017
+    },
+    {
+      "phase": "tests",
+      "args": [
+        "ctest",
+        "--test-dir",
+        ".cache/take-preview-linux/build",
+        "-R",
+        "^(desktop-studio-waveforms|desktop-timeline-waveforms|desktop-waveform-cache|desktop-waveform-controller|desktop-timeline|desktop-virtualized-views|daw-translation-catalogs|daw-translation-catalog-failures)$",
+        "--output-on-failure",
+        "-V"
+      ],
+      "environment": {
+        "SC_DENSE_WAVEFORM_CAPTURE": "/home/rich/dev/soundcurrent-daw/.cache/dense-waveforms-352/dense.png"
+      },
+      "exitCode": 0,
+      "seconds": 27.840667501906864
+    },
+    {
+      "phase": "asan-build",
+      "args": [
+        "cmake",
+        "--build",
+        ".cache/waveform-controller-344/asan",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-timeline-waveform-tests"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 49.106587728951126
+    },
+    {
+      "phase": "asan-tests",
+      "args": [
+        "ctest",
+        "--test-dir",
+        ".cache/waveform-controller-344/asan",
+        "-R",
+        "^desktop-timeline-waveforms$",
+        "--output-on-failure",
+        "-V"
+      ],
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+      },
+      "exitCode": 0,
+      "seconds": 13.892150733037852
+    }
+  ],
+  "timelineRefresh": {
+    "build": [
+      "cmake",
+      "--build",
+      ".cache/take-preview-linux/build",
+      "--parallel",
+      "1",
+      "--target",
+      "sc-timeline-ui-tests"
+    ],
+    "tests": [
+      "ctest",
+      "--test-dir",
+      ".cache/take-preview-linux/build",
+      "-R",
+      "^(desktop-timeline|desktop-virtualized-views)$",
+      "--output-on-failure",
+      "-V"
+    ],
+    "exitCode": 0,
+    "supersedesCachedTimelineExecutableChecks": true
+  },
+  "verifiedDenseSources": 72,
+  "declaredPeakBytes": 193354080,
+  "ledgerLimitBytes": 268435456,
+  "nativeDenseViewQualified": false,
+  "precedingNativeHead": "f2f9f7c8916e34582db9f289f62bda2019d1c330",
+  "precedingNativeJob": 116708172956,
+  "installedPreviewsChanged": false,
+  "binariesIncluded": false
+}

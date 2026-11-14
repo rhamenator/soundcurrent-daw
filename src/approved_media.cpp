@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/approved_media.hpp>
 #include "media_hash.hpp"
+#include "native_directory_stamp.hpp"
+#include "windows_file_path.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -129,7 +131,7 @@ ApprovedMediaRoot::ApprovedMediaRoot(const std::filesystem::path &path,ResourceL
     auto grant=resources.reserve(sizeof(ApprovedMediaRootState)+sizeof(ApprovedMediaRoot)+256);
     state_=std::make_shared<ApprovedMediaRootState>(std::move(grant),resources,limits);
 #ifdef _WIN32
-    state_->root.value=CreateFileW(path.c_str(),FILE_LIST_DIRECTORY|FILE_TRAVERSE|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
+    state_->root.value=CreateFileW(windowsFileApiPath(path).c_str(),FILE_LIST_DIRECTORY|FILE_TRAVERSE|FILE_READ_ATTRIBUTES|SYNCHRONIZE,
         FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
     require(state_->root.value!=INVALID_HANDLE_VALUE,"Cannot open approved media directory");
@@ -147,21 +149,7 @@ ApprovedMediaRoot::~ApprovedMediaRoot()=default;
 std::size_t ApprovedMediaRoot::openFiles() const { require(bool(state_),"Retired approved root",ErrorCode::InvalidState);return state_->activeFiles; }
 ApprovedDirectoryStamp ApprovedMediaRoot::directoryStamp() const {
     require(bool(state_),"Retired approved root",ErrorCode::InvalidState);
-#ifdef _WIN32
-    BY_HANDLE_FILE_INFORMATION info{}; FILE_BASIC_INFO basic{};
-    require(GetFileInformationByHandle(state_->root.value,&info) &&
-        GetFileInformationByHandleEx(state_->root.value,FileBasicInfo,&basic,sizeof(basic)) &&
-        (info.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && !(info.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT),
-        "Cannot inspect approved directory");
-    return {{{info.dwVolumeSerialNumber,(std::uint64_t(info.nFileIndexHigh)<<32)|info.nFileIndexLow,
-        0,std::uint64_t(basic.LastWriteTime.QuadPart),0,std::uint64_t(basic.ChangeTime.QuadPart),0}}};
-#else
-    struct stat info{};
-    require(fstat(state_->root.value,&info)==0 && S_ISDIR(info.st_mode),"Cannot inspect approved directory");
-    return {{{std::uint64_t(info.st_dev),std::uint64_t(info.st_ino),std::uint64_t(info.st_size),
-        std::uint64_t(info.st_mtim.tv_sec),std::uint64_t(info.st_mtim.tv_nsec),
-        std::uint64_t(info.st_ctim.tv_sec),std::uint64_t(info.st_ctim.tv_nsec)}}};
-#endif
+    return detail::nativeDirectoryStamp(state_->root.value);
 }
 ApprovedMediaFile ApprovedMediaRoot::open(std::string_view relative,std::uint64_t maximumBytes,std::stop_token stop) const {
     return openImpl(relative,maximumBytes,stop,false);
@@ -235,8 +223,17 @@ ApprovedMediaFile::ApprovedMediaFile(std::unique_ptr<ApprovedMediaFileState> sta
 ApprovedMediaFile::ApprovedMediaFile(ApprovedMediaFile &&) noexcept=default;
 ApprovedMediaFile::~ApprovedMediaFile()=default;
 std::uint64_t ApprovedMediaFile::size() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->initial.size; }
+ApprovedFileStamp ApprovedMediaFile::identityStamp() const {
+    verifyUnchanged();const auto &v=state_->initial;
+    return {{{v.volume,v.object,v.size,static_cast<std::uint64_t>(v.modified),
+        static_cast<std::uint64_t>(v.modifiedExtra),static_cast<std::uint64_t>(v.changed),static_cast<std::uint64_t>(v.changedExtra)}}};
+}
 std::size_t ApprovedMediaFile::chargedBytes() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->lease.bytes(); }
 ResourceLedger ApprovedMediaFile::resourceLedger() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);return state_->root->resources; }
+bool ApprovedMediaFile::ownedBy(ResourceLedger memory) const {
+    require(bool(state_),"Retired approved media",ErrorCode::InvalidState);
+    return memory.owns(state_->lease) && memory.owns(state_->root->lease);
+}
 void ApprovedMediaFile::verifyUnchanged() const { require(bool(state_),"Retired approved media",ErrorCode::InvalidState);require(information(state_->file)==state_->initial,"Approved media changed during reading",ErrorCode::MediaMismatch); }
 void ApprovedMediaFile::readAt(std::uint64_t offset,std::span<char> target,std::stop_token stop) {
     poll(stop);const auto length=size();require(target.size()<=65536 && offset<=length && target.size()<=length-offset,

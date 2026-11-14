@@ -1,0 +1,20 @@
+{
+  "bytes": 16469678,
+  "sha256": "1f2ea972071788ddbd774c5b243a60f9791170476a751b30fa0057a0167ca999",
+  "originalFiles": 8234,
+  "uniquePayloads": 1845,
+  "allPayloadsVerified": true,
+  "firstRun": {
+    "passed": 19,
+    "total": 20,
+    "diagnosticStaleHelperSuites": 3
+  },
+  "freshHelperRun": {
+    "passed": 4,
+    "total": 4
+  },
+  "distinctCurrentSourceSuitesPassed": 20,
+  "debugProbeExitCode": 1,
+  "debugRepeatedDesktopQualified": false,
+  "nativeWindowsQualified": false
+}

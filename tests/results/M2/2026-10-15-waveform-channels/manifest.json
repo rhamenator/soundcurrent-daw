@@ -1,0 +1,312 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 991189,
+  "sha256": "1d2b732dbdf8ae6117b14d31ccc2eb514c436329e454d0218c8da5aa64832289",
+  "entries": 66,
+  "baseHead": "79aa56dce456ca741702fd961fe01cfb8c699714",
+  "source": {
+    "localization/catalogs.json": {
+      "bytes": 11975,
+      "sha256": "b079d24b48d5d37a21772282546f60575499468b99fb0c038c23aab2b0a47e1b"
+    },
+    "localization/soundcurrent_daw_ar.ts": {
+      "bytes": 151828,
+      "sha256": "92583000a17c62ae96c7c985e64ed319d595416fcce01b42a644fb78201537a8"
+    },
+    "localization/soundcurrent_daw_cs.ts": {
+      "bytes": 150238,
+      "sha256": "aa42bfad10a2da64c4036dee31dc6f832494277fd0a404c1989b56e6a75a7135"
+    },
+    "localization/soundcurrent_daw_da.ts": {
+      "bytes": 150111,
+      "sha256": "eac6f9ea3b1aebdd631854de37527a6a00dea4d6ba2f5975f10679fb77ccb035"
+    },
+    "localization/soundcurrent_daw_de.ts": {
+      "bytes": 150576,
+      "sha256": "4cc39dd06aa104e84b7ab34c8597468f2436a5b3084c571de873d5f4d18e94f1"
+    },
+    "localization/soundcurrent_daw_el.ts": {
+      "bytes": 152738,
+      "sha256": "2ddd48924b7c4231eb7f1173825bb6ac54329e0301ea8c22dd52ed57d6be3bd9"
+    },
+    "localization/soundcurrent_daw_en.qm": {
+      "bytes": 171494,
+      "sha256": "068f271021612b296d1124ceacddff08d5867a7515b589843802f62d3a40fb8e"
+    },
+    "localization/soundcurrent_daw_en.ts": {
+      "bytes": 182847,
+      "sha256": "dc758601d29eee70f8d5c9e8d5ff0cb85bda66606f9f308d5c0cb8f4fd53a333"
+    },
+    "localization/soundcurrent_daw_es.ts": {
+      "bytes": 150459,
+      "sha256": "19a671671fd5ae704e237b697d3fd839ec57dc3a6594c24d63d21a8dbba87d04"
+    },
+    "localization/soundcurrent_daw_fa.ts": {
+      "bytes": 151912,
+      "sha256": "fb71fbca2b8eed7c5d95610ab813e3f2e2a787d2dab76b16d442db4a826d9f74"
+    },
+    "localization/soundcurrent_daw_fi.ts": {
+      "bytes": 150360,
+      "sha256": "c5cf6459052163dba8984c64c396aa693bd11994713e7f59482e91b736bf1952"
+    },
+    "localization/soundcurrent_daw_fr.ts": {
+      "bytes": 150718,
+      "sha256": "e04f1da3dfa413d0d630d7d5e027a4c0efc845014a5ea95c604c89d6ede14c6d"
+    },
+    "localization/soundcurrent_daw_he.ts": {
+      "bytes": 151146,
+      "sha256": "4bc8885c280962ac778bf68cd3b031e13eb97416aef0a000e6ae8631609788e2"
+    },
+    "localization/soundcurrent_daw_hi.ts": {
+      "bytes": 154551,
+      "sha256": "8e54c62a4fee9d62d949727a1550c5e3276db2985983ce86a35154bde7f5955e"
+    },
+    "localization/soundcurrent_daw_hu.ts": {
+      "bytes": 150638,
+      "sha256": "34afb5aa12df7d4e45031e4fea90f396709bf15564d4987a865231d4c431bf80"
+    },
+    "localization/soundcurrent_daw_id.ts": {
+      "bytes": 150167,
+      "sha256": "377994de22b8a0b721f0055fef47e3c2df33d4992f1b5ad30e028028dc6c2e4a"
+    },
+    "localization/soundcurrent_daw_it.ts": {
+      "bytes": 150456,
+      "sha256": "f0b40a0d29afdf3981e9ca406224db519fb2435cd20b84567c48fb8bbec8a470"
+    },
+    "localization/soundcurrent_daw_ja.ts": {
+      "bytes": 151444,
+      "sha256": "55d80bcccae5e6af7c453113c07f3e4574ccb8b8a0e3f197248e6fe2f4ccc8d8"
+    },
+    "localization/soundcurrent_daw_ko.ts": {
+      "bytes": 150873,
+      "sha256": "432613d066b0fe4a11f549e12fe3168ed7224e53742dcb71f1266c781a554ea0"
+    },
+    "localization/soundcurrent_daw_nb.ts": {
+      "bytes": 150120,
+      "sha256": "6fda8c71bc33b7feafabc7491e6d723d2cf2181edca9bf5c1b315ed66a025ddb"
+    },
+    "localization/soundcurrent_daw_nl.ts": {
+      "bytes": 150170,
+      "sha256": "eb10a675649bb4442902b92982c5f2c75a8c5a7a909cc5073b505dbf0326a0da"
+    },
+    "localization/soundcurrent_daw_nn.ts": {
+      "bytes": 150125,
+      "sha256": "3dcc0a254b9dd897b0d6427ad83882a92d8086ce8f0114f8b079dc27505cf139"
+    },
+    "localization/soundcurrent_daw_pl.ts": {
+      "bytes": 150266,
+      "sha256": "55e75d3ad1f746eb59a0579d435c838b53a4783deb09da22c5c27964e638dc1e"
+    },
+    "localization/soundcurrent_daw_pt-BR.ts": {
+      "bytes": 150386,
+      "sha256": "cc5d4f8c1f7d97d5d5a45115efea4b671c9481428afef63342184c267ff3d5ea"
+    },
+    "localization/soundcurrent_daw_pt-PT.ts": {
+      "bytes": 150401,
+      "sha256": "458442adce5eb37d41595914c193077c0af68187dc7a2e2b2696beb7d78adda3"
+    },
+    "localization/soundcurrent_daw_ro.ts": {
+      "bytes": 150497,
+      "sha256": "54b03355fca7350dd53b11e3cd426df4391c727cea6b1771f8625e8502911c03"
+    },
+    "localization/soundcurrent_daw_ru.ts": {
+      "bytes": 152749,
+      "sha256": "4d3e05b9b1f806dd3d99301d2047e7f476ee259f6edc48efc74d959cc0edef96"
+    },
+    "localization/soundcurrent_daw_sk.ts": {
+      "bytes": 150260,
+      "sha256": "24db6264d6f59a956baa97495fc6c641d33efcb6f253fb76f12415302c0f1d08"
+    },
+    "localization/soundcurrent_daw_sv.ts": {
+      "bytes": 150258,
+      "sha256": "1246832b5e2c1aa3609899d996bef06b1617802b87bfa5e5d6166b5122b77527"
+    },
+    "localization/soundcurrent_daw_sw.ts": {
+      "bytes": 150230,
+      "sha256": "dc5c47b82a561fe17c933632d8069658c73d072397b9b35f79d5c54256057cee"
+    },
+    "localization/soundcurrent_daw_th.ts": {
+      "bytes": 153700,
+      "sha256": "bee869ae9dc20554606c8a5d2646b1e45f66ced691a4e91235312e693dfd9d1f"
+    },
+    "localization/soundcurrent_daw_tr.ts": {
+      "bytes": 150222,
+      "sha256": "8eb0dc5f28280f27a2b2ac64e31483140787f93d44b9d11c163afecb71b4a3f2"
+    },
+    "localization/soundcurrent_daw_uk.ts": {
+      "bytes": 152577,
+      "sha256": "0e543745ce56c64fade9f7250ee22492e17ecb754627d1c3da21821c7d4fa914"
+    },
+    "localization/soundcurrent_daw_vi.ts": {
+      "bytes": 150836,
+      "sha256": "cdae40407c59a7f7a0bce96bb80d6ed815c69fad30652732b6998d799d2261ac"
+    },
+    "localization/soundcurrent_daw_zh-Hans.ts": {
+      "bytes": 149824,
+      "sha256": "d6bff4f30d4e3770833c442fb0e2c8382945649f227975d7b8f60788a7d60b62"
+    },
+    "localization/soundcurrent_daw_zh-Hant.ts": {
+      "bytes": 149899,
+      "sha256": "472298f8a8d04db0aa34371445c40bf5ba1d15126eb5ae2f0b5ebf4108f8d436"
+    },
+    "localization/source-inventory.json": {
+      "bytes": 126719,
+      "sha256": "237f0554f8b3c8bfcfdd528140417ff278ca5034c95567cc53f141fad7b95702"
+    },
+    "tests/studio_waveform_tests.cpp": {
+      "bytes": 10801,
+      "sha256": "dcea7697399a6f2581044a10d1e4b2c69b3d8115bf32f342390a983639440827"
+    },
+    "tests/timeline_waveform_tests.cpp": {
+      "bytes": 4591,
+      "sha256": "6e45998c6228247b6af834d0c70ff8b9d0b2f2ae724a45fbec1738f44ce0140a"
+    },
+    "ui/timeline_editor.cpp": {
+      "bytes": 49732,
+      "sha256": "d39727e100254a30c48cfbdc6110961958e3b6a745ecbbb4fc564cbdc6b93b8a"
+    },
+    "ui/timeline_view.cpp": {
+      "bytes": 19950,
+      "sha256": "04f7c3e4d6903ba83c1a75c1b4e304c4a45ce6920878d551bf86eebfb4a32519"
+    },
+    "ui/timeline_view.hpp": {
+      "bytes": 3158,
+      "sha256": "1981c0cf9a33aaaac99fedeb5da5e85cad4eae7ad2695c089a45c6b67d8a3612"
+    },
+    "ui/timeline_waveforms.cpp": {
+      "bytes": 9879,
+      "sha256": "ee123b35821271cea18bb13db4bd9288ef0fa74fc496a9e115cd8f66861809d7"
+    },
+    "ui/timeline_waveforms.hpp": {
+      "bytes": 1269,
+      "sha256": "3c92429b53ccfcc34f0ebf08c379a45b12fcc96698ce62ec77a06ffa2e1b072e"
+    }
+  },
+  "commands": [
+    {
+      "phase": "localization",
+      "args": [
+        "python3",
+        "tools/localization.py",
+        "--update"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 2.651209008996375
+    },
+    {
+      "phase": "build",
+      "args": [
+        "cmake",
+        "--build",
+        ".cache/take-preview-linux/build",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-studio-waveform-tests",
+        "sc-waveform-controller-tests",
+        "sc-crossfade-ui-tests",
+        "sc-timeline-ui-tests",
+        "sc-timeline-waveform-tests",
+        "soundcurrent-daw"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 111.93497649009805
+    },
+    {
+      "phase": "tests",
+      "args": [
+        "ctest",
+        "--test-dir",
+        ".cache/take-preview-linux/build",
+        "-R",
+        "^(desktop-studio-waveforms|desktop-timeline-waveforms|desktop-waveform-controller|desktop-paired-crossfade|desktop-timeline|desktop-virtualized-views|daw-translation-catalogs|daw-translation-catalog-failures)$",
+        "--output-on-failure",
+        "-V"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 21.149448986980133
+    },
+    {
+      "phase": "render",
+      "args": [
+        ".cache/take-preview-linux/build/sc-studio-waveform-tests"
+      ],
+      "environment": {
+        "QT_QPA_PLATFORM": "offscreen",
+        "SC_STUDIO_WAVEFORM_CAPTURE": "/home/rich/dev/soundcurrent-daw/.cache/waveform-channels-349/studio.png"
+      },
+      "exitCode": 0,
+      "seconds": 6.33144993102178
+    },
+    {
+      "phase": "asan-build",
+      "args": [
+        "cmake",
+        "--build",
+        ".cache/waveform-controller-344/asan",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-timeline-waveform-tests"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 45.44054292596411
+    },
+    {
+      "phase": "asan-tests",
+      "args": [
+        "ctest",
+        "--test-dir",
+        ".cache/waveform-controller-344/asan",
+        "-R",
+        "^desktop-timeline-waveforms$",
+        "--output-on-failure",
+        "-V"
+      ],
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+      },
+      "exitCode": 0,
+      "seconds": 1.937249499023892
+    }
+  ],
+  "captureCommands": [
+    {
+      "phase": "capture-build",
+      "args": [
+        "cmake",
+        "--build",
+        ".cache/take-preview-linux/build",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-studio-waveform-tests"
+      ],
+      "environment": {},
+      "exitCode": 0,
+      "seconds": 9.940616177977063
+    },
+    {
+      "phase": "capture-render",
+      "args": [
+        ".cache/take-preview-linux/build/sc-studio-waveform-tests"
+      ],
+      "environment": {
+        "QT_QPA_PLATFORM": "offscreen",
+        "SC_STUDIO_WAVEFORM_CAPTURE": "/home/rich/dev/soundcurrent-daw/.cache/waveform-channels-349/studio.png"
+      },
+      "exitCode": 0,
+      "seconds": 6.598137004999444
+    }
+  ],
+  "precedingCIStatus": "in_progress",
+  "precedingCIHead": "79aa56dce456ca741702fd961fe01cfb8c699714",
+  "nativeWindowsChannelSelectionQualified": false,
+  "installedPreviewsChanged": false,
+  "binariesIncluded": false
+}

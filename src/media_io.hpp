@@ -9,6 +9,9 @@ namespace soundcurrent::daw::media_io {
 void require(bool, const char *);
 void plainDirectory(const std::filesystem::path &);
 void plainFile(const std::filesystem::path &);
+// Hash the kernel-selected running executable. Linux reads /proc/self/exe
+// directly so pathname replacement cannot substitute a different program.
+std::string executingImageSha256(const std::function<void()> &beforeRead = {});
 class File {
   public:
     // Exclusive creation or read-only open. No sharing a live writer handle.

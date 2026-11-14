@@ -1,0 +1,56 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 158388,
+  "sha256": "498c4f5605a32d51c0fac962754708ac3a5f82b4f1ab037f9270c62d5d89888c",
+  "entries": 27,
+  "baseHead": "0fe6729a31845ef310e15a02acaeb4c8d5082d11",
+  "testedWorkingTreeSource": {
+    "include/soundcurrent/waveform_protocol.hpp": {
+      "bytes": 2145,
+      "sha256": "5ae3dd62c1d3c3ea1cc1b3e0d3caebeee5273872f1fdfee877ccad0e91c58c61"
+    },
+    "ui/waveform_controller.hpp": {
+      "bytes": 2937,
+      "sha256": "7222ca3dce1f833ad1c4bf057939125b6fc4f7209c9e719112ca1a0195babc0b"
+    },
+    "ui/waveform_controller.cpp": {
+      "bytes": 12700,
+      "sha256": "ad90d6adba7a79adbe75e94d0fcb8e8ff7a6dbfb289f028b13f38f6789226711"
+    },
+    "tests/waveform_controller_tests.cpp": {
+      "bytes": 10854,
+      "sha256": "45d4c6c1b2c3bb1c342465da198e18d58889e8226edb0ae27a443d00a19ac5ff"
+    },
+    "tests/waveform_lifecycle_probe.cpp": {
+      "bytes": 1155,
+      "sha256": "1e2de4c69f8cd88060769faee7d0968114173e2d40e4f94c8f61321fd0d6af1f"
+    },
+    "CMakeLists.txt": {
+      "bytes": 165535,
+      "sha256": "088cb5737b051f41ce0ac872c336fd5f5b40b0518936be1b44a55982b0c992c6"
+    },
+    ".github/workflows/ci.yml": {
+      "bytes": 37454,
+      "sha256": "a928947e731e375e1a9d70b99bae4181d54853d26eaa18519841000be17bdf1d"
+    }
+  },
+  "controllerChecks": 106,
+  "protocolChecks": 21060,
+  "workerCases": 53,
+  "sourceChecks": 164507,
+  "waveChecks": 20956,
+  "releasePassed": true,
+  "asanUbsanPassed": true,
+  "nativeWindowsControllerQualified": false,
+  "timelineIntegrated": false,
+  "installedPreviewsChanged": false,
+  "binariesIncluded": false,
+  "precedingCompJob": {
+    "run": 38806111667,
+    "head": "0fe6729a31845ef310e15a02acaeb4c8d5082d11",
+    "job": 116667277727,
+    "conclusion": "success",
+    "fullOriginalLogRetained": true,
+    "overallRunTerminal": false
+  }
+}

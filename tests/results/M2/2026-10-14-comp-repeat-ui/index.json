@@ -1,0 +1,41 @@
+{
+  "sourceHead": "8f4df7895b74a82458de319989980d58b6087c7b",
+  "sourceTree": "0b80a001686b3573f397e727972b0641e38cd9f5",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build",
+    "--output-on-failure",
+    "--no-tests=error",
+    "--parallel",
+    "1",
+    "-R",
+    "^(ci-shard-coverage|session-state|desktop-comp-repeated-transition|desktop-comp-transition-create|comp-clocked-span-worker|desktop-comp-assembly-apply)$"
+  ],
+  "exitCode": 0,
+  "seconds": 338.62077976495493,
+  "pid": 596,
+  "runs": [
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-repeat-ui-evidence/run-wl4cx4tl",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-transition-ui-evidence/run-es995zve",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-span-v2-evidence/run-0e_gxytc",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-assembly-ui-evidence/run-x68c7hmx"
+  ],
+  "sourceAndBinariesUnchanged": true,
+  "actualRepeatedDesktopAdoptions": 9,
+  "mixedRetainedCases": 3,
+  "legacyExportHashesUnchanged": true,
+  "unchangedSamples": 502422,
+  "liveExportSamples": 508182,
+  "physicalAudio": false,
+  "qualityAdmission": false,
+  "nativeWindowsQualified": false,
+  "fullDawParity": false,
+  "archive": {
+    "bytes": 14147423,
+    "sha256": "bea03a6b886cc189ae711458e4fc10007908fab6026aff4619bdde63380868db",
+    "originalFiles": 4150,
+    "uniquePayloads": 929,
+    "allOriginalPayloadsPreserved": true
+  }
+}

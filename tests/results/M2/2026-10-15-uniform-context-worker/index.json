@@ -1,0 +1,269 @@
+{
+  "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+  "archive": "acceptance.zip",
+  "bytes": 5599886,
+  "sha256": "3a252d4335e63232f489d4f2c2b7aa07c469458381f7dc696870ea976b85bcb4",
+  "originalFiles": 865,
+  "uniquePayloads": 314,
+  "allArchivePayloadsAndCrcVerified": true,
+  "qualification": {
+    "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+        "commands": [
+          [
+            "cmake",
+            "--build",
+            ".cache/comp-pair-recovery/build",
+            "--parallel",
+            "1",
+            "--target",
+            "sc-comp-span-worker",
+            "sc-comp-uniform-context-worker-fixture",
+            "sc-comp-span-worker-fixture",
+            "sc-comp-clocked-protected-worker-fixture"
+          ],
+          [
+            "ctest",
+            "--test-dir",
+            ".cache/comp-pair-recovery/build",
+            "-R",
+            "^(comp-owned-uniform-context-worker|comp-owned-span-worker|comp-clocked-protected-worker)$",
+            "--output-on-failure",
+            "--parallel",
+            "1"
+          ]
+        ],
+        "sourceHashes": {
+          "CMakeLists.txt": "9f7e847a78eddf6d6db496701cd601c482469ce0c8c00fb6f0c8771157197803",
+          ".github/workflows/ci.yml": "7e14e588d8dd11b73419f8f055eb6522c769baa594aebb5b5ab4b71cf0118b80",
+          "include/soundcurrent/comp_span_protocol.hpp": "0d6d1aa382672174219f9d76dc32fcbbcad0f24f3b4e8d49c5c7e185285336e7",
+          "src/comp_span_protocol.cpp": "38ca70b95e43adf01014bb39fb30d0bf9b6ca0c6530c76f2b107beaa0d20208e",
+          "tests/comp_uniform_context_worker_fixture.cpp": "aea3bccfdbae96727991cb9b2243bbe72f0adc1b85d226909e3924113ba0d27f",
+          "tests/comp_uniform_context_worker_tests.py": "649d70c91e47a7a12089c66605a7536ea30175d5bf1416c5c22d916d704469a6",
+          "tests/comp_repeat_fixture.cpp": "ac4769d8ae207472f13c3d41ccd39d0c5dcd16d59c2fc09c6ff0584e280a4621"
+        },
+        "binaryHashes": {
+          ".cache/comp-pair-recovery/build/sc-comp-span-worker": "bab1f1d4e130e8356eb8a367f1d7943c1fc774512c357813e2cb2f7c65a87e31",
+          ".cache/comp-pair-recovery/build/sc-comp-uniform-context-worker-fixture": "0cf341ea8289e9288e08c050a9e368ac3d70c85901228231e765f667ec2e45f9",
+          ".cache/comp-pair-recovery/build/sc-comp-span-worker-fixture": "b68ebcee17fca409514036496801e05d76337139bd3e5070fc45f3b7c139f14a",
+          ".cache/comp-pair-recovery/build/sc-comp-clocked-protected-worker-fixture": "e82f66d9063e1213b5373b9ebde0172f39fce70afa0682bf20ae34a1914093fc"
+        },
+        "exitCode": 0,
+        "seconds": 66.04023229901213,
+        "sourceAndBinariesUnchanged": true,
+        "newRuns": [
+          ".cache/comp-pair-recovery/build/comp-uniform-context-worker-evidence/run-u7enh4u1"
+        ]
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+        "commands": [
+          [
+            "cmake",
+            "--build",
+            ".cache/comp-history-sharing/build-debug",
+            "--parallel",
+            "1",
+            "--target",
+            "sc-comp-span-worker",
+            "sc-comp-uniform-context-worker-fixture",
+            "sc-comp-span-worker-fixture",
+            "sc-comp-clocked-protected-worker-fixture"
+          ],
+          [
+            "ctest",
+            "--test-dir",
+            ".cache/comp-history-sharing/build-debug",
+            "-R",
+            "^comp-owned-uniform-context-worker$",
+            "--output-on-failure",
+            "--parallel",
+            "1"
+          ]
+        ],
+        "sourceHashes": {
+          "CMakeLists.txt": "9f7e847a78eddf6d6db496701cd601c482469ce0c8c00fb6f0c8771157197803",
+          ".github/workflows/ci.yml": "7e14e588d8dd11b73419f8f055eb6522c769baa594aebb5b5ab4b71cf0118b80",
+          "include/soundcurrent/comp_span_protocol.hpp": "0d6d1aa382672174219f9d76dc32fcbbcad0f24f3b4e8d49c5c7e185285336e7",
+          "src/comp_span_protocol.cpp": "38ca70b95e43adf01014bb39fb30d0bf9b6ca0c6530c76f2b107beaa0d20208e",
+          "tests/comp_uniform_context_worker_fixture.cpp": "aea3bccfdbae96727991cb9b2243bbe72f0adc1b85d226909e3924113ba0d27f",
+          "tests/comp_uniform_context_worker_tests.py": "649d70c91e47a7a12089c66605a7536ea30175d5bf1416c5c22d916d704469a6",
+          "tests/comp_repeat_fixture.cpp": "ac4769d8ae207472f13c3d41ccd39d0c5dcd16d59c2fc09c6ff0584e280a4621"
+        },
+        "binaryHashes": {
+          ".cache/comp-history-sharing/build-debug/sc-comp-span-worker": "e470d8ecfa042e7e842eed761eaee87aa16d8b498b96de6817903149f0362a50",
+          ".cache/comp-history-sharing/build-debug/sc-comp-uniform-context-worker-fixture": "4b2fd14025aa9218a91633c06a1fe838c87d69b7393bf4bba7819906aba100a2",
+          ".cache/comp-history-sharing/build-debug/sc-comp-span-worker-fixture": "31e2e7e4ca6e2ca89dddf769ba3d955082c39b1b23ab6448363b6387db94538c",
+          ".cache/comp-history-sharing/build-debug/sc-comp-clocked-protected-worker-fixture": "4779b26ea9ee349e6f8b0c98553da116ba954c2340defe7224d6f4b95e9374d9"
+        },
+        "exitCode": 0,
+        "seconds": 83.05562481295783,
+        "sourceAndBinariesUnchanged": true,
+        "newRuns": [
+          ".cache/comp-history-sharing/build-debug/comp-uniform-context-worker-evidence/run-hw49sxz4"
+        ]
+      }
+    ],
+    "mingwCommand": [
+      "x86_64-w64-mingw32-g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-fno-fast-math",
+      "-fsyntax-only",
+      "-Iinclude",
+      "-Isrc",
+      "-isystem",
+      "third_party",
+      "-isystem",
+      "third_party/rubberband",
+      "-isystem",
+      "third_party/libsndfile",
+      "src/comp_span_protocol.cpp",
+      "tests/comp_uniform_context_worker_fixture.cpp",
+      "tests/comp_repeat_fixture.cpp"
+    ],
+    "mingwExitCode": 0,
+    "nativeRuntime": false,
+    "pairAndUiIntegration": false
+  },
+  "audit": {
+    "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+    "rows": [
+      {
+        "configuration": "Release",
+        "seconds": 66.04023229901213,
+        "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+        "report": ".cache/comp-pair-recovery/build/comp-uniform-context-worker-evidence/run-u7enh4u1/report.json",
+        "successfulContextWorkers": 3,
+        "seedWorkers": 2,
+        "refusals": 33,
+        "comparedSamples": 210770,
+        "geometry": [
+          {
+            "stage": "nominal",
+            "legacyProcessingFrames": 32790,
+            "contextInputFrames": 32790,
+            "outputFrames": 49184,
+            "legacyWindowRefused": false
+          },
+          {
+            "stage": "history",
+            "legacyProcessingFrames": 34774,
+            "contextInputFrames": 34774,
+            "outputFrames": 52160,
+            "legacyWindowRefused": false
+          },
+          {
+            "stage": "short-history",
+            "legacyProcessingFrames": 4041,
+            "contextInputFrames": 34815,
+            "outputFrames": 4041,
+            "legacyWindowRefused": true
+          }
+        ],
+        "markers": [
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-uniform-context-worker-evidence/run-u7enh4u1/input/run-dt8i4ey9/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/07398a18-d9cd-4cae-b167-5d742c6c7e9a/complete.json",
+            "frames": 49184,
+            "channels": 2,
+            "peak": 2.697770595550537,
+            "audioSha256": "57be4b9e63e6b0d2fb77303acdacb3a3a5c893579eb20cabffd8d1f44705b462",
+            "sampleSha256": "b9655b68f2efdaf8ab241194931ffe9e453e420b4f1413dd38f8edbb3ecf49b8",
+            "payloadPeakBytes": 92597003
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-uniform-context-worker-evidence/run-u7enh4u1/input/run-dt8i4ey9/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/76fa3eb3-7048-47a4-982b-1aff5d345d4b/complete.json",
+            "frames": 52160,
+            "channels": 2,
+            "peak": 2.630523204803467,
+            "audioSha256": "cc2607dfe3a7a141428dd00f2546685779a1f45a5c575f43095de1529127e72c",
+            "sampleSha256": "a9dc2adf67b1d5c484a856e8716a5148c75e3b1246e5456dcdb871236071c48b",
+            "payloadPeakBytes": 96629160
+          },
+          {
+            "path": ".cache/comp-pair-recovery/build/comp-uniform-context-worker-evidence/run-u7enh4u1/input/run-dt8i4ey9/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/b873da38-f217-432f-8004-6a227b2d5331/complete.json",
+            "frames": 4041,
+            "channels": 2,
+            "peak": 0.0708477571606636,
+            "audioSha256": "4e3823514e2b3fd0f488b69036c486beccab30481c1f48e6c8c1b826a226aa14",
+            "sampleSha256": "30986ecbc02c1e4ad88a6dc02c84166065ffd4998e370f4f3b57f0d05044bfe8",
+            "payloadPeakBytes": 103909368
+          }
+        ]
+      },
+      {
+        "configuration": "Debug",
+        "seconds": 83.05562481295783,
+        "sourceHead": "7f1852943b08f0d95db74666b10543eb777a7691",
+        "report": ".cache/comp-history-sharing/build-debug/comp-uniform-context-worker-evidence/run-hw49sxz4/report.json",
+        "successfulContextWorkers": 3,
+        "seedWorkers": 2,
+        "refusals": 33,
+        "comparedSamples": 210770,
+        "geometry": [
+          {
+            "stage": "nominal",
+            "legacyProcessingFrames": 32790,
+            "contextInputFrames": 32790,
+            "outputFrames": 49184,
+            "legacyWindowRefused": false
+          },
+          {
+            "stage": "history",
+            "legacyProcessingFrames": 34774,
+            "contextInputFrames": 34774,
+            "outputFrames": 52160,
+            "legacyWindowRefused": false
+          },
+          {
+            "stage": "short-history",
+            "legacyProcessingFrames": 4041,
+            "contextInputFrames": 34815,
+            "outputFrames": 4041,
+            "legacyWindowRefused": true
+          }
+        ],
+        "markers": [
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-uniform-context-worker-evidence/run-hw49sxz4/input/run-rpz07plp/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/c89b5fed-a8f5-44f2-a3e5-1d3a43fa2540/complete.json",
+            "frames": 49184,
+            "channels": 2,
+            "peak": 2.697770595550537,
+            "audioSha256": "57be4b9e63e6b0d2fb77303acdacb3a3a5c893579eb20cabffd8d1f44705b462",
+            "sampleSha256": "b9655b68f2efdaf8ab241194931ffe9e453e420b4f1413dd38f8edbb3ecf49b8",
+            "payloadPeakBytes": 92597003
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-uniform-context-worker-evidence/run-hw49sxz4/input/run-rpz07plp/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/64dfa264-fdb9-4a4c-a1da-c03c949a1b6b/complete.json",
+            "frames": 52160,
+            "channels": 2,
+            "peak": 2.630523204803467,
+            "audioSha256": "cc2607dfe3a7a141428dd00f2546685779a1f45a5c575f43095de1529127e72c",
+            "sampleSha256": "a9dc2adf67b1d5c484a856e8716a5148c75e3b1246e5456dcdb871236071c48b",
+            "payloadPeakBytes": 96629160
+          },
+          {
+            "path": ".cache/comp-history-sharing/build-debug/comp-uniform-context-worker-evidence/run-hw49sxz4/input/run-rpz07plp/case-48000-uniform/project-\u00e9-\u65e5\u672c/media/comp-spans/d84e2fac-4109-4713-aa54-e90aac6d5569/complete.json",
+            "frames": 4041,
+            "channels": 2,
+            "peak": 0.0708477571606636,
+            "audioSha256": "4e3823514e2b3fd0f488b69036c486beccab30481c1f48e6c8c1b826a226aa14",
+            "sampleSha256": "30986ecbc02c1e4ad88a6dc02c84166065ffd4998e370f4f3b57f0d05044bfe8",
+            "payloadPeakBytes": 103909368
+          }
+        ]
+      }
+    ],
+    "allThreeContextPcmByteIdenticalAcrossBuilds": true,
+    "mingwTranslationUnits": 3,
+    "nativeRuntime": false,
+    "pairAndUiIntegration": false,
+    "qualityAdmission": false
+  }
+}

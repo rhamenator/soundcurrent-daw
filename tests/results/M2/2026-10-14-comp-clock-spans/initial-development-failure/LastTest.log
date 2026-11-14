@@ -1,0 +1,84 @@
+Start testing: Oct 14 18:42 EDT
+----------------------------------------------------------
+31/184 Testing: comp-processing-recipe-recovery
+31/184 Test: comp-processing-recipe-recovery
+Command: "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-processing-recipe-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build
+"comp-processing-recipe-recovery" start time: Oct 14 18:42 EDT
+Output:
+----------------------------------------------------------
+recipe_case=0
+recipe_case=1
+recipe_case=2
+recipe_case=3
+recipe_case=4
+recipe_case=5
+recipe_case=6
+recipe_case=7
+recipe_case=8
+recipe_case=9
+recipe_case=10
+comp_recipe_checks=618 physical=9 post_src=10 existing=3 source_media_verified=false renderer_executed=false
+<end of output>
+Test time =   0.24 sec
+----------------------------------------------------------
+Test Passed.
+"comp-processing-recipe-recovery" end time: Oct 14 18:42 EDT
+"comp-processing-recipe-recovery" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/184 Testing: comp-uniform-span-render
+36/184 Test: comp-uniform-span-render
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/comp_span_render_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-span-render-tests" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-span-evidence"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build
+"comp-uniform-span-render" start time: Oct 14 18:42 EDT
+Output:
+----------------------------------------------------------
+{"actualR3Renders":36,"checks":2950,"maxRelativeFrequencyError":0.0050534815628670016,"qualityAdmission":false}
+
+/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-span-evidence/run-k06wmwvj
+<end of output>
+Test time =   7.77 sec
+----------------------------------------------------------
+Test Passed.
+"comp-uniform-span-render" end time: Oct 14 18:42 EDT
+"comp-uniform-span-render" time elapsed: 00:00:07
+----------------------------------------------------------
+
+40/184 Testing: comp-regeneration-source
+40/184 Test: comp-regeneration-source
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/comp_regeneration_source_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-span-worker" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-span-worker-fixture" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-pair-recovery-fixture" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-pair-assembly-tests" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-stretch-render-worker" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-assembly-job-tests" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-regeneration-source-tests" "--evidence" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-regeneration-source-evidence"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build
+"comp-regeneration-source" start time: Oct 14 18:42 EDT
+Output:
+----------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/rich/dev/soundcurrent-daw/tests/comp_regeneration_source_tests.py", line 29, in <module>
+    (root/'resolver.stdout').write_text(out);(root/'resolver.stderr').write_text(err);processes.append(dict(pid=proc.pid,exitCode=proc.returncode));assert proc.returncode==0,(root,err);reports.append(json.loads(out))
+                                                                                                                                                           ^^^^^^^^^^^^^^^^^^
+AssertionError: (PosixPath('/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-regeneration-source-evidence/run-wjyankq7/inputs/run-_ljsizev/inputs/run-fl_uzj4o/case-48000/project-é-日本'), 'Unexpected fixture baked speed\n')
+<end of output>
+Test time =  30.19 sec
+----------------------------------------------------------
+Test Failed.
+"comp-regeneration-source" end time: Oct 14 18:43 EDT
+"comp-regeneration-source" time elapsed: 00:00:30
+----------------------------------------------------------
+
+41/184 Testing: comp-regeneration-history
+41/184 Test: comp-regeneration-history
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/comp_regeneration_history_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-span-worker" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-span-worker-fixture" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-pair-recovery-fixture" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-pair-assembly-tests" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-stretch-render-worker" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-assembly-job-tests" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-regeneration-history-tests" "--evidence" "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-regeneration-history-evidence"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build
+"comp-regeneration-history" start time: Oct 14 18:43 EDT
+Output:
+----------------------------------------------------------
+{"scope": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-regeneration-history-evidence/run-3vwyiufd", "reviews": 6, "checks": 393}
+<end of output>
+Test time =  38.81 sec
+----------------------------------------------------------
+Test Passed.
+"comp-regeneration-history" end time: Oct 14 18:43 EDT
+"comp-regeneration-history" time elapsed: 00:00:38
+----------------------------------------------------------
+
+End testing: Oct 14 18:43 EDT

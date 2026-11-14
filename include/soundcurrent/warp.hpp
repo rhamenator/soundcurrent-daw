@@ -25,10 +25,27 @@ struct ClipWarpRegion {
     Frame availableSourceFrames = 0, inputFrames = 0, outputFrames = 0;
     SourcePosition visibleSourceBegin, visibleSourceEnd;
 };
+// Semantic extents, not sample counts. No rounding is permitted when adapting
+// fractional outer handles. Actual sample/footprint admission belongs to the
+// prepared sampling adapter; an exclusive extent is not itself a sample.
+struct ExactClipWarpRegion {
+    SourcePosition rawOrigin;
+    std::uint32_t physicalRate = 48000;
+    Frame availableSourceFrames = 0;
+    SourcePosition inputExtent, outputExtent;
+    SourcePosition visibleSourceBegin, visibleSourceEnd;
+};
+struct ExactWarpDomain {};
+inline constexpr ExactWarpDomain exactWarpDomain{};
 class ClipWarpMap {
   public:
     ClipWarpMap(ClipWarpRegion, std::span<const WarpAnchor>, ResourceLedger, ClipWarpLimits = {});
-    const ClipWarpRegion &region() const noexcept { return region_; }
+    ClipWarpMap(ExactWarpDomain, ExactClipWarpRegion, std::span<const WarpAnchor>, ResourceLedger, ClipWarpLimits = {});
+    // Legacy integer-grid access refuses an exact-domain plan, even if its
+    // current endpoints happen to be integers. Callers must opt into the model.
+    const ClipWarpRegion &region() const;
+    bool hasLegacyRegion() const noexcept { return legacyRegion_.has_value(); }
+    const ExactClipWarpRegion &exactRegion() const noexcept { return region_; }
     std::span<const ClipWarpPoint> points() const noexcept { return points_; }
     SourcePosition sourceToOutput(SourcePosition) const;
     SourcePosition outputToSource(SourcePosition) const;
@@ -40,8 +57,11 @@ class ClipWarpMap {
     std::map<std::size_t, std::size_t> vendorInteriorFrames() const;
     std::size_t chargedBytes() const noexcept { return lease_.bytes(); }
   private:
+    ClipWarpMap(ExactClipWarpRegion, std::optional<ClipWarpRegion>,
+                std::span<const WarpAnchor>, ResourceLedger, ClipWarpLimits);
     ResourceLease lease_; // destroyed after owned points
-    ClipWarpRegion region_;
+    ExactClipWarpRegion region_;
+    std::optional<ClipWarpRegion> legacyRegion_;
     std::vector<ClipWarpPoint> points_;
 };
 struct ProtectedWarpSpan { Id owner; SourcePosition sourceAnchor,outputAnchor,sourceBegin,sourceEnd,outputBegin,outputEnd; };
@@ -49,11 +69,13 @@ struct ProtectedWarpGap { SourcePosition sourceBegin,sourceEnd,outputBegin,outpu
 class ProtectedWarpPlan {
  public:
   ProtectedWarpPlan(ClipWarpRegion,std::span<const WarpAnchor>,WarpProtection,ResourceLedger,ClipWarpLimits={});
+  ProtectedWarpPlan(ExactWarpDomain,ExactClipWarpRegion,std::span<const WarpAnchor>,WarpProtection,ResourceLedger,ClipWarpLimits={});
   std::span<const ProtectedWarpSpan> spans() const noexcept { return spans_; }
   std::span<const ProtectedWarpGap> gaps() const noexcept { return gaps_; }
   const ClipWarpMap &map() const noexcept { return *map_; }
   WarpProtection policy() const noexcept { return policy_; }
  private:
+  void prepare(const ClipWarpMap &,std::span<const WarpAnchor>,ResourceLedger,ClipWarpLimits);
   ResourceLease lease_; // retires after owned storage
   WarpProtection policy_;
   std::vector<ProtectedWarpSpan> spans_;

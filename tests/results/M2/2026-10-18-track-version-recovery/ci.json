@@ -1,0 +1,241 @@
+{
+  "qualifiedHead": "4cd19184248bacbea328f507d4a6b4730bfc99c5",
+  "mergeCommit": "39645c8c6127ff91d9dfc362d0e1210872ba653e",
+  "run": 39084895518,
+  "runUrl": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/39084895518",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 117549279133,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279244,
+      "name": "Retained workflow evidence (no native replay)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279283,
+      "name": "Linux synthetic shard 1",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279288,
+      "name": "Windows native recording workflows",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279291,
+      "name": "Windows repeated protected desktop workflows",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279310,
+      "name": "Windows native comp workflows",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279338,
+      "name": "Windows comp desktop workflows",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279360,
+      "name": "Linux synthetic shard 0",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279367,
+      "name": "Windows desktop workflows",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279376,
+      "name": "Linux synthetic shard 2",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279449,
+      "name": "Linux synthetic shard 3",
+      "conclusion": "success"
+    },
+    {
+      "id": 117549279465,
+      "name": "Linux synthetic shard 4",
+      "conclusion": "success"
+    },
+    {
+      "id": 117551951181,
+      "name": "Windows desktop import and localization tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 117553719030,
+      "name": "Windows native packet ownership tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 117553740550,
+      "name": "Linux desktop and synthetic tests",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12121370349,
+      "name": "linux-synthetic-test-log-1",
+      "bytes": 256287568,
+      "sha256": "8190b31cf982f54a9a422377a112e6169587aa3f144a8aebab32392cf9d9126a"
+    },
+    {
+      "id": 12121310243,
+      "name": "linux-synthetic-test-log-3",
+      "bytes": 149461208,
+      "sha256": "5ecf3cdc2c17f633e0b81d76e3453f8153a0d0ce1eed8b82ff29723277009ede"
+    },
+    {
+      "id": 12121255093,
+      "name": "linux-synthetic-test-log-2",
+      "bytes": 211888682,
+      "sha256": "c476586f614b7b0f7a6ed84e3fcc3e18a6049de6e4dfc0409d607e109c69fefa"
+    },
+    {
+      "id": 12120966991,
+      "name": "windows-native-packet-unit-log",
+      "bytes": 34321328,
+      "sha256": "3acb1f4f85fadf0676fe89eff8009f10a08bbaaaa9d25fafa53ea58d7cd708e4"
+    },
+    {
+      "id": 12120862120,
+      "name": "linux-synthetic-test-log-0",
+      "bytes": 144325791,
+      "sha256": "ae9b1d55e90ecf78966373e5458f16767b71099f5e409ff5ab850b7b781823c7"
+    },
+    {
+      "id": 12120786940,
+      "name": "windows-comp-desktop-log",
+      "bytes": 184682053,
+      "sha256": "686bd996a5fd4caa542b58cb068b64e912fe7117f265f6ac9ef5427660e7d0f2"
+    },
+    {
+      "id": 12120546799,
+      "name": "windows-desktop-import-test-log",
+      "bytes": 75204,
+      "sha256": "a775a0424ef8aa8456e7bc9e608db138150456092d7d92b180c4a2da04d2e80f"
+    },
+    {
+      "id": 12120507604,
+      "name": "windows-native-comp-unit-log",
+      "bytes": 482574461,
+      "sha256": "d290be8dd7f547d7e561a75052695128d10059c8608aa6483f71f6ec70e4b739"
+    },
+    {
+      "id": 12120199254,
+      "name": "windows-protected-repeat-desktop-log",
+      "bytes": 244659882,
+      "sha256": "4eb86c1be4556466078389cd069fabfd93061995e14321afe148f46b2f5c106f"
+    },
+    {
+      "id": 12119714961,
+      "name": "linux-synthetic-test-log-4",
+      "bytes": 151717565,
+      "sha256": "ad1d834a29ef09065c372031521371c3b01162cbb00409349fb92a0da51a2e74"
+    },
+    {
+      "id": 12119679953,
+      "name": "windows-media-build-review",
+      "bytes": 438043,
+      "sha256": "56e0dbd4deb165515830732e8b53d5aeda93a5583e96e9b62599141682d65f1a"
+    }
+  ],
+  "focusedTest": "desktop-stretch-controller",
+  "focusedResults": [
+    {
+      "log": "job-117549279283.log",
+      "line": "2026-10-18T01:22:48.9367122Z 17/46 Test  #95: desktop-stretch-controller ...................   Passed   15.91 sec"
+    },
+    {
+      "log": "job-117549279367.log",
+      "line": "2026-10-18T01:12:51.0374123Z  4/27 Test  #95: desktop-stretch-controller ............   Passed   23.51 sec"
+    }
+  ],
+  "originalJobLogs": [
+    {
+      "name": "job-117549279133.log",
+      "bytes": 99432,
+      "sha256": "722639191557581afd4659c95158ad2b08b8788436cf4707409475d0f3ac6008"
+    },
+    {
+      "name": "job-117549279244.log",
+      "bytes": 54590,
+      "sha256": "c2e1c5be5ad4547da8836d534b64f9c5d483a1e6418c16c37bc0aace8f182b1d"
+    },
+    {
+      "name": "job-117549279283.log",
+      "bytes": 219851,
+      "sha256": "bee2589fc2e04ca7b4eda36872c68030b2d0478b0d6c72f67de2235d6dfd5f04"
+    },
+    {
+      "name": "job-117549279288.log",
+      "bytes": 1322254,
+      "sha256": "ef71d8b4f5331cf0adc0fe29f13346fd4d6f7946565f72c0640de7ee621deb40"
+    },
+    {
+      "name": "job-117549279291.log",
+      "bytes": 1099606,
+      "sha256": "61e96c6bc26b2ecf643421127974030ff020bd6ee83d1f1b25d84038d3348384"
+    },
+    {
+      "name": "job-117549279310.log",
+      "bytes": 1307600,
+      "sha256": "e4b3c47aef7c35f03fc0fdc8f89acf52422e9583e73243c627ae8e278a119f6e"
+    },
+    {
+      "name": "job-117549279338.log",
+      "bytes": 1141581,
+      "sha256": "98c56d4b216e6c4c19746690d40ea685e8290cccd8914eed8023d890216abdf6"
+    },
+    {
+      "name": "job-117549279360.log",
+      "bytes": 219751,
+      "sha256": "4bb8707702d7ba4150dadd24565901e4a347abd7c6bc1a1cb98ca8154bf35838"
+    },
+    {
+      "name": "job-117549279367.log",
+      "bytes": 1370832,
+      "sha256": "3e1af2e53bb3850b157d695b87d387c9aedc353e9413eac0bd4c6dad39f8d1e6"
+    },
+    {
+      "name": "job-117549279376.log",
+      "bytes": 219866,
+      "sha256": "b7b1784dad4830d6e15950c09a29bccb735ae77289dd6d4af00c9d8311ddd30d"
+    },
+    {
+      "name": "job-117549279449.log",
+      "bytes": 217489,
+      "sha256": "ef47f151d9ab282001fde16abd36ac6f8b098b26a29b5a4526101d20f7cc1e94"
+    },
+    {
+      "name": "job-117549279465.log",
+      "bytes": 216880,
+      "sha256": "544f29ca44910d3754ecbd60e22843688d0fcb910cfa0749929db2bb1cd71fb8"
+    },
+    {
+      "name": "job-117551951181.log",
+      "bytes": 2154,
+      "sha256": "18436466f22f14f2e1f9a4f1c854cc4330ef3b69390f411cfd8234c71981d8c6"
+    },
+    {
+      "name": "job-117553719030.log",
+      "bytes": 2131,
+      "sha256": "29210b7b7b060813986e4b2fc06c26738c82cef3db06fa4225c49e099c30d318"
+    },
+    {
+      "name": "job-117553740550.log",
+      "bytes": 2257,
+      "sha256": "52a1cb473ce9baaf65d664c1ae27c50dace40e55bd5c80c73eda72d5b804500e"
+    }
+  ],
+  "installedPreviewQualified": false
+}

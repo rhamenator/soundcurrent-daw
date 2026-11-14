@@ -1,0 +1,20 @@
+{
+  "originalRun": 38686371153,
+  "measuredTests": 200,
+  "newBankRemoteMeasured": false,
+  "newBankEstimatedSeconds": 721.64,
+  "shards": 3,
+  "estimatedSeconds": [
+    721.64,
+    688.1499999999999,
+    688.1499999999991
+  ],
+  "counts": [
+    1,
+    101,
+    99
+  ],
+  "coverageExactlyOnce": true,
+  "jobDeadlineMinutes": 30,
+  "testDeadlinesUnchanged": true
+}

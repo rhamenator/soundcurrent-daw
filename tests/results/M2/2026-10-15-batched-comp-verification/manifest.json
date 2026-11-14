@@ -1,0 +1,31 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 1744811,
+  "sha256": "2e508c7fd49412d1424481afdb81ba817b98d38856f343c55689d661e8ecff36",
+  "entries": 1797,
+  "baseHead": "dfa58871502b6e94260c09807ca53ab148fa666f",
+  "generatedFiles": 2542,
+  "testsPassed": 4,
+  "comparedSamples": 16256,
+  "projectFilesUnchanged": 225,
+  "medianSeconds": {
+    "before": 2.975934519083239,
+    "after": 1.8708702189614996
+  },
+  "hashCounters": {
+    "before": {
+      "calls": 22593,
+      "bytes": 729204805,
+      "hashSeconds": 1.666319585
+    },
+    "after": {
+      "calls": 12817,
+      "bytes": 425881047,
+      "hashSeconds": 0.90205149
+    }
+  },
+  "nativeWindowsQualified": false,
+  "installedPreviewsChanged": false,
+  "physicalAudio": false,
+  "applicationBinariesIncluded": false
+}

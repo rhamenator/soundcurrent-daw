@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "native_monitor_controller.hpp"
+#include "project_controller.hpp"
 #include <QGroupBox>
 #include <QCoreApplication>
 class QPushButton;
@@ -21,6 +22,7 @@ class NativeMonitorPanel final : public QGroupBox {
     explicit NativeMonitorPanel(NativeMonitorControllerOptions = {},QWidget * = nullptr,
         ResourceLedger panelMemory = ResourceLedger{16*1024*1024,"Native recording panel"});
     ~NativeMonitorPanel();
+    void bindAutosaveGuard(ProjectController &, std::uint64_t &sequence); // GUI lifetime owners.
     bool interactiveDevices() const;
     void preparationGuard(std::function<bool(const NativeMonitorPreparation &)>);
     void clearPreparation(); // Inactive context only; releases its payload credit.
@@ -45,6 +47,14 @@ class NativeMonitorPanel final : public QGroupBox {
   protected:
     void closeEvent(QCloseEvent *) override;
   private:
+    ProjectController *projectController_ = nullptr;
+    std::uint64_t *guardSequence_ = nullptr;
+    std::uint64_t autosaveToken_ = 0, autosaveEpoch_ = 0;
+    bool autosaveAcquiring_ = false, autosaveReleasing_ = false, preparePending_ = false;
+    std::uint64_t prepareGeneration_ = 0, prepareCanceled_ = 0;
+    std::optional<NativeMonitorCommand> guardedPreparation_;
+    void queuePreparation(NativeMonitorCommand);
+    void pollAutosaveGuard(const NativeMonitorSnapshot &);
     ResourceLedger memory_;
     ResourceLease widgetCredit_,projectCredit_;
     std::filesystem::path projectRoot_;

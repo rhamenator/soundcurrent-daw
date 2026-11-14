@@ -98,6 +98,7 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     result,reports=run(initial);check(result.returncode==0,'Actual stretch failed: '+diagnostic(result))
     receipt=reports[-1];job=jobs/initial['operation'];check(receipt['complete'] and receipt['writtenFrames']==18000,'Exact independent duration failed')
     check(json.loads((job/'complete.json').read_text())==receipt,'Published completion receipt differs')
+    check(receipt['memoryMetric']==('process-commit' if os.name=='nt' else 'address-space'),'Actual worker reported wrong native memory limit')
     channels,rate,data=read_rf64(job/'audio.wav');check(channels==2 and rate==48000 and len(data)==18000*2*4,'RF64 actual geometry differs')
     check(hashlib.sha256(data).hexdigest()==receipt['sampleSha256'],'Independent sample digest differs');check(hashlib.sha256((job/'audio.wav').read_bytes()).hexdigest()==receipt['audioSha256'],'Actual audio hash differs')
     samples=struct.unpack('<'+'f'*(len(data)//4),data);check(all(math.isfinite(x) for x in samples),'Nonfinite actual output');check(max(abs(x) for x in samples)>1,'Output clipped float headroom')

@@ -1,0 +1,8 @@
+{
+  "archive": "development-logs.zip",
+  "bytes": 41486,
+  "sha256": "efb5462eedbba41083fcd40685d5541f49abbcfc9c438c90e1bf578733fe09b7",
+  "entries": 20,
+  "initialQualificationRetainedLocally": ".cache/comp-regeneration-plans/initial-qualified-evidence",
+  "reasonForAdditionalQualification": "Source review added mixed-pair guard; original CI then exposed Windows test path/retention and Linux narrow-layout defects. Engine qualification retained; later UI qualification proves engine sources/binaries unchanged."
+}

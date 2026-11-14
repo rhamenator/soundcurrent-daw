@@ -1,0 +1,210 @@
+{
+  "checkpoint": 264,
+  "source_head": "5244ae19f138f4ee6fb478433d0fdf92e225a1ee",
+  "source_tree": "ec359a777cf0616496c2a41107884d7debe495a8",
+  "scope": "Versioned processed comp handle window metadata, exact lookup, validation, planning and edits; no generated audio or worker admission",
+  "linux_selected_gates_passed": 9,
+  "elapsed_seconds": 1.58,
+  "window_state_checks": 75,
+  "planner_checks": 156,
+  "existing_comp_transition_checks": 6807,
+  "project_schema_for_windows": "1.20",
+  "ordinary_project_schema_unchanged": [
+    "1.18",
+    "1.19"
+  ],
+  "prior_planner_ci": {
+    "source_head": "7bf51409c16ac2869621d1151ea1389ce6da7ef9",
+    "run": 38485663885,
+    "conclusion": "success",
+    "jobs_passed": 4,
+    "native_tests_passed": 91,
+    "desktop_tests_passed": 22,
+    "linux_tests_passed": 166,
+    "retained_archives": {
+      "linux-synthetic-test-log-original.zip": {
+        "bytes": 36400,
+        "sha256": "47e546c53ccff10093481a6062d6f7b6c1ad6cded49adc0866bd6c5f87a22de4"
+      },
+      "windows-desktop-import-test-log-original.zip": {
+        "bytes": 59781,
+        "sha256": "11d73896acb0db6442f5360a8e66455e90abac4847f1f756de404cdc78c0b99a"
+      },
+      "windows-native-packet-unit-log-original.zip": {
+        "bytes": 34319386,
+        "sha256": "2d016c90435d788a56e51bf47a0cb03ed6bfe78e089c2eea2ac4e748cc11ddf8"
+      },
+      "windows-media-build-review-original.zip": {
+        "bytes": 438050,
+        "sha256": "1bce57534d754737629bfcce248e8c872762fd53922a8c9c03d865b3a0aa3222"
+      },
+      "windows-preview-build-inputs-original.zip": {
+        "bytes": 123633843,
+        "sha256": "5883accb6a02567011be999f73faba23f95ce351bc238e426439d5ea9c1e520b"
+      }
+    }
+  },
+  "current_window_ci": {
+    "source_head": "5244ae19f138f4ee6fb478433d0fdf92e225a1ee",
+    "run": 38488371125,
+    "status_at_recording": "in_progress",
+    "url": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/38488371125"
+  },
+  "actual_render": false,
+  "physical_endpoints_used": false,
+  "current_windows_window_state_qualified": false,
+  "installer_qualified": false,
+  "full_daw_parity_complete": false,
+  "known_gaps": [
+    "actual worker generation/artifact review/atomic source admission",
+    "ordinary stretch regeneration of processed windows",
+    "independent PCM/SRC/warp/context quality",
+    "controller epoch/root integration",
+    "native installed workflows"
+  ],
+  "archive": {
+    "bytes": 110404,
+    "sha256": "efc88045975e897d936e70b177422852b3db277deca1dacd9d56d1ddd6f0ea62",
+    "entries": {
+      "LastTest.log": {
+        "bytes": 8092,
+        "sha256": "91fc78a14559c5ec10dbd99b215db8d15edc421505b968863e57733abc5534ab"
+      },
+      "boundary-build.log": {
+        "bytes": 662,
+        "sha256": "d4b704d7f4dcbedc498fbd9480098f163167f8be77f9c813b459221854fa4724"
+      },
+      "boundary-tests.log": {
+        "bytes": 1189,
+        "sha256": "dc2941f97a1f05a918346459d9ed81377abe3cf8d562aa414a7a747ed1b3dbe4"
+      },
+      "build.log": {
+        "bytes": 2691,
+        "sha256": "5532329afea64afd5e5e4155f3bf2fa8aa78c29ea914f18d48a34426b2cdd9fa"
+      },
+      "final-source-build.log": {
+        "bytes": 556,
+        "sha256": "972b4514d704f9bbb784d7c69fae6e4e790d132784ec8b53f6f109fd6c359954"
+      },
+      "frozen-tests.log": {
+        "bytes": 1189,
+        "sha256": "db2db02898081f56e29d8931c2bc9c7495d8a1c91c709f9c70d215ade9487daa"
+      },
+      "geometry/protected-warp-geometry-evidence/20261014T000444556656Z/summary.json": {
+        "bytes": 473,
+        "sha256": "1a0933b620433b1825bdc1ac0849037b1ccdc3473c42118e64d014e0aec1f56b"
+      },
+      "geometry/protected-warp-geometry-evidence/20261014T000626070206Z/summary.json": {
+        "bytes": 472,
+        "sha256": "1fb8df7b42a509b29e3f7ec6430c8f64178571427ee3e0538c0a033c5a48b055"
+      },
+      "geometry/protected-warp-geometry-evidence/20261014T000747734886Z/summary.json": {
+        "bytes": 472,
+        "sha256": "5ed69c21f9e76f41c4dae642211651457823cbe0e6bd6507d8a25b1da1a303b9"
+      },
+      "geometry/warp-map-geometry-evidence/run-70367d30-7fe3-4c1c-b56c-52a8fc917f39/summary.json": {
+        "bytes": 606,
+        "sha256": "9503bda8529b408f7bd2e7f69fb0e65e1dd7dfd17c9498b8b0557f1ed2c52385"
+      },
+      "geometry/warp-map-geometry-evidence/run-a575463e-eb4e-4640-abef-8cbf80479ffe/summary.json": {
+        "bytes": 608,
+        "sha256": "fa1f0f20b48a629ab0e8eca777c9c13ee18276f538889bca01edbf6ec11f7bf6"
+      },
+      "geometry/warp-map-geometry-evidence/run-c2490b55-97b3-4d98-b6e5-3cce19ca4d57/summary.json": {
+        "bytes": 607,
+        "sha256": "33a9002318e9cd8ec4330526d87f63017532512718a08fe15bedcbd6b9f766a3"
+      },
+      "planner-ci/artifacts-original.json": {
+        "bytes": 3743,
+        "sha256": "2f300cf02099b7b3ad2252c87e665441d8abe6774d641631a10a187db10c3004"
+      },
+      "planner-ci/bundle-byte-audit.json": {
+        "bytes": 948,
+        "sha256": "438855b454209dccc415e9c485d0097e0723e6a0cd05690b6c6b3e7620312ce6"
+      },
+      "planner-ci/jobs-original.json": {
+        "bytes": 14599,
+        "sha256": "e542c6f79a5991d354d2f8f192eb394530a0c208bc9ff6222f223117449cdcae"
+      },
+      "planner-ci/linux-synthetic-test-log-LastTest.log": {
+        "bytes": 321177,
+        "sha256": "c8355a68402ab0a6eb411a5c95f0fe18f04f28bfa75cfbd4a6935a6c1f8788b6"
+      },
+      "planner-ci/run-original.json": {
+        "bytes": 13767,
+        "sha256": "1efb003038001fb4c3081d765b9ecb9826e96763f88710ee5d2d943d4406f04a"
+      },
+      "planner-ci/windows-desktop-import-test-log-LastTest.log": {
+        "bytes": 22211,
+        "sha256": "9f2c9e605e1fefd1763dfb8e99594ee67856b99c860d6c1584be9a8741f112f6"
+      },
+      "planner-ci/windows-desktop-import-test-log-default.png": {
+        "bytes": 13317,
+        "sha256": "50700f5a80262a8b66dcc98f1dd17b6ead5eb67f6b7c8208a5c886a2e2c22925"
+      },
+      "planner-ci/windows-desktop-import-test-log-small.png": {
+        "bytes": 11250,
+        "sha256": "ec352e28b2bedf16fbfc3b946f0468bd1dd82073a67bfd18ffcf18370c9bb0cc"
+      },
+      "planner-ci/windows-native-packet-unit-log-LastTest.log": {
+        "bytes": 242231,
+        "sha256": "7836588c164bfe87bddcaf636eba539e0b564e7b01614b249070f9cda14e628d"
+      },
+      "qualification.json": {
+        "bytes": 2715,
+        "sha256": "4173469b2a4cbfd4c0e6a8a7caa9410d2a58862a95a80f6560234a7d2eb52368"
+      },
+      "tests-first.log": {
+        "bytes": 1189,
+        "sha256": "805748ed5acf29d6ae758969fb22c14c8d87956863459a7569bb719b5f36e9ca"
+      },
+      "actual-project-files/file-roundtrip.cpp": {
+        "bytes": 2781,
+        "sha256": "df10af0e619a1a9ac4f15661f444b6beb8f1a29fae20f28d0603d0a2e52589d5"
+      },
+      "actual-project-files/file-roundtrip-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual-project-files/file-roundtrip.log": {
+        "bytes": 137,
+        "sha256": "e395085a0fca297585d4c37066beca946dab43917356ab3eaf60f1de50dc9a46"
+      },
+      "actual-project-files/file-roundtrip-qualification.json": {
+        "bytes": 1369,
+        "sha256": "43ddd9838a569d97828c45b29a844af68d14ff96a27febbc96ec0aedbae62427"
+      },
+      "actual-project-files/missing-media-file-roundtrip.cpp": {
+        "bytes": 1230,
+        "sha256": "68f49d6f8d73fbf002241dba91591207839e32201f5b4bbb97090497702c5ea4"
+      },
+      "actual-project-files/missing-media-file-roundtrip.log": {
+        "bytes": 36,
+        "sha256": "84a919b35f11dd2477332bdad3a5904172064954387e863ec308cc918da816b5"
+      },
+      "actual-project-files/missing-media-file-roundtrip-qualification.json": {
+        "bytes": 1334,
+        "sha256": "a46ac4a67c007f3896716785130b628931b3aa543237e54a0a9e190c1075316f"
+      },
+      "actual-project-files/different-projectid-file-roundtrip.cpp": {
+        "bytes": 2758,
+        "sha256": "d5fba2658f77d1f34c9d887fc363f8ddad9352f70629528671e2820e847749f8"
+      },
+      "actual-project-files/different-projectid-file-roundtrip.log": {
+        "bytes": 38,
+        "sha256": "31c9bf67598a5a12fd223fd03b407ce0fddfb742cd9c5b2b4e66757a73cbb83b"
+      },
+      "actual-project-files/different-projectid-file-roundtrip-qualification.json": {
+        "bytes": 1369,
+        "sha256": "d69f33b7380c967fbb57fc4326e3d95711b67b843921ceed54e1ca2c4cc51860"
+      }
+    }
+  },
+  "actual_project_file_cases": 3,
+  "actual_previous_generation_cases": 6,
+  "project_file_media": "Owned silent float WAV fixtures and actual SHA256; no DSP render or processor provenance claim",
+  "project_file_fixture_failures_retained": [
+    "missing-media verification",
+    "different-project identity refusal"
+  ]
+}

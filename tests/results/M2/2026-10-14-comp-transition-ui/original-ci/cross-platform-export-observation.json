@@ -1,0 +1,40 @@
+{
+  "exports": [
+    {
+      "sourceRate": 44100,
+      "samples": 71332,
+      "differingSamples": 81,
+      "maximumAbsoluteDifference": 2.384185791015625e-07,
+      "rmsDifference": 3.3284144182621224e-09,
+      "windowsSha256": "1657f2c0d2ca9a15060f170325714782ff0f29f309ff172cf12da380ff833659",
+      "linuxSha256": "91cff95d2584aab9a152672c6abcbd67056c78325b54b7959881cf52c2ae4b82",
+      "windowsFile": "comp-assembly-job-evidence/run-mw_f0r2a/inputs/run-ui48u1a5/case-44100/project-\u00e9-\u65e5\u672c/exports/assembled.wav",
+      "linuxFile": "comp-assembly-job-evidence/run-afepmxie/inputs/run-qlzhofk8/case-44100/project-\u00e9-\u65e5\u672c/exports/assembled.wav"
+    },
+    {
+      "sourceRate": 48000,
+      "samples": 98304,
+      "differingSamples": 26,
+      "maximumAbsoluteDifference": 5.960464477539063e-08,
+      "rmsDifference": 6.385179652484884e-10,
+      "windowsSha256": "e7165fcded595d7ec6ba4bc9ccd9ac27235ef451a02396949608490e3b0049b2",
+      "linuxSha256": "ba9ab117c4e1adb349f7469468119c1babb6119bec946b9c0f5b12b876ddd2ab",
+      "windowsFile": "comp-assembly-job-evidence/run-mw_f0r2a/inputs/run-ui48u1a5/case-48000/project-\u00e9-\u65e5\u672c/exports/assembled.wav",
+      "linuxFile": "comp-assembly-job-evidence/run-afepmxie/inputs/run-qlzhofk8/case-48000/project-\u00e9-\u65e5\u672c/exports/assembled.wav"
+    },
+    {
+      "sourceRate": 96000,
+      "samples": 32768,
+      "differingSamples": 16,
+      "maximumAbsoluteDifference": 1.1920928955078125e-07,
+      "rmsDifference": 1.4026755568534476e-09,
+      "windowsSha256": "3eb17415915801a85b4e3125b2119f32d53cbd64112decf644dd12c0cadf342c",
+      "linuxSha256": "0befe3d7db9788c8c6edf2fcfc353cb5d8b28cb8623988196a4a4fda22084e2b",
+      "windowsFile": "comp-assembly-job-evidence/run-mw_f0r2a/inputs/run-ui48u1a5/case-96000/project-\u00e9-\u65e5\u672c/exports/assembled.wav",
+      "linuxFile": "comp-assembly-job-evidence/run-afepmxie/inputs/run-qlzhofk8/case-96000/project-\u00e9-\u65e5\u672c/exports/assembled.wav"
+    }
+  ],
+  "exactCrossPlatformEquality": false,
+  "processingQualityQualified": false,
+  "note": "Original native jobs each prove live/export equality within their platform. This observation does not admit cross-platform sonic quality or require bitwise portability."
+}

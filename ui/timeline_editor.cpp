@@ -16,6 +16,9 @@
 #include <QSignalBlocker>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QScrollArea>
+#include <QScreen>
+#include <QResizeEvent>
 #include <QSlider>
 #include <QSpinBox>
 #include <QSplitter>
@@ -29,6 +32,18 @@
 #include <limits>
 namespace soundcurrent::daw::ui {
 namespace {
+class WrappedHelpLabel : public QLabel {
+ public:
+    using QLabel::QLabel;
+    void reflow() {
+        const auto h=heightForWidth(width());
+        if(h>=0 && h!=minimumHeight())setMinimumHeight(h);
+    }
+ protected:
+    void resizeEvent(QResizeEvent *event) override {
+        QLabel::resizeEvent(event);reflow();
+    }
+};
 class FocusCombo : public QComboBox {
     void wheelEvent(QWheelEvent *e) override {
         if (hasFocus())
@@ -64,7 +79,7 @@ void field(QLineEdit *w, Frame f, bool force) {
 }
 } // namespace
 TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
-    : QGroupBox(tr("Tracks and timeline"), parent) {
+    : QGroupBox(tr("Tracks and timeline"), parent), versionMemory_(memory) {
     setObjectName("timelineEditor");
     auto *body = new QVBoxLayout(this);
     auto *splitter = new QSplitter(this);
@@ -83,6 +98,31 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     splitter->setStretchFactor(1, 1);
     splitter->setSizes({170, 700});
     body->addWidget(splitter);
+    auto *waveformRow = new QHBoxLayout;
+    auto *retryWaveforms = new QPushButton(tr("Retry waveforms"));
+    retryWaveforms->setObjectName("retryTimelineWaveforms");
+    retryWaveforms->setToolTip(tr("Recheck source files and retry waveform preparation without changing audio or project edits."));
+    waveformRow->addWidget(retryWaveforms);
+    auto *waveformMode = new FocusCombo;
+    waveformMode->setObjectName("waveformChannelMode");
+    waveformMode->setAccessibleName(tr("Waveform display"));
+    waveformMode->setToolTip(tr("Source waveforms share an overview memory budget. Dense views use coarser peaks; shaded edges need finer detail."));
+    waveformMode->addItem(tr("Overview"));waveformMode->addItem(tr("Single channel"));
+    auto *waveformChannel = new QSpinBox;
+    waveformChannel->setObjectName("waveformDisplayChannel");waveformChannel->setRange(1,1024);
+    waveformChannel->setKeyboardTracking(false);waveformChannel->setEnabled(false);
+    waveformChannel->setAccessibleName(tr("Source channel number"));
+    waveformChannel->setToolTip(tr("Source channel number; does not change routing or audio."));
+    auto *channelLabel = new QLabel(tr("Channel"));channelLabel->setBuddy(waveformChannel);
+    waveformRow->addWidget(waveformMode);waveformRow->addWidget(channelLabel);waveformRow->addWidget(waveformChannel);waveformRow->addStretch();
+    const auto showChannel=[this,waveformMode,waveformChannel] {
+        const bool single=waveformMode->currentIndex()==1;waveformChannel->setEnabled(single);
+        view_->setWaveformChannel(single ? std::optional<std::uint32_t>(std::uint32_t(waveformChannel->value()-1)) : std::nullopt);
+    };
+    connect(waveformMode,&QComboBox::currentIndexChanged,this,showChannel);
+    connect(waveformChannel,&QSpinBox::valueChanged,this,showChannel);
+    body->addLayout(waveformRow);
+    connect(retryWaveforms, &QPushButton::clicked, view_, &TimelineView::retryWaveforms);
     auto *trackRow = new QHBoxLayout;
     name_ = new QLineEdit;
     name_->setObjectName("selectedTrackName");
@@ -156,6 +196,9 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
                                            : std::optional<Id>((it + 2)->id)}});
     });
     body->addLayout(trackRow);
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Track versions…"), "editTrackVersions", [this] {
+        editTrackVersions();
+    });
     auto *takeFields = new QFormLayout;
     takes_ = new FocusCombo;
     takes_->setObjectName("timelineTakes");
@@ -491,6 +534,7 @@ void TimelineEditor::mutate(std::vector<SessionEdit> edits) {
 }
 struct TimelineEditor::Prepared {
     std::shared_ptr<const Session> model;
+    std::filesystem::path root;
     std::uint64_t epoch = 0;
     bool editable = false, force = false;
     std::optional<Id> track, clip, pending;
@@ -499,9 +543,10 @@ struct TimelineEditor::Prepared {
 };
 std::shared_ptr<TimelineEditor::Prepared>
 TimelineEditor::prepare(std::shared_ptr<const Session> s, std::uint64_t epoch, bool editable,
-                        std::optional<Id> selected, std::optional<Id> clip, bool specific) const {
+                        std::optional<Id> selected, std::optional<Id> clip, bool specific, std::filesystem::path root) const {
     auto p = std::make_shared<Prepared>();
     p->model = std::move(s);
+    p->root = std::move(root);
     p->epoch = epoch;
     p->editable = editable;
     p->force = epoch != epoch_;
@@ -543,13 +588,13 @@ TimelineEditor::prepare(std::shared_ptr<const Session> s, std::uint64_t epoch, b
         t ? p->model : nullptr, t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
     p->assets = assets_->prepare(t ? p->model : nullptr,
                                  t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
-    p->view = view_->prepare(p->model, epoch);
+    p->view = view_->prepare(p->model, epoch, p->root);
     return p;
 }
 std::shared_ptr<TimelineEditor::Prepared>
 TimelineEditor::prepareModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
-                             bool editable) const {
-    return prepare(std::move(s), epoch, editable, {}, {}, false);
+                             bool editable, std::filesystem::path root) const {
+    return prepare(std::move(s), epoch, editable, {}, {}, false, std::move(root));
 }
 std::optional<Id> TimelineEditor::preparedTrack(const std::shared_ptr<Prepared> &p) const {
     return p ? p->track : track_;
@@ -576,6 +621,7 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         assets_->commit(std::move(p->assets));
         view_->commit(std::move(p->view));
         model_ = std::move(p->model);
+        root_ = std::move(p->root);
         epoch_ = p->epoch;
         editable_ = p->editable;
         track_ = std::move(p->track);
@@ -597,8 +643,8 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         selectionChanged();
 }
 void TimelineEditor::updateModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
-                                 bool editable) {
-    commitModel(prepareModel(std::move(s), epoch, editable));
+                                 bool editable, std::filesystem::path root) {
+    commitModel(prepareModel(std::move(s), epoch, editable, std::move(root)));
 }
 void TimelineEditor::editCrossfade() {
     if (!editable_ || !track_ || !clip_) return;
@@ -607,7 +653,12 @@ void TimelineEditor::editCrossfade() {
     QDialog dialog(this);
     dialog.setObjectName("crossfadeDialog");
     dialog.setWindowTitle(tr("Crossfade"));
-    auto *form = new QFormLayout(&dialog);
+    auto *outer = new QVBoxLayout(&dialog);
+    auto *scroll = new QScrollArea(&dialog);scroll->setWidgetResizable(true);
+    scroll->setObjectName("crossfadeScroll");
+    auto *body = new QWidget;auto *form = new QFormLayout(body);
+    form->setRowWrapPolicy(QFormLayout::WrapLongRows);
+    scroll->setWidget(body);outer->addWidget(scroll);
     auto *peer = new FocusCombo;
     peer->setObjectName("crossfadeIncoming");
     peer->setAccessibleName(tr("Incoming clip"));
@@ -625,14 +676,31 @@ void TimelineEditor::editCrossfade() {
     form->addRow(tr("Start (project frames)"), start);
     form->addRow(tr("End (project frames, exclusive)"), end);
     form->addRow(tr("Paired curve"), curve);
-    auto *handles = new QCheckBox(tr("Use retained-take handles"));
+    auto *handles = new QCheckBox;
+    handles->setAccessibleName(tr("Use retained-take handles"));
     handles->setObjectName("crossfadeUseTakeHandles");
     handles->setToolTip(tr("Create overlap from the retained takes without changing source audio."));
-    form->addRow(handles);
-    auto *help = new QLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
-    help->setWordWrap(true);form->addRow(help);
+    form->addRow(tr("Use retained-take handles"),handles);
+    auto *render=new QCheckBox;
+    render->setAccessibleName(tr("Render extended processed handles (preview)"));
+    render->setObjectName("crossfadeRenderHandles");
+    form->addRow(tr("Render extended processed handles (preview)"),render);
+    auto *blend=new QSpinBox;blend->setRange(1,1000000);blend->setValue(8);blend->setObjectName("crossfadeInnerBlend");
+    form->addRow(tr("Inner blend limit (project frames)"),blend);
+    auto *help = new WrappedHelpLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
+    help->setObjectName("crossfadeHelp");help->setWordWrap(true);form->addRow(help);
+    // Native fonts and translated captions must not force the scroll body wider
+    // than the viewport. Wrap form labels as well as the full-width explanation.
+    for(int row=0;row<form->rowCount();++row) {
+        const auto *item=form->itemAt(row,QFormLayout::LabelRole);
+        if(auto *label=item?qobject_cast<QLabel *>(item->widget()):nullptr) {
+            label->setWordWrap(true);
+            label->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        }
+    }
+    help->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    form->addRow(buttons);
+    outer->addWidget(buttons);
     const auto updateRange = [&] {
         const auto *out = clip();
         const auto id = clipList_->idAt(peer->currentIndex());
@@ -647,6 +715,10 @@ void TimelineEditor::editCrossfade() {
             out->startFrame <= in->startFrame && out->startFrame+out->lengthFrames <= in->startFrame+in->lengthFrames &&
             in->startFrame <= out->startFrame+out->lengthFrames;
         handles->setEnabled(retainedPair);
+        render->setEnabled(retainedPair && handles->isChecked() && bool(compRenderRequested));
+        if(!render->isEnabled()){QSignalBlocker blocker(render);render->setChecked(false);}
+        blend->setEnabled(render->isChecked());
+        buttons->button(QDialogButtonBox::Ok)->setText(render->isChecked()?tr("Save and render"):tr("OK"));
         if (!retainedPair) {QSignalBlocker blocker(handles);handles->setChecked(false);}
         if (retainedPair && handles->isChecked() && last <= first) {
             const auto cut=in->startFrame;
@@ -654,9 +726,10 @@ void TimelineEditor::editCrossfade() {
             first=cut-std::min(half,cut-out->startFrame);
             last=cut+std::min(half,in->startFrame+in->lengthFrames-cut);
         }
-        help->setText(handles->isChecked()
+        help->setText(render->isChecked()?tr("Save the current project and new job references, then render the transition in the background. Review the result before applying it. Original takes are preserved. This renderer is experimental."):handles->isChecked()
             ? tr("This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.")
             : tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
+        help->reflow();
         buttons->button(QDialogButtonBox::Ok)->setEnabled(selected && last > first);
         if (!selected || last <= first) { start->clear();end->clear();return; }
         Frame begin = first, finish = last;
@@ -674,16 +747,23 @@ void TimelineEditor::editCrossfade() {
     };
     connect(peer, &QComboBox::currentIndexChanged, &dialog, updateRange);
     connect(handles, &QCheckBox::toggled, &dialog, updateRange);
+    connect(render, &QCheckBox::toggled, &dialog, updateRange);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     peer->setCurrentIndex(0);updateRange();
+    const auto area=dialog.screen()->availableGeometry();
+    dialog.resize(std::min(560,std::max(1,area.width()-32)),std::min(420,std::max(1,area.height()-32)));
     if (dialog.exec() != QDialog::Accepted) return;
     if (!editable_ || epoch_ != epoch || track_ != std::optional<Id>(selectedTrack) ||
         clip_ != std::optional<Id>(outgoing))
         throw ProjectError(ErrorCode::InvalidState, tr("Crossfade selection changed; reopen the editor.").toUtf8().toStdString());
     const auto incoming = clipList_->idAt(peer->currentIndex());
     if (!incoming) return;
-    if (handles->isChecked())
+    if(render->isChecked()){
+        if(!compRenderRequested || !compRenderRequested({selectedTrack,outgoing,*incoming,frame(start),frame(end),
+            ClipFadeCurve(curve->currentData().toInt())},blend->value(),epoch))
+            throw ProjectError(ErrorCode::InvalidState,tr("Transition rendering could not start. Stop playback or recording and retry.").toUtf8().toStdString());
+    }else if (handles->isChecked())
         mutate({PrepareCompTransition{selectedTrack,outgoing,*incoming,frame(start),frame(end),
                                       ClipFadeCurve(curve->currentData().toInt())}});
     else
@@ -710,7 +790,7 @@ bool TimelineEditor::select(std::optional<Id> id, std::optional<Id> clip) {
     if (auto *focused = window()->focusWidget())
         focused->clearFocus();
     try {
-        auto p = prepare(model_, epoch_, editable_, id, clip, true);
+        auto p = prepare(model_, epoch_, editable_, id, clip, true, root_);
         if (selectionAdmission && !selectionAdmission(model_, p->track)) {
             refresh(false, false);
             return false;
@@ -850,7 +930,7 @@ void TimelineEditor::refreshTake(bool force) {
     } else compSource_->setText(tr("Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp."));
 }
 void TimelineEditor::draw() {
-    view_->setSnapshot(model_, epoch_);
+    view_->setSnapshot(model_, epoch_, root_);
     view_->setZoom(zoom_->value());
     view_->setSelection(track_, clip_);
 }

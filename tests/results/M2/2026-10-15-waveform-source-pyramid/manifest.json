@@ -1,0 +1,36 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 70632,
+  "sha256": "88bb14e66533b1be169e3e4b58066850f2801d54b3a1efdc0a40d6f8926bec00",
+  "entries": 24,
+  "baseHead": "2cfec5e5d57afac8727e0bd6d2cb556b057609da",
+  "testedWorkingTreeSource": {
+    "include/soundcurrent/waveform.hpp": {
+      "bytes": 3135,
+      "sha256": "d909c42a40246a29d2f564faafe343a5048f2851368786c552fc2c9ec35acdef"
+    },
+    "src/waveform.cpp": {
+      "bytes": 6750,
+      "sha256": "6360a651c9bbf2a44c86d9bd4434f343765aa6ee2984102b5fae9c3c66d69ebe"
+    },
+    "tests/waveform_tests.cpp": {
+      "bytes": 10419,
+      "sha256": "a5a0e1570ed63b7a57b381bbfcd9d43fa682f933343ef7bd106259efd948c30b"
+    },
+    "CMakeLists.txt": {
+      "bytes": 163800,
+      "sha256": "9e22f1ac9e9ef454b5f563ed614fab1826e65b78ff35c6d01b59aa390fbd7ae3"
+    },
+    ".github/workflows/ci.yml": {
+      "bytes": 37301,
+      "sha256": "1a9928edbd75e278bb64100aab16029f4915c57cc149be282eed5c8cc0912e7d"
+    }
+  },
+  "waveformChecks": 164507,
+  "existingWaveChecks": 20956,
+  "releasePassed": true,
+  "asanUbsanPassed": true,
+  "nativeWindowsQualified": false,
+  "uiIntegrated": false,
+  "binariesIncluded": false
+}

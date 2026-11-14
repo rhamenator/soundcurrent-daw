@@ -1,0 +1,165 @@
+{
+  "run": 38664035143,
+  "head": "42813e436767409d6e976e35f5cfbe03392b025e",
+  "archiveBytes": 1159086,
+  "archiveSha256": "e97ba9e862cc0815a6fb204abf6f01541b3cc0fe10612e9fa755d9ba2c4a750d",
+  "originalArchivesKeptLocally": true,
+  "originalArchives": [
+    {
+      "id": 11941400502,
+      "name": "linux-synthetic-test-log-0",
+      "bytes": 90503077,
+      "sha256": "fcee5e483f1a5b5863fc83ff3868aa592c25d2323b75343e4a40b1c452ac27cb",
+      "entries": 3116,
+      "pngs": [
+        {
+          "path": "comp-assembly-ui-evidence/run-jzmqsm62/case-44100/case-0/applied.png",
+          "sha256": "2f48c85fe6f654ebf4448df19a8c8d526ea1ad2205125b536426de221c308a75"
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-jzmqsm62/case-44100/case-0/review.png",
+          "sha256": "2aeb4490d8b8ec21f3251476aa4e9abf7c9c1791d0b74c9fea00551bf85616b5"
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-jzmqsm62/case-48000/case-0/applied.png",
+          "sha256": "9bf0e1812e3ca88ec3da074f6668e427ff605b12733b6a8ea15c13ad3b8d00eb"
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-jzmqsm62/case-48000/case-0/review.png",
+          "sha256": "0063aaae7d755d76c98e917b3676a2f47175841dbeb85052236ed55477359a0b"
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-jzmqsm62/case-96000/case-0/applied.png",
+          "sha256": "08d52ea4f81d900b2f3153b68a4b1bb59b46fb4567463adecc831946613f1502"
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-jzmqsm62/case-96000/case-0/review.png",
+          "sha256": "f434f2b5ebc25c32871a76d09c1658e763cb1e46b064df003f363bf64ffd5c48"
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-cfqy_w8_/case-44100/case-0/create.png",
+          "sha256": "cb1327b476f5661272751305574b932724ec173a4aac480dac5388e1fde58ec6"
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-cfqy_w8_/case-44100/case-0/rendered.png",
+          "sha256": "40a9823508fed6b07040fe8ac696112673f1b5a2e893c09d3c3bcf57ee6cb843"
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-cfqy_w8_/case-48000/case-0/create.png",
+          "sha256": "11cfef517ce37c07ac9dc3dfc97175587cb584b2efe466fb1ff0ab6d115c5fe0"
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-cfqy_w8_/case-48000/case-0/rendered.png",
+          "sha256": "40a9823508fed6b07040fe8ac696112673f1b5a2e893c09d3c3bcf57ee6cb843"
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-cfqy_w8_/case-96000/case-0/create.png",
+          "sha256": "4d7737b1581ae3fd9669fc8906c298006636485855f213662212fced2f17d49d"
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-cfqy_w8_/case-96000/case-0/rendered.png",
+          "sha256": "40a9823508fed6b07040fe8ac696112673f1b5a2e893c09d3c3bcf57ee6cb843"
+        }
+      ]
+    },
+    {
+      "id": 11941070859,
+      "name": "windows-media-build-review",
+      "bytes": 438050,
+      "sha256": "df70179a8eaa999200cff136435595689c5ba2971887834dd23e4c6fae16ab2a",
+      "entries": 7,
+      "pngs": []
+    },
+    {
+      "id": 11941045974,
+      "name": "windows-native-packet-unit-log",
+      "bytes": 169800837,
+      "sha256": "9aa322834e55a492dd6d23a541f5ce0f8f13b27e1cbe2517d33bf535c2d30741",
+      "entries": 4143,
+      "pngs": []
+    },
+    {
+      "id": 11940933680,
+      "name": "linux-synthetic-test-log-1",
+      "bytes": 201816436,
+      "sha256": "fd97fa9bffdd3d548c94e59ef35618f4fbf593e3fdf318d2ad838136299cdf0d",
+      "entries": 5150,
+      "pngs": []
+    },
+    {
+      "id": 11940539505,
+      "name": "windows-preview-build-inputs",
+      "bytes": 129011265,
+      "sha256": "cdd8bc562e5fb7b74fe6d0549a21c0b35bf1ee9d84d15b9b84da8dc283e9ec05",
+      "entries": 49,
+      "pngs": []
+    },
+    {
+      "id": 11940039253,
+      "name": "windows-desktop-import-test-log",
+      "bytes": 89643951,
+      "sha256": "5910699ad8e001d99d015e338dad198c462abb8c22651c0d255f922ed61f9b9e",
+      "entries": 3181,
+      "pngs": [
+        {
+          "path": "build-desktop-native/comp-assembly-ui-evidence/run-qv5hwnjm/case-44100/case-0/applied.png",
+          "sha256": "3aca60918b99370ac8373d9cd912a6621c385ab4b5166abd05afa80ab96607a3"
+        },
+        {
+          "path": "build-desktop-native/comp-assembly-ui-evidence/run-qv5hwnjm/case-44100/case-0/review.png",
+          "sha256": "c9b51429cdb6de6b300cd70aef8ff8a69a900ee9555f3cbc33b16a4a4e466e4f"
+        },
+        {
+          "path": "build-desktop-native/comp-assembly-ui-evidence/run-qv5hwnjm/case-48000/case-0/applied.png",
+          "sha256": "ba06c2cd6fe88a019f901e460db9c8d6646dea1c7f9a26c0f8968b5a2ee0336a"
+        },
+        {
+          "path": "build-desktop-native/comp-assembly-ui-evidence/run-qv5hwnjm/case-48000/case-0/review.png",
+          "sha256": "2cd84ee6823abc22f97854fa05944d87070821277a346e40c324e032b69a1447"
+        },
+        {
+          "path": "build-desktop-native/comp-assembly-ui-evidence/run-qv5hwnjm/case-96000/case-0/applied.png",
+          "sha256": "2722139d09cd592c139759d0298696233c45d29414feed6711eb864e289b5f9c"
+        },
+        {
+          "path": "build-desktop-native/comp-assembly-ui-evidence/run-qv5hwnjm/case-96000/case-0/review.png",
+          "sha256": "d86744e9796c9205961363ab60812cb13a4e8fab87e22203c1cb4922d206409a"
+        },
+        {
+          "path": "build-desktop-native/comp-transition-ui-evidence/run-135i6pf4/case-44100/case-0/create.png",
+          "sha256": "f73d533707868f90d13e8a100975c74c94bf136f02b57b63d43b177e64c6754b"
+        },
+        {
+          "path": "build-desktop-native/comp-transition-ui-evidence/run-135i6pf4/case-44100/case-0/rendered.png",
+          "sha256": "d3fa4b985686307c5dafc8ee639139096fbbc3518ab7b66f0437f7add01834ef"
+        },
+        {
+          "path": "build-desktop-native/comp-transition-ui-evidence/run-135i6pf4/case-48000/case-0/create.png",
+          "sha256": "ec4da92d12ce72bafcd957536b76956ec0221fac7fc5e10582e333f50a1204fa"
+        },
+        {
+          "path": "build-desktop-native/comp-transition-ui-evidence/run-135i6pf4/case-48000/case-0/rendered.png",
+          "sha256": "d3fa4b985686307c5dafc8ee639139096fbbc3518ab7b66f0437f7add01834ef"
+        },
+        {
+          "path": "build-desktop-native/comp-transition-ui-evidence/run-135i6pf4/case-96000/case-0/create.png",
+          "sha256": "41c8fb9897fa28cbbf80c873529294e938a93b38520e595397d585797daf82fa"
+        },
+        {
+          "path": "build-desktop-native/comp-transition-ui-evidence/run-135i6pf4/case-96000/case-0/rendered.png",
+          "sha256": "d3fa4b985686307c5dafc8ee639139096fbbc3518ab7b66f0437f7add01834ef"
+        },
+        {
+          "path": "build-desktop-native/Testing/crossfade-ui/default.png",
+          "sha256": "f82a8564dcaf99969c195c3f915e79904210a3a6967303cc59bfa3cef1db6460"
+        },
+        {
+          "path": "build-desktop-native/Testing/crossfade-ui/small.png",
+          "sha256": "44d2f205920328190993d1f64df77f885c83fbf9ab1dcec7245ec9575b785dc0"
+        }
+      ]
+    }
+  ],
+  "reviewFiles": 58,
+  "reviewArchiveIncludes": "All retained APIs, six full job logs, audits and all 26 PNGs; original six ZIP payloads retained locally and indexed by exact GitHub artifact digest, not duplicated in this review ZIP."
+}
