@@ -8,7 +8,10 @@ high byte and any unused data positions are padding. The normalizer reuses
 most three bounded prefixes. Unsupported or malformed active bytes refuse the
 value. Unused padding never becomes MIDI payload, but the complete original word
 is retained separately for provenance. The value has no invalid default, owns all
-fields, is trivially copyable and fits within 80 bytes.
+fields, is trivially copyable and fits within 80 bytes. The message accessor borrows
+from a named capture, so its byte span remains valid for that capture's lifetime;
+message access on an rvalue capture is deleted. Retaining a span after its owner is
+retired remains invalid.
 
 Original stamp identity/epoch/sequence, zero or maximum milliseconds, notice and
 optional declared uncertainty are copied without projection or arithmetic. A

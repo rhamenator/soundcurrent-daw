@@ -3,6 +3,7 @@
 #include "rt_audit.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 using namespace soundcurrent::daw;
 namespace {
 void require(bool v) { if (!v) throw std::runtime_error("Packed MIDI capture contract failed"); }
@@ -12,6 +13,10 @@ constexpr auto constant = Midi1PackedMillisecondCapture::fromOriginal(*stamp, 0x
 static_assert(constant && constant->message().status() == 0x90);
 static_assert(constant->originalWord() == 0xa5003c90u && constant->stamp().millisecondsSinceStart() == 0);
 static_assert(noexcept(Midi1PackedMillisecondCapture::fromOriginal(*stamp, 0)));
+static_assert(std::is_same_v<decltype(std::declval<const Midi1PackedMillisecondCapture &>().message()),
+                             const Midi1ShortMessage &>);
+template<class T> concept RvalueMessageAccess = requires(T &&value) { std::move(value).message(); };
+static_assert(!RvalueMessageAccess<Midi1PackedMillisecondCapture>);
 unsigned expectedLength(unsigned status) {
     if (status >= 0x80 && status <= 0xbf) return 3;
     if (status >= 0xc0 && status <= 0xdf) return 2;
@@ -55,6 +60,9 @@ void exercise() {
     require(realtimeA && realtimeB && realtimeA->message() == realtimeB->message());
     require(*realtimeA != *realtimeB && realtimeA->stamp().notice() == MidiCaptureNotice::ConsumerBehind);
     require(constant->message().bytes()[2] == 0); // No velocity-zero note-on rewrite.
+    const auto borrowedWire = constant->message().bytes();
+    require(borrowedWire.data() == constant->message().bytes().data());
+    require(borrowedWire.size() == 3 && borrowedWire[0] == 0x90 && borrowedWire[1] == 60);
     auto word = std::uint32_t(0x7f3c90u);
     const auto owned = Midi1PackedMillisecondCapture::fromOriginal(*stamp, word); word = 0;
     require(owned && owned->originalWord() == 0x7f3c90u && word == 0);

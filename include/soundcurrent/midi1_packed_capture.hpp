@@ -2,6 +2,11 @@
 #pragma once
 #include "midi1_short_message.hpp"
 #include "midi_capture_stamp.hpp"
+#include <array>
+#include <cstdint>
+#include <optional>
+#include <span>
+#include <type_traits>
 
 namespace soundcurrent::daw {
 // Supplied legacy DWORD packing: status, data1, data2, unused high byte.
@@ -23,7 +28,9 @@ class Midi1PackedMillisecondCapture {
         return std::nullopt;
     }
     constexpr MidiMillisecondCaptureStamp stamp() const noexcept { return stamp_; }
-    constexpr Midi1ShortMessage message() const noexcept { return message_; }
+    // Borrowed wire bytes remain owned by this capture, not a temporary copy.
+    constexpr const Midi1ShortMessage &message() const & noexcept { return message_; }
+    const Midi1ShortMessage &message() const && = delete;
     constexpr std::uint32_t originalWord() const noexcept { return original_; }
     bool operator==(const Midi1PackedMillisecondCapture &) const = default;
   private:
