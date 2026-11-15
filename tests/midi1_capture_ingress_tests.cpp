@@ -147,7 +147,8 @@ void releaseReserveAndFaultVisibility() {
         require(oneOrdinarySlot.trySubmit(event(2,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
         require(oneOrdinarySlot.trySubmit(event(3))==Midi1CaptureIngressStatus::ReservedForRelease);
         require(oneOrdinarySlot.trySubmit(event(3,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
-        require(oneOrdinarySlot.trySubmit(event(4,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
+        require(oneOrdinarySlot.trySubmit(event(4,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::Accepted);
+        require(oneOrdinarySlot.trySubmit(event(5,0,id,0xa5003f80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
     });
     PreparedMidi1CaptureIngress noReserve(id,1);
     hot([&] {
@@ -199,6 +200,7 @@ void maximumCapacity() {
 }
 void concurrentFirstFault() {
     PreparedMidi1CaptureIngress ingress(id,1);
+    const auto rejected=event(1,0xffffffffu,id,0xa5003c80u);
     std::atomic<bool> consumerReady{false}, failed{false};
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
     // No second publication flag is used to hand off the fault payload.
@@ -220,7 +222,6 @@ void concurrentFirstFault() {
         }
         std::optional<Midi1PackedMillisecondCapture> out; bool popped=false;
         { rt_audit::Guard guard; popped=ingress.tryPop(out); }
-        const auto rejected=event(1,0xffffffffu,id,0xa5003c80u);
         if(fault->status!=Midi1CaptureIngressStatus::Full || fault->rejected!=rejected ||
            releaseFault->status!=Midi1CaptureIngressStatus::Full || releaseFault->rejected!=rejected ||
            !popped || !out || *out!=event(0) || !auditZero()) failed.store(true);
@@ -232,12 +233,12 @@ void concurrentFirstFault() {
         }
         rt_audit::reset(); Midi1CaptureIngressStatus first,second;
         { rt_audit::Guard guard;
-          first=ingress.trySubmit(event(0)); second=ingress.trySubmit(event(1,0xffffffffu,id,0xa5003c80u)); }
+          first=ingress.trySubmit(event(0)); second=ingress.trySubmit(rejected); }
         if(first!=Midi1CaptureIngressStatus::Accepted || second!=Midi1CaptureIngressStatus::Full || !auditZero())
             failed.store(true);
     });
     producer.join(); consumer.join(); require(!failed.load());
-    require(ingress.firstFault()->rejected==event(1,0xffffffffu));
+    require(ingress.firstFault()->rejected==rejected);
 }
 void concurrentReservePublication() {
     PreparedMidi1CaptureIngress ingress(id,2,0,1);
