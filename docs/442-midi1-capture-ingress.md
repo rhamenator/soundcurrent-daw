@@ -48,9 +48,16 @@ the complete queue. With reserve zero all queue exhaustion, including release
 messages, reports the compatible `Full` status. `firstReleaseOverflowFault()`
 preserves the first capacity-overflowed release even when an earlier ordinary
 event already occupies `firstFault()`; identity and sequence rejections do not
-occupy this overflow-only record. The general first-refusal field can contain
-`ReservedForRelease`, which reports ordinary backpressure and is not necessarily
-a fatal capture fault.
+occupy this overflow-only record. The separate `firstReservedRefusal()` record
+captures the first ordinary backpressure result without masking later identity,
+sequence, or capacity faults reported by `firstFault()`.
+
+CC121 is included because resetting controller state can release held sustain.
+CC124-127 imply All Notes Off; CC122 Local Control is excluded. Reserved refusal
+does not advance the accepted watermark, so an accepted release may share the
+sequence value of a previously refused ordinary event and consumers may observe
+sequence gaps. This is deliberate accepted-only ordering, not proof that the
+matching note-on arrived.
 
 This is bounded admission preference, not guaranteed critical delivery: enough
 release messages can fill the entire queue. It does not synthesize note-offs,

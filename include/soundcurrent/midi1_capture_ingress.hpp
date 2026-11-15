@@ -8,6 +8,7 @@
 #include <type_traits>
 
 namespace soundcurrent::daw {
+// ReservedForRelease and ReleaseReserveFull are emitted only with a nonzero reserve.
 enum class Midi1CaptureIngressStatus {
     Accepted, Full, InvalidIdentity, SequenceNotIncreasing,
     ReservedForRelease, ReleaseReserveFull
@@ -21,6 +22,7 @@ struct Midi1CaptureIngressFault {
 // admission preference only: it cannot guarantee delivery after the reserved
 // capacity is exhausted, nor replace controller-side panic/recovery handling.
 inline bool isMidi1CaptureReleaseMessage(const Midi1ShortMessage &message) noexcept {
+    // Midi1ShortMessage can only represent a fully validated nonempty wire message.
     const auto bytes = message.bytes();
     const auto status = bytes[0];
     switch (status & 0xf0u) {
@@ -69,9 +71,15 @@ class PreparedMidi1CaptureIngress {
     }
     // Consumer acquires an immutable first-rejection copy. No reset/overwrite;
     // after publication the producer never writes fault_ again.
+    // ReservedForRelease is reported separately as backpressure, not as a fault.
     std::optional<Midi1CaptureIngressFault> firstFault() const noexcept {
         if (!faultReady_.load(std::memory_order_acquire)) return std::nullopt;
         return fault_;
+    }
+    // First benign refusal caused by the configured release reserve, if any.
+    std::optional<Midi1CaptureIngressFault> firstReservedRefusal() const noexcept {
+        if (!reservedRefusalReady_.load(std::memory_order_acquire)) return std::nullopt;
+        return reservedRefusal_;
     }
     // Preserves visibility of the first overflowed release message even if an
     // earlier ordinary event already occupied the general first-fault slot.
@@ -97,7 +105,12 @@ class PreparedMidi1CaptureIngress {
     Midi1CaptureIngressStatus reject(Midi1CaptureIngressStatus status,
                                      const Midi1PackedMillisecondCapture &event,
                                      bool releaseOverflow = false) noexcept {
-        if (!faultReady_.load(std::memory_order_relaxed)) {
+        if (status == Midi1CaptureIngressStatus::ReservedForRelease) {
+            if (!reservedRefusalReady_.load(std::memory_order_relaxed)) {
+                reservedRefusal_.emplace(Midi1CaptureIngressFault{status, event});
+                reservedRefusalReady_.store(1, std::memory_order_release);
+            }
+        } else if (!faultReady_.load(std::memory_order_relaxed)) {
             fault_.emplace(Midi1CaptureIngressFault{status, event});
             faultReady_.store(1, std::memory_order_release);
         }
@@ -113,6 +126,8 @@ class PreparedMidi1CaptureIngress {
     const std::uint32_t releaseReserve_;
     std::optional<Midi1CaptureIngressFault> fault_;
     std::atomic<std::uint32_t> faultReady_{0};
+    std::optional<Midi1CaptureIngressFault> reservedRefusal_;
+    std::atomic<std::uint32_t> reservedRefusalReady_{0};
     std::optional<Midi1CaptureIngressFault> releaseOverflowFault_;
     std::atomic<std::uint32_t> releaseOverflowReady_{0};
     std::uint64_t lastAccepted_ = 0; // Producer only; rejections never advance it.
