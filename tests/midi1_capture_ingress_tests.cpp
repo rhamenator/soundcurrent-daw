@@ -352,7 +352,11 @@ void concurrentReserveAndConsumption() {
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
     std::jthread consumer([&] {
         rt_audit::reset(); consumerReady.store(true,std::memory_order_release);
-        while(!drainEnabled.load(std::memory_order_acquire)) std::this_thread::yield();
+        while(!drainEnabled.load(std::memory_order_acquire) && !producerDone.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); return; }
+            std::this_thread::yield();
+        }
+        if(!drainEnabled.load(std::memory_order_acquire)) return;
         bool haveSequence=false; std::uint64_t lastSequence=0;
         for(;;) {
             std::optional<Midi1PackedMillisecondCapture> out; bool popped=false;
