@@ -87,20 +87,22 @@ void releaseReserveAndFaultVisibility() {
             return *Midi1PackedMillisecondCapture::fromOriginal(
                 *MidiMillisecondCaptureStamp::fromOriginal(id,1,0,MidiCaptureNotice::Data,0),packed);
         };
-        for(const auto packed:std::array<std::uint32_t,17>{
+        for(const auto packed:std::array<std::uint32_t,24>{
                 0xa5003c80u, 0xa5003c90u, 0xa50040b0u, 0xa00078b0u,
                 0xa00079b0u, 0xa0007bb0u, 0xa00042b0u, 0xa00045b0u,
                 0xa0007cb0u, 0xa0007db0u, 0xa0007eb0u, 0xa0007fb0u,
                 0xa00000fcu, 0xa00000ffu, 0xa0003c81u, 0xa0003c91u,
-                0xa00040bfu}) {
+                0xa00040bfu, 0xa07f78b0u, 0xa07f79b0u, 0xa07f7bb0u,
+                0xa07f7cb0u, 0xa07f7db0u, 0xa07f7eb0u, 0xa07f7fb0u}) {
             const auto classified=make(packed);
             require(isMidi1CaptureReleaseMessage(classified.message()));
         }
-        for(const auto packed:std::array<std::uint32_t,15>{
+        for(const auto packed:std::array<std::uint32_t,18>{
                 0xa04040b0u, 0xa07f40b0u, 0xa04042b0u, 0xa07f42b0u,
                 0xa04045b0u, 0xa07f45b0u, 0xa00041b0u, 0xa00043b0u,
                 0xa00044b0u, 0xa0007ab0u, 0xa00000e0u, 0xa00000fbu,
-                0xa0013c90u, 0xa04040b1u, 0xa00000fau}) {
+                0xa0013c90u, 0xa04040b1u, 0xa00000fau, 0xa07f3ca0u,
+                0xa00040c0u, 0xa00040d0u}) {
             const auto classified=make(packed);
             require(!isMidi1CaptureReleaseMessage(classified.message()));
         }
@@ -147,6 +149,9 @@ void releaseReserveAndFaultVisibility() {
         require(oneOrdinarySlot.trySubmit(event(2,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
         require(oneOrdinarySlot.trySubmit(event(3))==Midi1CaptureIngressStatus::ReservedForRelease);
         require(oneOrdinarySlot.trySubmit(event(3,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
+        require(oneOrdinarySlot.firstReservedRefusal() &&
+                oneOrdinarySlot.firstReservedRefusal()->rejected==event(2));
+        require(!oneOrdinarySlot.firstFault());
         require(oneOrdinarySlot.trySubmit(event(4,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::Accepted);
         require(oneOrdinarySlot.trySubmit(event(5,0,id,0xa5003f80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
     });
@@ -167,6 +172,19 @@ void releaseReserveAndFaultVisibility() {
         require(preserveFault.firstFault()==ordinary);
         require(preserveFault.firstReleaseOverflowFault() &&
                 preserveFault.firstReleaseOverflowFault()->rejected==event(3,0,id,0xa5003c80u));
+    });
+}
+void reservePreconditionPrecedence() {
+    PreparedMidi1CaptureIngress ingress(id,4,0,3);
+    hot([&] {
+        require(ingress.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
+        const auto wrongIdentity=event(2,0,{2,3,6});
+        require(ingress.trySubmit(wrongIdentity)==Midi1CaptureIngressStatus::InvalidIdentity);
+        require(!ingress.firstReservedRefusal());
+        require(ingress.trySubmit(event(1))==Midi1CaptureIngressStatus::SequenceNotIncreasing);
+        require(!ingress.firstReservedRefusal());
+        require(ingress.trySubmit(event(2))==Midi1CaptureIngressStatus::ReservedForRelease);
+        require(ingress.firstReservedRefusal() && ingress.firstReservedRefusal()->rejected==event(2));
     });
 }
 void identityAndSequenceLimit() {
@@ -292,7 +310,7 @@ void concurrentReservePublication() {
 }
 int main() {
     try { preparationAndWrap(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
-          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication();
+          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); reservePreconditionPrecedence();
         std::cout << "MIDI1 capture ingress: owned raw FIFO, identity+sequence, timestamp wrap, immutable first fault publication, joined owners, audit0\n";
         return 0;
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }

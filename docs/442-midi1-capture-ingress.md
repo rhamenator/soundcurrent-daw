@@ -50,7 +50,11 @@ preserves the first capacity-overflowed release even when an earlier ordinary
 event already occupies `firstFault()`; identity and sequence rejections do not
 occupy this overflow-only record. The separate `firstReservedRefusal()` record
 captures the first ordinary backpressure result without masking later identity,
-sequence, or capacity faults reported by `firstFault()`.
+sequence, or capacity faults reported by `firstFault()`. Only the first reserve
+refusal is retained; there is no refusal counter, so a producer that needs a
+total must count `ReservedForRelease` return values itself. The constructor
+rejects a reserve larger than the effective power-of-two queue capacity with
+`ProjectError(InvalidParameter)`.
 
 Reserved refusal does not advance the accepted watermark, so an accepted release may share the
 sequence value of a previously refused ordinary event and consumers may observe
