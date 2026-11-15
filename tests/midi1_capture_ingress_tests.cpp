@@ -23,6 +23,17 @@ bool auditZero() {
     return !rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree &&
            !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock;
 }
+struct ExpectedConcurrentEvent {
+    Midi1PackedMillisecondCapture capture;
+    bool release;
+};
+ExpectedConcurrentEvent concurrentReserveEvent(std::uint64_t sequence) {
+    const bool release=sequence>=3 && (sequence<=5 || sequence%4==3);
+    const auto packed=!release ? 0xa5013c90u :
+        (sequence==3 ? 0xa5003c80u : sequence==4 ? 0xa5003d80u :
+         sequence==5 ? 0xa5003e80u : 0xa5003c80u);
+    return {event(sequence,0,id,packed),release};
+}
 template<class F> void hot(F run) {
     rt_audit::reset(); { rt_audit::Guard guard; run(); } require(auditZero());
 }
@@ -53,7 +64,8 @@ void preparationAndWrap() {
 void producerAvailableBoundaries() {
     PreparedSpscQueue<std::uint32_t> queue(3,std::numeric_limits<std::uint32_t>::max()-1);
     hot([&] {
-        require(queue.capacity()==4 && queue.producerAvailable()==4);
+        require(PreparedSpscQueue<std::uint32_t>::storageCapacity(3)==4 &&
+                queue.producerAvailable()==4);
         require(queue.tryPush(1) && queue.producerAvailable()==3);
         require(queue.tryPush(2) && queue.producerAvailable()==2);
         require(queue.tryPush(3) && queue.producerAvailable()==1);
@@ -99,8 +111,12 @@ void releaseReserveAndFaultVisibility() {
         const auto ordinaryEvent=event(0);
         require(!isMidi1CaptureReleaseMessage(ordinaryEvent.message()));
         const auto make=[&](std::uint32_t packed) {
-            return *Midi1PackedMillisecondCapture::fromOriginal(
-                *MidiMillisecondCaptureStamp::fromOriginal(id,1,0,MidiCaptureNotice::Data,0),packed);
+            const auto stamp=MidiMillisecondCaptureStamp::fromOriginal(
+                id,1,0,MidiCaptureNotice::Data,0);
+            require(stamp.has_value());
+            const auto capture=Midi1PackedMillisecondCapture::fromOriginal(*stamp,packed);
+            require(capture.has_value());
+            return *capture;
         };
         for(const auto packed:std::array<std::uint32_t,24>{
                 0xa5003c80u, 0xa5003c90u, 0xa50040b0u, 0xa00078b0u,
@@ -118,7 +134,7 @@ void releaseReserveAndFaultVisibility() {
                 0xa00044b0u, 0xa0007ab0u, 0xa00000e0u, 0xa00000fbu,
                 0xa0013c90u, 0xa04040b1u, 0xa00000fau, 0xa07f3ca0u,
                 0xa00040c0u, 0xa00040d0u, 0xa00000f8u, 0xa00000feu,
-                0xa00040f1u, 0xa00040f3u, 0xa00040f2u, 0xa00040f6u}) {
+                0xa00040f1u, 0xa00040f3u, 0xa00040f2u, 0xa00000f6u}) {
             const auto classified=make(packed);
             require(!isMidi1CaptureReleaseMessage(classified.message()));
         }
@@ -198,6 +214,25 @@ void releaseReserveAndFaultVisibility() {
                 ordinaryAfterReleaseExhaustion.firstFault()->status==Midi1CaptureIngressStatus::Full);
         require(ordinaryAfterReleaseExhaustion.firstReservedRefusal() &&
                 ordinaryAfterReleaseExhaustion.firstReservedRefusal()->rejected==event(1));
+    });
+}
+void reserveRefusalRecoveryAndWatermark() {
+    PreparedMidi1CaptureIngress ingress(id,4,0,2);
+    hot([&] {
+        require(ingress.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
+        require(ingress.trySubmit(event(2))==Midi1CaptureIngressStatus::Accepted);
+        const auto refused=event(3);
+        require(ingress.producerAvailable()==2);
+        require(ingress.trySubmit(refused)==Midi1CaptureIngressStatus::ReservedForRelease);
+        std::optional<Midi1PackedMillisecondCapture> out;
+        require(ingress.tryPop(out) && out && *out==event(1));
+        // A refusal does not advance the accepted watermark; the same sequence
+        // can be retried after consumer progress and is then accepted.
+        require(ingress.trySubmit(refused)==Midi1CaptureIngressStatus::Accepted);
+        require(ingress.trySubmit(event(3))==Midi1CaptureIngressStatus::SequenceNotIncreasing);
+        require(ingress.tryPop(out) && out && *out==event(2));
+        require(ingress.tryPop(out) && out && *out==refused);
+        require(!ingress.consumerAvailable());
     });
 }
 void reservePreconditionPrecedence() {
@@ -347,8 +382,11 @@ void concurrentReservePublication() {
 void concurrentReserveAndConsumption() {
     PreparedMidi1CaptureIngress ingress(id,4,std::numeric_limits<std::uint32_t>::max()-1,2);
     constexpr std::uint64_t attempts=20000;
-    std::atomic<bool> consumerReady{false}, drainEnabled{false}, producerDone{false}, failed{false};
+    std::atomic<bool> consumerReady{false}, drainEnabled{false}, consumerDrainReady{false};
+    std::atomic<bool> allowDrain{false}, oneSlotFreedForRefusal{false}, finishRefusalHandshake{false};
+    std::atomic<bool> queueDrainedForHandshake{false}, producerDone{false}, failed{false};
     std::atomic<std::uint32_t> accepted{0}, consumed{0};
+    std::atomic<std::uint32_t> ordinaryAcceptedAfterDrain{0}, ordinaryRefusedAfterDrain{0};
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
     std::jthread consumer([&] {
         rt_audit::reset(); consumerReady.store(true,std::memory_order_release);
@@ -357,6 +395,11 @@ void concurrentReserveAndConsumption() {
             std::this_thread::yield();
         }
         if(!drainEnabled.load(std::memory_order_acquire)) return;
+        consumerDrainReady.store(true,std::memory_order_release);
+        while(!allowDrain.load(std::memory_order_acquire) && !producerDone.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); return; }
+            std::this_thread::yield();
+        }
         bool haveSequence=false; std::uint64_t lastSequence=0;
         for(;;) {
             std::optional<Midi1PackedMillisecondCapture> out; bool popped=false;
@@ -364,14 +407,23 @@ void concurrentReserveAndConsumption() {
             if(popped) {
                 if(!out || (haveSequence && out->stamp().sequence()<=lastSequence)) failed.store(true);
                 else {
-                    const auto seq=out->stamp().sequence(); const bool isRelease=isMidi1CaptureReleaseMessage(out->message());
-                    const bool expectedRelease=seq>=3 && (seq<=5 || (seq%4)==3);
-                    const auto expectedPacked=!expectedRelease ? 0xa5013c90u :
-                        (seq==3 ? 0xa5003c80u : seq==4 ? 0xa5003d80u : seq==5 ? 0xa5003e80u : 0xa5003c80u);
-                    if(isRelease!=expectedRelease || *out!=event(seq,0,id,expectedPacked)) failed.store(true);
+                    const auto seq=out->stamp().sequence();
+                    const auto expected=concurrentReserveEvent(seq);
+                    if(*out!=expected.capture ||
+                       isMidi1CaptureReleaseMessage(out->message())!=expected.release) failed.store(true);
                     lastSequence=seq; haveSequence=true; consumed.fetch_add(1,std::memory_order_relaxed);
                 }
-            } else if(producerDone.load(std::memory_order_acquire) && !ingress.consumerAvailable()) break;
+                if(!oneSlotFreedForRefusal.exchange(true,std::memory_order_acq_rel)) {
+                    while(!finishRefusalHandshake.load(std::memory_order_acquire)) {
+                        if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); return; }
+                        std::this_thread::yield();
+                    }
+                }
+            } else if(!ingress.consumerAvailable()) {
+                queueDrainedForHandshake.store(true,std::memory_order_release);
+                if(producerDone.load(std::memory_order_acquire)) break;
+                std::this_thread::yield();
+            }
             else if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
             else std::this_thread::yield();
         }
@@ -394,31 +446,74 @@ void concurrentReserveAndConsumption() {
            !auditZero()) failed.store(true);
         accepted.fetch_add(4,std::memory_order_relaxed);
         drainEnabled.store(true,std::memory_order_release);
-        for(std::uint64_t seq=6;seq<attempts;++seq) {
-            const bool release=(seq%4)==3;
-            const auto message=release ? 0xa5003c80u : 0xa5013c90u;
+        while(!consumerDrainReady.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) {
+                failed.store(true); producerDone.store(true,std::memory_order_release); return;
+            }
+            std::this_thread::yield();
+        }
+        allowDrain.store(true,std::memory_order_release);
+        while(!oneSlotFreedForRefusal.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) {
+                failed.store(true); producerDone.store(true,std::memory_order_release); return;
+            }
+            std::this_thread::yield();
+        }
+        const auto refusedAfterDrain=concurrentReserveEvent(6);
+        Midi1CaptureIngressStatus refusedStatus;
+        { rt_audit::Guard guard; refusedStatus=ingress.trySubmit(refusedAfterDrain.capture); }
+        if(refusedStatus!=Midi1CaptureIngressStatus::ReservedForRelease) failed.store(true);
+        else ordinaryRefusedAfterDrain.fetch_add(1,std::memory_order_relaxed);
+        finishRefusalHandshake.store(true,std::memory_order_release);
+        while(!queueDrainedForHandshake.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) {
+                failed.store(true); producerDone.store(true,std::memory_order_release); return;
+            }
+            std::this_thread::yield();
+        }
+        for(const std::uint64_t seq:{7u,8u}) {
+            const auto expected=concurrentReserveEvent(seq);
             Midi1CaptureIngressStatus status;
-            { rt_audit::Guard guard; status=ingress.trySubmit(event(seq,0,id,message)); }
+            { rt_audit::Guard guard; status=ingress.trySubmit(expected.capture); }
+            if(status!=Midi1CaptureIngressStatus::Accepted) failed.store(true);
+            else {
+                accepted.fetch_add(1,std::memory_order_relaxed);
+                if(!expected.release) ordinaryAcceptedAfterDrain.fetch_add(1,std::memory_order_relaxed);
+            }
+        }
+        for(std::uint64_t seq=9;seq<attempts;++seq) {
+            const auto expected=concurrentReserveEvent(seq);
+            const bool release=expected.release;
+            Midi1CaptureIngressStatus status;
+            { rt_audit::Guard guard; status=ingress.trySubmit(expected.capture); }
             if(status==Midi1CaptureIngressStatus::Accepted) {
                 accepted.fetch_add(1,std::memory_order_relaxed);
+                if(!release) ordinaryAcceptedAfterDrain.fetch_add(1,std::memory_order_relaxed);
                 if(!release && ingress.producerAvailable()<ingress.releaseReserve()) failed.store(true);
-            } else if(release ? status!=Midi1CaptureIngressStatus::ReleaseReserveFull :
-                               (status!=Midi1CaptureIngressStatus::ReservedForRelease && status!=Midi1CaptureIngressStatus::Full))
-                failed.store(true);
+            } else {
+                if(!release && (status==Midi1CaptureIngressStatus::ReservedForRelease ||
+                                status==Midi1CaptureIngressStatus::Full))
+                    ordinaryRefusedAfterDrain.fetch_add(1,std::memory_order_relaxed);
+                if(release ? status!=Midi1CaptureIngressStatus::ReleaseReserveFull :
+                             (status!=Midi1CaptureIngressStatus::ReservedForRelease &&
+                              status!=Midi1CaptureIngressStatus::Full)) failed.store(true);
+            }
             if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
         }
         producerDone.store(true,std::memory_order_release);
         if(!auditZero()) failed.store(true);
     });
     producer.join(); consumer.join();
-        require(!failed.load() && consumed.load()==accepted.load() && accepted.load()>0 &&
+    require(!failed.load() && consumed.load()==accepted.load() && accepted.load()>0 &&
+                ordinaryAcceptedAfterDrain.load()>0 && ordinaryRefusedAfterDrain.load()>0 &&
                 ingress.firstReservedRefusal() && ingress.firstReservedRefusal()->rejected==event(2) &&
                 ingress.firstReleaseOverflowFault() && ingress.firstReleaseOverflowFault()->rejected==event(5,0,id,0xa5003e80u));
 }
 }
 int main() {
     try { preparationAndWrap(); producerAvailableBoundaries(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
-          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); concurrentReserveAndConsumption(); reservePreconditionPrecedence();
+          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); reserveRefusalRecoveryAndWatermark();
+          concurrentReserveAndConsumption(); reservePreconditionPrecedence();
         std::cout << "MIDI1 capture ingress: owned FIFO, release reserve, fault latches, concurrent SPSC, wrap, audit0\n";
         return 0;
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }

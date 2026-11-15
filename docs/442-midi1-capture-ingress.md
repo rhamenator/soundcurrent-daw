@@ -50,6 +50,9 @@ Status and first-record behavior:
   a stale snapshot may refuse early after the consumer has freed a slot.
 - `ReservedForRelease`: an ordinary event was refused while some slots remained
   protected by the nonzero reserve. This is backpressure, not a capture fault.
+  The returned status is authoritative for that attempt; the retained refusal
+  latch is first-only, not a loss counter. Producers that need aggregate loss
+  accounting must count returned statuses themselves.
 - `ReleaseReserveFull`: a release event could not enter a full queue despite a
   configured nonzero reserve; reserve is bounded preference, not guaranteed
   delivery.
