@@ -37,10 +37,10 @@ remain attached to their original values without interpretation.
 An optional release reserve prevents ordinary messages from consuming the final
 configured number of prepared FIFO slots. The release class includes MIDI
 note-off, note-on with zero velocity, sustain/sostenuto/hold2 release (CC64/66/69
-below 64), CC120/121/123/124-127, System Stop, and System Reset. CC124-127 are
-reserved because those channel-mode changes imply All Notes Off; CC122 Local
-Control is deliberately excluded. Accepted release and ordinary messages retain
-one FIFO order and the same strict accepted-sequence
+below 64), CC120/121/123/124-127 at any value, System Stop, and System Reset.
+CC121 is included because resetting controller state can release held sustain;
+CC124-127 imply All Notes Off; CC122 Local Control is excluded. Accepted release
+and ordinary messages retain one FIFO order and the same strict accepted-sequence
 watermark. `ReservedForRelease` distinguishes ordinary admission stopped at the
 reserve boundary from `Full`; `ReleaseReserveFull` reports that a configured
 nonzero reserve still did not prevent release-priority messages from exhausting
@@ -52,12 +52,12 @@ occupy this overflow-only record. The separate `firstReservedRefusal()` record
 captures the first ordinary backpressure result without masking later identity,
 sequence, or capacity faults reported by `firstFault()`.
 
-CC121 is included because resetting controller state can release held sustain.
-CC124-127 imply All Notes Off; CC122 Local Control is excluded. Reserved refusal
-does not advance the accepted watermark, so an accepted release may share the
+Reserved refusal does not advance the accepted watermark, so an accepted release may share the
 sequence value of a previously refused ordinary event and consumers may observe
 sequence gaps. This is deliberate accepted-only ordering, not proof that the
-matching note-on arrived.
+matching note-on arrived. Before configuring a nonzero reserve, callers must
+handle `ReservedForRelease` as backpressure and `ReleaseReserveFull` as capacity
+exhaustion; reserve zero preserves the original `Full` result for queue overflow.
 
 This is bounded admission preference, not guaranteed critical delivery: enough
 release messages can fill the entire queue. It does not synthesize note-offs,
@@ -69,8 +69,8 @@ deliberately configures a release-only FIFO, which refuses every ordinary event.
 Tests cover preparation/counter wrap, raw timestamp wrap, exact identity,
 accepted-only sequence watermark after full refusal, first-fault ownership and
 immutability, release classification/reserve boundaries/overflow visibility,
-sequence exhaustion and maximum capacity. A bounded joined-owner
-fixture observes first-fault publication concurrently without a second payload
+sequence exhaustion and maximum capacity. Bounded joined-owner fixtures observe
+first-fault and reserve-refusal publication concurrently without a second payload
 handoff signal. Instrumentation retains Linux C/C++ allocation/pthread and Windows
 C++ allocation limits. Zero counters do not establish full native callback safety.
 Native devices, multi-producer callbacks, clock mapping, guaranteed critical

@@ -156,6 +156,17 @@ void releaseReserveAndFaultVisibility() {
         require(noReserve.firstFault()->status==Midi1CaptureIngressStatus::Full);
         require(noReserve.firstReleaseOverflowFault()->status==Midi1CaptureIngressStatus::Full);
     });
+    PreparedMidi1CaptureIngress preserveFault(id,1);
+    hot([&] {
+        require(preserveFault.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
+        require(preserveFault.trySubmit(event(2))==Midi1CaptureIngressStatus::Full);
+        const auto ordinary=preserveFault.firstFault();
+        require(ordinary && ordinary->rejected==event(2));
+        require(preserveFault.trySubmit(event(3,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Full);
+        require(preserveFault.firstFault()==ordinary);
+        require(preserveFault.firstReleaseOverflowFault() &&
+                preserveFault.firstReleaseOverflowFault()->rejected==event(3,0,id,0xa5003c80u));
+    });
 }
 void identityAndSequenceLimit() {
     PreparedMidi1CaptureIngress ingress(id,2), limit(id,1);
@@ -228,10 +239,59 @@ void concurrentFirstFault() {
     producer.join(); consumer.join(); require(!failed.load());
     require(ingress.firstFault()->rejected==event(1,0xffffffffu));
 }
+void concurrentReservePublication() {
+    PreparedMidi1CaptureIngress ingress(id,2,0,1);
+    std::atomic<bool> consumerReady{false}, failed{false};
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
+    std::jthread consumer([&] {
+        rt_audit::reset(); consumerReady.store(true,std::memory_order_release);
+        std::optional<Midi1CaptureIngressFault> refused, overflow;
+        for(;;) {
+            { rt_audit::Guard guard; refused=ingress.firstReservedRefusal(); }
+            if(refused) break;
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); return; }
+            std::this_thread::yield();
+        }
+        for(;;) {
+            { rt_audit::Guard guard; overflow=ingress.firstReleaseOverflowFault(); }
+            if(overflow) break;
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); return; }
+            std::this_thread::yield();
+        }
+        std::optional<Midi1PackedMillisecondCapture> first,second;
+        { rt_audit::Guard guard;
+          const bool firstOk=ingress.tryPop(first), secondOk=ingress.tryPop(second);
+          if(!firstOk || !secondOk || !first || !second ||
+             *first!=event(1) || *second!=event(2,0,id,0xa5003c80u) || !auditZero()) failed.store(true); }
+        const auto expectedRefusal=event(2);
+        const auto expectedOverflow=event(3,0,id,0xa5003e80u);
+        if(refused->status!=Midi1CaptureIngressStatus::ReservedForRelease ||
+           refused->rejected!=expectedRefusal ||
+           overflow->status!=Midi1CaptureIngressStatus::ReleaseReserveFull ||
+           overflow->rejected!=expectedOverflow || !auditZero()) failed.store(true);
+    });
+    std::jthread producer([&] {
+        while(!consumerReady.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); return; }
+            std::this_thread::yield();
+        }
+        rt_audit::reset();
+        Midi1CaptureIngressStatus a,b,c,d;
+        { rt_audit::Guard guard;
+          a=ingress.trySubmit(event(1));
+          b=ingress.trySubmit(event(2));
+          c=ingress.trySubmit(event(2,0,id,0xa5003c80u));
+          d=ingress.trySubmit(event(3,0,id,0xa5003e80u)); }
+        if(a!=Midi1CaptureIngressStatus::Accepted || b!=Midi1CaptureIngressStatus::ReservedForRelease ||
+           c!=Midi1CaptureIngressStatus::Accepted || d!=Midi1CaptureIngressStatus::ReleaseReserveFull ||
+           !auditZero()) failed.store(true);
+    });
+    producer.join(); consumer.join(); require(!failed.load());
+}
 }
 int main() {
     try { preparationAndWrap(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
-          maximumCapacity(); concurrentFirstFault();
+          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication();
         std::cout << "MIDI1 capture ingress: owned raw FIFO, identity+sequence, timestamp wrap, immutable first fault publication, joined owners, audit0\n";
         return 0;
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }
