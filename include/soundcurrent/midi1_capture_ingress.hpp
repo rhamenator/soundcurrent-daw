@@ -9,8 +9,9 @@
 
 namespace soundcurrent::daw {
 // ReservedForRelease and ReleaseReserveFull are emitted only with a nonzero reserve.
-// With a configured reserve, an ordinary message returns Full when tryPush sees
-// no slot; it returns ReservedForRelease before consuming remaining reserve.
+// With a configured reserve, an ordinary message returns Full when its
+// producer-side availability snapshot is zero, and ReservedForRelease when
+// some slots remain but are protected. The conservative snapshot may refuse early.
 enum class Midi1CaptureIngressStatus {
     Accepted, Full, InvalidIdentity, SequenceNotIncreasing,
     ReservedForRelease, ReleaseReserveFull
@@ -63,7 +64,8 @@ class PreparedMidi1CaptureIngress {
             return reject(Midi1CaptureIngressStatus::SequenceNotIncreasing, event);
         if (releaseReserve_ && !release) {
             const auto available=queue_.producerAvailable();
-            if (available && available <= releaseReserve_)
+            if (!available) return reject(Midi1CaptureIngressStatus::Full, event);
+            if (available <= releaseReserve_)
                 return reject(Midi1CaptureIngressStatus::ReservedForRelease, event);
         }
         if (!queue_.tryPush(Slot{event})) {
@@ -77,6 +79,9 @@ class PreparedMidi1CaptureIngress {
     bool tryPop(std::optional<Midi1PackedMillisecondCapture> &output) noexcept {
         return queue_.tryPop(output);
     }
+    // Producer-thread-only snapshot. It may conservatively under-report slots
+    // freed concurrently by the consumer; never call from the consumer thread.
+    std::uint32_t producerAvailable() const noexcept { return queue_.producerAvailable(); }
     // Consumer acquires an immutable first-rejection copy. No reset/overwrite;
     // after publication the producer never writes fault_ again.
     // ReservedForRelease is reported separately as backpressure, not as a fault.

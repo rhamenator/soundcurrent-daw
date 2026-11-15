@@ -348,7 +348,7 @@ void concurrentReserveAndConsumption() {
     PreparedMidi1CaptureIngress ingress(id,4,std::numeric_limits<std::uint32_t>::max()-1,2);
     constexpr std::uint64_t attempts=20000;
     std::atomic<bool> consumerReady{false}, drainEnabled{false}, producerDone{false}, failed{false};
-    std::atomic<std::uint32_t> accepted{0}, consumed{0}, acceptedOrdinary{0}, consumedOrdinary{0};
+    std::atomic<std::uint32_t> accepted{0}, consumed{0};
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
     std::jthread consumer([&] {
         rt_audit::reset(); consumerReady.store(true,std::memory_order_release);
@@ -362,9 +362,10 @@ void concurrentReserveAndConsumption() {
                 else {
                     const auto seq=out->stamp().sequence(); const bool isRelease=isMidi1CaptureReleaseMessage(out->message());
                     const bool expectedRelease=seq>=3 && (seq<=5 || (seq%4)==3);
-                    if(isRelease!=expectedRelease || *out!=event(seq,0,id,isRelease?0xa5003c80u:0xa5013c90u)) failed.store(true);
+                    const auto expectedPacked=!expectedRelease ? 0xa5013c90u :
+                        (seq==3 ? 0xa5003c80u : seq==4 ? 0xa5003d80u : seq==5 ? 0xa5003e80u : 0xa5003c80u);
+                    if(isRelease!=expectedRelease || *out!=event(seq,0,id,expectedPacked)) failed.store(true);
                     lastSequence=seq; haveSequence=true; consumed.fetch_add(1,std::memory_order_relaxed);
-                    if(!isRelease) consumedOrdinary.fetch_add(1,std::memory_order_relaxed);
                 }
             } else if(producerDone.load(std::memory_order_acquire) && !ingress.consumerAvailable()) break;
             else if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
@@ -388,7 +389,6 @@ void concurrentReserveAndConsumption() {
            e!=Midi1CaptureIngressStatus::Accepted || f!=Midi1CaptureIngressStatus::ReleaseReserveFull ||
            !auditZero()) failed.store(true);
         accepted.fetch_add(4,std::memory_order_relaxed);
-        acceptedOrdinary.fetch_add(2,std::memory_order_relaxed);
         drainEnabled.store(true,std::memory_order_release);
         for(std::uint64_t seq=6;seq<attempts;++seq) {
             const bool release=(seq%4)==3;
@@ -397,12 +397,7 @@ void concurrentReserveAndConsumption() {
             { rt_audit::Guard guard; status=ingress.trySubmit(event(seq,0,id,message)); }
             if(status==Midi1CaptureIngressStatus::Accepted) {
                 accepted.fetch_add(1,std::memory_order_relaxed);
-                if(!release) {
-                    acceptedOrdinary.fetch_add(1,std::memory_order_relaxed);
-                    const auto inFlight=acceptedOrdinary.load(std::memory_order_relaxed)-
-                        consumedOrdinary.load(std::memory_order_acquire);
-                    if(inFlight>2) failed.store(true);
-                }
+                if(!release && ingress.producerAvailable()<ingress.releaseReserve()) failed.store(true);
             } else if(release ? status!=Midi1CaptureIngressStatus::ReleaseReserveFull :
                                (status!=Midi1CaptureIngressStatus::ReservedForRelease && status!=Midi1CaptureIngressStatus::Full))
                 failed.store(true);

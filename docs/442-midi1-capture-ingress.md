@@ -45,11 +45,9 @@ accepted-sequence watermark.
 Status and first-record behavior:
 
 - `Accepted`: the event enters the FIFO.
-- `Full`: the FIFO push reports no available slot. An ordinary message at a
-  nonzero reserve that still has slots remaining reports `ReservedForRelease`;
-  an ordinary push that observes no slot reports `Full`, too. The shared queue's
-  producer snapshot is conservative and may refuse early if its consumer read is
-  stale.
+- `Full`: no slot was available in the producer snapshot or the FIFO push.
+  For an ordinary message with a nonzero reserve, a zero snapshot returns `Full`;
+  a stale snapshot may refuse early after the consumer has freed a slot.
 - `ReservedForRelease`: an ordinary event was refused while some slots remained
   protected by the nonzero reserve. This is backpressure, not a capture fault.
 - `ReleaseReserveFull`: a release event could not enter a full queue despite a
@@ -63,9 +61,12 @@ Status and first-record behavior:
   zero, release overflow is reported there with status `Full`. A missing
   `firstFault()` alone does not establish lossless capture when a reserve is on.
 
-With a nonzero reserve, ordinary traffic gets `ReservedForRelease` only while at
-least one slot is observed available; a zero snapshot proceeds to `tryPush`,
-which may return `Full`. The constructor rejects a reserve larger than the effective
+With a nonzero reserve, ordinary traffic is admitted only when the producer
+snapshot is greater than the reserve. A snapshot of zero returns `Full`; a
+nonzero snapshot at or below reserve returns `ReservedForRelease`. The snapshot
+may conservatively under-report space freed concurrently by the consumer. The
+`producerAvailable()` diagnostic uses the same producer-thread-only snapshot.
+The constructor rejects a reserve larger than the effective
 power-of-two capacity with `ProjectError(InvalidParameter)`. The original
 three-argument constructor remains available; a four-argument overload opts in.
 Callers opting in must handle both new enum values, including exhaustive
