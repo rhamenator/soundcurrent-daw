@@ -64,7 +64,8 @@ void preparationAndWrap() {
 void producerAvailableBoundaries() {
     PreparedSpscQueue<std::uint32_t> queue(3,std::numeric_limits<std::uint32_t>::max()-1);
     hot([&] {
-        require(queue.capacity()==4 && queue.producerAvailable()==4);
+        require(PreparedSpscQueue<std::uint32_t>::storageCapacity(3)==4 &&
+                queue.producerAvailable()==4);
         require(queue.tryPush(1) && queue.producerAvailable()==3);
         require(queue.tryPush(2) && queue.producerAvailable()==2);
         require(queue.tryPush(3) && queue.producerAvailable()==1);
