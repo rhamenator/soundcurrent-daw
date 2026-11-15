@@ -1,0 +1,19 @@
+{
+  "layoutProbe": {
+    "inputs": {
+      "tests/comp_repeat_ui_workflow.hpp": "f6f6b346ee6b337787eccbe80bf0b57267deac4c600f318e437bbd85710cc98a",
+      "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/sc-comp-transition-ui-tests": "868bdabedd49fe547d6dbedb2f2162c9d5cac4a19c6f65c2dc33fe8b96ee29b3"
+    },
+    "pid": 5794,
+    "exitCode": 0,
+    "seconds": 70.46085705398582,
+    "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-repeat-evidence/run-iqaml0rv/inputs/run-xyme2q5x/inputs/run-w9wmp_70/case-44100/project-\u00e9-\u65e5\u672c",
+    "evidence": "/home/rich/dev/soundcurrent-daw/.cache/comp-repeat-ui/layout-probe"
+  },
+  "layoutExportsMatchQualified44100": true,
+  "allOriginalPayloadsPreserved": true,
+  "files": 278,
+  "uniquePayloads": 172,
+  "bytes": 4506386,
+  "sha256": "3ef4fe751d73f1440483bba06826dc1cfd0a8e2280a446a82112e6ded8a27e32"
+}

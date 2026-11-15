@@ -9,6 +9,17 @@ namespace {
 void check(bool good,const char *text) {if (!good) throw ProjectError(ErrorCode::InvalidState,text);}
 void poll(std::stop_token stop) {if (stop.stop_requested()) throw ProjectError(ErrorCode::Canceled,"Wave report decoding canceled");}
 }
+OwnedInspectionProtocol WaveCheckReport::copyProtocol(ResourceLedger memory,std::stop_token stop) const {
+    poll(stop);
+    check(ownedBy(memory) && pid_ && !protocol_.bytes().empty() &&
+        protocol_.bytes().size()<=waveReportMaximumBytes,"Unadmitted WAVE report handoff");
+    // Admit the conservative copy bank before allocating. The returned owner
+    // retires its bytes before its credit, independently of this report.
+    auto grant=memory.reserve(waveReportMaximumBytes*2);
+    std::string bytes(protocol_.bytes());
+    poll(stop);
+    return OwnedInspectionProtocol(std::move(grant),std::move(bytes));
+}
 WaveCheckReport decodeWaveCheckReport(OwnedInspectionProtocol protocol,std::string_view expected,
     std::size_t pid,std::uint64_t maximum,ResourceLedger memory,ResourceLease values,ResourceLease parser,std::stop_token stop) {
     poll(stop);
@@ -70,5 +81,29 @@ WaveCheckReport decodeWaveCheckReport(OwnedInspectionProtocol protocol,std::stri
         check(hash.size()==64 && std::all_of(hash.begin(),hash.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}),"Invalid WAVE digest");
         std::copy(hash.begin(),hash.end(),a.sourceSha256.begin());poll(stop);return result;
     } catch (const nlohmann::json::exception &) {throw ProjectError(ErrorCode::InvalidState,"Malformed WAVE report");}
+}
+AssetReplacementTicket::AssetReplacementTicket(const Asset &asset,AssetReplacementContext context,ResourceLedger memory)
+    :lease_(memory.reserve(sizeof(AssetReplacementTicket)+128)),asset_(asset.id),
+     frames_(asset.frames),rate_(asset.sampleRate),channels_(asset.layout.channels),context_(context) {
+    check(context.projectEpoch && context.request && context.job,"Invalid replacement request context");
+    check(frames_>0 && rate_ && channels_ && asset.sha256.size()==hash_.size() &&
+        std::all_of(asset.sha256.begin(),asset.sha256.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}),
+        "Invalid replacement asset identity");
+    std::copy(asset.sha256.begin(),asset.sha256.end(),hash_.begin());
+}
+void verifyAssetReplacementReport(const AssetReplacementTicket &ticket,const WaveCheckReport &report,
+    const Asset &current,AssetReplacementContext context,std::size_t observedPid,ResourceLedger memory,std::stop_token stop) {
+    poll(stop);
+    check(memory.owns(ticket.lease_) && report.ownedBy(memory),"Replacement report admission scope mismatch");
+    check(context==ticket.context_ && current.id==ticket.asset_,"Stale replacement request or asset");
+    check(observedPid && report.workerPid()==observedPid,"Replacement report observed child mismatch");
+    const auto hash=std::string_view(ticket.hash_.data(),ticket.hash_.size());
+    check(current.sha256==hash && current.frames==ticket.frames_ && current.sampleRate==ticket.rate_ &&
+        current.layout.channels==ticket.channels_,"Replacement asset changed since request");
+    const auto &audio=report.audio();
+    if (audio.frames!=static_cast<std::uint64_t>(ticket.frames_) || audio.rate!=ticket.rate_ ||
+        audio.channels!=ticket.channels_ || audio.sourceSha256!=ticket.hash_)
+        throw ProjectError(ErrorCode::MediaMismatch,"Replacement report differs from original asset");
+    poll(stop);
 }
 } // namespace soundcurrent::daw

@@ -1,0 +1,379 @@
+{
+  "format": "sc-uniform-original-context-evidence-v1",
+  "sourceHead": "d4729b9231a28a0ef1df5e2f4ac4877dfb1689d7",
+  "archive": "acceptance.zip",
+  "bytes": 430233,
+  "sha256": "f0aca545f6ad44978fe6992c2ea5a7bd8c4362fe7e4ecb3bba4abc792b9d2cc6",
+  "files": 54,
+  "crcAndHashesVerified": true,
+  "acceptance": {
+    "sourceHead": "d4729b9231a28a0ef1df5e2f4ac4877dfb1689d7",
+    "rows": [
+      {
+        "configuration": "Release",
+        "seconds": 14.68951540091075,
+        "sourceHead": "d4729b9231a28a0ef1df5e2f4ac4877dfb1689d7",
+        "report": {
+          "allCreditsReleased": true,
+          "checks": 6478,
+          "comparedCandidateSamples": 21354,
+          "edges": [
+            {
+              "outputFrames": 3000,
+              "readSamples": 131072,
+              "rightEdge": false
+            },
+            {
+              "outputFrames": 3000,
+              "readSamples": 131072,
+              "rightEdge": true
+            }
+          ],
+          "ownedWorkerIntegrated": false,
+          "qualityQualified": false,
+          "rows": [
+            {
+              "bakedPitch": [
+                1,
+                1,
+                2
+              ],
+              "candidateFrames": 4054,
+              "inputFrames": 65536,
+              "layers": 1,
+              "maximumBufferedFrames": 1562,
+              "observedHz": 316.5010740970577,
+              "peak": 2.5002849102020264,
+              "rate": 44100,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27956,
+                3,
+                70
+              ],
+              "wantedHz": 316.5
+            },
+            {
+              "bakedPitch": [
+                1,
+                0,
+                1
+              ],
+              "candidateFrames": 3064,
+              "inputFrames": 65536,
+              "layers": 2,
+              "maximumBufferedFrames": 1124,
+              "observedHz": 210.99888890669857,
+              "peak": 2.500185489654541,
+              "rate": 44100,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27988,
+                22399,
+                24640
+              ],
+              "wantedHz": 211.0
+            },
+            {
+              "bakedPitch": [
+                1,
+                1,
+                2
+              ],
+              "candidateFrames": 4054,
+              "inputFrames": 65536,
+              "layers": 1,
+              "maximumBufferedFrames": 1584,
+              "observedHz": 316.50089206009153,
+              "peak": 2.5006697177886963,
+              "rate": 48000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27952,
+                1,
+                7
+              ],
+              "wantedHz": 316.5
+            },
+            {
+              "bakedPitch": [
+                1,
+                0,
+                1
+              ],
+              "candidateFrames": 3064,
+              "inputFrames": 65536,
+              "layers": 2,
+              "maximumBufferedFrames": 1218,
+              "observedHz": 210.99920452552973,
+              "peak": 2.5006659030914307,
+              "rate": 48000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27987,
+                141,
+                154
+              ],
+              "wantedHz": 211.0
+            },
+            {
+              "bakedPitch": [
+                1,
+                1,
+                2
+              ],
+              "candidateFrames": 4054,
+              "inputFrames": 65536,
+              "layers": 1,
+              "maximumBufferedFrames": 2858,
+              "observedHz": 316.4999879435407,
+              "peak": 2.50002121925354,
+              "rate": 96000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27904,
+                1,
+                7
+              ],
+              "wantedHz": 316.5
+            },
+            {
+              "bakedPitch": [
+                1,
+                0,
+                1
+              ],
+              "candidateFrames": 3064,
+              "inputFrames": 65536,
+              "layers": 2,
+              "maximumBufferedFrames": 1879,
+              "observedHz": 210.99999484398685,
+              "peak": 2.5000157356262207,
+              "rate": 96000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27975,
+                53,
+                77
+              ],
+              "wantedHz": 211.0
+            }
+          ],
+          "short4054Rendered": true,
+          "stereo": {
+            "frames": 4054,
+            "frequency": [
+              {
+                "channel": 0,
+                "observedHz": 633.2282331706073,
+                "wantedHz": 633.0
+              },
+              {
+                "channel": 1,
+                "observedHz": 950.7545504465396,
+                "wantedHz": 951.0
+              }
+            ],
+            "maximumBufferedFrames": 1709,
+            "peak": 2.580436944961548
+          }
+        },
+        "pcmFiles": {
+          "candidate-96000-1.f32le": "472ff6d3963dbb98a4c7d8ecd463f8eb63bb1ea4795358aef0ccf0c69bfe9f17",
+          "candidate-44100-1.f32le": "314654a6f78555c9d99c234203a7bf08b8d9319bbee7cf575915f52bcf59d2b9",
+          "candidate-48000-2.f32le": "18db9fa814354f4f3d54010e4348bd33fc608d7f87ddd170b2d28f680e6f3428",
+          "candidate-96000-2.f32le": "fb59a3d0ca46a850e6760b4fc12fe544752e56d446bff30bbef0b6c6ce13b070",
+          "stereo-pitched.f32le": "7e91fb56bd51ba8f70716b1220da6144486ce161eb3ae3fa3418b3c545e27f00",
+          "candidate-44100-2.f32le": "3aaac77c33f13238cf8f8eb027304facaa773289ad29e22947752509d1d5fbfe",
+          "candidate-48000-1.f32le": "c36f2bc0abf08a3b60513cce7e878e07e16be6a9c32c6ba0922a091ad37700d0"
+        },
+        "root": ".cache/comp-pair-recovery/build/comp-uniform-context-evidence/run-5go04625/pcm"
+      },
+      {
+        "configuration": "Debug",
+        "seconds": 24.190938360989094,
+        "sourceHead": "d4729b9231a28a0ef1df5e2f4ac4877dfb1689d7",
+        "report": {
+          "allCreditsReleased": true,
+          "checks": 6478,
+          "comparedCandidateSamples": 21354,
+          "edges": [
+            {
+              "outputFrames": 3000,
+              "readSamples": 131072,
+              "rightEdge": false
+            },
+            {
+              "outputFrames": 3000,
+              "readSamples": 131072,
+              "rightEdge": true
+            }
+          ],
+          "ownedWorkerIntegrated": false,
+          "qualityQualified": false,
+          "rows": [
+            {
+              "bakedPitch": [
+                1,
+                1,
+                2
+              ],
+              "candidateFrames": 4054,
+              "inputFrames": 65536,
+              "layers": 1,
+              "maximumBufferedFrames": 1562,
+              "observedHz": 316.5010740970577,
+              "peak": 2.5002849102020264,
+              "rate": 44100,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27956,
+                3,
+                70
+              ],
+              "wantedHz": 316.5
+            },
+            {
+              "bakedPitch": [
+                1,
+                0,
+                1
+              ],
+              "candidateFrames": 3064,
+              "inputFrames": 65536,
+              "layers": 2,
+              "maximumBufferedFrames": 1124,
+              "observedHz": 210.99888890669857,
+              "peak": 2.500185489654541,
+              "rate": 44100,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27988,
+                22399,
+                24640
+              ],
+              "wantedHz": 211.0
+            },
+            {
+              "bakedPitch": [
+                1,
+                1,
+                2
+              ],
+              "candidateFrames": 4054,
+              "inputFrames": 65536,
+              "layers": 1,
+              "maximumBufferedFrames": 1584,
+              "observedHz": 316.50089206009153,
+              "peak": 2.5006697177886963,
+              "rate": 48000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27952,
+                1,
+                7
+              ],
+              "wantedHz": 316.5
+            },
+            {
+              "bakedPitch": [
+                1,
+                0,
+                1
+              ],
+              "candidateFrames": 3064,
+              "inputFrames": 65536,
+              "layers": 2,
+              "maximumBufferedFrames": 1218,
+              "observedHz": 210.99920452552973,
+              "peak": 2.5006659030914307,
+              "rate": 48000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27987,
+                141,
+                154
+              ],
+              "wantedHz": 211.0
+            },
+            {
+              "bakedPitch": [
+                1,
+                1,
+                2
+              ],
+              "candidateFrames": 4054,
+              "inputFrames": 65536,
+              "layers": 1,
+              "maximumBufferedFrames": 2858,
+              "observedHz": 316.4999879435407,
+              "peak": 2.50002121925354,
+              "rate": 96000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27904,
+                1,
+                7
+              ],
+              "wantedHz": 316.5
+            },
+            {
+              "bakedPitch": [
+                1,
+                0,
+                1
+              ],
+              "candidateFrames": 3064,
+              "inputFrames": 65536,
+              "layers": 2,
+              "maximumBufferedFrames": 1879,
+              "observedHz": 210.99999484398685,
+              "peak": 2.5000157356262207,
+              "rate": 96000,
+              "renderFrames": 98304,
+              "samplingOrigin": [
+                27975,
+                53,
+                77
+              ],
+              "wantedHz": 211.0
+            }
+          ],
+          "short4054Rendered": true,
+          "stereo": {
+            "frames": 4054,
+            "frequency": [
+              {
+                "channel": 0,
+                "observedHz": 633.2282331706073,
+                "wantedHz": 633.0
+              },
+              {
+                "channel": 1,
+                "observedHz": 950.7545504465396,
+                "wantedHz": 951.0
+              }
+            ],
+            "maximumBufferedFrames": 1709,
+            "peak": 2.580436944961548
+          }
+        },
+        "pcmFiles": {
+          "candidate-96000-1.f32le": "472ff6d3963dbb98a4c7d8ecd463f8eb63bb1ea4795358aef0ccf0c69bfe9f17",
+          "candidate-44100-1.f32le": "314654a6f78555c9d99c234203a7bf08b8d9319bbee7cf575915f52bcf59d2b9",
+          "candidate-48000-2.f32le": "18db9fa814354f4f3d54010e4348bd33fc608d7f87ddd170b2d28f680e6f3428",
+          "candidate-96000-2.f32le": "fb59a3d0ca46a850e6760b4fc12fe544752e56d446bff30bbef0b6c6ce13b070",
+          "stereo-pitched.f32le": "7e91fb56bd51ba8f70716b1220da6144486ce161eb3ae3fa3418b3c545e27f00",
+          "candidate-44100-2.f32le": "3aaac77c33f13238cf8f8eb027304facaa773289ad29e22947752509d1d5fbfe",
+          "candidate-48000-1.f32le": "c36f2bc0abf08a3b60513cce7e878e07e16be6a9c32c6ba0922a091ad37700d0"
+        },
+        "root": ".cache/comp-history-sharing/build-debug/comp-uniform-context-evidence/run-_1vux5v3/pcm"
+      }
+    ],
+    "sevenPcmFilesIdenticalAcrossBuilds": true,
+    "mingwSyntaxPassed": true,
+    "nativeRuntime": false,
+    "workerOrUiIntegrated": false
+  },
+  "retainedFailure": "Initial edge fixture used a nominal envelope, which includes the full artifact; corrected to an actual cropped adopted take before testing both source edges."
+}

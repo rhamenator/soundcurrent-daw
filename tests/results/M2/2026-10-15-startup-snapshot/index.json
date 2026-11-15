@@ -1,0 +1,61 @@
+{
+  "sourceCommit": "37683240b009d12e0a4facb7669383b2501b687d",
+  "rows": [
+    {
+      "configuration": "Debug",
+      "head": "37683240b009d12e0a4facb7669383b2501b687d",
+      "tests": 7,
+      "seconds": 32.33309837395791,
+      "sourceAndBinariesUnchanged": true,
+      "pipewireSnapshotCases": 5,
+      "wasapiSnapshotCases": 4,
+      "guardedAllocationsFreesLocks": 0,
+      "actualSdk": false
+    },
+    {
+      "configuration": "Release",
+      "head": "37683240b009d12e0a4facb7669383b2501b687d",
+      "tests": 7,
+      "seconds": 27.479225310031325,
+      "sourceAndBinariesUnchanged": true,
+      "pipewireSnapshotCases": 5,
+      "wasapiSnapshotCases": 4,
+      "guardedAllocationsFreesLocks": 0,
+      "actualSdk": false
+    }
+  ],
+  "archive": "acceptance.zip",
+  "bytes": 338834,
+  "sha256": "e9a4f65b9d5347da94275a45f99c04da55a3fb72c79791384d43bad7ed463f0d",
+  "originalFiles": 54,
+  "uniquePayloads": 53,
+  "allManifestHashesAndCrcVerified": true,
+  "originalTwoBackendFailureRetained": true,
+  "initialTimeoutFixtureAndLegacyGateFailuresRetained": true,
+  "mingwTranslationUnits": 6,
+  "nativeRuntime": false,
+  "installedAudio": false,
+  "scheduling": {
+    "originalRun": 38681796679,
+    "previousActualSeconds": [
+      369.97,
+      981.94
+    ],
+    "newBankRemoteMeasured": false,
+    "newBankEstimatedSeconds": 556.595,
+    "newShardCount": 3,
+    "estimatedSeconds": [
+      636.2149999999999,
+      636.2199999999996,
+      636.22
+    ],
+    "counts": [
+      59,
+      70,
+      71
+    ],
+    "coverageExactlyOnce": true,
+    "jobDeadlineMinutes": 30,
+    "testDeadlinesUnchanged": true
+  }
+}

@@ -398,6 +398,11 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
                                                config_.drift.targetQueuedSourceFrames))) {
         if (!holding_) {
             const auto code = capture_.acquireMonitor(held_);
+            // Monitor EOF is published before the fanout's aggregate completion.
+            // Do not request/commit a final end until finishAt's capture-owner
+            // precondition is visible, including planned and empty-input ends.
+            if (code == CaptureBankRead::Drained && !capture_.producerDone())
+                return MonitorProcessingCode::NeedInput;
             if (code == CaptureBankRead::Ready) holding_ = true;
             else if (code == CaptureBankRead::Drained && s.plannedOutputEnd) {
                 if (!clockEstablished_ && *s.plannedOutputEnd > config_.buffer.outputFrameBase) {

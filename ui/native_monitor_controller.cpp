@@ -345,6 +345,8 @@ struct NativeMonitorController::State {
                     catch(const ProjectError &e){error(e.code(),e.what());if(view.phase==NativeMonitorPhase::Preparing || view.phase==NativeMonitorPhase::Reopening)view.phase=NativeMonitorPhase::Fault;else if(view.phase==NativeMonitorPhase::Finishing)retain(true);}
                     catch(const std::exception &e){error(ErrorCode::InvalidState,e.what());if(view.phase==NativeMonitorPhase::Preparing || view.phase==NativeMonitorPhase::Reopening)view.phase=NativeMonitorPhase::Fault;else if(view.phase==NativeMonitorPhase::Finishing)retain(true);}
                     catch(...){error(ErrorCode::InvalidState,"Unknown native recording worker failure");if(view.phase==NativeMonitorPhase::Preparing || view.phase==NativeMonitorPhase::Reopening)view.phase=NativeMonitorPhase::Fault;else if(view.phase==NativeMonitorPhase::Finishing)retain(true);}
+                    if(command->command.kind==NativeMonitorCommandKind::Prepare)
+                        view.completedPrepareGeneration=command->command.generation;
                     ++view.completedCommands;
                 }
                 service();publish();

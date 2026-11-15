@@ -110,7 +110,17 @@ StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &cu
     const auto &edit=verified.edit();
     const auto asset=std::find_if(current.assets.begin(),current.assets.end(),[&](const auto &v){return v.id==op;});
     if(asset!=current.assets.end())check(*asset==edit.rendered,"Render operation already names different media");
-    for(const auto &t:current.tracks)for(const auto &c:t.clips)if(c.assetId==op && c.stretch==edit.value){result.status=StretchRecoveryStatus::Attached;return result;}
+    const auto attached=[&](const auto &clips){
+        return std::any_of(clips.begin(),clips.end(),[&](const auto &c){return c.assetId==op && c.stretch==edit.value;});
+    };
+    for(const auto &t:current.tracks){
+        // An inactive arrangement still owns its rendered media. Do not offer
+        // that retained operation as a new recovery or label it stale.
+        if(attached(t.clips) || std::any_of(t.inactiveVersions.begin(),t.inactiveVersions.end(),
+            [&](const auto &v){return attached(v.clips);})){
+            result.status=StretchRecoveryStatus::Attached;return result;
+        }
+    }
     const auto track=std::find_if(current.tracks.begin(),current.tracks.end(),[&](const auto &v){return v.id==edit.track;});
     if(track==current.tracks.end()){result.status=StretchRecoveryStatus::Stale;return result;}
     const auto clip=std::find_if(track->clips.begin(),track->clips.end(),[&](const auto &v){return v.id==edit.clip;});

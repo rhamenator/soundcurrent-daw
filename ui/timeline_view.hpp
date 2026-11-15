@@ -6,6 +6,8 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include "timeline_waveforms.hpp"
+class QTimer;
 namespace soundcurrent::daw::ui {
 struct TimelinePaintStatistics {
     std::uint64_t snapshotBuilds = 0, paints = 0;
@@ -18,13 +20,18 @@ class TimelineView : public QAbstractScrollArea {
   public:
     explicit TimelineView(QWidget *parent = nullptr, ResourceLedger = ResourceLedger{});
     struct Prepared;
-    std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>, std::uint64_t epoch) const;
+    std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>, std::uint64_t epoch, std::filesystem::path root = {}) const;
     void commit(std::shared_ptr<Prepared>);
     std::size_t resourceBytes() const {
-        return reservation_.bytes();
+        return reservation_.bytes() + rootCredit_.bytes();
     }
-    void setSnapshot(std::shared_ptr<const Session>, std::uint64_t epoch);
+    void setSnapshot(std::shared_ptr<const Session>, std::uint64_t epoch, std::filesystem::path root = {});
     void setZoom(int);
+    void retryWaveforms();
+    void setWaveformChannel(std::optional<std::uint32_t>);
+    void shutdownWaveforms();
+    bool waveformsClosed() const;
+    std::size_t waveformReadyCount() const { return waveforms_.readyCount(); }
     void setSelection(std::optional<Id>, std::optional<Id>);
     bool ensureTrackVisible(const Id &);
     bool ensureClipVisible(const Id &, const Id &);
@@ -48,7 +55,13 @@ class TimelineView : public QAbstractScrollArea {
         std::size_t base = 0;
     };
     ResourceLedger memory_;
-    ResourceLease reservation_;
+    ResourceLease reservation_, rootCredit_;
+    std::filesystem::path root_;
+    TimelineWaveforms waveforms_;
+    QTimer *waveformTimer_;
+    bool waveformsDirty_ = true;
+    QString waveformStatus_;
+    void pollWaveforms();
     std::shared_ptr<const Session> session_;
     std::uint64_t epoch_ = 0;
     Frame extent_ = 1;
@@ -58,6 +71,7 @@ class TimelineView : public QAbstractScrollArea {
     std::vector<Lane> lanes_;
     TimelinePaintStatistics stats_;
     mutable std::vector<std::size_t> visible_;
+    int rowHeight() const { return root_.empty() ? 56 : 96; }
     double scale() const;
     void geometry();
     QRectF rectangle(std::size_t row, const Clip &) const;

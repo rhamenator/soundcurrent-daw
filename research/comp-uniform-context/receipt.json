@@ -1,0 +1,39 @@
+{
+  "sourceHead": "9fbb99fea827e310a1427cfadd7b9489b615f848",
+  "cases": 36,
+  "files": {
+    "research/comp-uniform-context/window-probe.cpp": {
+      "bytes": 3970,
+      "sha256": "7209fa93d0d5ea219e43a2d8cb10889b594007074ba8e24747d1ddfe7fec6dd0"
+    },
+    "research/comp-uniform-context/window-probe.json": {
+      "bytes": 17243,
+      "sha256": "2df9353bb6a1d249ecd8e8952d510351942c1aa69d2cdb4b080a665c0eee8fed"
+    },
+    ".cache/comp-short-context/window-probe": {
+      "bytes": 633616,
+      "sha256": "bb4c0c6af0edf6cb3a0df8522a942eebafc012e82b121f1dca7d459c73f619e9"
+    },
+    ".cache/comp-short-context/window-probe.log": {
+      "bytes": 26,
+      "sha256": "6b727a40b1385ece15d75f23d9b2e9e82d2220b12927089e678560d8b1b5ab78"
+    },
+    ".cache/comp-pair-recovery/build/libsc-rubberband.a": {
+      "bytes": 833510,
+      "sha256": "aad754ecf0cf66a42a4c2ec4beb5aadbee9636a051c7fc94e10d9a6a2eb28823"
+    }
+  },
+  "shortRefusals": 36,
+  "fixedScheduleIdenticalCases": 36,
+  "changedBlockDifferentCases": 13,
+  "largestBlockChangeDifference": 2.548022508621216,
+  "exactContextOutputDurations": true,
+  "allFinite": true,
+  "productionIntegrated": false,
+  "qualityQualified": false,
+  "commands": [
+    "g++ -std=c++20 -O2 -fno-fast-math -Wall -Wextra -Wpedantic -isystem third_party -isystem third_party/rubberband .cache/comp-short-context/window-probe.cpp .cache/comp-pair-recovery/build/libsc-rubberband.a -o .cache/comp-short-context/window-probe",
+    "timeout 120 .cache/comp-short-context/window-probe .cache/comp-short-context/window-probe.json"
+  ],
+  "execution": "One nice15/ionice2:7 process; exit0; Linux Release vendored backend; no physical audio"
+}

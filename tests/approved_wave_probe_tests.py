@@ -58,6 +58,26 @@ with tempfile.TemporaryDirectory(prefix="sc-wave-Κиїв-") as tmp:
     check(report["containerId"] == "riff" and not report["extensible"] and report["channelMask"] == 0)
     check(report["relative"] == path.name and report["bytesRead"] >= 2 * len(data) and report["ioOperations"] > 0)
     check(path.read_bytes() == data and str(root) not in result.stdout.decode("ascii"))
+    # Exact replacement mode is a distinct protocol; no filename fallback.
+    match_args = [str(tool), "--match-asset", "--root", str(root), "--relative", path.name,
+                  "--maximum-bytes", str(len(data)), "--asset-sha256", hashlib.sha256(data).hexdigest(),
+                  "--asset-frames", "3", "--asset-rate", "48000", "--asset-channels", "2"]
+    exact = subprocess.run(match_args, capture_output=True, timeout=10)
+    check(exact.returncode == 0 and exact.stderr == b"")
+    matched = json.loads(exact.stdout)
+    check(matched["protocol"] == "sc-asset-replacement-check-v1" and matched["matchesAsset"] and matched["complete"])
+    check(matched["sourceSha256"] == hashlib.sha256(data).hexdigest() and matched["peakLinear"] == 3.25)
+    for index, value in ((9, "0" * 64), (9, "z" * 64), (11, "4"), (13, "44100"),
+                         (15, "1"), (11, "-1"), (13, str(2**32)), (15, "2junk"), (5, "missing.wav")):
+        wrong = match_args.copy(); wrong[index] = value
+        refused = subprocess.run(wrong, capture_output=True, timeout=10)
+        check(refused.returncode != 0 and refused.stdout == b"")
+        failure = json.loads(refused.stderr)
+        check(failure["protocol"] == "sc-asset-replacement-check-v1" and not failure["complete"])
+        if (index, value) in ((9, "0" * 64), (11, "4"), (13, "44100"), (15, "1")):
+            check(failure["errorCode"] == 6)  # MediaMismatch, not argv rejection.
+        check(len(refused.stderr) < 1024 and str(root) not in refused.stderr.decode())
+    check(path.read_bytes() == data)
     for maximum in ("0", "-1", "1", str(2**64), "64junk"):
         failed(run(maximum=maximum))
     for ref in ("../outside.wav", "missing.wav", relative, "C:/audio.wav", "CON.wav"):

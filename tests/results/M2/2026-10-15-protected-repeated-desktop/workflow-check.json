@@ -1,0 +1,11 @@
+{
+  "yamlParsed": true,
+  "originalNativeDesktopTargetsAndTestPatternUnchanged": true,
+  "newProtectedTestSelectedExactlyOnce": true,
+  "bothNativeDesktopSuitesRequired": true,
+  "originalRequiredStatusNamePreserved": true,
+  "jobDeadlinesUnchanged": true,
+  "independentArtifacts": true,
+  "failFastFalse": true,
+  "expectedJobCount": 9
+}

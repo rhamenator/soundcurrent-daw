@@ -1,0 +1,75 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/take-preview-linux/build/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/take-preview-linux/build/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/take-preview-linux/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 84
+    Start 84: desktop-paired-crossfade
+
+84: Test command: /home/rich/dev/soundcurrent-daw/.cache/take-preview-linux/build/sc-crossfade-ui-tests
+84: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/take-preview-linux/build
+84: Environment variables: 
+84:  QT_QPA_PLATFORM=offscreen
+84: Test timeout computed to be: 30
+84: crossfade_stage=application-start checks=0
+84: crossfade_stage=application-ready checks=0
+84: crossfade_stage=font-resolve checks=0
+84: crossfade_font_family=Noto Sans
+84: crossfade_stage=fixture-create checks=95
+84: crossfade_stage=timeline-publish checks=95
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=timeline-shown checks=95
+84: crossfade_stage=pair-cancel checks=98
+84: crossfade_stage=dialog-open checks=98
+84: This plugin does not support propagateSizeHints()
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=dialog-callback checks=98
+84: crossfade_stage=pair-button-click checks=107
+84: crossfade_stage=dialog-returned checks=107
+84: crossfade_stage=pair-accept checks=108
+84: crossfade_stage=dialog-open checks=108
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=dialog-callback checks=108
+84: crossfade_stage=pair-button-click checks=117
+84: crossfade_stage=dialog-returned checks=118
+84: crossfade_stage=pair-reopen checks=120
+84: crossfade_stage=dialog-open checks=120
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=dialog-callback checks=120
+84: crossfade_stage=pair-button-click checks=130
+84: crossfade_stage=dialog-returned checks=130
+84: crossfade_stage=pair-undo-redo-complete checks=133
+84: crossfade_stage=guard-busy checks=133
+84: crossfade_stage=dialog-open checks=133
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=dialog-callback checks=133
+84: crossfade_stage=guard-accept checks=135
+84: crossfade_stage=dialog-returned checks=135
+84: crossfade_stage=guard-replace checks=138
+84: crossfade_stage=dialog-open checks=138
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=dialog-callback checks=138
+84: crossfade_stage=guard-accept checks=140
+84: crossfade_stage=dialog-returned checks=140
+84: crossfade_stage=handles-fixture checks=144
+84: crossfade_stage=handles-open checks=144
+84: This plugin does not support propagateSizeHints()
+84: crossfade_stage=handles-callback checks=144
+84: crossfade_stage=handles-layout checks=152
+84: crossfade_stage=handles-small-layout checks=155
+84: crossfade_stage=handles-accept checks=160
+84: crossfade_stage=handles-returned checks=161
+84: crossfade_stage=complete checks=163
+84: crossfade_ui_checks=163 actual_dialog_cancel_apply_reopen_undo=passed
+1/1 Test #84: desktop-paired-crossfade .........   Passed    0.13 sec
+
+The following tests passed:
+	desktop-paired-crossfade
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.13 sec

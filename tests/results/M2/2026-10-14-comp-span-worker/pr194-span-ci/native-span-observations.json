@@ -1,0 +1,9 @@
+{
+  "archiveId": 11914983854,
+  "entry": "comp-span-evidence/run-3wgrryrj/pcm/report.json",
+  "actualR3Renders": 36,
+  "checks": 2948,
+  "maxRelativeFrequencyError": 0.0050534815628670016,
+  "dominantPeaksOutsideFundamentalGuard": 3,
+  "qualityAdmission": false
+}

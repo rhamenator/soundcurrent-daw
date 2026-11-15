@@ -1,0 +1,36 @@
+{
+  "actualNewJobCreation": true,
+  "cases": [
+    {
+      "actualTimelineDialog": true,
+      "asynchronousClose": true,
+      "case": 0,
+      "exportFileSha256": "1657f2c0d2ca9a15060f170325714782ff0f29f309ff172cf12da380ff833659",
+      "exportFrames": 35666,
+      "exportPeak": 4.117021560668945,
+      "newChildren": [
+        {
+          "exitCode": 0,
+          "pid": 4476,
+          "reaped": true,
+          "stderr": "",
+          "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"d98a6c398e2cee740d64adead51ccb4e27a89c03aa25cc7703962cc793719dc1\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"74ff2e68-e1cc-4a06-b53f-b3ae7b8f4adb\",\"outputFrames\":24611,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[24611,24612],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16407,1,3],\"recipeDigest\":\"1d9fe8de9d21303291fb1e14c11184a22ff40fbfb7be2b83e8d7546d69d594ab\",\"requestDigest\":\"695008864e33029baed74d66d69b1bacb0eab8f411db120dd5c982070619fc50\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\"}\r\n{\"audioSha256\":\"bb5020bfe318f135d0342432d51d044ef6a282799ecff663e2f1bfc2b0021772\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"d98a6c398e2cee740d64adead51ccb4e27a89c03aa25cc7703962cc793719dc1\",\"formantPreserved\":false,\"fragment\":0,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"process-commit\",\"operation\":\"74ff2e68-e1cc-4a06-b53f-b3ae7b8f4adb\",\"outputFrames\":24611,\"payloadPeakBytes\":92550963,\"peakLinear\":4.213526248931885,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[24611,24612],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32768,1,7],\"rawSpan\":[16407,1,3],\"recipeDigest\":\"1d9fe8de9d21303291fb1e14c11184a22ff40fbfb7be2b83e8d7546d69d594ab\",\"requestDigest\":\"695008864e33029baed74d66d69b1bacb0eab8f411db120dd5c982070619fc50\",\"sampleSha256\":\"248ff3f2478d827364988a73196cc719fd60a3b7c1e3d8752d4473e48cd90066\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\",\"writtenFrames\":24611}\r\n"
+        },
+        {
+          "exitCode": 0,
+          "pid": 5908,
+          "reaped": true,
+          "stderr": "",
+          "stdout": "{\"channels\":2,\"deadlineMilliseconds\":60000,\"event\":\"ready\",\"executorSha256\":\"d98a6c398e2cee740d64adead51ccb4e27a89c03aa25cc7703962cc793719dc1\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"operation\":\"11b4eecb-aa53-4ae5-879b-f0aa0c04b751\",\"outputFrames\":24612,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32744,1,7],\"rawSpan\":[16408,0,1],\"recipeDigest\":\"1d9fe8de9d21303291fb1e14c11184a22ff40fbfb7be2b83e8d7546d69d594ab\",\"requestDigest\":\"c7b000165bdaedc78a35f3d55f4bdf38e5f3a5da47adff84b048d4991a9d0ec2\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\"}\r\n{\"audioSha256\":\"feb962d8008fe3637b91b94c770d9ab89a4a97ddd7c9af5b4aa0193d6fc59f14\",\"channels\":2,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"executorSha256\":\"d98a6c398e2cee740d64adead51ccb4e27a89c03aa25cc7703962cc793719dc1\",\"formantPreserved\":false,\"fragment\":1,\"maximumOutputBytes\":8589934592,\"maximumSourceBytes\":8589934592,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"process-commit\",\"operation\":\"11b4eecb-aa53-4ae5-879b-f0aa0c04b751\",\"outputFrames\":24612,\"payloadPeakBytes\":92550963,\"peakLinear\":3.650193214416504,\"pitchMilliCents\":700007,\"processingFrames\":16408,\"processingStep\":[1,1],\"processor\":\"soundcurrent.comp-span-positioned-rubberband4-r3-v1\",\"protocol\":\"sc-comp-span-v1\",\"rate\":44100,\"rawOrigin\":[32744,1,7],\"rawSpan\":[16408,0,1],\"recipeDigest\":\"1d9fe8de9d21303291fb1e14c11184a22ff40fbfb7be2b83e8d7546d69d594ab\",\"requestDigest\":\"c7b000165bdaedc78a35f3d55f4bdf38e5f3a5da47adff84b048d4991a9d0ec2\",\"sampleSha256\":\"705b9eeab19fc7889c8900212c9b2282bd94dc0296e94f846c79433c74b23da8\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceSha256\":\"3f8a33b02cc1a5a5a5121b91a6a79cd38d60c325c0f57001739f4dd6894a578c\",\"writtenFrames\":24612}\r\n"
+        }
+      ],
+      "noAudioBeforeApply": true,
+      "stage": 6,
+      "undoRedoSaveReopen": true
+    }
+  ],
+  "checks": 46,
+  "executorSha256": "f03c18a09acae9a0999e77c28f8ff4b71b1d02d4e6be47554b333a2536ea2eed",
+  "physicalAudio": false,
+  "qualityAdmission": false
+}

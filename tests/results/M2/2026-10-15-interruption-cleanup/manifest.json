@@ -1,0 +1,10 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 149067,
+  "sha256": "e39d7ecef0f53460584eea25c9e4716d6f5e89dc455cb0c818d4a18592f10acd",
+  "entries": 13,
+  "baseHead": "8c2e4474111c16a66ef16a85abb2211c8cebaca0",
+  "faultInjectionTests": 8,
+  "nativeReplayPerformed": false,
+  "originalCiFailureResolved": false
+}

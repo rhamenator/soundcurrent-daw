@@ -1,0 +1,29 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 2542235,
+  "sha256": "78d344f138562968b878029ac1f37465a8b70253be36f42154ad81d659473b2d",
+  "entries": 1844,
+  "sourceHead": "8bcc163aebd740f453b957cb007dec1224aac71c",
+  "qualification": {
+    "passed": true,
+    "sourceHead": "8bcc163aebd740f453b957cb007dec1224aac71c",
+    "sourceFilesVerified": 802,
+    "gitFilteredLicenseFiles": [],
+    "projectFilesUnchanged": 225,
+    "assemblySamplesCompared": 16256,
+    "medianSeconds": {
+      "before": 4.115583200000003,
+      "after": 2.6842790999999693
+    },
+    "ratio": 0.6522232620640417,
+    "binaries": {
+      "probe-before.exe": "9249ee5ea29bd8006fd95e32259a2c1ec4af72e9a218f58695526d9a8c9df15c",
+      "probe-after.exe": "52afa37e0cf1e0a0209485af5f58892d6634cad0ef5bc2c10bdf313883e6d2b8",
+      "sndfile.dll": "cf55f672111a88e7b67bd0b769d3f40a99f41238949767ff1d0532ae0662057e"
+    },
+    "physicalAudio": false,
+    "installedPreviewChanged": false,
+    "wholeRenderMeasured": false
+  },
+  "applicationBinariesIncluded": false
+}

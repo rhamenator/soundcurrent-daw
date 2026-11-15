@@ -1,0 +1,943 @@
+{
+  "run": 38689906853,
+  "head": "347ef70f1df0aa15c796ca45ec8516acaf57217f",
+  "conclusion": "cancelled",
+  "archive": "original-ci-review.zip",
+  "bytes": 58821050,
+  "sha256": "12803e4900595c2bba7a538ebd885b11a9507c73270a7d9325b3373de1b85c98",
+  "originalFiles": 8148,
+  "uniquePayloads": 2061,
+  "allArchivePayloadsAndCrcVerified": true,
+  "originalArtifacts": [
+    {
+      "id": 11953210195,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1MzIxMDE5NQ==",
+      "name": "linux-synthetic-test-log-1",
+      "size_in_bytes": 297184048,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11953210195",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11953210195/zip",
+      "expired": false,
+      "digest": "sha256:794ac948d0b39b6d06db20b21be97ca8fbc7015b9239bf6d7b06a1691a6dc5f4",
+      "created_at": "2026-10-15T06:28:08Z",
+      "updated_at": "2026-10-15T06:28:08Z",
+      "expires_at": "2027-01-13T06:00:37Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11952860840,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1Mjg2MDg0MA==",
+      "name": "windows-desktop-import-test-log",
+      "size_in_bytes": 182340913,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952860840",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952860840/zip",
+      "expired": false,
+      "digest": "sha256:d5d2ba8c861d13f0910573975a16231e2d793542ce54712e71295c878e400cba",
+      "created_at": "2026-10-15T06:20:46Z",
+      "updated_at": "2026-10-15T06:20:46Z",
+      "expires_at": "2027-01-13T06:00:37Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11952860782,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1Mjg2MDc4Mg==",
+      "name": "windows-media-build-review",
+      "size_in_bytes": 438050,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952860782",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952860782/zip",
+      "expired": false,
+      "digest": "sha256:7dd91cf26e1ec230c83abd2e1ec6f06936e230a3f85f2c835526df8ccc3131ec",
+      "created_at": "2026-10-15T06:20:27Z",
+      "updated_at": "2026-10-15T06:20:27Z",
+      "expires_at": "2026-10-18T06:20:26Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11952810913,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1MjgxMDkxMw==",
+      "name": "windows-preview-build-inputs",
+      "size_in_bytes": 129188352,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952810913",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952810913/zip",
+      "expired": false,
+      "digest": "sha256:e6e857c813459a8bbe7822ba973dbb57b88a76c2ed9bf3efed18934412b711fe",
+      "created_at": "2026-10-15T06:20:26Z",
+      "updated_at": "2026-10-15T06:20:26Z",
+      "expires_at": "2026-10-18T06:20:19Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11952382915,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1MjM4MjkxNQ==",
+      "name": "linux-synthetic-test-log-2",
+      "size_in_bytes": 272119581,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952382915",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952382915/zip",
+      "expired": false,
+      "digest": "sha256:efc50d7efd5ea137912226c79376d1657ee59397f9bf4215a74e2bd5bda5fba4",
+      "created_at": "2026-10-15T06:29:21Z",
+      "updated_at": "2026-10-15T06:29:21Z",
+      "expires_at": "2027-01-13T06:00:37Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11952124349,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1MjEyNDM0OQ==",
+      "name": "linux-synthetic-test-log-0",
+      "size_in_bytes": 154524381,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952124349",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11952124349/zip",
+      "expired": false,
+      "digest": "sha256:c702e6527dcde3875bac69fce65009a6fb281dd9baa69a6d966170f0ecad6a97",
+      "created_at": "2026-10-15T06:12:54Z",
+      "updated_at": "2026-10-15T06:12:54Z",
+      "expires_at": "2027-01-13T06:00:37Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11951867573,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1MTg2NzU3Mw==",
+      "name": "windows-protected-repeat-desktop-log",
+      "size_in_bytes": 154072156,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11951867573",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11951867573/zip",
+      "expired": false,
+      "digest": "sha256:f33831ed269ba203478e7c8be1006ea84128946967e7be9ab5c6408bf3cf8f7b",
+      "created_at": "2026-10-15T06:09:40Z",
+      "updated_at": "2026-10-15T06:09:40Z",
+      "expires_at": "2027-01-13T06:00:37Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    },
+    {
+      "id": 11951584951,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk1MTU4NDk1MQ==",
+      "name": "windows-native-packet-unit-log",
+      "size_in_bytes": 420426799,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11951584951",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11951584951/zip",
+      "expired": false,
+      "digest": "sha256:ab2ba596b4fc733e5ed3693ecd18c5e3813bc9f1b94ac2ec7deec476c26d76ff",
+      "created_at": "2026-10-15T06:26:46Z",
+      "updated_at": "2026-10-15T06:26:46Z",
+      "expires_at": "2027-01-13T06:00:37Z",
+      "workflow_run": {
+        "id": 38689906853,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "347ef70f1df0aa15c796ca45ec8516acaf57217f"
+      }
+    }
+  ],
+  "allOriginalArtifactZipsRetainedLocally": true,
+  "allOriginalArtifactBytesAndDigestsVerified": true,
+  "fullLogs": 9,
+  "pngs": 214,
+  "linux": {
+    "shards": [
+      {
+        "shard": 1,
+        "job": 116273171774,
+        "conclusion": "success",
+        "assignedTests": 101,
+        "passedTimings": 101,
+        "ctestSeconds": 774.6,
+        "estimatedSeconds": 688.1499999999999
+      },
+      {
+        "shard": 2,
+        "job": 116273171733,
+        "conclusion": "success",
+        "assignedTests": 99,
+        "passedTimings": 99,
+        "ctestSeconds": 899.88,
+        "estimatedSeconds": 688.1499999999991
+      },
+      {
+        "shard": 0,
+        "job": 116273171736,
+        "conclusion": "success",
+        "assignedTests": 1,
+        "passedTimings": 1,
+        "ctestSeconds": 147.62,
+        "estimatedSeconds": 721.64
+      }
+    ],
+    "wholeLinuxPassed": true,
+    "deadlinesUnchanged": true
+  },
+  "native": {
+    "job": "success",
+    "testSummaries": [
+      "2026-10-15T06:20:05.4355194Z 100% tests passed out of 25",
+      "2026-10-15T06:25:35.3168139Z 100% tests passed out of 93"
+    ],
+    "testFailures": [],
+    "originalOneFrameStartupTestPassed": true,
+    "protected": {
+      "coreRenders": 18,
+      "coreMapQueries": 264,
+      "coreProtectedSamples": 34560,
+      "coreRefusals": 12,
+      "coreManifestFilesVerified": 25,
+      "workerSuccesses": 6,
+      "workerRefusals": 63,
+      "workerCompletePcmSamples": 622848,
+      "workerProtectedSamples": 12800,
+      "pairWorkers": 8,
+      "pairSuccesses": 6,
+      "pairCancelOrDeadline": 2,
+      "allObservedChildrenRetired": true,
+      "completedAudioFilesVerified": 18,
+      "detailedCoreCorpusRetained": true,
+      "processingQualityQualified": false,
+      "newAssemblyOrDesktopBankIncluded": true
+    },
+    "protectedHistory": {
+      "adoptions": 9,
+      "mixedRetained": 3,
+      "successfulWorkers": 15,
+      "requiredWorkerFailures": 2,
+      "protectedRawSamples": 32000,
+      "unchangedAudibleSamples": 1640832,
+      "liveExportSamples": 1810560,
+      "exportsBitExactWithLinux": 6,
+      "previousNativeExportComparison": {
+        "run": 38686371153,
+        "rows": [
+          {
+            "case": "case-44100-protected",
+            "generation": 0,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-44100-protected/project-\u00e9-\u65e5\u672c/exports/3c316e20-3164-4d00-8d81-8955e28da3e3.wav",
+            "nativeFileSha256": "8c9294d934395f591468d719f237b7cdb45d063cd7ea6ea5f7c15aa8d9a1e8b3",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-44100-protected/project-\u00e9-\u65e5\u672c/exports/5ed85335-69a6-4f1b-9868-9d0f170dd83a.wav",
+            "localFileSha256": "4040a2b2047a9326d59c4217fac47655f3a4b5e298c4736fca2eb482a2449cec",
+            "nativePcmSha256": "458623eb85b1fef87cb4d70d393a0e82601426aa60e64eade8ff2f79e86fe93f",
+            "localPcmSha256": "cd1c4af14bd5731789f7f35a7090f3ba4e68632ad2cd79e93d62b4dd5b15ef93",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": false,
+            "samples": 211200,
+            "differentSamples": 354,
+            "maximumAbsoluteDifference": 1.1920928955078125e-07,
+            "rmsDifference": 7.810313871503408e-10,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 844800
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 844800
+              }
+            ]
+          },
+          {
+            "case": "case-44100-protected",
+            "generation": 1,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-44100-protected/project-\u00e9-\u65e5\u672c/exports/4c23cd2d-ad4a-46d9-8354-430f2ddb15c1.wav",
+            "nativeFileSha256": "7d06f687b3f1a5d50a1feb1f19c3d73177de40f0e546e6f38495bb1259911e12",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-44100-protected/project-\u00e9-\u65e5\u672c/exports/7d36bf68-e2a6-4010-8c8f-cf63952640b0.wav",
+            "localFileSha256": "e007ab67ed1a7e9a3ebc8708da87975cecba6a01b4cfdc2f5cde642909dd866c",
+            "nativePcmSha256": "3322503168457d99b9eec106a7ea0173657a0fc1fcedc99bf4a093824bc3e955",
+            "localPcmSha256": "cec75b678a8f248e54f7e4764cebccdfa4196e586a28ff10afe94bc5362ff69c",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": false,
+            "samples": 226304,
+            "differentSamples": 355,
+            "maximumAbsoluteDifference": 1.1920928955078125e-07,
+            "rmsDifference": 7.54518155475593e-10,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 905216
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 905216
+              }
+            ]
+          },
+          {
+            "case": "case-44100-protected",
+            "generation": 2,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-44100-protected/project-\u00e9-\u65e5\u672c/exports/bae16d03-5c03-434e-a300-71d6892c505a.wav",
+            "nativeFileSha256": "b25addab1335fad4e2dcf290c889996ceed02c7eaec06bacc4cd0c00ca406ddc",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-44100-protected/project-\u00e9-\u65e5\u672c/exports/ac81badb-872a-4f15-9105-81b2d18c945c.wav",
+            "localFileSha256": "d8b3a9d14a3ebd05bccee471d2f267151926e458091215da177c993a30f09eef",
+            "nativePcmSha256": "c0dff8057b2b43d63b17886ccea0a93b1506b30c5e65748f50a51cff9bdba8cc",
+            "localPcmSha256": "ceea7136b086767029e770e75dfb609ee7edfbe0cab58b8f63ddd5bdef22d67d",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": false,
+            "samples": 190592,
+            "differentSamples": 354,
+            "maximumAbsoluteDifference": 1.1920928955078125e-07,
+            "rmsDifference": 8.221728103666301e-10,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 762368
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 762368
+              }
+            ]
+          },
+          {
+            "case": "case-48000-protected",
+            "generation": 0,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-48000-protected/project-\u00e9-\u65e5\u672c/exports/a4b2def2-7922-45a9-b07a-a3c3e7276f90.wav",
+            "nativeFileSha256": "626da9ec3a85106329e280c1d97c7c2ec933573877aa1a0c95d2a51a509ee821",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-48000-protected/project-\u00e9-\u65e5\u672c/exports/fec9363b-3789-4252-9e91-da984ca4f836.wav",
+            "localFileSha256": "626da9ec3a85106329e280c1d97c7c2ec933573877aa1a0c95d2a51a509ee821",
+            "nativePcmSha256": "f38a88e5e3b4dede607d1500079fe0b8f8d8e45c628ac66cf9481b62ac08c353",
+            "localPcmSha256": "f38a88e5e3b4dede607d1500079fe0b8f8d8e45c628ac66cf9481b62ac08c353",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": true,
+            "samples": 205056,
+            "differentSamples": 0,
+            "maximumAbsoluteDifference": 0.0,
+            "rmsDifference": 0.0,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 820224
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 820224
+              }
+            ]
+          },
+          {
+            "case": "case-48000-protected",
+            "generation": 1,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-48000-protected/project-\u00e9-\u65e5\u672c/exports/1de1a3a7-a2dc-4aa3-9a48-2ebffdf1874d.wav",
+            "nativeFileSha256": "59076bdce391873e431c095cb975621cb20aaf7a390e606513d01c566009d1a3",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-48000-protected/project-\u00e9-\u65e5\u672c/exports/dc2212eb-7f6f-4c43-98a5-4ecd293f25c8.wav",
+            "localFileSha256": "59076bdce391873e431c095cb975621cb20aaf7a390e606513d01c566009d1a3",
+            "nativePcmSha256": "f8b25a6db9216867e555e66734bdeb40257dc69fd0d7cb1210081557a8a97e4f",
+            "localPcmSha256": "f8b25a6db9216867e555e66734bdeb40257dc69fd0d7cb1210081557a8a97e4f",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": true,
+            "samples": 214016,
+            "differentSamples": 0,
+            "maximumAbsoluteDifference": 0.0,
+            "rmsDifference": 0.0,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 856064
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 856064
+              }
+            ]
+          },
+          {
+            "case": "case-48000-protected",
+            "generation": 2,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-48000-protected/project-\u00e9-\u65e5\u672c/exports/10a7c268-baa5-461a-90f5-3d80d4f0ac2a.wav",
+            "nativeFileSha256": "3f265deac58e851f8344ab48387e043075ccd880c0bbaae4862b65e083a55c86",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-48000-protected/project-\u00e9-\u65e5\u672c/exports/a9b90467-845b-4042-b489-749b36982f23.wav",
+            "localFileSha256": "3f265deac58e851f8344ab48387e043075ccd880c0bbaae4862b65e083a55c86",
+            "nativePcmSha256": "3cbfb2517b728144b29fbdb7ee0cecade81af2b4a709dc9db14ff1993640ecb1",
+            "localPcmSha256": "3cbfb2517b728144b29fbdb7ee0cecade81af2b4a709dc9db14ff1993640ecb1",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": true,
+            "samples": 172160,
+            "differentSamples": 0,
+            "maximumAbsoluteDifference": 0.0,
+            "rmsDifference": 0.0,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 688640
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 688640
+              }
+            ]
+          },
+          {
+            "case": "case-96000-protected",
+            "generation": 0,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-96000-protected/project-\u00e9-\u65e5\u672c/exports/039543e0-c5ca-4bce-9dea-f2fe40ef175a.wav",
+            "nativeFileSha256": "1e15d2531beb9430627841f0f80794878c022ccdd5f8db05ccf535212b2c51d5",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-96000-protected/project-\u00e9-\u65e5\u672c/exports/a6b4ba7b-bf01-498e-8e75-1958bb2ff078.wav",
+            "localFileSha256": "1e15d2531beb9430627841f0f80794878c022ccdd5f8db05ccf535212b2c51d5",
+            "nativePcmSha256": "9c075aea9f6ad767ff3960dcf0fd3d1f9fed25391fe4a4a3790bc64f7e17bf77",
+            "localPcmSha256": "9c075aea9f6ad767ff3960dcf0fd3d1f9fed25391fe4a4a3790bc64f7e17bf77",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": true,
+            "samples": 205056,
+            "differentSamples": 0,
+            "maximumAbsoluteDifference": 0.0,
+            "rmsDifference": 0.0,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 820224
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 820224
+              }
+            ]
+          },
+          {
+            "case": "case-96000-protected",
+            "generation": 1,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-96000-protected/project-\u00e9-\u65e5\u672c/exports/c574f9e2-aaf3-46ec-b0cd-5e3247d1487e.wav",
+            "nativeFileSha256": "51fd50803744b6cf8be97fdd657e217648b16b1221b1c582cfbdf367c7072de1",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-96000-protected/project-\u00e9-\u65e5\u672c/exports/5b6cc7d2-cf83-4c28-b998-ea2335e99c68.wav",
+            "localFileSha256": "51fd50803744b6cf8be97fdd657e217648b16b1221b1c582cfbdf367c7072de1",
+            "nativePcmSha256": "28b03b421d89a1338dfe87a8e9be58d7454b80dd5466fc7add2cb8a4a93aa327",
+            "localPcmSha256": "28b03b421d89a1338dfe87a8e9be58d7454b80dd5466fc7add2cb8a4a93aa327",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": true,
+            "samples": 214016,
+            "differentSamples": 0,
+            "maximumAbsoluteDifference": 0.0,
+            "rmsDifference": 0.0,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 856064
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 856064
+              }
+            ]
+          },
+          {
+            "case": "case-96000-protected",
+            "generation": 2,
+            "nativeArtifact": 11951550367,
+            "nativePath": "comp-protected-repeat-evidence/run-ac84tzy7/inputs/run-3_997dze/case-96000-protected/project-\u00e9-\u65e5\u672c/exports/396aa5f5-ad63-4e04-ada2-b78f120c831f.wav",
+            "nativeFileSha256": "d6455046b2a28710a0030c7e646b5ff5a7532b2eaf0e65be10fb13f4241dc022",
+            "localFile": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-evidence/run-va8u3lq_/inputs/run-wj1ndw8v/case-96000-protected/project-\u00e9-\u65e5\u672c/exports/3076d14c-a2a9-4627-8a1f-6b5a27b89c12.wav",
+            "localFileSha256": "d6455046b2a28710a0030c7e646b5ff5a7532b2eaf0e65be10fb13f4241dc022",
+            "nativePcmSha256": "a81d2f058e9f817795c302086d11f77759648ec1f7b5d5759b5986e2d555f3b4",
+            "localPcmSha256": "a81d2f058e9f817795c302086d11f77759648ec1f7b5d5759b5986e2d555f3b4",
+            "formatBytesEqual": true,
+            "pcmBytesEqual": true,
+            "samples": 172160,
+            "differentSamples": 0,
+            "maximumAbsoluteDifference": 0.0,
+            "rmsDifference": 0.0,
+            "nativeChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 688640
+              }
+            ],
+            "localChunks": [
+              {
+                "tag": "fmt ",
+                "bytes": 16
+              },
+              {
+                "tag": "fact",
+                "bytes": 4
+              },
+              {
+                "tag": "PAD ",
+                "bytes": 24
+              },
+              {
+                "tag": "data",
+                "bytes": 688640
+              }
+            ]
+          }
+        ],
+        "allPcmBitExact": false,
+        "qualityAdmission": false
+      },
+      "comparisonScope": "Current Windows core hashes verified equal to prior Windows core; Linux comparison retained from prior run",
+      "allChildrenRetired": true,
+      "joinedMemoryReleased": true,
+      "qualityAdmission": false
+    },
+    "protectedDesktop": {
+      "protectedAssemblyPairs": 5,
+      "abruptPublicationExits": 15,
+      "assemblyProcesses": 110,
+      "protectedDesktopCases": 12,
+      "protectedDesktopAdoptions": 5,
+      "protectedDesktopSpanChildren": 9,
+      "actualProjectLedgerCleanupQualified": true,
+      "installedAudio": false,
+      "qualityAdmission": false
+    },
+    "legacyRepeatedDesktop": {
+      "adoptions": 9,
+      "retainedMixed": 3,
+      "reapedSuccessfulWorkers": 15,
+      "failureAndCloseCases": 5,
+      "observations": 14,
+      "maximumStageMilliseconds": 5902,
+      "unchangedOuterSamples": 501798,
+      "liveExportSamples": 508182,
+      "actualProjectCreditsReleasedQualified": true,
+      "actualNativeQtScreenshotsInspected": [],
+      "installedAudio": false
+    },
+    "installedAudioQualified": false
+  },
+  "newNativeDesktop": {
+    "run": 38689906853,
+    "head": "347ef70f1df0aa15c796ca45ec8516acaf57217f",
+    "wholeRunConclusion": "cancelled",
+    "desktopJob": "success",
+    "desktopTestSeconds": 83.62,
+    "adoptions": 9,
+    "mixedRetained": 3,
+    "successfulReapedWorkers": 15,
+    "failureAndCloseCases": 5,
+    "protectedSamples": 32000,
+    "unchangedSamples": 1640832,
+    "liveExportSamples": 1810560,
+    "allCurrentReviewStates": true,
+    "allActualProjectCreditsReleased": true,
+    "stageObservations": 14,
+    "maximumStageMilliseconds": 4684,
+    "nineOriginalExportWavsVerified": true,
+    "exportsEqualCurrentAndPriorWindowsCore": true,
+    "pngs": [
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-0-create.png",
+        "sha256": "a7a2baa4de8aae97ea254102732aeaab15204e3b5d7a34e8ca31da21f05d1b79"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-0-applied.png",
+        "sha256": "c46af0123d4629ec761895962a253f5c77aa3243aafbf3d80aa0641a801e8223"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-0-review.png",
+        "sha256": "7cdbba9a89c0134d7cba7b038bed9316aacf095ed0c2379f05589becd526a066"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-1-applied.png",
+        "sha256": "e01c3a66a211c5d3e848bba7cdebdff021c02ae604a2b90ba9fd36403fc29bad"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-1-create.png",
+        "sha256": "a25eb534bb3e765367d0a2733a286f80da59bd41c52efa6e13bf0dc04d79b83f"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-1-review.png",
+        "sha256": "575f30cf62674929068edfc164aaae915b222a3b74e4fbdc21740a1940ac7e47"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-2-applied.png",
+        "sha256": "eee3b95eceb3e0b7308576c84348c2429703ce7b7b3604ee0391064e16c7f276"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-2-create.png",
+        "sha256": "746b15a724692e8c0471ca6a49ff7c8880274f6cf413ae7476860449f624bfa6"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-44100-protected/case-0/generation-2-review.png",
+        "sha256": "1e9ff39cc0f7ce41b20daad4ba63393332bc3ea892be37f3a0d364b0fbae5c39"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-0-applied.png",
+        "sha256": "94979651fb8d73cb8259790f49177ae5daaf7083590951593c68d844d6bd13d2"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-0-review.png",
+        "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-1-applied.png",
+        "sha256": "4686c3d1ad56b10953aed5edb3412311478baa914d93ec0cbf147b6ef468c26f"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-1-create.png",
+        "sha256": "317b71057dade41500d30670c4759b77bd554b3ec0b377ff14ec19de31c6568b"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-2-applied.png",
+        "sha256": "98bc3701b9882615fd5978d7332a896f8f3ddbd69777fb7042d4a6449f5d201f"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-1-review.png",
+        "sha256": "c76289e2aa0d60698d778649412403238b4e33657f70f402406fc3aea7f4e9a5"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-2-create.png",
+        "sha256": "b1bb18bfac65ddb3a4c46bc190c34b8058ff2236e84b5a1fbb09f5516062c9cd"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-0/generation-2-review.png",
+        "sha256": "a70d0dba6f01df64b92d548de053cbed2c3e2828c7633a1db759db9e4cda6774"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-1/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-2/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-3/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-4/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-4/generation-0-review.png",
+        "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-5/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-48000-protected/case-5/generation-0-review.png",
+        "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-0-applied.png",
+        "sha256": "d49db5e393e41401918292d56650bba08a35f007cce45333bacd694920ab0047"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-0-create.png",
+        "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-0-review.png",
+        "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-1-applied.png",
+        "sha256": "1e2a19cc8eb3d3db9ab3bb5fe0c8d411ddf293568313bcdece4933e6d9617b7e"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-1-create.png",
+        "sha256": "317b71057dade41500d30670c4759b77bd554b3ec0b377ff14ec19de31c6568b"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-1-review.png",
+        "sha256": "c76289e2aa0d60698d778649412403238b4e33657f70f402406fc3aea7f4e9a5"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-2-applied.png",
+        "sha256": "c1b0e84b3f14da1e57aa53ad43075cb4246d2ed7f1209f6b494e660537b5741d"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-2-create.png",
+        "sha256": "b1bb18bfac65ddb3a4c46bc190c34b8058ff2236e84b5a1fbb09f5516062c9cd"
+      },
+      {
+        "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-2rv_6pxn/case-96000-protected/case-0/generation-2-review.png",
+        "sha256": "a70d0dba6f01df64b92d548de053cbed2c3e2828c7633a1db759db9e4cda6774"
+      }
+    ],
+    "originalMainDesktop": {
+      "conclusion": "cancelled",
+      "testsPassed": 28,
+      "deadlineMinutes": 20,
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/rhamenator/soundcurrent-daw/blob/347ef70f1df0aa15c796ca45ec8516acaf57217f/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "The job has exceeded the maximum execution time of 20m0s",
+          "raw_details": ""
+        }
+      ]
+    },
+    "nativeInstalledAudio": false,
+    "qualityAdmission": false
+  },
+  "wholeRunPassed": false,
+  "nativeInstalledAudio": false,
+  "fullDawParity": false
+}

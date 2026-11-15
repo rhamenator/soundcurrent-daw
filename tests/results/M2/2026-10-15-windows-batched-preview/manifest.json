@@ -1,0 +1,19 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 914775,
+  "sha256": "0da7ed8a14057795cef1206f52189ab6449836600e7e2a0fcb089f921dd2b443",
+  "entries": 127,
+  "sourceHead": "97e9ecdc32cfaddca03e4c8df9829fbdcb68c0aa",
+  "nativeMainNormalExit": true,
+  "nativeHelperQualificationPassed": true,
+  "initialDispatchOrderingFailureRetained": true,
+  "installerPrepared": true,
+  "installerTested": false,
+  "sourceArchiveVerified": true,
+  "ciRun": 38792511012,
+  "ciJobs": 15,
+  "ciArtifacts": 12,
+  "ciConclusion": "success",
+  "physicalAudio": false,
+  "allVmsOff": true
+}

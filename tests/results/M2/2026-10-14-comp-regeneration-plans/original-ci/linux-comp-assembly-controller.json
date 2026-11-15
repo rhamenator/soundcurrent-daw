@@ -1,0 +1,928 @@
+{
+  "inputWorkflow": {
+    "workerSha256": "6419c72a856514f74058be01bef95236edc96a1595831310e04345b0cbfddc4d",
+    "processes": [
+      {
+        "kind": "prepare",
+        "pid": 10406,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 10407,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10413,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10408,
+        "exitCode": 0,
+        "seconds": 0.7583153599998695,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10419,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10414,
+        "exitCode": 0,
+        "seconds": 0.7796526629999789,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 10420,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10421,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10422,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 10423,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10429,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10424,
+        "exitCode": 0,
+        "seconds": 0.9036675849999938,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 10431,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10437,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10432,
+        "exitCode": 0,
+        "seconds": 1.1548452070001076,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 10438,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10439,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 10440,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10446,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10441,
+        "exitCode": 0,
+        "seconds": 0.7609510440001941,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10452,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10447,
+        "exitCode": 0,
+        "seconds": 0.7597617159999572,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 10453,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10454,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10455,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 10456,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10462,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10457,
+        "exitCode": 0,
+        "seconds": 0.9946123100000932,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 10463,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10469,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10464,
+        "exitCode": 0,
+        "seconds": 1.2582990900000368,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 10470,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10472,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-prepare",
+        "pid": 10473,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10479,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10474,
+        "exitCode": 0,
+        "seconds": 1.095024149999972,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-ready",
+        "pid": 10485,
+        "exitCode": 0
+      },
+      {
+        "kind": "nominal-worker",
+        "pid": 10480,
+        "exitCode": 0,
+        "seconds": 1.0967862370000603,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "nominal-adopt",
+        "pid": 10486,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10487,
+        "exitCode": 0
+      },
+      {
+        "kind": "prepare",
+        "pid": 10488,
+        "exitCode": 0
+      },
+      {
+        "kind": "unready",
+        "pid": 10489,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10495,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10490,
+        "exitCode": 0,
+        "seconds": 1.347945743000082,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "unready",
+        "pid": 10497,
+        "exitCode": 0
+      },
+      {
+        "kind": "start",
+        "pid": 10503,
+        "exitCode": 0
+      },
+      {
+        "kind": "worker",
+        "pid": 10498,
+        "exitCode": 0,
+        "seconds": 1.6356544570001006,
+        "retirementPending": false,
+        "observationTimedOut": false
+      },
+      {
+        "kind": "verify",
+        "pid": 10504,
+        "exitCode": 0
+      }
+    ],
+    "reports": [
+      {
+        "checks": 98561,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 98272,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 98200,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 1,
+            "exactSamples": 49188,
+            "fragment": 0,
+            "frames": 24602,
+            "peakLinear": 3.6371512413024902,
+            "sha256": "130221da54ca2c345b83d4d190de6452147cfb40535670d36edfc869bcf43eea",
+            "spanSha256": "9b38f4666606f5d6a9ee1de789e0c17651a940d02a155063199e8308dc950fd6"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 1,
+            "exactSamples": 49188,
+            "fragment": 1,
+            "frames": 24602,
+            "peakLinear": 3.6371512413024902,
+            "sha256": "aa032a3a96be465d1163ad2d0e2d3f92c7ab00a210fac11253ad28c0899b9a36",
+            "spanSha256": "d42e2567eba529abf7f8fb484d229ad139cd7e116afeeefa417b02f8c5715c24"
+          }
+        ]
+      },
+      {
+        "checks": 71563,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 0,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 71228,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 35702,
+            "fragment": 0,
+            "frames": 17859,
+            "peakLinear": 4.117021560668945,
+            "sha256": "a877f146ce10f7333735c9b1a602b80682e4395ab5edac8145c7dfe4901de63c",
+            "spanSha256": "247cc1d75a62345adca14e9e19cbcd72c088091137c396b3983a6da0c9df232a"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 35702,
+            "fragment": 1,
+            "frames": 17859,
+            "peakLinear": 4.117021560668945,
+            "sha256": "cddd9680d2a1d414d3cca863f15636b15c7d2a98796383f849d263a2eb4b77d4",
+            "spanSha256": "cfc166cc7b5eea09205fa10f28208c03ef500c570a287e75434ed6e5538aef6e"
+          }
+        ]
+      },
+      {
+        "checks": 32961,
+        "firQualityQualified": false,
+        "modelAdoptionChanged": false,
+        "nominalBinaryBoundByProtocol": false,
+        "ownedNominalWorkflowQualified": true,
+        "physicalSamplesCompared": 0,
+        "postSrcLiveOverlayImplemented": false,
+        "projectSamplesCompared": 32664,
+        "qualityAdmission": false,
+        "sides": [
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 16420,
+            "fragment": 0,
+            "frames": 8218,
+            "peakLinear": 3.8511574268341064,
+            "sha256": "23dcb64ea36a166fa33710402927e6c606682374aee2ae4b7708b6cc321a51f6",
+            "spanSha256": "28c9163dbe144345a9085a38eb77b3f533dbf6d3947cd319f4f3891a2e667b32"
+          },
+          {
+            "blendedSamples": 16,
+            "curveMaximumError": 0.0,
+            "domain": 2,
+            "exactSamples": 16420,
+            "fragment": 1,
+            "frames": 8218,
+            "peakLinear": 3.8511574268341064,
+            "sha256": "386c06778bd41adb88854b3bb6ff79a2cc6e2d1ed6e04a3d3264e67bb0da8259",
+            "spanSha256": "60001c91f352295fc75346a4621782dfd0be16eb6bd8a442bf4dd5959afe5d44"
+          }
+        ]
+      }
+    ],
+    "completedWorkers": 6,
+    "physicalFragments": 2,
+    "postSrcFragments": 4,
+    "completedNominalWorkers": 6,
+    "nominalWorkerSha256": "c0ab423691808f8f5e80247e27c806e96788a01bf14a8892ed11c58d34a09007",
+    "ownedNominalWorkflowQualified": true,
+    "nominalBinaryBoundByProtocol": false,
+    "qualityAdmission": false,
+    "modelAdoptionChanged": false
+  },
+  "controllerProcesses": [
+    {
+      "pid": 10505,
+      "exitCode": 0
+    },
+    {
+      "pid": 10509,
+      "exitCode": 0
+    },
+    {
+      "pid": 10556,
+      "exitCode": 0
+    }
+  ],
+  "reports": [
+    {
+      "cases": [
+        {
+          "case": 0,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 71436,
+            "stale": false
+          },
+          "guiTicks": 1503,
+          "joinedMemoryReleased": true,
+          "reuse": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 71436,
+            "stale": false
+          },
+          "review": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 71436,
+            "stale": false
+          },
+          "stages": 5,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": true,
+            "recovery": 4,
+            "samples": 71436,
+            "stale": false
+          }
+        }
+      ],
+      "checks": 14,
+      "executorSha256": "7c939bc1ff54e46763b5c0c770fdc2220dab847de8fbfdf8ef40da54dde340ff",
+      "hardDeadline": false,
+      "liveProjectController": true,
+      "mainWindowIntegrated": false,
+      "modelAudioAdoption": false,
+      "osIsolation": false
+    },
+    {
+      "cases": [
+        {
+          "case": 0,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 98408,
+            "stale": false
+          },
+          "guiTicks": 1194,
+          "joinedMemoryReleased": true,
+          "reuse": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 98408,
+            "stale": false
+          },
+          "review": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 98408,
+            "stale": false
+          },
+          "stages": 5,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": true,
+            "recovery": 4,
+            "samples": 98408,
+            "stale": false
+          }
+        },
+        {
+          "case": 1,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": null,
+            "phase": 6,
+            "published": false,
+            "recovery": 3,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 201,
+          "joinedMemoryReleased": true,
+          "review": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 6,
+            "published": false,
+            "recovery": 3,
+            "samples": null,
+            "stale": false
+          },
+          "stages": 1,
+          "terminal": {
+            "canceled": true,
+            "closed": false,
+            "error": 7,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 2,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": true
+          },
+          "guiTicks": 200,
+          "joinedMemoryReleased": true,
+          "stages": 1,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": true
+          }
+        },
+        {
+          "case": 3,
+          "closed": {
+            "canceled": true,
+            "closed": true,
+            "error": 7,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 200,
+          "joinedMemoryReleased": true,
+          "stages": 1,
+          "terminal": {
+            "canceled": true,
+            "closed": true,
+            "error": 7,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 4,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": true
+          },
+          "guiTicks": 201,
+          "joinedMemoryReleased": true,
+          "stages": 1,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": true
+          }
+        },
+        {
+          "case": 5,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": true
+          },
+          "guiTicks": 200,
+          "joinedMemoryReleased": true,
+          "stages": 1,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": true
+          }
+        },
+        {
+          "case": 6,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 5,
+          "joinedMemoryReleased": true,
+          "stages": 0,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 1,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 7,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 8,
+            "phase": 7,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 0,
+          "joinedMemoryReleased": true,
+          "stages": 0,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 8,
+            "phase": 7,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 8,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 98408,
+            "stale": false
+          },
+          "guiTicks": 794,
+          "joinedMemoryReleased": true,
+          "review": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 98408,
+            "stale": false
+          },
+          "stages": 5,
+          "terminal": {
+            "canceled": true,
+            "closed": false,
+            "error": 7,
+            "phase": 6,
+            "published": true,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 9,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": null,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 195,
+          "joinedMemoryReleased": true,
+          "retry": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": false
+          },
+          "stages": 2,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 4,
+            "phase": 6,
+            "published": false,
+            "recovery": 2,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 10,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 6,
+            "phase": 7,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 4,
+          "joinedMemoryReleased": true,
+          "stages": 0,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 6,
+            "phase": 7,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 11,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": 6,
+            "phase": 6,
+            "published": false,
+            "recovery": 0,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 14,
+          "joinedMemoryReleased": true,
+          "stages": 0,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": 6,
+            "phase": 6,
+            "published": false,
+            "recovery": 0,
+            "samples": null,
+            "stale": false
+          }
+        },
+        {
+          "case": 12,
+          "closed": {
+            "canceled": true,
+            "closed": true,
+            "error": 7,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          },
+          "guiTicks": 10,
+          "joinedMemoryReleased": true,
+          "stages": 0,
+          "terminal": {
+            "canceled": true,
+            "closed": false,
+            "error": 7,
+            "phase": 6,
+            "published": false,
+            "recovery": null,
+            "samples": null,
+            "stale": false
+          }
+        }
+      ],
+      "checks": 143,
+      "executorSha256": "7c939bc1ff54e46763b5c0c770fdc2220dab847de8fbfdf8ef40da54dde340ff",
+      "hardDeadline": false,
+      "liveProjectController": true,
+      "mainWindowIntegrated": false,
+      "modelAudioAdoption": false,
+      "osIsolation": false
+    },
+    {
+      "cases": [
+        {
+          "case": 0,
+          "closed": {
+            "canceled": false,
+            "closed": true,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 32872,
+            "stale": false
+          },
+          "guiTicks": 1482,
+          "joinedMemoryReleased": true,
+          "reuse": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 32872,
+            "stale": false
+          },
+          "review": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": false,
+            "recovery": 4,
+            "samples": 32872,
+            "stale": false
+          },
+          "stages": 5,
+          "terminal": {
+            "canceled": false,
+            "closed": false,
+            "error": null,
+            "phase": 5,
+            "published": true,
+            "recovery": 4,
+            "samples": 32872,
+            "stale": false
+          }
+        }
+      ],
+      "checks": 14,
+      "executorSha256": "7c939bc1ff54e46763b5c0c770fdc2220dab847de8fbfdf8ef40da54dde340ff",
+      "hardDeadline": false,
+      "liveProjectController": true,
+      "mainWindowIntegrated": false,
+      "modelAudioAdoption": false,
+      "osIsolation": false
+    }
+  ]
+}

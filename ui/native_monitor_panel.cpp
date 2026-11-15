@@ -125,14 +125,14 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
 #endif
     });
     connect(prepare_,&QPushButton::clicked,this,[this]{
-        if(!preparation_ || nextGeneration_==UINT64_MAX || (interactive_ && !chooseDevices()))return;
+        if(busy() || !preparation_ || nextGeneration_==UINT64_MAX || (interactive_ && !chooseDevices()))return;
         try {
             NativeMonitorCommand shape;shape.preparation=preparation_;
             auto lease=memory_.reserve(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));
             auto copy=std::make_shared<OwnedPreparation>(std::move(lease),*preparation_);
             if(copy->value.pipewire){auto &o=*copy->value.pipewire;if(!applyStorageBudget(o)){poll();return;}o.declared.generation=++nextGeneration_;o.declared.run=Id::generate();o.declared.raw.asset=Id::generate();}
             else{if(!applyNativeStorageBudget(copy->value.options)){poll();return;}copy->value.options.route.runGeneration=++nextGeneration_;copy->value.options.run=Id::generate();copy->value.options.raw.asset=Id::generate();}
-            auto c=command(NativeMonitorCommandKind::Prepare);c.generation=nextGeneration_;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(copy,&copy->value);if(send(c))nextRevision_=0;
+            auto c=command(NativeMonitorCommandKind::Prepare);c.generation=nextGeneration_;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(copy,&copy->value);queuePreparation(std::move(c));
         } catch(const ProjectError &){admission_=tr("Recording settings exceed the panel memory limit.");poll();}
     });
     connect(start_,&QPushButton::clicked,this,[this]{
@@ -153,6 +153,62 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
 NativeMonitorPanel::~NativeMonitorPanel(){timer_->stop();controller_.requestShutdown();}
 NativeMonitorCommand NativeMonitorPanel::command(NativeMonitorCommandKind kind) const {NativeMonitorCommand c;c.kind=kind;c.generation=snapshot()->generation;return c;}
 std::shared_ptr<const NativeMonitorSnapshot> NativeMonitorPanel::snapshot() const{return controller_.snapshot();}
+void NativeMonitorPanel::bindAutosaveGuard(ProjectController &project, std::uint64_t &sequence) {
+    if (busy() || projectController_) throw ProjectError(ErrorCode::InvalidState,"Native autosave guard is already bound or busy");
+    projectController_=&project; guardSequence_=&sequence;
+}
+void NativeMonitorPanel::queuePreparation(NativeMonitorCommand c) {
+    if (!projectController_) {if(send(std::move(c)))nextRevision_=0;return;}
+    const auto p=projectController_->snapshot();
+    if (!p->session || p->root!=c.preparation->root || !*guardSequence_ || *guardSequence_==UINT64_MAX) {
+        admission_=tr("Recording preparation could not pause autosave. Finish project operations and retry.");return;
+    }
+    ProjectCommand acquire{CommandKind::AcquireAutosaveInhibition};
+    acquire.autosaveInhibitionToken=(*guardSequence_)++;
+    acquire.autosaveInhibitionEpoch=p->projectEpoch;
+    acquire.commitGestureForAutosaveInhibition=true;
+    if(projectController_->submit(acquire)!=Admission::Accepted) {
+        admission_=tr("Recording controls are busy. Try again.");return;
+    }
+    autosaveToken_=acquire.autosaveInhibitionToken;autosaveEpoch_=p->projectEpoch;
+    autosaveAcquiring_=true;guardedPreparation_=std::move(c);
+}
+void NativeMonitorPanel::pollAutosaveGuard(const NativeMonitorSnapshot &s) {
+    if(!projectController_ || !autosaveToken_)return;
+    const auto p=projectController_->snapshot();
+    // Project shutdown clears inhibition only after its disk worker joins. Native
+    // shutdown may finish later; there is then no live owner to send Release to.
+    if(p->closed && s.phase==NativeMonitorPhase::Closed) {
+        guardedPreparation_.reset();preparePending_=false;
+        autosaveAcquiring_=autosaveReleasing_=false;autosaveToken_=0;return;
+    }
+    if(autosaveAcquiring_) {
+        const auto &r=p->autosaveInhibitionRejected;
+        if(r.token==autosaveToken_ && r.projectEpoch==autosaveEpoch_ && r.acquisition) {
+            guardedPreparation_.reset();autosaveAcquiring_=false;autosaveToken_=0;
+            admission_=tr("Recording preparation could not pause autosave. Finish project operations and retry.");return;
+        }
+        if(p->autosaveInhibitionToken==autosaveToken_ && p->projectEpoch==autosaveEpoch_)autosaveAcquiring_=false;
+    }
+    if(autosaveReleasing_ && !p->autosaveInhibitionToken) {autosaveReleasing_=false;autosaveToken_=0;return;}
+    if(preparePending_ && (s.completedPrepareGeneration==prepareGeneration_ || s.cancelAcknowledged!=prepareCanceled_ || s.phase==NativeMonitorPhase::Closed))preparePending_=false;
+    if(guardedPreparation_ && !autosaveAcquiring_ && !closing_) {
+        const auto result=controller_.submit(*guardedPreparation_);
+        if(result==NativeMonitorAdmission::Accepted) {
+            preparePending_=true;prepareGeneration_=guardedPreparation_->generation;prepareCanceled_=s.cancelAcknowledged;
+            guardedPreparation_.reset();nextRevision_=0;
+        } else if(result!=NativeMonitorAdmission::Full) {
+            guardedPreparation_.reset();admission_=tr("Recording settings are invalid.");
+        }
+    }
+    const bool inactive=s.phase==NativeMonitorPhase::Idle || s.phase==NativeMonitorPhase::Fault || s.phase==NativeMonitorPhase::Closed;
+    if(!autosaveAcquiring_ && !autosaveReleasing_ && !guardedPreparation_ && !preparePending_ && inactive &&
+       (s.phase==NativeMonitorPhase::Closed || (!s.hasOriginal() && !reopeningPending_ && !s.copying && !s.exporting && !s.admitting && !admissionPending_ && !copyPending_))) {
+        ProjectCommand release{CommandKind::ReleaseAutosaveInhibition};
+        release.autosaveInhibitionToken=autosaveToken_;release.autosaveInhibitionEpoch=autosaveEpoch_;
+        autosaveReleasing_=projectController_->submit(std::move(release))==Admission::Accepted;
+    }
+}
 bool NativeMonitorPanel::send(NativeMonitorCommand c) {
     const auto result=controller_.submit(c);
     if(result==NativeMonitorAdmission::Accepted){admission_.clear();return true;}
@@ -357,6 +413,7 @@ void NativeMonitorPanel::poll() {
     if(reopeningPending_ && (s->completedCommands>reopenCompleted_ || s->cancelAcknowledged!=reopenCancel_ || s->phase==NativeMonitorPhase::Closed))reopeningPending_=false;
     if(admissionPending_ && (s->completedCommands>admissionCompleted_ || s->cancelAcknowledged!=admissionCancel_ || s->phase==NativeMonitorPhase::Closed))admissionPending_=false;
     if(copyPending_ && (s->completedCommands>copyCompleted_ || s->cancelAcknowledged!=copyCancel_ || s->phase==NativeMonitorPhase::Closed))copyPending_=false;
+    pollAutosaveGuard(*s);
     const bool saved=s->hasOriginal();
     const auto *prefix=s->rawPrefix();
     if(interactive_) {
@@ -368,9 +425,9 @@ void NativeMonitorPanel::poll() {
     }
     const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !saved);
     updateStoragePreview(editable && idle && !saved);
-    prepare_->setEnabled(editable && preparation_ && storageValid_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
+    prepare_->setEnabled(editable && !busy() && preparation_ && storageValid_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
-    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->copying || copyPending_ || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
+    cancel_->setEnabled(editable && (autosaveAcquiring_ || guardedPreparation_ || preparePending_ || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->copying || copyPending_ || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
     inspect_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_);
     export_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames);
     copy_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting &&
@@ -479,11 +536,11 @@ void NativeMonitorPanel::poll() {
     receipt_->setMinimumHeight(std::max(0,receipt_->heightForWidth(std::max(1,receipt_->width()))));
     if(windowClose_ && closeReady())close();
 }
-void NativeMonitorPanel::cancel(){controller_.requestCancel();admission_.clear();}
+void NativeMonitorPanel::cancel(){guardedPreparation_.reset();controller_.requestCancel();admission_.clear();}
 bool NativeMonitorPanel::busy() const {
-    const auto s=snapshot();return reopeningPending_ || s->hasOriginal() || s->phase==NativeMonitorPhase::Reopening || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing;
+    const auto s=snapshot();return autosaveToken_ || guardedPreparation_ || preparePending_ || reopeningPending_ || s->hasOriginal() || s->phase==NativeMonitorPhase::Reopening || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing;
 }
-void NativeMonitorPanel::beginClose(){if(closing_)return;closing_=true;controller_.requestShutdown();poll();}
-bool NativeMonitorPanel::closeReady() const{return snapshot()->phase==NativeMonitorPhase::Closed;}
+void NativeMonitorPanel::beginClose(){if(closing_)return;closing_=true;guardedPreparation_.reset();controller_.requestShutdown();poll();}
+bool NativeMonitorPanel::closeReady() const{return snapshot()->phase==NativeMonitorPhase::Closed && !autosaveToken_;}
 void NativeMonitorPanel::closeEvent(QCloseEvent *event){if(closeReady()){event->accept();return;}windowClose_=true;beginClose();event->ignore();}
 } // namespace soundcurrent::daw::ui

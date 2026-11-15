@@ -183,8 +183,57 @@ void minimumQuantum(){
     PreparedMonitorOutputBank b2(bankConfig());PreparedMonitorClockHandoff h2(clocksConfig());o.minimumQuantumFrames=18;
     refuses([&]{PreparedPipeWireMonitorRender bad(b2,h2,o);});
 }
+void readinessSnapshot() {
+    for(unsigned mode=0;mode<5;++mode){
+        PreparedMonitorOutputBank b(bankConfig());PreparedMonitorClockHandoff h(clocksConfig());
+        const auto &bc=b.config();const auto &hc=h.config();
+        MonitorStartupAdmission admission{bc.generation,hc.captureIdentity,hc.renderIdentity,
+            bc.sampleRate,bc.sampleRate,bc.channels,hc.renderFrequency,17,17,50000000};
+        PreparedMonitorStartupHandoff startup(admission);
+        check(startup.claimProcessingOwner(),"Snapshot fixture could not claim producer");
+        PipeWireMonitorRenderOptions options;options.startup=&startup;options.maximumWarmupFrames=34;
+        PreparedPipeWireMonitorRender r(b,h,options);Planes p;
+        // The caller samples time, then the other owner publishes, then process
+        // acquires readiness. No scheduler luck is needed for this interleaving.
+        const auto c=clock();const Qpc100ns sampled{c.monotonicNs/100};
+        const auto frames=mode==1?17u:1u;push(b,frames);
+        if(mode!=1 && mode!=3)b.finish();
+        MonitorStartupReady ready;ready.admitted=admission;ready.publishedFrames=frames;
+        ready.asOfQpc100ns=sampled.value+(mode==2?100000000:1);
+        if(mode!=1)ready.finiteFrames=frames;
+        auto &stats=ready.original;stats.phase=MonitorStartupPhase::Live;stats.contentReady=true;
+        stats.capacityFrames=1;stats.acceptedFrames=stats.transferredFrames=1;
+        const CaptureBankStamp stamp{hc.captureIdentity,{0},{sampled.value},1,0};
+        stats.firstTransferred=MonitorStartupSource{stamp,0};stats.lastAccepted=stamp;
+        check(rt([&]{return startup.publish(ready);}),"Snapshot fixture readiness publication failed");
+        if(mode==4)startup.requestCancel();
+        const auto code=rt([&]{return r.process(c,p.views,17,sampled);});
+        if(mode==3)check(code==PipeWireRenderCode::Fault && r.firstFault()->cause==PipeWireRenderCause::Startup,
+            "Future timestamp hid malformed finite receipt");
+        else if(mode==4)check(code==PipeWireRenderCode::Stopped,"Cancellation lost during deferred readiness");
+        else check(code==PipeWireRenderCode::Warmup && !r.firstFault(),"Concurrent readiness incorrectly rejected earlier caller clock");
+        check(!b.deliveredFrames(),"Deferred or rejected readiness consumed PCM");
+        for(auto *plane:p.views)for(unsigned f=0;f<17;++f)check(plane[f]==0,"Deferred readiness leaked PCM");
+        complete(r,c,3);drainClock(h,c);
+        if(mode<2){const auto next=clock(1);const auto action=rt([&]{return r.process(next,p.views,17,Qpc100ns{next.monotonicNs/100});});
+            check(action==(mode==1?PipeWireRenderCode::Content:PipeWireRenderCode::Complete),"Fresh clock did not admit unchanged readiness");
+            const auto expected=samples(frames,3);
+            for(unsigned f=0;f<17;++f)for(unsigned ch=0;ch<3;++ch)
+                check(std::bit_cast<unsigned>(p.views[ch][f])==std::bit_cast<unsigned>(f<frames?expected[f*3+ch]:0.F),"Snapshot handoff changed float PCM/final silence");
+            complete(r,next,3);drainClock(h,next);
+        }else if(mode==2){for(unsigned n=1;n<3;++n){const auto next=clock(n);
+            const auto action=rt([&]{return r.process(next,p.views,17,Qpc100ns{next.monotonicNs/100});});
+            check(action==(n==1?PipeWireRenderCode::Warmup:PipeWireRenderCode::Fault),"Future readiness escaped existing warmup frame bound");
+            complete(r,next,3);drainClock(h,next);}
+            check(r.firstFault()->cause==PipeWireRenderCause::WarmupLimit && !b.deliveredFrames(),"Future readiness changed bounded refusal");}
+        r.finishAfterJoin();p.guards();
+        if(mode<2)check(r.startupReadyAfterJoin()==ready && b.deliveredFrames()==frames,"Acquired immutable readiness/finite extent changed");
+    }
+    std::cout<<"snapshot handoff PipeWire cases=5 deferred=true finite_pcm=true live_pcm=true invalid_eof_refused=true cancel=true original_frame_bound=true daemon=false\n";
 }
-int main(){try{rt_audit::reset();minimumQuantum();exactAndFinal();warmupAndUnderflow();finishAfterLastContent();returnFacts();refusals();formats();stopAndPressure();const auto a=rt_audit::counts;
+
+}
+int main(){try{rt_audit::reset();readinessSnapshot();minimumQuantum();exactAndFinal();warmupAndUnderflow();finishAfterLastContent();returnFacts();refusals();formats();stopAndPressure();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared render allocated/freed/locked");
     std::cout<<checks<<" PipeWire planar render checks passed; float bits/headroom, exact native queue results, final padding, bounded startup, underflow/refusal; audited allocate/free/lock=0; actual daemon=false\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

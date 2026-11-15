@@ -98,7 +98,15 @@ void readinessGates(){
         if(mode==0 || mode==5){check(code==PipeWireRenderCode::Content && bank.deliveredFrames()==480,"Ready content not released");
             rt([&]{render.completeCycle({clock(1),true,{},returned});startup.requestCancel();});
             check(rt([&]{return render.process(clock(2),out,480,Qpc100ns{clock(2).monotonicNs/100});})==PipeWireRenderCode::Stopped && bank.deliveredFrames()==480,"Cancellation after Ready consumed more PCM");
-        }else check(code==(mode==1?PipeWireRenderCode::Stopped:PipeWireRenderCode::Fault) && !bank.deliveredFrames(),"Terminal/future readiness permitted content");
+        }else if(mode==4){
+            check(code==PipeWireRenderCode::Warmup && !bank.deliveredFrames() && !render.firstFault(),"Future readiness consumed content before fresh clock");
+            for(unsigned n=0;n<480;++n)check(left[n]==0 && right[n]==0,"Deferred future readiness leaked samples");
+            rt([&]{render.completeCycle({clock(1),true,{},returned});});
+            check(rt([&]{return render.process(clock(2),out,480,Qpc100ns{clock(2).monotonicNs/100});})==PipeWireRenderCode::Content &&
+                bank.deliveredFrames()==480,"Fresh independent clock did not release retained readiness");
+            for(unsigned n=0;n<480;++n)check(left[n]==2.F && right[n]==2.F,"Deferred readiness changed stored PCM/headroom");
+            rt([&]{render.completeCycle({clock(2),true,{},returned});});
+        }else check(code==(mode==1?PipeWireRenderCode::Stopped:PipeWireRenderCode::Fault) && !bank.deliveredFrames(),"Terminal or missing-clock readiness permitted content");
         render.finishAfterJoin();
     }
     Geometry g;PreparedMonitorOutputBank bank(g.output);PreparedMonitorClockHandoff clocks(g.clocks);auto bad=g.startup;bad.renderIdentity={9,8,7};

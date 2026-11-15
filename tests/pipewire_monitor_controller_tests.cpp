@@ -2,6 +2,7 @@
 #include "native_monitor_controller.hpp"
 #include "fake_pipewire_monitor_streams.hpp"
 #include <iostream>
+#include <source_location>
 #include <nlohmann/json.hpp>
 #include <soundcurrent/pipewire_take_workflow.hpp>
 #include <fstream>
@@ -13,7 +14,14 @@ using namespace pipewire_monitor_fixture;
 namespace {
 unsigned checks=0;
 void check(bool value,const char *why){++checks;if(!value)throw std::runtime_error(why);}
-template<class F>void await(F f){const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);while(!f()){check(std::chrono::steady_clock::now()<deadline,"Controller deadline exceeded");std::this_thread::sleep_for(std::chrono::milliseconds(1));}}
+template<class F>void await(F f,std::source_location caller=std::source_location::current()){
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+    while(!f()){
+        if(std::chrono::steady_clock::now()>=deadline)
+            throw std::runtime_error("Controller deadline exceeded at line "+std::to_string(caller.line()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
 struct Temp {std::filesystem::path root=std::filesystem::temp_directory_path()/std::filesystem::path(u8"sc-pw-controller-é-")/Id::generate().str();
     Temp(){std::filesystem::create_directories(root);ProjectStore(root).save(makeOneTrackSession("Controller","Raw"));}
     ~Temp(){if(std::uncaught_exceptions()){const auto path=root.generic_u8string();std::cerr<<"Retained PipeWire controller fixture ";std::cerr.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));std::cerr<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}

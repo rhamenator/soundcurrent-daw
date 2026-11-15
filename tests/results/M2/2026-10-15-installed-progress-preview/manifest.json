@@ -1,0 +1,16 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 2278474,
+  "sha256": "ff40da7e9b9ef59e7581e0c9d6397bb0a44863cefcc31f732ad8325159312aa6",
+  "entries": 261,
+  "sourceHead": "b5dc2568dbf0e1e623dbaa7d42dcd38fd1eed3ab",
+  "installedWorkflowPassed": true,
+  "normalApplicationsLauncherQualified": true,
+  "initialFixtureDriverFailureRetained": true,
+  "generatedAudioFiles": 59,
+  "generatedAudioPublished": false,
+  "privatePreferencesIncluded": false,
+  "physicalAudio": false,
+  "vmUsed": false,
+  "cleanInstallQualified": false
+}

@@ -47,6 +47,68 @@ struct Comma : std::numpunct<char> {
     }
 };
 
+void autosaveStorage() {
+    Temporary temp;
+    const auto root=temp.path/utf8Path("Autosave — Ελλάδα");
+    std::filesystem::create_directories(root/"media");
+    ProjectStore store(root);
+    auto initial=makeOneTrackSession("Original", "Track");
+    rejects([&]{store.saveAutosave(initial);},ErrorCode::Io);
+    store.save(initial);
+    auto saved=initial;saved.name="Manual";store.save(saved);
+    const auto currentHash=hashMediaFile(root/"project.json");
+    const auto previousHash=hashMediaFile(root/"project.previous.json");
+    auto unchanged=[&]{
+        check(hashMediaFile(root/"project.json")==currentHash &&
+              hashMediaFile(root/"project.previous.json")==previousHash,
+              "Autosave changed manual snapshots");
+        for(const auto &entry:std::filesystem::directory_iterator(root))
+            check(entry.path().extension()!=".partial","Autosave temporary file leaked");
+    };
+    rejects([&]{store.loadAutosave();},ErrorCode::Io);
+    auto edited=saved;edited.name="Unsaved — été";
+    // Inactive-only media must remain available to recover this snapshot.
+    write(root/"media"/"retained.wav","owned fixture");
+    Asset asset;asset.relativePath="media/retained.wav";
+    asset.sha256=hashMediaFile(root/"media"/"retained.wav");asset.frames=16;
+    edited.assets.push_back(asset);
+    Clip clip;clip.assetId=asset.id;clip.lengthFrames=16;
+    edited.tracks[0].clips.push_back(clip);edited.exportEndFrame=16;
+    applySessionEdits(edited,{CreateTrackVersion{edited.tracks[0].id,"Empty","Original",false}});
+    store.saveAutosave(edited);
+    check(store.loadAutosave()==edited && store.load()==saved,"Autosave recovery changed identity/state");unchanged();
+    const auto autoHash=hashMediaFile(root/"project.autosave.json");
+    auto newer=edited;newer.name="Later";
+    rejects([&]{store.saveAutosave(newer,{[]{throw ProjectError(ErrorCode::Canceled,"Injected autosave cancellation");}});},ErrorCode::Canceled);
+    check(hashMediaFile(root/"project.autosave.json")==autoHash,"Cancellation destroyed prior autosave");unchanged();
+    rejects([&]{store.saveAutosave(newer,{[&]{store.save(saved);}});},ErrorCode::Io);
+    auto foreign=edited;foreign.id=Id::generate();
+    rejects([&]{store.saveAutosave(foreign);});unchanged();
+    std::filesystem::rename(root/"media"/"retained.wav",root/"media"/"held.wav");
+    rejects([&]{store.loadAutosave();},ErrorCode::MissingMedia);
+    rejects([&]{store.saveAutosave(newer);},ErrorCode::MissingMedia);
+    check(hashMediaFile(root/"project.autosave.json")==autoHash,"Missing media replaced autosave");
+    std::filesystem::rename(root/"media"/"held.wav",root/"media"/"retained.wav");
+    write(root/"project.autosave.json",encodeProject(foreign));
+    rejects([&]{store.loadAutosave();});
+    write(root/"project.autosave.json","{broken");rejects([&]{store.loadAutosave();});
+    store.saveAutosave(newer);check(store.loadAutosave()==newer,"Cannot replace corrupt autosave explicitly");unchanged();
+#ifndef _WIN32
+    std::filesystem::remove(root/"project.autosave.json");
+    write(temp.path/"outside.json",encodeProject(newer));
+    std::filesystem::create_symlink(temp.path/"outside.json",root/"project.autosave.json");
+    rejects([&]{store.loadAutosave();},ErrorCode::Io);
+    rejects([&]{store.saveAutosave(edited);},ErrorCode::Io);
+    std::filesystem::remove(root/"project.autosave.json");store.saveAutosave(newer);
+#endif
+    const auto moved=temp.path/utf8Path("Relocated — Łódź");std::filesystem::rename(root,moved);
+    ProjectStore relocated(moved);
+    check(relocated.loadAutosave()==newer && relocated.load()==saved,"Relocated autosave failed");
+    relocated.save(relocated.loadAutosave());
+    check(relocated.load()==newer && relocated.loadPrevious()==saved,"Explicit autosave restore lost manual backup");
+    write(moved/"project.json","{broken");rejects([&]{relocated.loadAutosave();});
+}
+
 void inputLatencyState() {
     auto s = makeOneTrackSession("Alignment — Україна", "Mic — Ελλάδα");
     s.tracks.push_back(makeAudioTrack("Other", {}, s.sampleRate));
@@ -243,6 +305,7 @@ void loopState() {
 } // namespace
 int main() {
     try {
+        autosaveStorage();
         loopState();
         inputLatencyState();
         punchState();
@@ -287,7 +350,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 20;sc_test::eraseSchema16FixtureKeys(j);
+        j["schemaMinor"] = 26;sc_test::eraseSchema16FixtureKeys(j);
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

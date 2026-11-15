@@ -17,11 +17,35 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
-The [current Ubuntu recovery preview](docs/250-recovery-preview-delivery.md) is
-available locally as **SoundCurrent DAW Preview** in Applications. Its Release
-DEB and matching GPL source are prepared; current recording, project/recovery and
-packaged save/reopen/export workflows have scoped evidence. Updated Windows
-installer and sustained hardware qualification remain required.
+The [current installed Ubuntu preview](docs/360-installed-track-version-preview.md)
+is available locally as **SoundCurrent DAW Preview** in Applications, with a
+**before track versions** entry for rollback. Waveform recovery, grouped audio
+versions, rendered crossfade editing, Undo/Redo, save/reopen and bit-exact
+independent WAV export pass in the installed app. Its Release DEB and matching
+GPL source are prepared locally; no public binary release was uploaded.
+The [existing Windows waveform preview](docs/355-windows-waveform-timing.md)
+remains installed and qualified for its earlier scope. The new grouped-version
+Windows preview is pending: current CI exposed a Unicode path conversion in a
+test fixture, now corrected locally and awaiting native verification. Linux and
+Windows feature parity and sustained hardware qualification remain required.
+
+Earlier preview evidence follows; these dated checkpoints retain their original
+scope and failures.
+
+New [Linux and Windows comp preview candidates](docs/319-linux-windows-comp-previews.md)
+are now prepared locally with matching source. Native helper checks and actual
+packaged/deployed startup pass. The refreshed Linux Applications entry also passes
+save/reopen and independently verified export. The
+[Windows installer and installed export](docs/321-windows-installed-comp-preview.md)
+also pass in the independent acceptance clone, including preservation during
+uninstall/reinstall. Sustained hardware qualification remains required.
+The refreshed Linux preview now passes the [installed comp-editing workflow](docs/323-installed-portable-comp.md)
+with Windows-created history: Render, Review/Apply, Undo/Redo, save/reopen,
+independently checked WAV export and normal Quit. The matching [installed Windows preview](docs/325-installed-windows-portable-comp.md)
+also passes Render, Review/Apply, Undo/Redo, save/reopen/export and normal Quit with
+Linux-created history. Its exported samples match an independent calculation exactly.
+Render responsiveness and an initial protected-warp test failure remain under investigation.
+Sustained hardware qualification remains required.
 
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
@@ -40,6 +64,91 @@ resource limits and cancellation. [Editable raw-anchor state and checked artifac
 adoption](docs/135-editable-stretch-state.md) retain raw media and derived assets
 through split/crop, re-render and Undo/Redo. Full processing-quality and current
 native qualification remain open.
+
+Comp rendering now includes [verified candidate assembly](docs/278-verified-comp-assembly.md)
+with explicit physical and project-rate timing, bounded memory, cancellation and
+[original-render receipt review](docs/279-original-comp-nominal-review.md). Independent
+checks preserve unchanged audio. [Owned candidate publication and recovery](docs/280-owned-comp-assembly-jobs.md)
+now reject partial or altered results. [Project-owned request references](docs/281-project-assembly-recovery.md)
+preserve recovery across save/reopen and relocation, with Undo/Redo and reserved
+output identities. A [background desktop controller](docs/282-desktop-assembly-ownership.md)
+now has cancellation, recovery and stale-project acceptance evidence. Main-window
+integration, sound-quality qualification and undoable audio adoption for this path
+remain in development.
+
+[Repeated paired comp production](docs/294-repeated-paired-production.md) now has
+core workflow evidence for successive rendered edits, retained assembled takes,
+Undo/Redo, save/reopen and matching playback/export. Historical jobs are reviewed
+around publication and adoption. The [desktop repeated-edit workflow](docs/296-repeated-desktop-comp-transitions.md)
+now passes timeline creation, explicit Review/Apply and recovery tests. Current
+native Windows and installed-preview qualification remain in development.
+[Native build follow-up](docs/297-native-comp-build-followup.md) addresses deep
+Windows fixture paths and compiles the desktop window once across UI targets.
+The subsequent original CI run passes 194 Linux tests, 113 native Windows core
+tests and 27 Windows desktop tests; installed audio qualification remains separate.
+[Per-admission source verification](docs/298-comp-source-admission-performance.md)
+now removes repeated checks of identical declarations within each admission, while
+keeping fresh verification across operations. Four Debug and eleven Release suites
+pass with unchanged export hashes; the subsequent native CI also passes.
+An [owned protected-comp core](docs/300-owned-protected-comp-spans.md) now preserves
+semantic anchors and raw-source timing across expanded integer-clock handles.
+Debug/Release checks cover two anchors and failure/lifetime handling. The
+[protected worker protocol](docs/301-protected-comp-worker.md) now binds semantic
+geometry and validates isolated output, with 69 worker cases per configuration.
+Existing rendering hashes remain unchanged. [Explicit protected-pair recovery](docs/302-protected-comp-pair-recovery.md)
+now survives save/reopen and relocation with guarded readiness. The [protected assembly/model workflow](docs/303-protected-comp-assembly.md) now
+passes actual nominal-worker, mixed-pair publication, Undo/Redo/save/reopen,
+live/export and abrupt-process-exit checks. The [protected desktop workflow](docs/304-protected-desktop-transitions.md)
+now passes timeline creation, Review/Apply, Undo/Redo/save/reopen/export and failure
+checks in Debug/Release, including mixed pairs and actual project-memory cleanup.
+Scoped native confirmation of this original protected workflow now passes;
+installed delivery remains pending.
+[Repeated protected-history rendering](docs/305-protected-comp-history.md) now
+regenerates from original raw anchors with versioned history bindings. One Debug
+and five Release suites pass; all 24 new audio hashes match across builds.
+The [repeated protected desktop workflow](docs/307-protected-repeated-desktop.md)
+now passes nine adoptions and failure/close checks in Debug/Release, with exact
+Linux engine/export comparisons. Native engine history tests pass; measured
+44.1 kHz numerical differences remain documented. The native repeated desktop bank
+now also passes. The preceding original CI passes all ten jobs: 206 Linux,
+30+93 native core and 22/6/1 native desktop suites, including the required aggregate.
+[Exact protected-core sampling](docs/308-protected-core-sampling.md) passes
+fractional-clock and cropped-window geometry, sample, lifetime and sanitizer checks;
+native exact oracle responses now match Linux.
+[Exact-clock gap rendering](docs/309-clocked-protected-warp.md) adds an isolated
+renderer with crop-stable halo blending and bounded sampling. Eight Release, eight
+Debug and five optimized sanitizer suites pass; two prior unoptimized sanitizer
+timeouts remain documented. The preceding renderer now also passes native Windows
+CI with retained numeric and exact-oracle evidence. Full fractional outer-handle and worker integration
+remain in development; these components do not yet enable fractional protected
+edits in the app. Independent quality admission and installed delivery remain open.
+[Exact semantic outer boundaries](docs/310-exact-warp-extents.md) now preserve
+fractional extents through the clocked renderer, with separate legacy admission.
+Release, Debug, sanitizer and independent rational-oracle checks pass.
+[Original-geometry comp rendering](docs/311-comp-clocked-protected-span.md) now
+preserves outside anchors and baked pitch across cropped ancestry.
+[Owned clocked workers](docs/312-comp-clocked-protected-worker.md) now bind that
+geometry and timing to verified media/history requests. Release and Debug worker
+checks pass. [Clocked paired adoption](docs/313-comp-clocked-protected-pair.md)
+now passes core Release/Debug checks and a fractional desktop adoption workflow,
+with legacy output hashes preserved. [Repeated desktop speed edits](docs/314-comp-clocked-repeat-ui.md)
+now pass Linux Release/Debug and native Windows CI workflows, including the
+long-path observation correction and revised CI scheduling. Installed preview
+delivery remains required. A new
+[original-context uniform renderer](docs/316-uniform-original-context-renderer.md)
+and [isolated worker](docs/317-uniform-context-worker.md) pass short-edit checks
+on Linux and native Windows CI. [Paired selection and desktop integration](docs/318-original-context-pairs.md)
+now pass repeated short-edit render/review/Apply workflows in Release and Debug.
+This source now passes native Windows CI and focused native Linux package gates.
+[Matching local Linux/Windows packages](docs/319-linux-windows-comp-previews.md)
+are prepared; updated installed-workflow qualification remains pending.
+A [startup handoff correction](docs/306-startup-snapshot-admission.md) handles
+readiness published after a caller's clock sample, with the original native
+one-frame regression now passing. CI scheduling uses measured Linux weights and
+preserves every check and deadline.
+[Paired history review and WAVE decoding](docs/295-comp-history-sharing.md) reduce
+verification overhead, with twelve Release and four Debug suites passing and
+unchanged export hashes. Native confirmation and broader timing margin remain open.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.

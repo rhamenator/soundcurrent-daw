@@ -23,17 +23,6 @@ std::uint64_t commonDenominator(SourcePosition a, SourcePosition b) {
             "Warp denominator exceeds exact representation");
     return reduced * b.denominator;
 }
-SourcePosition add(SourcePosition a, SourcePosition b) {
-    a = canonical(a); b = canonical(b);
-    const auto denominator = commonDenominator(a, b);
-    const auto left = a.fraction * (denominator / a.denominator);
-    const auto right = b.fraction * (denominator / b.denominator);
-    const bool carry = left >= denominator - right;
-    const auto remainder = carry ? left - (denominator - right) : left + right;
-    require(b.frame <= INT64_MAX - a.frame && (!carry || a.frame + b.frame < INT64_MAX),
-            "Warp coordinate sum exceeds exact representation");
-    return canonical({a.frame + b.frame + Frame(carry), remainder, denominator});
-}
 SourcePosition subtract(SourcePosition a, SourcePosition b) {
     a = canonical(a); b = canonical(b);
     require(!sourcePositionLess(a, b), "Warp coordinate difference is negative");
@@ -44,23 +33,6 @@ SourcePosition subtract(SourcePosition a, SourcePosition b) {
     require(!borrow || a.frame > b.frame, "Warp subtraction borrow underflow");
     return canonical({a.frame - b.frame - Frame(borrow),
                       borrow ? denominator - (right - left) : left - right, denominator});
-}
-std::uint64_t improper(SourcePosition p) {
-    require(std::uint64_t(p.frame) <= (UINT64_MAX - p.fraction) / p.denominator,
-            "Warp segment ratio exceeds exact representation");
-    return std::uint64_t(p.frame) * p.denominator + p.fraction;
-}
-struct Ratio { std::uint64_t n, d; };
-Ratio ratio(SourcePosition output, SourcePosition input) {
-    if (output == input) return {1,1};
-    auto on = improper(output), in = improper(input);
-    require(on && in, "Warp segment has zero duration");
-    auto od = output.denominator, id = input.denominator;
-    const auto a = std::gcd(on, in); on /= a; in /= a;
-    const auto b = std::gcd(id, od); id /= b; od /= b;
-    require(on <= UINT64_MAX / id && in <= UINT64_MAX / od,
-            "Warp segment scale exceeds exact representation");
-    return {on * id, in * od};
 }
 SourcePosition evaluate(std::span<const ClipWarpPoint> points, SourcePosition position, bool inverse) {
     position = canonical(position);
@@ -74,12 +46,21 @@ SourcePosition evaluate(std::span<const ClipWarpPoint> points, SourcePosition po
     const auto &a = *(right - 1), &b = *right;
     if (position == from(a)) return to(a);
     if (a.source == a.output && b.source == b.output) return position;
-    const auto r = ratio(subtract(to(b), to(a)), subtract(from(b), from(a)));
-    return add(to(a), scaleSourcePosition(subtract(position, from(a)), r.n, r.d));
+    const auto r = sourceIntervalRatio(subtract(to(b), to(a)), subtract(from(b), from(a)));
+    return addSourcePosition(to(a), scaleSourcePosition(subtract(position, from(a)), r.numerator, r.denominator));
 }
 }
 ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> markers,
-                 ResourceLedger ledger, ClipWarpLimits limits) : region_(region) {
+                 ResourceLedger ledger, ClipWarpLimits limits)
+    : ClipWarpMap(ExactClipWarpRegion{region.rawOrigin,region.physicalRate,region.availableSourceFrames,
+          {region.inputFrames,0,1},{region.outputFrames,0,1},region.visibleSourceBegin,region.visibleSourceEnd},
+          region,markers,ledger,limits) {}
+ClipWarpMap::ClipWarpMap(ExactWarpDomain, ExactClipWarpRegion region, std::span<const WarpAnchor> markers,
+                 ResourceLedger ledger, ClipWarpLimits limits)
+    : ClipWarpMap(region,std::nullopt,markers,ledger,limits) {}
+ClipWarpMap::ClipWarpMap(ExactClipWarpRegion region, std::optional<ClipWarpRegion> legacy,
+                 std::span<const WarpAnchor> markers, ResourceLedger ledger, ClipWarpLimits limits)
+    : region_(region),legacyRegion_(legacy) {
     require(markers.size() <= limits.maximumMarkers, "Warp marker count exceeds admission");
     constexpr auto unit = sizeof(ClipWarpPoint) + 36 + sizeof(const ClipWarpPoint *);
     require(markers.size() <= (SIZE_MAX - 1024) / unit - 2, "Warp payload arithmetic overflow");
@@ -88,30 +69,45 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
         throw ResourceLimitError("Experimental warp map", charge, limits.maximumPayloadBytes);
     lease_ = ledger.reserve(charge);
     region_.rawOrigin = canonical(region_.rawOrigin);
+    region_.inputExtent = canonical(region_.inputExtent);
+    region_.outputExtent = canonical(region_.outputExtent);
     region_.visibleSourceBegin = canonical(region_.visibleSourceBegin);
     region_.visibleSourceEnd = canonical(region_.visibleSourceEnd);
     require(region_.physicalRate >= 8000 && region_.physicalRate <= 384000 &&
-            region_.availableSourceFrames > 0 && region_.inputFrames > 0 && region_.outputFrames > 0,
+            region_.availableSourceFrames > 0 && sourcePositionLess({},region_.inputExtent) && sourcePositionLess({},region_.outputExtent),
             "Invalid warp region/rate/duration");
-    // Count is a prepared source grid. A fractional final sample may precede
-    // the asset endpoint although the exclusive grid extent passes it.
-    require(sourcePositionLess(add(region_.rawOrigin, {region_.inputFrames-1,0,1}),
-                               {region_.availableSourceFrames,0,1}), "Warp processing grid exceeds source asset");
+    if (legacyRegion_) {
+        // Preserve original sample-grid admission, including a fractional last
+        // sample whose exclusive grid endpoint extends past the asset.
+        require(sourcePositionLess(addSourcePosition(region_.rawOrigin, {legacyRegion_->inputFrames-1,0,1}),
+                                   {region_.availableSourceFrames,0,1}), "Warp processing grid exceeds source asset");
+        legacyRegion_->rawOrigin=region_.rawOrigin;
+        legacyRegion_->visibleSourceBegin=region_.visibleSourceBegin;
+        legacyRegion_->visibleSourceEnd=region_.visibleSourceEnd;
+    } else {
+        require(sourcePositionLess(region_.rawOrigin,{region_.availableSourceFrames,0,1}),
+                "Exact warp origin has no source sample");
+        // The exclusive endpoint is a semantic coordinate, not a requested
+        // source sample. A fractional extent can pass the final asset boundary
+        // while every actual sample remains in range. Reject arithmetic overflow
+        // here; sampling adapters separately verify their complete actual grid.
+        (void)addSourcePosition(region_.rawOrigin,region_.inputExtent);
+    }
     require(sourcePositionLess(region_.visibleSourceBegin, region_.visibleSourceEnd) &&
-            !sourcePositionLess({region_.inputFrames,0,1}, region_.visibleSourceEnd),
+            !sourcePositionLess(region_.inputExtent, region_.visibleSourceEnd),
             "Warp visible source interval exceeds processing region");
     points_.reserve(markers.size() + 2);
     points_.push_back({{}, {0,0,1}, {0,0,1}});
     for (const auto &marker : markers) {
         const auto source = canonical(marker.source), output = canonical(marker.output);
-        require(sourcePositionLess({0,0,1}, source) && sourcePositionLess(source, {region_.inputFrames,0,1}) &&
-                sourcePositionLess({0,0,1}, output) && sourcePositionLess(output, {region_.outputFrames,0,1}),
+        require(sourcePositionLess({0,0,1}, source) && sourcePositionLess(source, region_.inputExtent) &&
+                sourcePositionLess({0,0,1}, output) && sourcePositionLess(output, region_.outputExtent),
                 "Warp markers must be strictly inside both domains");
-        require(sourcePositionLess(add(region_.rawOrigin, source), {region_.availableSourceFrames,0,1}),
+        require(sourcePositionLess(addSourcePosition(region_.rawOrigin, source), {region_.availableSourceFrames,0,1}),
                 "Warp marker has no physical source position");
         points_.push_back({marker.id, source, output});
     }
-    points_.push_back({{}, {region_.inputFrames,0,1}, {region_.outputFrames,0,1}});
+    points_.push_back({{}, region_.inputExtent, region_.outputExtent});
     std::sort(points_.begin(), points_.end(), [](const auto &a, const auto &b) {
         return sourcePositionLess(a.source, b.source);
     });
@@ -126,20 +122,25 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
                 sourcePositionLess(points_[i-1].output, points_[i].output),
                 "Warp map has duplicate or reversed coordinates");
         if (points_[i].source != points_[i].output || points_[i-1].source != points_[i-1].output)
-            (void)ratio(subtract(points_[i].output, points_[i-1].output),
+            (void)sourceIntervalRatio(subtract(points_[i].output, points_[i-1].output),
                         subtract(points_[i].source, points_[i-1].source));
     }
+}
+const ClipWarpRegion &ClipWarpMap::region() const {
+    require(legacyRegion_.has_value(),"Exact warp extents require an exact-domain adapter");
+    return *legacyRegion_;
 }
 SourcePosition ClipWarpMap::sourceToOutput(SourcePosition p) const { return evaluate(points_, p, false); }
 SourcePosition ClipWarpMap::outputToSource(SourcePosition p) const { return evaluate(points_, p, true); }
 SourcePosition ClipWarpMap::rawAt(SourcePosition p) const {
     p = canonical(p);
-    require(!sourcePositionLess({region_.inputFrames,0,1}, p), "Raw warp lookup exceeds processing region");
-    return add(region_.rawOrigin, p);
+    require(!sourcePositionLess(region_.inputExtent, p), "Raw warp lookup exceeds processing region");
+    return addSourcePosition(region_.rawOrigin, p);
 }
 SourcePosition ClipWarpMap::visibleOutputBegin() const { return sourceToOutput(region_.visibleSourceBegin); }
 SourcePosition ClipWarpMap::visibleOutputEnd() const { return sourceToOutput(region_.visibleSourceEnd); }
 std::map<std::size_t,std::size_t> ClipWarpMap::vendorInteriorFrames() const {
+    (void)region(); // Never implicitly adapt exact outer boundaries to a vendor sample grid.
     std::map<std::size_t,std::size_t> result;
     for (const auto &point : points_) if (point.id) {
         require(!point.source.fraction && !point.output.fraction,

@@ -1,0 +1,19 @@
+{
+  "sourceHead": "d768fff1c06ca9c268a2a9ac701f62daae8cca02",
+  "sourceFiles": {
+    "src/windows_file_path.hpp": "fe49a946b6795dfbe91593ed3b208f056b7e63248bf52ec9b25129037be610f2",
+    "src/media_io.cpp": "41baa71571339ca48857d8052675cd551871787526f4f442f5559eb65dbc2eb1",
+    "src/approved_media.cpp": "a5788381ac7947e913597ec7d03c8d9591c03421e1b84e1a9c1393c57e71f2ea",
+    "tests/native_media_path_tests.cpp": "206f653fedcdb564b22dff2282f10f98d3de70a84bd26b382fa3a99d8a20e5fe",
+    "CMakeLists.txt": "ac4b7b79fcfa747e27b8460305cb1c13fd2a518dbd637d1395190f55324c5645",
+    ".github/workflows/ci.yml": "2b7e91d5fe9e3b51a1e3b3a1033784e94d15d1457e8bee7c2ac6121985decf6a"
+  },
+  "fixtureSha256": "56b9aea3b42bd18850c510ca9cf77584f88ce7878f2531687674bbe40fb4f21d",
+  "linuxTest": "native-media-long-path",
+  "linuxExitCode": 0,
+  "mingwSyntaxCommand": "x86_64-w64-mingw32-g++ -std=c++20 -Iinclude -Isrc -fsyntax-only tests/native_media_path_tests.cpp src/media_io.cpp src/approved_media.cpp",
+  "mingwSyntaxExitCode": 0,
+  "nativeWindowsExecuted": false,
+  "wholeApplicationLongPathsQualified": false,
+  "physicalAudio": false
+}

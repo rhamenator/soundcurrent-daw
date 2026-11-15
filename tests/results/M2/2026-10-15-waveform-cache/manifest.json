@@ -1,0 +1,1302 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 757267,
+  "sha256": "55acc1d7a2663b7b172867a5ec1943b4e97630a0cf4c7e9915757424b158e366",
+  "entries": 72,
+  "baseHead": "00c11245184b284b66125c2a56b629cb01dfda58",
+  "testedWorkingTreeSource": {
+    "include/soundcurrent/waveform_projection.hpp": {
+      "bytes": 1387,
+      "sha256": "88d39613cf4aa777ab4fbac9ccdc40ee73c3485eea159419b0263abd24319e43"
+    },
+    "src/waveform_projection.cpp": {
+      "bytes": 2327,
+      "sha256": "9d41aab4698f29bac0b3a461302a84d6899372d6cf23b8cb80f1efbc24bb7977"
+    },
+    "ui/waveform_cache.hpp": {
+      "bytes": 2266,
+      "sha256": "70e9a87090a7baef9c2acb1bd2c2d8d8c60ac6ec07d2ac47d757d27a45091998"
+    },
+    "ui/waveform_cache.cpp": {
+      "bytes": 10586,
+      "sha256": "6f9a8b77e8740e09fb47bf463dd055982d783c12aaf2493e8f811112320d94b5"
+    },
+    "tests/waveform_cache_tests.cpp": {
+      "bytes": 10994,
+      "sha256": "f52b47f33ed42674fe9eb69d3bbe30ae30cc434b1b93499f831efd49606d9c9b"
+    },
+    "CMakeLists.txt": {
+      "bytes": 165978,
+      "sha256": "9dc68ae59b7de29eb86c0eac7416491d0399e7a7bcbb7d162c664153f9422151"
+    },
+    ".github/workflows/ci.yml": {
+      "bytes": 37501,
+      "sha256": "365d7893474d53d0f4fed56c9ea9afae681fff72fc6ec44b92eef05b0a51b659"
+    },
+    "localization/source-inventory.json": {
+      "bytes": 124744,
+      "sha256": "dac470886666a0d60a2aa6af44fd288051fb1e6e662322c282b38d4a01abcabd"
+    }
+  },
+  "controllerChecks": 106,
+  "cacheProjectionChecks": 112881,
+  "localizationChecksPassed": true,
+  "releasePassed": true,
+  "asanUbsanPassed": true,
+  "nativeWindowsControllerQualified": false,
+  "timelineIntegrated": false,
+  "installedPreviewsChanged": false,
+  "binariesIncluded": false,
+  "precedingCI": {
+    "run": 38806111667,
+    "head": "0fe6729a31845ef310e15a02acaeb4c8d5082d11",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "id": 116667277425,
+        "name": "Windows repeated protected desktop workflows",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667277587,
+        "name": "Windows desktop workflows",
+        "conclusion": "failure"
+      },
+      {
+        "id": 116667277626,
+        "name": "Linux synthetic shard 3",
+        "conclusion": "failure"
+      },
+      {
+        "id": 116667277722,
+        "name": "Windows native recording workflows",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667277725,
+        "name": "Linux synthetic shard 1",
+        "conclusion": "failure"
+      },
+      {
+        "id": 116667277727,
+        "name": "Windows comp desktop workflows",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667277771,
+        "name": "Retained workflow evidence (no native replay)",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667277844,
+        "name": "Windows native comp workflows",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667277872,
+        "name": "Linux synthetic shard 2",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667277883,
+        "name": "Windows core cross-build (no native runtime claim)",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667278004,
+        "name": "Linux synthetic shard 0",
+        "conclusion": "success"
+      },
+      {
+        "id": 116667278084,
+        "name": "Linux synthetic shard 4",
+        "conclusion": "success"
+      },
+      {
+        "id": 116674466360,
+        "name": "Windows desktop import and localization tests",
+        "conclusion": "failure"
+      },
+      {
+        "id": 116676845526,
+        "name": "Linux desktop and synthetic tests",
+        "conclusion": "failure"
+      },
+      {
+        "id": 116677956407,
+        "name": "Windows native packet ownership tests",
+        "conclusion": "success"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 12008360523,
+        "name": "linux-synthetic-test-log-3",
+        "bytes": 149455314,
+        "sha256": "f8d733c128e340cb96b9240e682d5b11ec274ea2f7baa6c7e4198c5d098bf9ad",
+        "entries": 4474,
+        "pngs": [
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-0-applied.png",
+            "sha256": "aac540cd0134aa2e847cafda7b41218ae7fa71674e9385b2375e311c522dce89"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-0-create.png",
+            "sha256": "9a172e77757fd7b5dc401c3c3602e0943c4b98e4df6d5f44612672998cf25323"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-0-review.png",
+            "sha256": "d17a41ff96b7019d9414813da1a7f95433af143697bfd66f11592932bba7cabe"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-1-create.png",
+            "sha256": "ae2a779f73df4aa5ee999bce61d452bd123c40d7caa4591b7d20dfa3f82aa271"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-1-applied.png",
+            "sha256": "ac446c5f44a1ac64169277e6e2e6dafde26bc43a108426007ae5dc91dff77a99"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-1-review.png",
+            "sha256": "d1557e6db08ade0e72753c5513c3e9471188bf9c844831a0ee67d16270a7cedd"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-2-applied.png",
+            "sha256": "74ba2c7aa3f5dac265d7083511c2299405e9de010ac69713118afcd619465c18"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-2-create.png",
+            "sha256": "6aee552c2edbcb9f50cd7c29c8a0928bde8af2d073c6c0f046e84c1c45dad3ee"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-44100/case-0/generation-2-review.png",
+            "sha256": "279e8134b9d0762299b1c4a65007d420d0fcf9de74a3c4bd2f4ecc3319654ee9"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-0-applied.png",
+            "sha256": "8c8cf56cba71d08362b281e159d24607f66ab63f44d9f94f586f199c313646da"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-0-create.png",
+            "sha256": "274e301bf9780d7f85a11f88640acee1689aa46af538229b76449ba9cab031b7"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-0-review.png",
+            "sha256": "f9b180b85c004744bbac9396bb6b5c6ebdb86e654e3be28ac1f21b371464361b"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-1-applied.png",
+            "sha256": "b655f15666f1425aa653b0536919913edc54c8ff6e3895933f5fea11dcdde644"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-1-create.png",
+            "sha256": "aad4c1be68c482ee23e437adc1b04cf7764b7874836d63fd6f85cfc93ab39aa0"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-1-review.png",
+            "sha256": "3022a274b3c8447e7c360c54727078ae478011172e2b07aecb91a20dba83aefe"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-2-applied.png",
+            "sha256": "ab5d9d974bcadc9e9199d03b10069b3e844423219ebbd5d485a8df15aa84cf56"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-2-create.png",
+            "sha256": "65dba345feb6162a66d74913503a03419110880080920ed4f52d41cae7fa6db8"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-0/generation-2-review.png",
+            "sha256": "fd7be19c8d65c9833d15d10d339945273020756c899764f1949bb2a22c464015"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-1/generation-0-create.png",
+            "sha256": "274e301bf9780d7f85a11f88640acee1689aa46af538229b76449ba9cab031b7"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-2/generation-0-create.png",
+            "sha256": "274e301bf9780d7f85a11f88640acee1689aa46af538229b76449ba9cab031b7"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-3/generation-0-create.png",
+            "sha256": "274e301bf9780d7f85a11f88640acee1689aa46af538229b76449ba9cab031b7"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-4/generation-0-create.png",
+            "sha256": "274e301bf9780d7f85a11f88640acee1689aa46af538229b76449ba9cab031b7"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-4/generation-0-review.png",
+            "sha256": "f9b180b85c004744bbac9396bb6b5c6ebdb86e654e3be28ac1f21b371464361b"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-5/generation-0-create.png",
+            "sha256": "274e301bf9780d7f85a11f88640acee1689aa46af538229b76449ba9cab031b7"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-48000/case-5/generation-0-review.png",
+            "sha256": "f9b180b85c004744bbac9396bb6b5c6ebdb86e654e3be28ac1f21b371464361b"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-0-applied.png",
+            "sha256": "5d7076a72bac5eddad698c029a9bd286353d3b8919e17dde83960e4369a89082"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-0-create.png",
+            "sha256": "718909249fed72b14c8779d673d759b9e1ad7c6dbb7ecf1005a95b85d5ebeed6"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-0-review.png",
+            "sha256": "194432ce44acff35a3c90d1a2ea289e09fb87f77996556b5022283b27eb56298"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-1-applied.png",
+            "sha256": "29700fda01531a5696a5da32c86daafa4dfe279211bc21c644b5777f33be49b4"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-1-create.png",
+            "sha256": "797394263301105f94e97a0d93b64d33c48a21d558623ffa6a1c8a11b718c548"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-1-review.png",
+            "sha256": "7a92d5ad67b86793b5e327588b3696a4d15e2f3ec9efa2ee143ce2c998b7a994"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-2-applied.png",
+            "sha256": "2b6828ea65b4758289eaa984658dbf172ae80decef7f4d8bb96229a38ecc5140"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-2-create.png",
+            "sha256": "fda7ab82cd2fd08f2e2595713e802b82c16b4b036c480f522c2aee646c7b233a"
+          },
+          {
+            "path": "comp-repeat-ui-evidence/run-oixyfg4n/case-96000/case-0/generation-2-review.png",
+            "sha256": "000f1b6b031f695ec86f44647a798f31d366c8925223d1a37d82f5f47a68c1ad"
+          }
+        ]
+      },
+      {
+        "id": 12007950562,
+        "name": "linux-synthetic-test-log-0",
+        "bytes": 144317167,
+        "sha256": "d5fc64ed6b73577d8b7be7956d08c435e84fed39623df3f03725d6e9f4338b0f",
+        "entries": 3246,
+        "pngs": [
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-44100/case-0/applied.png",
+            "sha256": "d75ed7df8b7143112b25c07f6b50867a85cdfa826e573986192bf99fb2c5d855"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-44100/case-0/create.png",
+            "sha256": "cb1327b476f5661272751305574b932724ec173a4aac480dac5388e1fde58ec6"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-44100/case-0/rendered.png",
+            "sha256": "8c6bb099f96a12307c2a33cb087a2f21a3f79a98a8f81ec49a58a40faefc2da2"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-44100/case-0/review.png",
+            "sha256": "764d0b07e49cf21b711ba5c2caf07ec656fcca6d8815657510623dd93a32c94c"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-48000/case-0/applied.png",
+            "sha256": "7982d56327a6716f382f8ee84d5cdc1e426ffd186718eec0d7de426117bf7e21"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-48000/case-0/create.png",
+            "sha256": "11cfef517ce37c07ac9dc3dfc97175587cb584b2efe466fb1ff0ab6d115c5fe0"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-48000/case-0/rendered.png",
+            "sha256": "5767a54c07812e6c43617fc414711d9df5d30fb98bf4256db752a7b67635a2ec"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-48000/case-0/review.png",
+            "sha256": "eeed55c0e9b196eb6bf51b24384244ec6308cbdc25bf77abf8dbf3391067bc2e"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-96000/case-0/applied.png",
+            "sha256": "908499172d388ada8de2826cc9494107fc74036ffc3796c9e2da72c67975942a"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-96000/case-0/create.png",
+            "sha256": "4d7737b1581ae3fd9669fc8906c298006636485855f213662212fced2f17d49d"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-96000/case-0/rendered.png",
+            "sha256": "29419e8e990f4871433a8b021d461e9ceead736b80d18d001cf622c81dc4ba59"
+          },
+          {
+            "path": "comp-transition-ui-evidence/run-n24m4v45/case-96000/case-0/review.png",
+            "sha256": "4c7e740f882c254dc705be84bc63e0eab14bab871ad251fdba377662cda2aa58"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-44100-protected/desktop/case-0/applied.png",
+            "sha256": "0af46146cf19e97423b70c5a5ecb9400fc3af20172baeb3bb3face22422c6963"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-44100-protected/desktop/case-0/create.png",
+            "sha256": "9ef48e6bacb24380cfdd1d1850a5e3bcb0b6c8edaf828fd5d4b05d521e746bd0"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-44100-protected/desktop/case-0/rendered.png",
+            "sha256": "aa3a5059061316081beaef3c6285410634638b9aa4da9d4a3c1e8a7350ca3e64"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-44100-protected/desktop/case-0/review.png",
+            "sha256": "6bf4a4b1b217332cf518cfcace774e259c8e6fc8360c99348724c7b4420105cb"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-existing/desktop/case-0/applied.png",
+            "sha256": "a30303f215d5213763b2e0369863d8bc00f64cc70ba217a4d39f153bfec0ef11"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-existing/desktop/case-0/create.png",
+            "sha256": "e1851c2f7e54e5e7e86c29322c27b036dbf12a903afe0487126237c35503eff7"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-existing/desktop/case-0/rendered.png",
+            "sha256": "d6be38d4f76edec36826b3e8c8b5106cd6eb41e2744ea29a2610049b222aafd2"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-existing/desktop/case-0/review.png",
+            "sha256": "730a93d897284ca441b1ad56aff04b7cbba2ce9b4f471ef0709a5f821ccceb1d"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-0/applied.png",
+            "sha256": "a30303f215d5213763b2e0369863d8bc00f64cc70ba217a4d39f153bfec0ef11"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-0/create.png",
+            "sha256": "e1851c2f7e54e5e7e86c29322c27b036dbf12a903afe0487126237c35503eff7"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-0/rendered.png",
+            "sha256": "4759a01a7f7417a4ba5faed3012bfa9943519399fb623e1e6c041ce260853dad"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-0/review.png",
+            "sha256": "730a93d897284ca441b1ad56aff04b7cbba2ce9b4f471ef0709a5f821ccceb1d"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-6/applied.png",
+            "sha256": "f49509b5d84423095ecffc450c90861930e4c192b37cf571193456267727d746"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-6/rendered.png",
+            "sha256": "5e319c43f4d48270d5aac65c15fa4a799fbce172807776a3f0e9db7c00a474a1"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-protected/desktop/case-6/review.png",
+            "sha256": "7257be0dcfb03030d8b0ed7d81af6c2750b9ad76190649160fae69e9dbe7b987"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-uniform/desktop/case-0/applied.png",
+            "sha256": "a30303f215d5213763b2e0369863d8bc00f64cc70ba217a4d39f153bfec0ef11"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-uniform/desktop/case-0/create.png",
+            "sha256": "e1851c2f7e54e5e7e86c29322c27b036dbf12a903afe0487126237c35503eff7"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-uniform/desktop/case-0/rendered.png",
+            "sha256": "6d5d0d94ee3d871771127b8123cee5a0abe7b843a9156da12fa3585e0b2835cf"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-48000-uniform/desktop/case-0/review.png",
+            "sha256": "730a93d897284ca441b1ad56aff04b7cbba2ce9b4f471ef0709a5f821ccceb1d"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-96000-protected/desktop/case-0/applied.png",
+            "sha256": "ee7a7a3facfee604486a14ec6ae1aa9dd6cca283173eb02ddd4988b195ff0074"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-96000-protected/desktop/case-0/create.png",
+            "sha256": "e1851c2f7e54e5e7e86c29322c27b036dbf12a903afe0487126237c35503eff7"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-96000-protected/desktop/case-0/rendered.png",
+            "sha256": "d396267c78c696cafa58628af9405cb229f132721c0352054b400a522d5f11b1"
+          },
+          {
+            "path": "comp-protected-ui-evidence/run-5l60cw81/case-96000-protected/desktop/case-0/review.png",
+            "sha256": "730a93d897284ca441b1ad56aff04b7cbba2ce9b4f471ef0709a5f821ccceb1d"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-0-applied.png",
+            "sha256": "5e2abffd03dd8b3370ee477df0a44f16b989927db8c74768ae6afaa50918a392"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-0-review.png",
+            "sha256": "4cefe9efc6cd8c3f740235f7833e489d31d1e39ed20c0217b0848cb83c2061af"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-1-applied.png",
+            "sha256": "a487e20b95206b098a1b2ccf237c4b588d41e6fe1c19811899b2684e3842ddd2"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-1-create.png",
+            "sha256": "42243a4be4155bd89d70a0c9ede05d80dcfb422039fff7f5e60afe7febc4ef7e"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-1-review.png",
+            "sha256": "81c6b14f5949111d2ff9da162ceb7b64d22842a14f9ad1bc14cfa966e659820b"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-2-create.png",
+            "sha256": "815458f159cef7681e6bef1c524b218f2153fa336349016d762a2a1660edb529"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-2-applied.png",
+            "sha256": "4e9da8b682854f6d9fb22fde82ed532bbd1c3ef40074392a8c503c54e9c794f3"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-0/generation-2-review.png",
+            "sha256": "20c55f143002026aeacdbaf8ec015143b5abd4a4e01838560c670e486d5336d5"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-1/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-2/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-3/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-4/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-4/generation-0-review.png",
+            "sha256": "4cefe9efc6cd8c3f740235f7833e489d31d1e39ed20c0217b0848cb83c2061af"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-5/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-lc1y63jj/case-48000-protected/case-5/generation-0-review.png",
+            "sha256": "4cefe9efc6cd8c3f740235f7833e489d31d1e39ed20c0217b0848cb83c2061af"
+          }
+        ]
+      },
+      {
+        "id": 12007900672,
+        "name": "linux-synthetic-test-log-4",
+        "bytes": 151715057,
+        "sha256": "9dfe6a8b16a2e8dd7ec2676333afe682311279b4c129ee45a7ed6b7a4437aa03",
+        "entries": 2599,
+        "pngs": []
+      },
+      {
+        "id": 12007856053,
+        "name": "windows-native-comp-unit-log",
+        "bytes": 482572299,
+        "sha256": "1ccfa4e6b4bd4901198ad0ea3b63cf93d2386ab3fdd7cc4ab723393dd32fce9f",
+        "entries": 10237,
+        "pngs": []
+      },
+      {
+        "id": 12007202108,
+        "name": "linux-synthetic-test-log-1",
+        "bytes": 256258554,
+        "sha256": "db9aff83621e0b1d115cb5068fad142b08b8e5a10b6386df27d516cc5b5f80f8",
+        "entries": 5810,
+        "pngs": [
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-0-applied.png",
+            "sha256": "2334aeae297412fac75775f0edcd538f2e62469e76a822b46eb10510ad53c733"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-0-create.png",
+            "sha256": "8b016fd9bceeec9144960c196e58a888ca04ce061940cfe4537529c206427e06"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-0-review.png",
+            "sha256": "34d6f54245cb1e9180d704987c2a1605f07183cf08a103c778338758b70e620a"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-1-applied.png",
+            "sha256": "b3da42da1f234986aa2e58ee06a46136dc6c2e5f6a7aeb3e5228a1a1a6323c1a"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-1-create.png",
+            "sha256": "a130d8e7db8bd4e77f2cfca72f045e8076d53ba55169fd3257ad70b1e19e2bab"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-1-review.png",
+            "sha256": "efe446a70220c00d95fe167ad0af30e074533e6a203317fa9af59ba832534e9b"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-2-applied.png",
+            "sha256": "a3d38bf0efe89dd020989f1bb6d59678fbc8aee2c6bf3f1e880e10a9ecd9776d"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-2-create.png",
+            "sha256": "ff1ded46cf5b776fe6abac343916e797106b225e77490cd47eaed528069ac7c7"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-44100-protected/case-0/generation-2-review.png",
+            "sha256": "5e626a0c321aff3f5eb5aff6233f011e13c5aa652d175d65402c64c46f8f9f45"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-0-applied.png",
+            "sha256": "a69187b43bee12a1e44cd579f33299e3fc5d9ab71253097c74f100b7d2ed70d6"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-0-review.png",
+            "sha256": "adcff1566e597dd4f375f1e2453a4e61316678379a99fa96f250657b17048bbb"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-1-applied.png",
+            "sha256": "ccfc1b7d7b7c372c5f7762520a99a826d37db84b7e0cfce220e7183de0e73f6c"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-1-create.png",
+            "sha256": "74cc8bbf5227df45202bf308f6575b6e88fee0df793a0471172d9210fcbac14f"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-1-review.png",
+            "sha256": "a9b3adee63d06d75cc67e3c7efe13e83799357fde19b8a1bbcf515c32a167058"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-2-create.png",
+            "sha256": "4c5339d0b8a4dcf5f9e68f876138727cd26da3e97c4122c22d9d671c46994aa6"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-2-applied.png",
+            "sha256": "7abc4129c10173d1d69db52f051372d22340d8fd0f6e3b883b28456ae248de41"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-0/generation-2-review.png",
+            "sha256": "5679139dcda866e7a31cfae2363ae868bd0413fe61099df691dfb2c0f1d6f1bc"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-1/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-2/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-3/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-4/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-4/generation-0-review.png",
+            "sha256": "adcff1566e597dd4f375f1e2453a4e61316678379a99fa96f250657b17048bbb"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-5/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-48000-protected/case-5/generation-0-review.png",
+            "sha256": "adcff1566e597dd4f375f1e2453a4e61316678379a99fa96f250657b17048bbb"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-0-applied.png",
+            "sha256": "f98a7b0825ba8b670fdfb538e6e83ff55cd2c30bedd98d8a66d8f31a45b27812"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-0-create.png",
+            "sha256": "1f52f2088022b17a0bf68c8a7f3e3fa4f1bdfc7c7774780cdfe75ae21a64b40e"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-0-review.png",
+            "sha256": "adcff1566e597dd4f375f1e2453a4e61316678379a99fa96f250657b17048bbb"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-1-applied.png",
+            "sha256": "163e67afdfa3ed3526f0c56a71b3b424d7cf85257f5a418e0423e9e24cf18072"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-1-create.png",
+            "sha256": "74cc8bbf5227df45202bf308f6575b6e88fee0df793a0471172d9210fcbac14f"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-1-review.png",
+            "sha256": "a9b3adee63d06d75cc67e3c7efe13e83799357fde19b8a1bbcf515c32a167058"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-2-applied.png",
+            "sha256": "89489c65d8a81089d622151595ea60f1e0f8ab9f26027fc0d097f38edc11d435"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-2-create.png",
+            "sha256": "4c5339d0b8a4dcf5f9e68f876138727cd26da3e97c4122c22d9d671c46994aa6"
+          },
+          {
+            "path": "comp-protected-repeat-ui-evidence/run-xzx_7e_t/case-96000-protected/case-0/generation-2-review.png",
+            "sha256": "5679139dcda866e7a31cfae2363ae868bd0413fe61099df691dfb2c0f1d6f1bc"
+          }
+        ]
+      },
+      {
+        "id": 12007180952,
+        "name": "windows-comp-desktop-log",
+        "bytes": 184664336,
+        "sha256": "ec1436e845022e918ba45a58d23ed946d144b6a7bf60d288302fba456ffa14d5",
+        "entries": 5748,
+        "pngs": [
+          {
+            "path": "build-desktop-native/comp-assembly-ui-evidence/run-5up0pgc2/case-44100/case-0/applied.png",
+            "sha256": "3aca60918b99370ac8373d9cd912a6621c385ab4b5166abd05afa80ab96607a3"
+          },
+          {
+            "path": "build-desktop-native/comp-assembly-ui-evidence/run-5up0pgc2/case-44100/case-0/review.png",
+            "sha256": "c9b51429cdb6de6b300cd70aef8ff8a69a900ee9555f3cbc33b16a4a4e466e4f"
+          },
+          {
+            "path": "build-desktop-native/comp-assembly-ui-evidence/run-5up0pgc2/case-48000/case-0/applied.png",
+            "sha256": "ba06c2cd6fe88a019f901e460db9c8d6646dea1c7f9a26c0f8968b5a2ee0336a"
+          },
+          {
+            "path": "build-desktop-native/comp-assembly-ui-evidence/run-5up0pgc2/case-48000/case-0/review.png",
+            "sha256": "2cd84ee6823abc22f97854fa05944d87070821277a346e40c324e032b69a1447"
+          },
+          {
+            "path": "build-desktop-native/comp-assembly-ui-evidence/run-5up0pgc2/case-96000/case-0/applied.png",
+            "sha256": "2722139d09cd592c139759d0298696233c45d29414feed6711eb864e289b5f9c"
+          },
+          {
+            "path": "build-desktop-native/comp-assembly-ui-evidence/run-5up0pgc2/case-96000/case-0/review.png",
+            "sha256": "d86744e9796c9205961363ab60812cb13a4e8fab87e22203c1cb4922d206409a"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-44100/case-0/applied.png",
+            "sha256": "ee0ce68542eb4cbf4d84d5789304644509e77d88245a7f17c42596f808e2c8bb"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-44100/case-0/create.png",
+            "sha256": "f73d533707868f90d13e8a100975c74c94bf136f02b57b63d43b177e64c6754b"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-44100/case-0/rendered.png",
+            "sha256": "52ae2db044f7612d63d29e3b18ded238f4da67da9a63986c9dd9c8960638414a"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-44100/case-0/review.png",
+            "sha256": "fe172369673f748cfc30a57998d3e54b4798f0253f673f40fc02e6b16ca1f03e"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-48000/case-0/applied.png",
+            "sha256": "65e8fa4a520c3e88d158ad7cc7c36b6a86a2d6a54d79bfc4bfeae27df25e0ab6"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-48000/case-0/create.png",
+            "sha256": "ec4da92d12ce72bafcd957536b76956ec0221fac7fc5e10582e333f50a1204fa"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-48000/case-0/rendered.png",
+            "sha256": "804208f48ef42bd5c9de5a21452de6a22796fe15496ae2b86519d64ab1bae760"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-48000/case-0/review.png",
+            "sha256": "f0677e2ca819c7a34b1d157f54cda7fa88eb5cf1808b35451b5c8ed23c2e0096"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-96000/case-0/applied.png",
+            "sha256": "9c379e1decf6cd0ccf50c6a56c0142c88fc59699f8d7677938dc0c9e70d24b25"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-96000/case-0/create.png",
+            "sha256": "41c8fb9897fa28cbbf80c873529294e938a93b38520e595397d585797daf82fa"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-96000/case-0/rendered.png",
+            "sha256": "7a657c69db0880676fd054985f89fdf4763c4f1577be7311c71201da451d2752"
+          },
+          {
+            "path": "build-desktop-native/comp-transition-ui-evidence/run-c391_ye6/case-96000/case-0/review.png",
+            "sha256": "9edac84374801f5a4e30aedc56e5c8e7d02324ad3f68e3a9a81a3a559b44d184"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-44100-protected/desktop/case-0/applied.png",
+            "sha256": "2217833bad4b13766c017c334414880185d83f83f5bb3166d302d00a6408275a"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-44100-protected/desktop/case-0/create.png",
+            "sha256": "ea38262c2ff2e06df332046e3ac5a7cde7910d1c092e088573de1db655625bb8"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-44100-protected/desktop/case-0/rendered.png",
+            "sha256": "e887e58ded7d7dca3da899b7961a48ebb525e2725d0a3fec5b51302da019a2d2"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-44100-protected/desktop/case-0/review.png",
+            "sha256": "8b2bd1a8a618fffc7d7dfcfc1de7be4ceabf5895a4ee09e9425e0dae09a0abf2"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-existing/desktop/case-0/applied.png",
+            "sha256": "affb91c89e3e6f6d1b75266a2cb1997fcc4bda93282f7cf105d23f99b500dbfe"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-existing/desktop/case-0/create.png",
+            "sha256": "6c0f8df0b308b228b42e5682f2813288b6f9d1ee6ef14dce24a1f0a2ef468aaa"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-existing/desktop/case-0/rendered.png",
+            "sha256": "fef7c95dacb220d81c3b5403a995b17b904e54d6143e18e6882985135b6fcdd3"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-existing/desktop/case-0/review.png",
+            "sha256": "d58be519a6680f1b26c9a833256d62043bfa4d937841fbf90da7b56d062e960f"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-0/applied.png",
+            "sha256": "affb91c89e3e6f6d1b75266a2cb1997fcc4bda93282f7cf105d23f99b500dbfe"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-0/create.png",
+            "sha256": "6c0f8df0b308b228b42e5682f2813288b6f9d1ee6ef14dce24a1f0a2ef468aaa"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-0/rendered.png",
+            "sha256": "e887e58ded7d7dca3da899b7961a48ebb525e2725d0a3fec5b51302da019a2d2"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-0/review.png",
+            "sha256": "d58be519a6680f1b26c9a833256d62043bfa4d937841fbf90da7b56d062e960f"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-6/applied.png",
+            "sha256": "ed2820b4dccf41ab1570d5f1e26e1f587b58826fd0b7efe8c6ef6801a84aea62"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-6/rendered.png",
+            "sha256": "26b8bc684038a6cb6f6e5be8907c89354394f16a460e948f53fd29bd2d9fbc31"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-protected/desktop/case-6/review.png",
+            "sha256": "50600b4ea02c45bfd82b160179eb1b221d234d9de98b17140917036b9a2dd214"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-uniform/desktop/case-0/applied.png",
+            "sha256": "affb91c89e3e6f6d1b75266a2cb1997fcc4bda93282f7cf105d23f99b500dbfe"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-uniform/desktop/case-0/create.png",
+            "sha256": "6c0f8df0b308b228b42e5682f2813288b6f9d1ee6ef14dce24a1f0a2ef468aaa"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-uniform/desktop/case-0/rendered.png",
+            "sha256": "e887e58ded7d7dca3da899b7961a48ebb525e2725d0a3fec5b51302da019a2d2"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-48000-uniform/desktop/case-0/review.png",
+            "sha256": "d58be519a6680f1b26c9a833256d62043bfa4d937841fbf90da7b56d062e960f"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-96000-protected/desktop/case-0/applied.png",
+            "sha256": "cfa4a065d1f8368191662a11c0696cab303aabd42767f2fa8fa591d9ad116af8"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-96000-protected/desktop/case-0/create.png",
+            "sha256": "6c0f8df0b308b228b42e5682f2813288b6f9d1ee6ef14dce24a1f0a2ef468aaa"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-96000-protected/desktop/case-0/rendered.png",
+            "sha256": "26b8bc684038a6cb6f6e5be8907c89354394f16a460e948f53fd29bd2d9fbc31"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-ui-evidence/run-_9cmnsi0/case-96000-protected/desktop/case-0/review.png",
+            "sha256": "d58be519a6680f1b26c9a833256d62043bfa4d937841fbf90da7b56d062e960f"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-0-applied.png",
+            "sha256": "370b3690297864224c664bc3bedd070d53ec07942e9e72c433136c0c14677e68"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-0-create.png",
+            "sha256": "2ee1b0930697d04ad26db5a8930fb3d7933287c3b4b1994844fdb75d3cae2cb8"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-0-review.png",
+            "sha256": "4b09470cb24e72c194ef797d58d788b645438a96c902328fa9e3f3e962d4bb62"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-1-applied.png",
+            "sha256": "b7de2be842a6f13b0487c7da0c2263d0011877ce01e6f7585d49f0c86fc3e8e1"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-1-create.png",
+            "sha256": "d6c8fca19641c033b15b918513049ac9ef497a7fcf612cdf33f1575953d3f663"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-1-review.png",
+            "sha256": "936a9e3dfa6285cc9b70c58b8632cec54ded4dafb3968382ee0a3dbdf0b3c054"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-2-applied.png",
+            "sha256": "4425be93e4198b9de29faf010359610c3ff1452e92d068ea18651a4c3b95e048"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-2-create.png",
+            "sha256": "037020090bb50c4008ab80808185eb0c44cb7c075b1f29766d8831be61616c5d"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-44100/case-0/generation-2-review.png",
+            "sha256": "50715aa27ff439e4e1bf1794c53894328189bcce063ab85bf5c44979bc61e7bc"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-0-applied.png",
+            "sha256": "c87303ec25345cde5a05f99d1a2a164ee7b3f1e66bb9402c9e195791d290112b"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-0-create.png",
+            "sha256": "0aae45376046963cafb9719ef564919432bf12b9c3dd3f7689bc929ab1196fee"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-0-review.png",
+            "sha256": "48a9da40c1eebfc1cfcef46f703af84fe36e22c0e3ce8301835708d58e053bb2"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-1-create.png",
+            "sha256": "21ff8cfa23a023fc0183ff78204aeda9b7b982ee9f00f819fc0bbb459cbb79c0"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-1-applied.png",
+            "sha256": "409bdb996ed240184a34ad46ed338f014a5c03084c6d09d37d1f368d59949555"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-1-review.png",
+            "sha256": "a3d169419b8f981d1d2eb69d13ef6b9c850da604b2493852d0763c8858cb7aea"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-2-applied.png",
+            "sha256": "c496d1f2e87547cfc61afaf4babc5aa11db30ee9baa39e6a5c7c967cc1dd7c13"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-2-create.png",
+            "sha256": "7ad28c10ca016a195490bcb1dab73ea60532e1a5775a00424eccc68b4e164f24"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-0/generation-2-review.png",
+            "sha256": "97c66732222968c3e79d8b88a5a240582eb7fdad8f30757bd96406a1c4ab706a"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-1/generation-0-create.png",
+            "sha256": "0aae45376046963cafb9719ef564919432bf12b9c3dd3f7689bc929ab1196fee"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-2/generation-0-create.png",
+            "sha256": "0aae45376046963cafb9719ef564919432bf12b9c3dd3f7689bc929ab1196fee"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-3/generation-0-create.png",
+            "sha256": "0aae45376046963cafb9719ef564919432bf12b9c3dd3f7689bc929ab1196fee"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-4/generation-0-create.png",
+            "sha256": "0aae45376046963cafb9719ef564919432bf12b9c3dd3f7689bc929ab1196fee"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-4/generation-0-review.png",
+            "sha256": "48a9da40c1eebfc1cfcef46f703af84fe36e22c0e3ce8301835708d58e053bb2"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-5/generation-0-create.png",
+            "sha256": "0aae45376046963cafb9719ef564919432bf12b9c3dd3f7689bc929ab1196fee"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-48000/case-5/generation-0-review.png",
+            "sha256": "48a9da40c1eebfc1cfcef46f703af84fe36e22c0e3ce8301835708d58e053bb2"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-0-applied.png",
+            "sha256": "e8089a59141d792d49138c938f1ac3648e4bc0464039a986a8a7a50bf2b63641"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-0-create.png",
+            "sha256": "4dbddf17f0f20f43635e5dd13af2476cd43a943884252ff2b75d87c22a8f40f3"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-0-review.png",
+            "sha256": "9cf24c3f2e9e92fb2473eb279f9c6b7e1637b5f669e4460e2766b2624266eff2"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-1-applied.png",
+            "sha256": "5cf494436f8e1cf832292fd5dc8d127d6f8c0ebf7cb35c852dd265ce77c06e1e"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-1-create.png",
+            "sha256": "5261ea3c71ea2d9cebdba757d559611ddc28b6d428828a78116b7c70158721a9"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-1-review.png",
+            "sha256": "d4d41ca77ace14c89a3806a7b807394d1fdb9d67919b83480d12b03802e06414"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-2-applied.png",
+            "sha256": "e1d4c6afc7495bcd1ae79950280b86ce44328cb9d59d6e1df3454349caa0724f"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-2-create.png",
+            "sha256": "5dbbeb25588467b7e32044a6d60abe717684a7230ac72673af217d881a98a9cf"
+          },
+          {
+            "path": "build-desktop-native/comp-repeat-ui-evidence/run-w_ib550i/case-96000/case-0/generation-2-review.png",
+            "sha256": "8ab735abd4ae1dd3c0ef44f7ffda2faab8df5f48d162d71d5473c22b80573e96"
+          }
+        ]
+      },
+      {
+        "id": 12006872658,
+        "name": "windows-desktop-import-test-log",
+        "bytes": 38977,
+        "sha256": "523b3132d59a21071f70bc40288c8c7866bc319fde8dc1913944b9f9f325664f",
+        "entries": 24,
+        "pngs": []
+      },
+      {
+        "id": 12006832746,
+        "name": "windows-media-build-review",
+        "bytes": 438043,
+        "sha256": "03762704b896f362c3f6cd60034a82055c4204f25858fbec7fc68bf5c50a8941",
+        "entries": 7,
+        "pngs": []
+      },
+      {
+        "id": 12006734538,
+        "name": "linux-synthetic-test-log-2",
+        "bytes": 211869617,
+        "sha256": "5e0eb9b3f093097e2e09e5550c8d42fae904bbbe52975032b53493a2276cb995",
+        "entries": 3736,
+        "pngs": [
+          {
+            "path": "comp-assembly-ui-evidence/run-06n_64ii/case-44100/case-0/applied.png",
+            "sha256": "2f48c85fe6f654ebf4448df19a8c8d526ea1ad2205125b536426de221c308a75"
+          },
+          {
+            "path": "comp-assembly-ui-evidence/run-06n_64ii/case-44100/case-0/review.png",
+            "sha256": "2aeb4490d8b8ec21f3251476aa4e9abf7c9c1791d0b74c9fea00551bf85616b5"
+          },
+          {
+            "path": "comp-assembly-ui-evidence/run-06n_64ii/case-48000/case-0/applied.png",
+            "sha256": "9bf0e1812e3ca88ec3da074f6668e427ff605b12733b6a8ea15c13ad3b8d00eb"
+          },
+          {
+            "path": "comp-assembly-ui-evidence/run-06n_64ii/case-48000/case-0/review.png",
+            "sha256": "0063aaae7d755d76c98e917b3676a2f47175841dbeb85052236ed55477359a0b"
+          },
+          {
+            "path": "comp-assembly-ui-evidence/run-06n_64ii/case-96000/case-0/applied.png",
+            "sha256": "08d52ea4f81d900b2f3153b68a4b1bb59b46fb4567463adecc831946613f1502"
+          },
+          {
+            "path": "comp-assembly-ui-evidence/run-06n_64ii/case-96000/case-0/review.png",
+            "sha256": "f434f2b5ebc25c32871a76d09c1658e763cb1e46b064df003f363bf64ffd5c48"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-0-applied.png",
+            "sha256": "5e2abffd03dd8b3370ee477df0a44f16b989927db8c74768ae6afaa50918a392"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-0-create.png",
+            "sha256": "e11d4918560e787a48581ea6c73728af19f09efdeea8956aad585a4be44ad27f"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-0-review.png",
+            "sha256": "4cefe9efc6cd8c3f740235f7833e489d31d1e39ed20c0217b0848cb83c2061af"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-1-applied.png",
+            "sha256": "a487e20b95206b098a1b2ccf237c4b588d41e6fe1c19811899b2684e3842ddd2"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-1-create.png",
+            "sha256": "42243a4be4155bd89d70a0c9ede05d80dcfb422039fff7f5e60afe7febc4ef7e"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-1-review.png",
+            "sha256": "81c6b14f5949111d2ff9da162ceb7b64d22842a14f9ad1bc14cfa966e659820b"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-2-applied.png",
+            "sha256": "4e9da8b682854f6d9fb22fde82ed532bbd1c3ef40074392a8c503c54e9c794f3"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-2-create.png",
+            "sha256": "815458f159cef7681e6bef1c524b218f2153fa336349016d762a2a1660edb529"
+          },
+          {
+            "path": "comp-clocked-repeat-ui-evidence/run-ox6o7_34/case-48000-uniform/case-0/generation-2-review.png",
+            "sha256": "20c55f143002026aeacdbaf8ec015143b5abd4a4e01838560c670e486d5336d5"
+          }
+        ]
+      },
+      {
+        "id": 12006714383,
+        "name": "windows-native-packet-unit-log",
+        "bytes": 34320682,
+        "sha256": "5916298e2bfc0b182a0dd64c2f31efd011ac867876bc55179fdf6f009e4867fa",
+        "entries": 257,
+        "pngs": []
+      },
+      {
+        "id": 12006134929,
+        "name": "windows-protected-repeat-desktop-log",
+        "bytes": 244647761,
+        "sha256": "9f792db0b565247b469f2509d3ddfef19130e3b0ee45bdc97fec9844e6bb5b88",
+        "entries": 3978,
+        "pngs": [
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-0-applied.png",
+            "sha256": "c46af0123d4629ec761895962a253f5c77aa3243aafbf3d80aa0641a801e8223"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-0-create.png",
+            "sha256": "a7a2baa4de8aae97ea254102732aeaab15204e3b5d7a34e8ca31da21f05d1b79"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-0-review.png",
+            "sha256": "7cdbba9a89c0134d7cba7b038bed9316aacf095ed0c2379f05589becd526a066"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-1-applied.png",
+            "sha256": "e01c3a66a211c5d3e848bba7cdebdff021c02ae604a2b90ba9fd36403fc29bad"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-1-create.png",
+            "sha256": "a25eb534bb3e765367d0a2733a286f80da59bd41c52efa6e13bf0dc04d79b83f"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-1-review.png",
+            "sha256": "575f30cf62674929068edfc164aaae915b222a3b74e4fbdc21740a1940ac7e47"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-2-applied.png",
+            "sha256": "eee3b95eceb3e0b7308576c84348c2429703ce7b7b3604ee0391064e16c7f276"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-2-create.png",
+            "sha256": "746b15a724692e8c0471ca6a49ff7c8880274f6cf413ae7476860449f624bfa6"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-44100-protected/case-0/generation-2-review.png",
+            "sha256": "1e9ff39cc0f7ce41b20daad4ba63393332bc3ea892be37f3a0d364b0fbae5c39"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-0-applied.png",
+            "sha256": "94979651fb8d73cb8259790f49177ae5daaf7083590951593c68d844d6bd13d2"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-0-review.png",
+            "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-1-applied.png",
+            "sha256": "4686c3d1ad56b10953aed5edb3412311478baa914d93ec0cbf147b6ef468c26f"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-1-create.png",
+            "sha256": "317b71057dade41500d30670c4759b77bd554b3ec0b377ff14ec19de31c6568b"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-1-review.png",
+            "sha256": "c76289e2aa0d60698d778649412403238b4e33657f70f402406fc3aea7f4e9a5"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-2-applied.png",
+            "sha256": "98bc3701b9882615fd5978d7332a896f8f3ddbd69777fb7042d4a6449f5d201f"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-2-create.png",
+            "sha256": "b1bb18bfac65ddb3a4c46bc190c34b8058ff2236e84b5a1fbb09f5516062c9cd"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-0/generation-2-review.png",
+            "sha256": "a70d0dba6f01df64b92d548de053cbed2c3e2828c7633a1db759db9e4cda6774"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-1/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-2/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-3/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-4/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-4/generation-0-review.png",
+            "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-5/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-48000-protected/case-5/generation-0-review.png",
+            "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-0-applied.png",
+            "sha256": "d49db5e393e41401918292d56650bba08a35f007cce45333bacd694920ab0047"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-0-create.png",
+            "sha256": "0b94b6c7093492092b644f5ff3a4779f3fe12cce4993e09595e5a9b3ab7ec248"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-0-review.png",
+            "sha256": "5e412442989daf368a0b0e4e4757872c3538a4cbacc21e7eedc715ff9eb4ffdd"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-1-applied.png",
+            "sha256": "1e2a19cc8eb3d3db9ab3bb5fe0c8d411ddf293568313bcdece4933e6d9617b7e"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-1-create.png",
+            "sha256": "317b71057dade41500d30670c4759b77bd554b3ec0b377ff14ec19de31c6568b"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-1-review.png",
+            "sha256": "c76289e2aa0d60698d778649412403238b4e33657f70f402406fc3aea7f4e9a5"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-2-applied.png",
+            "sha256": "c1b0e84b3f14da1e57aa53ad43075cb4246d2ed7f1209f6b494e660537b5741d"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-2-create.png",
+            "sha256": "b1bb18bfac65ddb3a4c46bc190c34b8058ff2236e84b5a1fbb09f5516062c9cd"
+          },
+          {
+            "path": "build-desktop-native/comp-protected-repeat-ui-evidence/run-f_ke_e53/case-96000-protected/case-0/generation-2-review.png",
+            "sha256": "a70d0dba6f01df64b92d548de053cbed2c3e2828c7633a1db759db9e4cda6774"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-0-applied.png",
+            "sha256": "f3166b99907484e585d05f874be8a63adea172a2e100304e94dd582d3f7ad7b9"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-0-review.png",
+            "sha256": "6b001634d3e1ddfebe273ae89a938183c11283d75c8600dc54abe3dd0da912ca"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-1-applied.png",
+            "sha256": "52a541ce0b7ad9ed93275827664d2b41e4e2f8d15622d2f7bc6415a33fc8c435"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-1-create.png",
+            "sha256": "a5d5e193b72f4d833b94c7e72ff3cc471706d2ef630dcc94f57b0249cbbef0f5"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-1-review.png",
+            "sha256": "922f049d046436d3a48d8501e94f31e505f701e34a316150596e04f4341714b1"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-2-applied.png",
+            "sha256": "a076792bc0d622f412986900b2aad7754451efedb1ea6c588b292394437401f2"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-2-create.png",
+            "sha256": "02ccebb1ac54e62e72bb735d2a00865dc872c47bdcdd464f8c5e27dd5765e54a"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-1y77l1xh/case-48000-uniform/case-0/generation-2-review.png",
+            "sha256": "27f3fd76c833e546e408b530a1987f5fbf9bdba206b2272f503ff2494409878a"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-0-applied.png",
+            "sha256": "f3166b99907484e585d05f874be8a63adea172a2e100304e94dd582d3f7ad7b9"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-0-review.png",
+            "sha256": "6b001634d3e1ddfebe273ae89a938183c11283d75c8600dc54abe3dd0da912ca"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-1-applied.png",
+            "sha256": "52a541ce0b7ad9ed93275827664d2b41e4e2f8d15622d2f7bc6415a33fc8c435"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-1-create.png",
+            "sha256": "a5d5e193b72f4d833b94c7e72ff3cc471706d2ef630dcc94f57b0249cbbef0f5"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-1-review.png",
+            "sha256": "922f049d046436d3a48d8501e94f31e505f701e34a316150596e04f4341714b1"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-2-applied.png",
+            "sha256": "a076792bc0d622f412986900b2aad7754451efedb1ea6c588b292394437401f2"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-2-create.png",
+            "sha256": "02ccebb1ac54e62e72bb735d2a00865dc872c47bdcdd464f8c5e27dd5765e54a"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-0/generation-2-review.png",
+            "sha256": "27f3fd76c833e546e408b530a1987f5fbf9bdba206b2272f503ff2494409878a"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-1/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-2/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-3/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-4/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-4/generation-0-review.png",
+            "sha256": "6b001634d3e1ddfebe273ae89a938183c11283d75c8600dc54abe3dd0da912ca"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-5/generation-0-create.png",
+            "sha256": "7e7a0f3f28f6d3fa902a1174b82110357572bcc3e3ff4d68cc7055979ac9be50"
+          },
+          {
+            "path": "build-desktop-native/comp-clocked-repeat-ui-evidence/run-ucx3yhio/case-48000-protected/case-5/generation-0-review.png",
+            "sha256": "6b001634d3e1ddfebe273ae89a938183c11283d75c8600dc54abe3dd0da912ca"
+          }
+        ]
+      }
+    ],
+    "allAvailableOriginalArchivesRetained": true,
+    "allFullLogsRetained": true
+  }
+}

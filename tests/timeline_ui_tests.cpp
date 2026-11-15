@@ -1099,15 +1099,18 @@ void virtualizedDesktop(const std::filesystem::path &root) {
     check(widget<QLineEdit>(w, "clipSourceFrame")->text() == "64",
           "Virtual hit selected the wrong clip source");
     const auto pixels = canvas->viewport()->grab().toImage();
+    // The centre now contains prepared waveform pixels. The coloured edge
+    // still identifies the row and is outside both waveform and selection ink.
+    const auto paintAt=QPoint(at.x(),int(rect.top())+3);
     const auto color = QColor::fromHsv(int((8191 % 360) * 47) % 360, 150, 195);
     pixels.save(QString::fromStdString((root / "last-row-paint.png").string()));
-    std::cerr << "Paint at " << at.x() << ',' << at.y() << " actual="
-              << pixels.pixelColor(at * pixels.devicePixelRatio()).name().toStdString()
+    std::cerr << "Paint at " << paintAt.x() << ',' << paintAt.y() << " actual="
+              << pixels.pixelColor(paintAt * pixels.devicePixelRatio()).name().toStdString()
               << " expected=" << color.name().toStdString()
               << " row=" << canvas->verticalScrollBar()->value()
               << " viewport=" << canvas->viewport()->width() << 'x' << canvas->viewport()->height()
               << '\n';
-    check(pixels.pixelColor(at * pixels.devicePixelRatio()).rgba() == color.rgba(),
+    check(pixels.pixelColor(paintAt * pixels.devicePixelRatio()).rgba() == color.rgba(),
           "Actual last-row clip paint differs from its color oracle");
     const auto before = canvas->statistics();
     const auto resets = model->resets();
@@ -1118,7 +1121,7 @@ void virtualizedDesktop(const std::filesystem::path &root) {
         canvas->verticalScrollBar()->setValue(int(n * 401));
         canvas->viewport()->repaint();
         const auto stats = canvas->statistics();
-        const auto visible = std::size_t(std::max(0, canvas->viewport()->height() - 35) + 55) / 56;
+        const auto visible = std::size_t(std::max(0, canvas->viewport()->height() - 35) + 95) / 96;
         check(stats.rows <= visible && stats.rows < 8192 && stats.clips <= stats.rows,
               "Timeline paint traversed nonvisible project rows/clips");
     }

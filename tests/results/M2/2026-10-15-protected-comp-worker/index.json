@@ -1,0 +1,68 @@
+{
+  "format": "sc-protected-comp-worker-index-v1",
+  "sourceCommit": "b1029c4667e7164914a28b96a34c0580d152e768",
+  "archive": "acceptance.zip",
+  "bytes": 20698761,
+  "sha256": "1fb3c8b520d83c0d2be16db7b4d93f89aa7930a53f403839cd5a7d66ac328148",
+  "originalFiles": 4273,
+  "uniquePayloads": 1203,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "b1029c4667e7164914a28b96a34c0580d152e768",
+    "rows": [
+      {
+        "configuration": "Debug",
+        "seconds": 44.475464436924085,
+        "qualifiedRoot": ".cache/comp-protected-worker/qualified-Debug-jvp4eg5j",
+        "protectedRoot": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-worker-evidence/run-0oy5g1c4",
+        "workers": 69,
+        "successes": 6,
+        "requiredRefusals": 63,
+        "completePcmSamples": 622848,
+        "protectedSamples": 12800,
+        "audioHashes": [
+          "34675f4180c9b3f37f7822e8795dc07e72fea8d4dbec903df3332139d616cc56",
+          "771ce5c050254b208882592bb5bd27f538d7bab5da624e990077155d8652875b",
+          "fae2df79af12a60a1b8f086fd142159f59b7f0ea7ec0ce5dfd925c9d3465b31f",
+          "08e93d8e5ca29011306d34a2810808313d7b0462e81b877f33c6970a434231e3",
+          "02abf89d13595017e17b0e665eaa92809e7b33d150b01a6deb5ca85b89e41999",
+          "5a331ba16558dcf9846bb30e15b28f6b4948fad0a74f19b18810746c6522819e"
+        ],
+        "legacyV1HashesUnchanged": true,
+        "sourceAndBinariesUnchanged": true
+      },
+      {
+        "configuration": "Release",
+        "seconds": 250.53637437603902,
+        "qualifiedRoot": ".cache/comp-protected-worker/qualified-Release-vwd_n12o",
+        "protectedRoot": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-worker-evidence/run-qoplftup",
+        "workers": 69,
+        "successes": 6,
+        "requiredRefusals": 63,
+        "completePcmSamples": 622848,
+        "protectedSamples": 12800,
+        "audioHashes": [
+          "34675f4180c9b3f37f7822e8795dc07e72fea8d4dbec903df3332139d616cc56",
+          "771ce5c050254b208882592bb5bd27f538d7bab5da624e990077155d8652875b",
+          "fae2df79af12a60a1b8f086fd142159f59b7f0ea7ec0ce5dfd925c9d3465b31f",
+          "08e93d8e5ca29011306d34a2810808313d7b0462e81b877f33c6970a434231e3",
+          "02abf89d13595017e17b0e665eaa92809e7b33d150b01a6deb5ca85b89e41999",
+          "5a331ba16558dcf9846bb30e15b28f6b4948fad0a74f19b18810746c6522819e"
+        ],
+        "legacyV1HashesUnchanged": true,
+        "sourceAndBinariesUnchanged": true,
+        "coreExportsUnchanged": 9,
+        "desktopExportsUnchanged": 9,
+        "v2CompletedHashesUnchanged": 9,
+        "maximumDesktopStageMs": 7702,
+        "unchangedOuterSamples": 502422,
+        "liveExportSamples": 508182
+      }
+    ],
+    "protectedDebugReleaseHashesMatch": true,
+    "workerProtocolIntegrated": true,
+    "modelAdoptionChanged": false,
+    "nativeWindowsRuntime": false,
+    "qualityAdmission": false
+  }
+}

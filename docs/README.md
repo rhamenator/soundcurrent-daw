@@ -2,6 +2,29 @@
 
 These documents contain the frozen scope, implementation contracts, dated evidence and open gates. Later checkpoints supplement earlier evidence; they do not erase retained failures.
 
+- [Inactive track-version render recovery and qualification](361-track-version-render-recovery.md)
+- [Installed Linux track-version preview and Windows test follow-up](360-installed-track-version-preview.md)
+- [Grouped audio track versions](359-grouped-track-versions.md)
+- [Audio track versions](358-track-versions.md)
+- [Reusing prepared waveform coverage](357-waveform-coverage-reuse.md)
+- [Source-window waveforms for cropped and zoomed views](356-waveform-source-windows.md)
+- [Installed Windows waveform timing qualification](355-windows-waveform-timing.md)
+- [Installed Windows waveforms and retained observer failures](354-installed-windows-waveforms.md)
+- [Matching Windows waveform preview and resource-test correction](353-windows-waveform-preview.md)
+- [Waveform overviews for dense sessions](352-dense-waveform-overviews.md)
+- [Installed Linux source-waveform preview](351-installed-waveform-preview.md)
+- [Windows waveform qualification and staging repair](350-windows-waveform-staging.md)
+- [Individual multichannel waveform inspection](349-waveform-channel-inspection.md)
+- [Full-window waveform workflows and retry](348-studio-waveform-recovery.md)
+- [Visible timeline source waveforms](347-timeline-source-waveforms.md)
+- [Native crossfade stage diagnostics](346-crossfade-stage-diagnostics.md)
+- [Bounded waveform cache and source geometry](345-waveform-cache.md)
+- [Asynchronous waveform supervision](344-waveform-controller.md)
+- [Immediate comp-review invalidation on project replacement](343-comp-review-invalidation.md)
+- [Isolated waveform worker and bounded reply](342-waveform-worker-protocol.md)
+- [Bounded source waveform preparation](341-waveform-source-pyramid.md)
+- [Installed Windows render timing and complete editing workflow](340-installed-windows-timing.md)
+- [Installed Windows batched-verification preview and retained observer failure](339-installed-windows-batched.md)
 - [Product scope and frozen reference baseline](00-scope-baseline.md)
 - [Traceable parity matrix and acceptance register](01-parity-matrix.md)
 - [Architecture, threading and data flow](02-architecture.md)
@@ -215,3 +238,53 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Shared prepared recording control endpoints](233-monitor-control-endpoints.md)
 
 - [Typed PipeWire recording controller and panel](234-pipewire-monitor-controller.md)
+
+- [Versioned comp processing recipes and immutable sidecars](271-comp-processing-recipes.md)
+- [ADR 159: source-bound portable comp processing recipes](decisions/159-versioned-comp-recipes.md)
+
+- [Independent actual comp media review](272-comp-media-review.md)
+- [ADR 160: media scope review and adoption authority](decisions/160-independent-comp-media-review.md)
+
+- [Exact uniform comp span rendering](273-uniform-comp-span-rendering.md)
+- [ADR 161: exact-grid uniform comp span renderer](decisions/161-exact-uniform-comp-span-renderer.md)
+
+- [Owned comp span worker and completion verification](274-owned-comp-span-worker.md)
+- [ADR 162: owned exact-span process protocol](decisions/162-owned-comp-span-protocol.md)
+
+- [Durable paired comp selection and recovery](275-paired-comp-recovery.md)
+
+- [Trusted comp selections in project state](276-project-comp-references.md)
+
+- [Paired comp process supervision](277-paired-comp-supervision.md)
+
+- [Versioned comp span workers](292-versioned-comp-span-workers.md)
+- [ADR 177: versioned comp span history](decisions/177-versioned-comp-span-history.md)
+- [ADR 178: Windows owned media paths](decisions/178-windows-media-paths.md)
+
+- [Queued comp dependency checks](293-queued-comp-dependencies.md)
+- [ADR 179: immutable queued comp dependencies](decisions/179-queued-comp-dependencies.md)
+- [ADR 180: complete Linux CI partition](decisions/180-complete-linux-ci-partition.md)
+
+- [Original-context uniform renderer](316-uniform-original-context-renderer.md)
+- [Original-context owned worker and native CI results](317-uniform-context-worker.md)
+- [Original-context paired and desktop edits](318-original-context-pairs.md)
+- [ADR 202: original-context comp pairs](decisions/202-original-context-comp-pairs.md)
+
+- [Installed Windows editing with Linux render history](325-installed-windows-portable-comp.md)
+- [Bounded comp source scans](326-comp-source-scan-batching.md)
+- [Native Windows comp scan observation](327-windows-comp-scan-observation.md)
+- [Preserve interruption failures through cleanup](328-interruption-cleanup.md)
+- [Visible transition render stages and elapsed time](329-comp-render-progress.md)
+- [Current Linux preview candidate and original CI retention](330-linux-preview-candidate.md)
+- [Installed Linux preview with render progress](331-installed-progress-preview.md)
+- [Windows render-progress candidate and required CI evidence job](332-windows-progress-preview.md)
+
+- [Installed Windows preview with render progress](333-installed-windows-progress.md)
+
+- [Installed Windows render timing and process observations](334-windows-render-diagnostic.md)
+
+- [Batched comp verification with measured work reduction](335-batched-comp-verification.md)
+- [ADR 203: batched comp recomputation](decisions/203-batched-comp-recomputation.md)
+- [Native Windows batched comp verification](336-windows-batched-comp-verification.md)
+- [Installed Linux preview with batched verification](337-installed-batched-preview.md)
+- [Matching Windows candidate with batched verification](338-windows-batched-preview.md)

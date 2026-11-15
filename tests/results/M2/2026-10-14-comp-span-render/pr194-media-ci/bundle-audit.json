@@ -1,0 +1,19 @@
+{
+  "source_head": "92e5d1b2f659f3c19e1e352cc59da76995f1b7e8",
+  "source_tree": "efd60de6ec2edf19a265ab9ce7bbfb890320a4ae",
+  "archive_bytes": 123761294,
+  "archive_sha256": "cc3762fdf2e1c39ee88298da5fd5ec45cf0bf7ff8f26f3f8d8513a77d291365f",
+  "archive_entries": 47,
+  "deployment_files": 14,
+  "source_files_verified_against_git_windows_checkout_filters": 1574,
+  "all_corresponding_source_archive_bytes_match_native_snapshot": true,
+  "checkout_filter": "actual bounded git -c core.autocrlf=true cat-file --filters; no ad hoc byte normalization",
+  "all_collection_artifact_hashes_verified": true,
+  "dependency_mismatches": [],
+  "two_media_builds_match_reviewed_pin": true,
+  "sndfile_sha256": "2f50a0b47e46407bf9d3d34f95dd58289356020331ebd989a0c0a924a57fb6e7",
+  "main_window_qualified": false,
+  "native_audio_qualified": false,
+  "installer_prepared": false,
+  "audit_platform": "Linux independent byte/source audit; not native execution"
+}

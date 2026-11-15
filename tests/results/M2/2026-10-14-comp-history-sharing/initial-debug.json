@@ -1,0 +1,33 @@
+{
+  "result": {
+    "head": "5b67777f60dcf0296e07244c7067ab97ec4969b9",
+    "exitCode": 8,
+    "seconds": 519.354355030926,
+    "command": [
+      "ctest",
+      "--test-dir",
+      "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug",
+      "--output-on-failure",
+      "--no-tests=error",
+      "--parallel",
+      "1",
+      "-R",
+      "^(comp-clocked-span-worker|comp-paired-history-review|comp-repeated-pair-production)$"
+    ],
+    "runs": [
+      "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-span-v2-evidence/run-uu5xtecj",
+      "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-paired-history-evidence/run-rnr3la4o",
+      "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-repeat-evidence/run-klxjxupm"
+    ],
+    "sourceAndBinariesUnchanged": true,
+    "deadlinesUnchanged": true
+  },
+  "format": "sc-hash-file-evidence-v1",
+  "archive": "initial-debug.zip",
+  "bytes": 8081947,
+  "sha256": "f9382860b259a62c5315fe1bf8453a4a5f393162ebb759ea2873c22abc918a32",
+  "files": 1980,
+  "uniquePayloads": 487,
+  "symbolicLinks": 0,
+  "allOriginalPayloadsPreserved": true
+}

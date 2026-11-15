@@ -36,7 +36,9 @@ WaveDataExtent inspectApprovedWaveData(ApprovedMediaFile &, WaveValidationLimits
     const std::function<void()> &beforeRead = {});
 // Serialized control/I/O only. RIFF/RIFX/RF64 uncompressed PCM/IEEE float WAVE;
 // RF64 ds64 extents/tables are bounded and checked against pinned file bytes.
-// WAVEX with the same PCM/float subtype and full container precision.
+// WAVEX PCM permits positive valid precision up to container width, left-aligned
+// with zero low padding bits. Float requires full precision. bitsPerSample in
+// reports remains the container width; no report protocol/schema changes.
 // Other formats/precision/containers return UnsupportedSchema; they remain
 // required follow-up work, not silently interpreted as empty/missing audio.
 // Reads through the pinned object only. Third-party decoder allocations and
@@ -48,5 +50,14 @@ WaveDataExtent inspectApprovedWaveData(ApprovedMediaFile &, WaveValidationLimits
 // Exceptions cross the C decoder boundary via a stored exception and rethrow.
 WaveValidation validateApprovedWave(ApprovedMediaFile &, WaveValidationLimits = {},
     std::stop_token = {}, const std::function<void(std::uint64_t,std::span<const double>)> &observer = {},
+    const std::function<void()> &beforeRead = {});
+// P084 exact replacement check, serialized control/I/O only. The caller must
+// select/approve the candidate explicitly; saved asset paths grant no access.
+// Requires the original whole-file hash and exact rate/channel/frame identity,
+// plus the full finite-sample validation above. Never changes files or Session.
+// This is a snapshot, not authority to reopen a path: retain the approved file
+// and reverify/copy through it before publishing any later recovery operation.
+WaveValidation verifyAssetReplacement(ApprovedMediaFile &, const Asset &,
+    WaveValidationLimits = {}, std::stop_token = {},
     const std::function<void()> &beforeRead = {});
 } // namespace soundcurrent::daw

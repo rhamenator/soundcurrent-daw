@@ -1,0 +1,240 @@
+{
+  "format": "sc-protected-comp-desktop-index-v1",
+  "sourceCommit": "9d040f8e57262ce2eb778899ee34baeb609ab693",
+  "archive": "acceptance.zip",
+  "bytes": 27875168,
+  "sha256": "0579839607b09550e1b2641c4725f7c937bf4ad2939dcdd92f5c5806c3e7fab7",
+  "originalFiles": 8417,
+  "uniquePayloads": 1835,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceCommit": "9d040f8e57262ce2eb778899ee34baeb609ab693",
+    "rows": [
+      {
+        "configuration": "Debug",
+        "sourceHead": "9d040f8e57262ce2eb778899ee34baeb609ab693",
+        "seconds": 59.396735862013884,
+        "selected": [
+          "desktop-comp-protected-transition"
+        ],
+        "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i",
+        "nominalWorkers": 9,
+        "desktopSpanWorkers": 9,
+        "desktopCases": 12,
+        "appliedPairs": 5,
+        "refusalCancelAndCloseCases": 7,
+        "allChildrenRetired": true,
+        "originalInputsUnchanged": true,
+        "actualProjectCreditsReleased": true,
+        "sourceAndBinariesUnchanged": true,
+        "exportHashes": [
+          "f4d675d965800dac2575777207b35aca385130911099ef340dc3952ca1bc7868",
+          "946046a8c8dc69bef36a001e1118965d55a3205bfa407827d6ede532d0a28f9c",
+          "0ad25dc6c6d7ef748e1b09dbc3639ab25019585dc0f55046fa02cbd17798bdd2",
+          "e54ac909af592f68baf4cb8164207380755da7e997ceff691ee300a05b2e0b5f",
+          "95c738e58283c192669c3422007ae1d52def90e1abaa243f45d8292a6d65d588"
+        ],
+        "screenshots": [
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-uniform/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-uniform/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-uniform/desktop/case-0/applied.png",
+            "sha256": "47981670c789a12fc118a83b94a262c09f87a94543749ac196c23a2020555c43"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-uniform/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-protected/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-protected/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-protected/desktop/case-0/applied.png",
+            "sha256": "47981670c789a12fc118a83b94a262c09f87a94543749ac196c23a2020555c43"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-protected/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-existing/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-existing/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-existing/desktop/case-0/applied.png",
+            "sha256": "47981670c789a12fc118a83b94a262c09f87a94543749ac196c23a2020555c43"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-48000-existing/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-96000-protected/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-96000-protected/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-96000-protected/desktop/case-0/applied.png",
+            "sha256": "24665b3fcd3962a147815b089540bc79630f8821bd4e998d65d3f31ef8c83f65"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-96000-protected/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-44100-protected/desktop/case-0/review.png",
+            "sha256": "5e9e6055e91de3644e9c5e748a193dfd9ce5d01a2be5e6c5d2d3272d801c1e4b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-44100-protected/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-44100-protected/desktop/case-0/applied.png",
+            "sha256": "a6bbeeb389481204b880c3c4984499588a0dba1897323abf23f03a48cfcfd37a"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-ui-evidence/run-ukpvvi8i/case-44100-protected/desktop/case-0/create.png",
+            "sha256": "3daf5a61c60b8970e19d03bdfaf32b1a8cbab638b8bf5481cbce279731cfd75d"
+          }
+        ]
+      },
+      {
+        "configuration": "Release",
+        "sourceHead": "9d040f8e57262ce2eb778899ee34baeb609ab693",
+        "seconds": 156.17616724106483,
+        "selected": [
+          "desktop-comp-protected-transition",
+          "desktop-comp-transition-create",
+          "desktop-comp-repeated-transition"
+        ],
+        "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y",
+        "nominalWorkers": 9,
+        "desktopSpanWorkers": 9,
+        "desktopCases": 12,
+        "appliedPairs": 5,
+        "refusalCancelAndCloseCases": 7,
+        "allChildrenRetired": true,
+        "originalInputsUnchanged": true,
+        "actualProjectCreditsReleased": true,
+        "sourceAndBinariesUnchanged": true,
+        "exportHashes": [
+          "f4d675d965800dac2575777207b35aca385130911099ef340dc3952ca1bc7868",
+          "946046a8c8dc69bef36a001e1118965d55a3205bfa407827d6ede532d0a28f9c",
+          "0ad25dc6c6d7ef748e1b09dbc3639ab25019585dc0f55046fa02cbd17798bdd2",
+          "e54ac909af592f68baf4cb8164207380755da7e997ceff691ee300a05b2e0b5f",
+          "95c738e58283c192669c3422007ae1d52def90e1abaa243f45d8292a6d65d588"
+        ],
+        "screenshots": [
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-uniform/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-uniform/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-uniform/desktop/case-0/applied.png",
+            "sha256": "47981670c789a12fc118a83b94a262c09f87a94543749ac196c23a2020555c43"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-uniform/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-protected/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-protected/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-protected/desktop/case-0/applied.png",
+            "sha256": "47981670c789a12fc118a83b94a262c09f87a94543749ac196c23a2020555c43"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-protected/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-existing/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-existing/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-existing/desktop/case-0/applied.png",
+            "sha256": "47981670c789a12fc118a83b94a262c09f87a94543749ac196c23a2020555c43"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-48000-existing/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-96000-protected/desktop/case-0/review.png",
+            "sha256": "ecd6880fd8879a497613a91e250bc865d54716f072f1b831a298c0d3d2baa6e2"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-96000-protected/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-96000-protected/desktop/case-0/applied.png",
+            "sha256": "24665b3fcd3962a147815b089540bc79630f8821bd4e998d65d3f31ef8c83f65"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-96000-protected/desktop/case-0/create.png",
+            "sha256": "2b1f4001fa8f4d27955023cb371b48438c8714787a785df1d7f2599fd7da725b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-44100-protected/desktop/case-0/review.png",
+            "sha256": "5e9e6055e91de3644e9c5e748a193dfd9ce5d01a2be5e6c5d2d3272d801c1e4b"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-44100-protected/desktop/case-0/rendered.png",
+            "sha256": "4a2ba1416fda9b5139a7f8b4d26323fe331b0e39043dd05bf5be1a25cf1598c3"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-44100-protected/desktop/case-0/applied.png",
+            "sha256": "a6bbeeb389481204b880c3c4984499588a0dba1897323abf23f03a48cfcfd37a"
+          },
+          {
+            "path": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-ui-evidence/run-dynwzq4y/case-44100-protected/desktop/case-0/create.png",
+            "sha256": "3daf5a61c60b8970e19d03bdfaf32b1a8cbab638b8bf5481cbce279731cfd75d"
+          }
+        ],
+        "repeatedExportsUnchanged": 9,
+        "legacyUniformCases": 8,
+        "legacyUniformManifestPreserved": true
+      }
+    ],
+    "allFiveDebugReleaseExportHashesMatch": true,
+    "desktopEntryEnabled": true,
+    "nativeWindowsRuntime": false,
+    "physicalAudio": false,
+    "qualityAdmission": false,
+    "installedPreviewChanged": false
+  }
+}

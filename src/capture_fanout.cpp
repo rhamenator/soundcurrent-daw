@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/capture_fanout.hpp>
 
+// Deterministic interleaving seam is compiled only into the EOF test target.
+#ifdef SC_CAPTURE_FANOUT_EOF_TEST_HOOK
+extern "C" void scCaptureFanoutAfterMonitorFinish() noexcept;
+#endif
 namespace soundcurrent::daw {
 namespace {
 CaptureBankConfig monitorConfig(const CaptureFanoutConfig &c) {
@@ -83,7 +87,11 @@ void PreparedCaptureFanout::finish() noexcept {
         s = requested_.load(std::memory_order_acquire) == 2 ? CaptureFanoutStatus::Cancelled : CaptureFanoutStatus::Stopped;
         status_.store(std::uint32_t(s), std::memory_order_release);
     }
-    raw_.finish(); monitor_.finish(); done_.store(1, std::memory_order_release);
+    raw_.finish(); monitor_.finish();
+#ifdef SC_CAPTURE_FANOUT_EOF_TEST_HOOK
+    scCaptureFanoutAfterMonitorFinish();
+#endif
+    done_.store(1, std::memory_order_release);
 }
 void PreparedCaptureFanout::settleAfterJoin() noexcept {
     if (!producerDone()) finish();

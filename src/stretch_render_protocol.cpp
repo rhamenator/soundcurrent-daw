@@ -119,11 +119,11 @@ VerifiedClipStretch verifyOwnedClipStretch(const std::filesystem::path &root,con
     const auto target=std::uint64_t(stretchGeometry(p.anchor,p.source.frames).outputFrames);
     check(integer(j,"writtenFrames",1000000000)==target && integer(j,"memoryCeilingBytes",4096ULL*1024*1024)==limits.memoryBytes &&
           integer(j,"payloadPeakBytes",limits.memoryBytes)>0 && integer(j,"deadlineMilliseconds",3600000)==limits.deadlineMilliseconds,"Stretch completion differs from child grant");
-#ifdef _WIN32
-    check(j.at("memoryMetric")=="process-commit","Wrong native stretch memory metric");
-#else
-    check(j.at("memoryMetric")=="address-space","Wrong native stretch memory metric");
-#endif
+    // A completed render can travel with the project from either supported OS.
+    // This describes the producer's limit; it is not the verifier's live policy.
+    // Keep both known metrics distinct and reject missing/unknown declarations.
+    check(j.at("memoryMetric")=="process-commit" || j.at("memoryMetric")=="address-space",
+          "Unknown stretch producer memory metric");
     check(j.at("durabilityMinimum")=="file-flushed" && j.at("audioSha256").is_string() && j.at("sampleSha256").is_string(),"Invalid stretch completion digests/durability");
     const auto audioHash=j.at("audioSha256").get<std::string>(),sampleDigest=j.at("sampleSha256").get<std::string>();check(digest(audioHash)&&digest(sampleDigest),"Invalid stretch completion digest");
     check(j.at("peakLinear").is_number() && std::isfinite(j.at("peakLinear").get<double>()) && j.at("peakLinear").get<double>()>=0,"Invalid stretch completion peak");

@@ -1,0 +1,51 @@
+{
+  "checkpoint": 272,
+  "sourceHead": "6b0fa05c65d3f0b405c66479c4e126bc750fd7fc",
+  "sourceTree": "e490ea7ca54c6fdc34272ca451fb0ad1ff205ee9",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "/home/rich/dev/soundcurrent-daw/.cache/comp-media-review/build",
+    "--output-on-failure",
+    "--no-tests=error",
+    "-R",
+    "^(comp-actual-media-review|comp-processing-recipe-recovery|comp-transition-processing-permissions)$"
+  ],
+  "pid": 3790120,
+  "exitCode": 0,
+  "seconds": 18.724828135978896,
+  "sourceAndBinariesUnchanged": true,
+  "reviewChecks": 4894,
+  "reviewCases": 36,
+  "physicalFragments": 6,
+  "postSrcFragments": 66,
+  "existingFragments": 2,
+  "physicalSamplesCompared": 229280,
+  "projectSamplesCompared": 2842244,
+  "sourceMediaWaveFilesVerified": true,
+  "declaredCompanionBytesVerified": true,
+  "nativeEvidenceSemanticsQualified": false,
+  "workerCompletionQualified": false,
+  "producerAlignmentQualified": false,
+  "qualityAdmission": false,
+  "modelAdoptionChanged": false,
+  "nativeWindowsQualified": false,
+  "fullDawParity": false,
+  "freshR3Renders": 0,
+  "childPid": 3790169,
+  "ownedSourceArchiveSha256": "a34df2dc2ff59633f76f982b3c49478ff389f9b42eda9eadcca2b206e53b06b4",
+  "archive": {
+    "bytes": 16348607,
+    "sha256": "c73ccd9e3f6c6e72437a2f477618fb0a1c91e64a4d8360c364aab3e349154ff5",
+    "entries": 192,
+    "originalFiles": 368,
+    "uniquePayloads": 190,
+    "format": "sc-hash-file-evidence-v1",
+    "fileManifest": "files.json",
+    "originalArchive": {
+      "bytes": 62285826,
+      "sha256": "6bc3b53ddd080d82e2b0dbcd93d6b0d161974066326823ffeb5f7ba08f80363a"
+    },
+    "allOriginalPayloadsByteIdentical": true
+  }
+}

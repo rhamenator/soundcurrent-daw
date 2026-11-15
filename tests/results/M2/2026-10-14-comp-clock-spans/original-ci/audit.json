@@ -1,0 +1,170 @@
+{
+  "run": 38646658520,
+  "head": "0ead497aebe19121035a0852aacf178fe385d593",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 116135061317,
+      "name": "Windows desktop import and localization tests",
+      "conclusion": "failure",
+      "bytes": 435320,
+      "sha256": "f62da88faa31afef89548b04372cbc80fe217153d9c651768c329991488fb784",
+      "compilerErrors": [
+        "2026-10-14T22:23:31.8977850Z D:\\a\\soundcurrent-daw\\soundcurrent-daw\\src\\comp_processing_recipe.cpp(107): error C2666: 'nlohmann::json_abi_v3_12_0::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::json_abi_v3_12_0::adl_serializer,std::vector<uint8_t,std::allocator<uint8_t>>,void>::operator ==': overloaded functions have similar conversions",
+        "2026-10-14T22:23:31.8988423Z D:\\a\\soundcurrent-daw\\soundcurrent-daw\\src\\comp_processing_recipe.cpp(107): error C2666: 'nlohmann::json_abi_v3_12_0::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::json_abi_v3_12_0::adl_serializer,std::vector<uint8_t,std::allocator<uint8_t>>,void>::operator ==': overloaded functions have similar conversions"
+      ],
+      "testSummary": []
+    },
+    {
+      "id": 116135061481,
+      "name": "Linux desktop and synthetic tests",
+      "conclusion": "success",
+      "bytes": 269248,
+      "sha256": "a0dc2bb41a5f83923e359e40af88de1924eb754fd89b185b9f94641247888161",
+      "compilerErrors": [],
+      "testSummary": [
+        "2026-10-14T22:37:41.9703851Z 100% tests passed, 0 tests failed out of 187"
+      ]
+    },
+    {
+      "id": 116135061534,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "conclusion": "success",
+      "bytes": 101346,
+      "sha256": "aa3bbde7726e3a2c93e94d6d9d53d7dac8a47756c12543020710bc442e955c64",
+      "compilerErrors": [],
+      "testSummary": []
+    },
+    {
+      "id": 116135061705,
+      "name": "Windows native packet ownership tests",
+      "conclusion": "failure",
+      "bytes": 1277141,
+      "sha256": "84c79c32077d1d80ef56af66b5899213fa3c645b69933927e3ba32565f44237e",
+      "compilerErrors": [
+        "2026-10-14T22:30:06.5322512Z D:\\a\\soundcurrent-daw\\soundcurrent-daw\\src\\comp_processing_recipe.cpp(107): error C2666: 'nlohmann::json_abi_v3_12_0::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::json_abi_v3_12_0::adl_serializer,std::vector<uint8_t,std::allocator<uint8_t>>,void>::operator ==': overloaded functions have similar conversions",
+        "2026-10-14T22:30:06.5341926Z D:\\a\\soundcurrent-daw\\soundcurrent-daw\\src\\comp_processing_recipe.cpp(107): error C2666: 'nlohmann::json_abi_v3_12_0::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::json_abi_v3_12_0::adl_serializer,std::vector<uint8_t,std::allocator<uint8_t>>,void>::operator ==': overloaded functions have similar conversions"
+      ],
+      "testSummary": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11933357950,
+      "name": "linux-synthetic-test-log",
+      "bytes": 213612053,
+      "sha256": "4c25528f51e5de21797a3f56b52abe9d919bbdf722581fb3325ed687f81b56d7",
+      "entries": 5361,
+      "pngs": [
+        {
+          "path": "comp-assembly-ui-evidence/run-e5fs_o8m/case-44100/case-0/applied.png",
+          "sha256": "2f48c85fe6f654ebf4448df19a8c8d526ea1ad2205125b536426de221c308a75",
+          "bytes": 74336
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-e5fs_o8m/case-44100/case-0/review.png",
+          "sha256": "2aeb4490d8b8ec21f3251476aa4e9abf7c9c1791d0b74c9fea00551bf85616b5",
+          "bytes": 32870
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-e5fs_o8m/case-48000/case-0/applied.png",
+          "sha256": "9bf0e1812e3ca88ec3da074f6668e427ff605b12733b6a8ea15c13ad3b8d00eb",
+          "bytes": 74707
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-e5fs_o8m/case-48000/case-0/review.png",
+          "sha256": "0063aaae7d755d76c98e917b3676a2f47175841dbeb85052236ed55477359a0b",
+          "bytes": 33143
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-e5fs_o8m/case-96000/case-0/applied.png",
+          "sha256": "08d52ea4f81d900b2f3153b68a4b1bb59b46fb4567463adecc831946613f1502",
+          "bytes": 74335
+        },
+        {
+          "path": "comp-assembly-ui-evidence/run-e5fs_o8m/case-96000/case-0/review.png",
+          "sha256": "f434f2b5ebc25c32871a76d09c1658e763cb1e46b064df003f363bf64ffd5c48",
+          "bytes": 32921
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-2wj5wdy9/case-44100/case-0/create.png",
+          "sha256": "cb1327b476f5661272751305574b932724ec173a4aac480dac5388e1fde58ec6",
+          "bytes": 38860
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-2wj5wdy9/case-44100/case-0/rendered.png",
+          "sha256": "40a9823508fed6b07040fe8ac696112673f1b5a2e893c09d3c3bcf57ee6cb843",
+          "bytes": 12916
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-2wj5wdy9/case-48000/case-0/create.png",
+          "sha256": "11cfef517ce37c07ac9dc3dfc97175587cb584b2efe466fb1ff0ab6d115c5fe0",
+          "bytes": 39305
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-2wj5wdy9/case-48000/case-0/rendered.png",
+          "sha256": "40a9823508fed6b07040fe8ac696112673f1b5a2e893c09d3c3bcf57ee6cb843",
+          "bytes": 12916
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-2wj5wdy9/case-96000/case-0/create.png",
+          "sha256": "4d7737b1581ae3fd9669fc8906c298006636485855f213662212fced2f17d49d",
+          "bytes": 38827
+        },
+        {
+          "path": "comp-transition-ui-evidence/run-2wj5wdy9/case-96000/case-0/rendered.png",
+          "sha256": "40a9823508fed6b07040fe8ac696112673f1b5a2e893c09d3c3bcf57ee6cb843",
+          "bytes": 12916
+        }
+      ]
+    },
+    {
+      "id": 11933087979,
+      "name": "windows-desktop-import-test-log",
+      "bytes": 1210,
+      "sha256": "d3fbaa26210a7f18980927d34347048a44a5eb0a2569debbebc5f5e91244f17e",
+      "entries": 1,
+      "pngs": []
+    },
+    {
+      "id": 11932719586,
+      "name": "windows-native-packet-unit-log",
+      "bytes": 1856,
+      "sha256": "c28500eb2bd5add1f68e169f103a3395db32f6ce2b93e3ca332d4f352f0eebad",
+      "entries": 6,
+      "pngs": []
+    },
+    {
+      "id": 11932683374,
+      "name": "windows-media-build-review",
+      "bytes": 438050,
+      "sha256": "0a3e752f730d35622d67ca5f47b7988f65bff36453ceecb5fb74a897d73d66dd",
+      "entries": 7,
+      "pngs": []
+    }
+  ],
+  "allAvailableOriginalArtifactsRetained": true,
+  "allFourFullJobLogsRetained": true,
+  "pngCount": 12,
+  "reportPaths": [
+    {
+      "artifact": "linux-synthetic-test-log",
+      "path": "comp-regeneration-source-evidence/run-wtmiarx6/report.json"
+    },
+    {
+      "artifact": "linux-synthetic-test-log",
+      "path": "comp-assembly-controller-evidence/run-s68420_4/report.json"
+    },
+    {
+      "artifact": "linux-synthetic-test-log",
+      "path": "comp-assembly-ui-evidence/run-e5fs_o8m/report.json"
+    },
+    {
+      "artifact": "linux-synthetic-test-log",
+      "path": "comp-transition-ui-evidence/run-2wj5wdy9/report.json"
+    }
+  ],
+  "windowsDeploymentBundleProduced": false,
+  "nativeWindowsCorrectionQualified": false,
+  "qualityAdmission": false
+}

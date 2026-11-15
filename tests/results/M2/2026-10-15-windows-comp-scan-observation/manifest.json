@@ -1,0 +1,13 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 808121,
+  "sha256": "56667738c4b928ad87196f70e4af297e8da69d4abd3d0e052806ee3a04a6dfe9",
+  "entries": 80,
+  "sourceHead": "82bae0027581a99758245f90625590383a1b923d",
+  "nativeRuns": 6,
+  "eachRunComparedSamples": 16256,
+  "originalCiConclusion": "failure",
+  "originalFailedProjectUploaded": false,
+  "retentionTestPassed": true,
+  "applicationBinariesIncluded": false
+}

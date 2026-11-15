@@ -1,0 +1,14 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 1011282,
+  "sha256": "152a6c4fdade4358b9faa514f48994c18381d86930662ec53a9816119b09d23b",
+  "entries": 685,
+  "baseHead": "edc08502e8582ee062a94f0de1f2211db44528dd",
+  "testsPassed": 3,
+  "desktopCases": 8,
+  "desktopChecks": 228,
+  "generatedFiles": 910,
+  "allGeneratedMediaPublished": false,
+  "nativeWindowsExecuted": false,
+  "installedPreviewUpdated": false
+}

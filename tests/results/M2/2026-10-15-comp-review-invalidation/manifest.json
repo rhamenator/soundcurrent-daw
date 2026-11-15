@@ -1,0 +1,33 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 10236118,
+  "sha256": "690c245b430fa35f44760154d3987543c85e9c5c22165a8f1d522e9587f157cd",
+  "entries": 1858,
+  "baseHead": "67f926cf3283d0d45f05c74d5d58d0a8fac78429",
+  "testedWorkingTreeSource": {
+    "ui/studio_window.cpp": {
+      "bytes": 210763,
+      "sha256": "d02c8f0753b0870d22fd9e818be3d089d37e9ffce7f4a8db7a01e9b9822c8dc8"
+    },
+    "ui/studio_window.hpp": {
+      "bytes": 14502,
+      "sha256": "3907db316be960a0a5c7eaa9b44e9b61138feb087d67a26bb4c71690e4b975d9"
+    },
+    "tests/comp_assembly_ui_tests.cpp": {
+      "bytes": 13598,
+      "sha256": "56f9ca10829164a131c985d1048e4b1cb679d29ef6219d46eb1c8f3953c25cac"
+    }
+  },
+  "linuxUiWorkflowsPassed": [
+    "desktop-comp-assembly-apply",
+    "desktop-comp-transition-create"
+  ],
+  "baselineReproduced": true,
+  "firstRepairRegressionRetained": true,
+  "originalWindowsFailureRetained": true,
+  "originalCiRun": 38801059137,
+  "allOriginalCiLogsAndArchivesRetained": true,
+  "nativeWindowsRepairQualified": false,
+  "installedPreviewsChanged": false,
+  "binariesIncluded": false
+}

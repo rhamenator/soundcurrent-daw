@@ -12,7 +12,10 @@
 #include "export_dialog.hpp"
 #include "import_inspection_controller.hpp"
 #include "stretch_controller.hpp"
+#include "comp_assembly_controller.hpp"
+#include "comp_pair_controller.hpp"
 #include <QPointer>
+#include <QElapsedTimer>
 #include <QMainWindow>
 #include <QCoreApplication>
 #include <vector>
@@ -37,6 +40,7 @@ class SessionListModel;
 class ImportInspectionDialog;
 class StretchDialog;
 struct MemoryPreferences;
+enum class CompRenderStage {Idle,Preparing,Registering,Saving,Spans,Assembly,Complete,Fault,Canceled};
 class StudioWindow : public QMainWindow {
     Q_DECLARE_TR_FUNCTIONS(StudioWindow)
   public:
@@ -46,9 +50,18 @@ class StudioWindow : public QMainWindow {
                           std::function<void(HistoryBudget)> historyAccepted = {},
                           std::function<void(MemoryPreferences)> memoryAccepted = {},
                           StretchOptions stretchOptions = {},
-                          NativeMonitorControllerOptions nativeOptions = {});
+                          NativeMonitorControllerOptions nativeOptions = {},
+                          CompAssemblyControllerOptions compOptions = {});
     bool requestClipStretch(const Id &, const Id &, StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
     bool applyClipStretch();
+    bool showCompAssemblies(std::optional<Id> selected = {});
+    bool requestCompTransition(PrepareCompTransition,Frame maximumBlendFrames);
+    void cancelCompTransition();
+    CompRenderStage compRenderStage() const {return compRenderStage_;}
+    std::shared_ptr<const CompPairSnapshot> compPairSnapshot() const {return compPair_.snapshot();}
+    bool reviewCompAssembly(const Id &);
+    bool applyCompAssembly();
+    std::shared_ptr<const CompAssemblySnapshot> compAssemblySnapshot() const;
     bool auditionClipStretch();
     bool scanStretchRenders();
     std::shared_ptr<const StretchSnapshot> stretchSnapshot() const;
@@ -92,6 +105,28 @@ class StudioWindow : public QMainWindow {
   private:
     ProjectController controller_;
     StretchController stretch_;
+    CompAssemblyController compAssembly_;
+    CompPairController compPair_;
+    CompRenderStage compRenderStage_=CompRenderStage::Idle;
+    QElapsedTimer compRenderClock_;
+    qint64 compRenderElapsedMs_=0;
+    bool compRenderCancel_=false;
+    std::shared_ptr<const ControllerSnapshot> compRenderOwner_;
+    std::optional<Id> compRenderSelection_,compRenderOperation_;
+    std::uint64_t compRegistering_=0,compSaveRevision_=0,compSaveError_=0;
+    QPointer<QDialog> compRenderDialog_;
+    QString compRenderMessage_;
+    bool compRenderActive() const;
+    void pollCompRender(const std::shared_ptr<const ControllerSnapshot> &);
+    void showCompRenderProgress();
+    QPointer<QDialog> compAssemblyDialog_;
+    QString compAssemblyMessage_;
+    bool compAssemblyApplying_=false;
+    bool compAssemblyReviewInvalidated_=false;
+    std::function<void()> invalidateCompAssemblyDialog_;
+    std::uint64_t compAssemblyAdopting_=0;
+    bool compAssemblyCanWork() const;
+    void pollCompAssembly(const std::shared_ptr<const ControllerSnapshot> &);
     QPointer<StretchDialog> stretchDialog_;
     QPointer<QDialog> stretchRecoveryDialog_;
     QString stretchMessage_;
@@ -103,6 +138,11 @@ class StudioWindow : public QMainWindow {
     QPointer<ImportInspectionDialog> importDialog_;
     void showImportInspection();
     QPointer<QDialog> historyDialog_;
+    QPointer<QDialog> autosaveSettingsDialog_;
+    void showAutosaveSettings();
+    void showAutosaveRecovery();
+    QPointer<QDialog> autosaveRecoveryDialog_;
+    std::uint64_t autosaveRestorePending_ = 0;
     TimelineEditor *timeline_ = nullptr;
     std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
     std::uint64_t guiEpoch_ = 0, guiRevision_ = 0;
@@ -210,6 +250,10 @@ class StudioWindow : public QMainWindow {
     std::uint64_t takeShown_ = 0, attachingTake_ = 0, attachmentRequest_ = 0, closeDrainToken_ = 0;
     bool attachmentFailed_ = false, recordCommandPending_ = false;
     std::uint64_t recordPrepareBarrier_ = 0;
+    std::uint64_t recordAutosaveToken_ = 0, recordAutosaveEpoch_ = 0;
+    bool recordAutosaveAcquiring_ = false, recordAutosaveReleasing_ = false;
+    bool recordBarrierQueued_ = false;
+    std::uint64_t recordBarrierError_ = 0;
     std::optional<RecordingMonitor> monitoringShown_;
     std::uint64_t recordCommandCompleted_ = 0, recordCommandError_ = 0, recordCommandStop_ = 0;
     bool submitRecording(RecordingCommand);

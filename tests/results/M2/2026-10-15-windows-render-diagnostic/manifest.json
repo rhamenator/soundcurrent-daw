@@ -1,0 +1,19 @@
+{
+  "archive": "acceptance.zip",
+  "bytes": 3090492,
+  "sha256": "e72a9d0e2e66312ba50d0dbc63f6867160f1b9e1fdf0a5744cb5e9baa9334cf4",
+  "entries": 115,
+  "sourceHead": "b5dc2568dbf0e1e623dbaa7d42dcd38fd1eed3ab",
+  "ciHead": "1cc2db59c1f35b147414bbac4448c20e0a0d6335",
+  "ciRun": 38782533935,
+  "ciConclusion": "success",
+  "ciJobs": 15,
+  "projectFiles": 225,
+  "projectReconstructionVerified": true,
+  "renderDiagnosticCompleted": true,
+  "originalDriverPassed": false,
+  "renderLatencyFindingOpen": true,
+  "physicalAudio": false,
+  "applicationBinariesIncluded": false,
+  "credentialsIncluded": false
+}

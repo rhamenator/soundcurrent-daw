@@ -22,6 +22,7 @@
 #include <QTimer>
 #include <chrono>
 #include <iostream>
+#include <source_location>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -31,11 +32,13 @@ void check(bool value, const char *why) {
     if (!value)
         throw std::runtime_error(why);
 }
-template <class F> void await(F predicate) {
+template <class F> void await(F predicate,
+                            const std::source_location location = std::source_location::current()) {
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
     while (!predicate()) {
         if (std::chrono::steady_clock::now() > deadline)
-            throw std::runtime_error("GUI memory fixture timeout");
+            throw std::runtime_error("GUI memory fixture timeout at line " +
+                                     std::to_string(location.line()));
         QTest::qWait(2);
     }
 }
@@ -172,7 +175,10 @@ void policy(StudioWindow &window, std::size_t bytes, std::uint64_t request) {
     c.memoryRequest = request;
     check(window.submitEdit(c), "Memory policy queue refused");
     await([&] { return window.snapshot()->memoryCompleted.request == request; });
-    check(!window.snapshot()->memoryCompleted.error, "Memory policy rejected");
+    const auto result=window.snapshot();
+    if(result->memoryCompleted.error)throw std::runtime_error("Memory policy rejected request="+std::to_string(request)+
+        " requested="+std::to_string(bytes)+" actualReserved="+std::to_string(window.memoryResources().reservedBytes)+
+        " errorCode="+std::to_string(static_cast<unsigned>(*result->memoryCompleted.error))+" receipt="+result->memoryCompleted.diagnostic);++checks;
 }
 void desktop(const std::filesystem::path &root) {
     const auto original = large();
@@ -425,6 +431,13 @@ void executionResources(const std::filesystem::path &root, bool largeMix = false
         });
         if (largeMix)
             window.findChild<QCheckBox *>("mixAllTracks")->setChecked(true);
+        // Project display publication precedes asynchronous waveform admission.
+        // Establish the retained GUI baseline only after its one shared source
+        // is ready; otherwise Stop is incorrectly required to retire GUI cache
+        // memory admitted while playback was being prepared.
+        auto *timeline = dynamic_cast<TimelineView *>(window.findChild<QObject *>("audioTimeline"));
+        check(timeline, "Execution waveform view missing");
+        await([&] { return timeline->waveformReadyCount() == 1; });
         const auto baseline = observer.usage().reservedBytes;
         policy(window, baseline, 9991);
         check(window.preparePlayback(), "Execution Prepare queue refused");
@@ -470,6 +483,13 @@ void executionResources(const std::filesystem::path &root, bool largeMix = false
             largeMix ? beforeStop - observation->payload - 512 * sizeof(std::uint64_t) : baseline;
         await([&] { return observer.usage().reservedBytes == afterStop; });
         check(counters->destroyed == 1, "Desktop Stop did not retire prepared execution");
+        // The explicit routing edit above republishes the view asynchronously.
+        await([&] { return timeline->waveformReadyCount() == 1; });
+        check(observer.usage().reservedBytes == afterStop,
+              "Waveform redisplay changed the retired execution accounting");
+        std::cout << "Execution resource retirement: tracks=" << initial.tracks.size()
+                  << " baseline=" << baseline << " prepared=" << beforeStop
+                  << " retired=" << observer.usage().reservedBytes << '\n';
         check(ProjectStore(root).load() == initial,
               "Desktop execution refusal/retry changed saved project before explicit Save");
         if (largeMix) {

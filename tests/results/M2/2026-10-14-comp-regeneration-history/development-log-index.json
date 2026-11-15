@@ -1,0 +1,32 @@
+{
+  "logs": {
+    "history-build.log": {
+      "bytes": 3085,
+      "sha256": "866aedd089907958e12b119bdb8b369a640155d6d81684b0126df104341b8cc8",
+      "localPath": ".cache/comp-regeneration-plans/history-build.log"
+    },
+    "history-build-2.log": {
+      "bytes": 1072,
+      "sha256": "dc886b20d7c085d2abfaf9d6338fa66d54e96c109cab590a5ab9122fbe6d3ef6",
+      "localPath": ".cache/comp-regeneration-plans/history-build-2.log"
+    },
+    "history-build-3.log": {
+      "bytes": 184,
+      "sha256": "9c8d210403542707f7acfb442d8a0ef2467da0eb64e13862a3977f063459afeb",
+      "localPath": ".cache/comp-regeneration-plans/history-build-3.log"
+    },
+    "history-build-4.log": {
+      "bytes": 184,
+      "sha256": "9c8d210403542707f7acfb442d8a0ef2467da0eb64e13862a3977f063459afeb",
+      "localPath": ".cache/comp-regeneration-plans/history-build-4.log"
+    },
+    "history-development-test.log": {
+      "bytes": 1003,
+      "sha256": "474ea111a0e7190bb1ce717041149bed5ff34cb7d7180a046b84246fa84a303a",
+      "localPath": ".cache/comp-regeneration-plans/history-development-test.log"
+    }
+  },
+  "initialFailure": "The simulated active writer acquired a shared reader lease. The fixture was corrected to use an exclusive existing lease.",
+  "initialRun": ".cache/comp-pair-recovery/build/comp-regeneration-history-evidence/run-0y5v9pyt",
+  "qualificationIsSeparate": true
+}

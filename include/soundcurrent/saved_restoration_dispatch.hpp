@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: GPL-3.0-only
+#pragma once
+#include "saved_restoration_record.hpp"
+namespace soundcurrent::daw {
+struct SavedRestorationDispatchContext {
+    SavedRestorationSourceContext source;
+    std::uint64_t preparationJob=0,request=0,job=0;
+    bool operator==(const SavedRestorationDispatchContext &) const=default;
+};
+// Borrowed trusted control-owner view, never populated from project/protocol
+// metadata. Caller serializes owner/root/I/O changes through bind and verify.
+// Root must be a named owner object that outlives this borrowed view. Flags
+// must come from the real controller owner, never GUI/protocol fields.
+// An empty owner's epoch/revision may be zero; no accepted Session is invented.
+struct SavedRestorationOwnerView {
+    const std::filesystem::path &root;
+    SavedRestorationDispatchContext context;
+    bool acceptedProject=false,closing=false,ioActive=false,publicationAmbiguous=false;
+};
+// Volatile dispatch metadata only. No native owners, process launch, mutation,
+// publication permit or adoption authority. An exited stage DTO cannot mint it:
+// bind requires the private original source ticket and actual checked report.
+class SavedRestorationDispatchTicket {
+  public:
+    static SavedRestorationDispatchTicket bind(const SavedRestorationOwnerView &,RestorationAudit &,
+        const SavedRestorationSourceTicket &,const WaveCheckReport &,std::size_t actualCheckerPid,
+        Id freshOperation,ResourceLedger,std::stop_token = {});
+    SavedRestorationDispatchTicket(SavedRestorationDispatchTicket &&) noexcept=default;
+    SavedRestorationDispatchTicket(const SavedRestorationDispatchTicket &)=delete;
+    const Id &operation() const;
+    void verify(const SavedRestorationOwnerView &,RestorationAudit &,const SavedRestorationSourceTicket &,
+        const WaveCheckReport &,std::size_t actualCheckerPid,ResourceLedger,std::stop_token = {}) const;
+  private:
+    friend class DispatchedSavedRestoration;
+    friend SavedRestorationRecord decodeSavedRestorationReady(std::string_view,
+        const SavedRestorationDispatchTicket &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token);
+    friend OwnedInspectionProtocol encodeSavedRestorationPublicationPermit(const SavedRestorationDispatchTicket &,
+        const SavedRestorationRecord &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token);
+    void verifyOwner(const SavedRestorationOwnerView &,ResourceLedger,std::stop_token) const;
+    void verifyReady(const SavedRestorationRecord &,const SavedRestorationOwnerView &,std::size_t,ResourceLedger,std::stop_token) const;
+    SavedRestorationDispatchTicket(ResourceLease,OwnedInspectionProtocol,const SavedRestorationOwnerView &,
+        const RestorationAudit &,Id freshOperation,std::size_t);
+    ResourceLease lease_; // Root and proof storage retire before dispatch credit.
+    OwnedInspectionProtocol originalProof_;
+    std::filesystem::path root_;
+    SavedRestorationDispatchContext context_;
+    Id history_,operation_;
+    std::size_t checkerPid_=0;
+    SavedRestorationRecordData identity_;
+};
+} // namespace soundcurrent::daw

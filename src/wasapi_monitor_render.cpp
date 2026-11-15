@@ -106,14 +106,18 @@ WasapiPreLeaseAction PreparedWasapiMonitorRender::beforeLease(std::uint32_t fram
         const auto ready=startup_->ready();
         if(ready){
             if(ready->admitted!=startup_->admission() || !startup_->claimed() ||
-               ready->asOfQpc100ns>now.value || (ready->finiteFrames?(!bank_.producerDone() || *ready->finiteFrames!=ready->publishedFrames || bank_.acceptedFrames()!=ready->publishedFrames):ready->publishedFrames<format_.capacityFrames) ||
+               (ready->finiteFrames?(!bank_.producerDone() || *ready->finiteFrames!=ready->publishedFrames || bank_.acceptedFrames()!=ready->publishedFrames):ready->publishedFrames<format_.capacityFrames) ||
                bank_.acceptedFrames()<ready->publishedFrames || bank_.deliveredFrames() || bank_.discardedFrames())
                 return refuse(WasapiMonitorRenderCause::Startup);
             // A terminal state may race receipt acquisition. It is diagnostic,
             // never permission to take PCM after failure/cancellation.
             if(startupTerminal() || shouldStop())return WasapiPreLeaseAction::Abort;
-            acquiredReady_=ready;readyTime_=now.value;
-        } else {
+            // Publication can follow the caller's clock sample. Do not consume
+            // PCM or alter that receipt until a subsequent lease has fresh time.
+            // The native lifecycle enforces its unchanged warmup budgets.
+            if(ready->asOfQpc100ns<=now.value){acquiredReady_=ready;readyTime_=now.value;}
+        }
+        if(!acquiredReady_){
             if(warmupRequests_==UINT64_MAX || warmupRequestedFrames_>UINT64_MAX-frames)
                 return refuse(WasapiMonitorRenderCause::CounterOverflow);
             ++warmupRequests_;warmupRequestedFrames_+=frames;

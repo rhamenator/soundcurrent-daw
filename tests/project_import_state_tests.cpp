@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <vector>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -45,7 +46,11 @@ int test(const std::filesystem::path &input) {
         const std::string reference(report.source().substr(property.value.begin,property.value.length));
         auto sourceRoot=std::make_unique<ApprovedMediaRoot>(input,memory);
         auto sourceFile=std::make_unique<ApprovedMediaFile>(sourceRoot->open(reference,1024*1024));
-        const auto audio=validateApprovedWave(*sourceFile);
+        std::vector<float> sourceSamples;
+        const auto audio=validateApprovedWave(*sourceFile,{}, {},
+            [&](std::uint64_t,std::span<const double> samples){
+                for(const auto sample:samples) sourceSamples.push_back(float(sample));
+            });
         const auto original=read(input/utf8Path(reference));
         const auto root=input/utf8Path("Owned — Κиїв — Ελλάδα");
         std::filesystem::create_directory(root);std::filesystem::create_directory(root/"media");
@@ -115,6 +120,15 @@ int test(const std::filesystem::path &input) {
         }
         balanced(memory,stable);
         ProjectStore(root).save(session);check(ProjectStore(root).load()==session,"Imported state save/reopen differs");
+        const auto checkPlayback=[&](const std::filesystem::path &folder,const Session &saved){
+            MediaCacheConfig config;config.resources=memory;config.pageFrames=256;
+            MediaReadCache cache(folder,saved.assets,saved.sampleRate,config);
+            std::vector<float> decoded(sourceSamples.size());
+            cache.read(cache.assetIndex(asset.id),0,decoded);
+            check(decoded==sourceSamples,"Imported cached playback differs from validated samples");
+        };
+        checkPlayback(root,ProjectStore(root).load());
+        balanced(memory,stable);
         {
             // Determine the complete WAVE validation polling extent on this
             // platform, then cancel inside that extent through ProjectStore and
@@ -160,6 +174,20 @@ int test(const std::filesystem::path &input) {
             };
             const auto result=exportTrackWav(root,session,root/"exports"/"observed.wav",spec,observe);
             check(result.frames==asset.frames && beforePublication>wavePolls+1,"Observed import export did not complete validation");
+            {
+                ApprovedMediaRoot exports(root/"exports",memory);
+                auto exported=exports.open("observed.wav",1024*1024);
+                std::size_t seen=0;
+                const auto checked=validateApprovedWave(exported,{}, {},
+                    [&](std::uint64_t,std::span<const double> samples){
+                        for(const auto sample:samples){
+                            check(seen<sourceSamples.size() && float(sample)==sourceSamples[seen],
+                                  "Imported export changed normalized samples");++seen;
+                        }
+                    });
+                check(seen==sourceSamples.size() && checked.frames==audio.frames &&
+                      checked.channels==audio.channels,"Imported export extent differs");
+            }
             // BeforePublish's initial poll follows the final typed WAVE poll.
             const auto exportStopAt=beforePublication-1-wavePolls+wavePolls/2;
             late=false;latePolls=0;bool publishedBoundary=false;
@@ -303,6 +331,7 @@ int test(const std::filesystem::path &input) {
         std::filesystem::remove(input/"inspection.scinspect");std::filesystem::remove(input/utf8Path(reference));
         check(read(relocated/utf8Path(asset.relativePath))==original,"Relocation changed owned samples");
         auto reopened=ProjectStore(relocated).load();check(reopened==session,"Relocation changed canonical state");
+        checkPlayback(relocated,reopened);
         auto evidence=openProjectImportEvidence(relocated,reopened,archive.id,memory);
         check(evidence.inspection().source()==report.source() && evidence.media().size()==1,"Reopen depends on original bundle");
         check(!std::filesystem::exists(input/utf8Path(reference)),"Original absence fixture failed");

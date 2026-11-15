@@ -1,0 +1,170 @@
+{
+  "checkpoint": 267,
+  "sourceHead": "01f28cc4322ef115927ecc3cdcd19799e801eb95",
+  "sourceTree": "4ae867b4a57b47323b1ad22f18ee01f387293a77",
+  "processes": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/home/rich/dev/soundcurrent-daw/.cache/comp-processing-grid/build",
+        "--output-on-failure",
+        "--no-tests=error",
+        "-R",
+        "^(exact-processing-grid|processing-grid-fraction-oracle|comp-handle-envelope-plans|positioned-resampling-kernel|fractional-timing-oracle|clip-playback-rate|playback-rate-timing-oracle)$"
+      ],
+      "pid": 3680856,
+      "exitCode": 0,
+      "seconds": 10.851437731995247
+    },
+    {
+      "command": [
+        "/home/rich/dev/soundcurrent-daw/.cache/comp-processing-grid/probe-build/sc-comp-grid-probe",
+        "/home/rich/dev/soundcurrent-daw/.cache/comp-processing-grid/qualified-0ssbnwke/pcm"
+      ],
+      "pid": 3682599,
+      "exitCode": 0,
+      "seconds": 1.1677406519884244
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/rich/dev/soundcurrent-daw/experiments/comp-processing-grid/analyze.py",
+        "/home/rich/dev/soundcurrent-daw/.cache/comp-processing-grid/qualified-0ssbnwke/pcm"
+      ],
+      "pid": 3682671,
+      "exitCode": 0,
+      "seconds": 0.3131340480176732
+    }
+  ],
+  "sourceAndBinariesUnchanged": true,
+  "actualRenders": 14,
+  "nominalComparison": {
+    "changedSamples": 24576,
+    "maxSampleDifference": 5.088370084762573,
+    "nominalOutputFrames": 12288,
+    "prefixOutputFrames": 26,
+    "suffixOutputFrames": 26
+  },
+  "compensatedMaxRelativeSpectralError": 0.0034124158173403085,
+  "nativeWindowsQualified": false,
+  "fullCompProducer": false,
+  "formantsQualified": false,
+  "fullProcessingQuality": false,
+  "fullDawParity": false,
+  "scope": "Exact worker input grid and pitch/full-rerender feasibility; production admission and quality remain open",
+  "archive": {
+    "bytes": 1643502,
+    "sha256": "0d7ac8a7dc376e1a3418db47f964c9153e4ce052ec1e71b0517a3a654c0509a3",
+    "entries": {
+      "LastTest.log": {
+        "bytes": 7335,
+        "sha256": "881c4476f4e9e4e58a07e425e8ad5f1bf5ffd194b7c85973efc551f62ccf5101"
+      },
+      "pcm/expanded.pcm": {
+        "bytes": 98720,
+        "sha256": "cdeacf519d503463828422fa35f3076ba8571d31e921281758ad4ba6f07c8c9a"
+      },
+      "pcm/nominal.pcm": {
+        "bytes": 98304,
+        "sha256": "e704919acaf215ec6eeba1f7bf31e2f642a0c88e413302af44b1e7a8986148ca"
+      },
+      "pcm/output-8193--1200000-compensated.pcm": {
+        "bytes": 98312,
+        "sha256": "ecaa015015c3bf6862adb770244f5e24fcb193c0c8931fb5befe24e0c0465060"
+      },
+      "pcm/output-8193--1200000-uncompensated.pcm": {
+        "bytes": 98312,
+        "sha256": "0e48db9c583c37bbdad906f4bddd163a084b3c2e7e958c0b568d1da20ae54253"
+      },
+      "pcm/output-8193-0-compensated.pcm": {
+        "bytes": 98312,
+        "sha256": "cc0fb87edf0750534793b84d9c27b542f0f90aee0cee3ee8dbec06cb7eaadf43"
+      },
+      "pcm/output-8193-0-uncompensated.pcm": {
+        "bytes": 98312,
+        "sha256": "6811fe77312241bccda17ded959900ba4ebe7ea9cfae9e3a123598964b7c8ac1"
+      },
+      "pcm/output-8193-700007-compensated.pcm": {
+        "bytes": 98312,
+        "sha256": "36a6375714517348442239b7ecc3f7f0a7a51de7bc810b24574d711f6005d202"
+      },
+      "pcm/output-8193-700007-uncompensated.pcm": {
+        "bytes": 98312,
+        "sha256": "b2012f89c2a66560304fc7faac88beda36e24d3731a8b311b05f25dc8997c609"
+      },
+      "pcm/output-9216--1200000-compensated.pcm": {
+        "bytes": 98312,
+        "sha256": "ba447770f97818f9432e805839ea83985f9b124c1420053178dff3d3423fd7d6"
+      },
+      "pcm/output-9216--1200000-uncompensated.pcm": {
+        "bytes": 98312,
+        "sha256": "93dfb8a4243784cbe620e73b8700eb3194e4ca2183bd073eb902a3a33d400d29"
+      },
+      "pcm/output-9216-0-compensated.pcm": {
+        "bytes": 98312,
+        "sha256": "12c48581069c675c268ad98c2718bd563504c2391b33773d2b1ba3dc210de8d5"
+      },
+      "pcm/output-9216-0-uncompensated.pcm": {
+        "bytes": 98312,
+        "sha256": "ecca5a3fac2485ab750250a718af7def8f9ef98a6ac30a2bfe810b1f182eaf50"
+      },
+      "pcm/output-9216-700007-compensated.pcm": {
+        "bytes": 98312,
+        "sha256": "e8a49c979e770f09786fc7246ff5d15abd6e1ca69272d18bcff5e434614e8b79"
+      },
+      "pcm/output-9216-700007-uncompensated.pcm": {
+        "bytes": 98312,
+        "sha256": "72533f99eff685eca049ccaa5c4b64bf9f1223a69d5c8919b579e5778a01ef32"
+      },
+      "pcm/prepared-8193.pcm": {
+        "bytes": 65544,
+        "sha256": "2e087221daf34bcc4139e60818a84e0824598745114f8da563cea61e77ead20a"
+      },
+      "pcm/prepared-9216.pcm": {
+        "bytes": 73728,
+        "sha256": "77046cdddd947c8a3cd3b47caa39093a633133073cd91278d6426b8525e2a7dd"
+      },
+      "pcm/raw-stereo-float32.pcm": {
+        "bytes": 262144,
+        "sha256": "06c8ed744ed65ce7a4e181af5e42e9c012468c4f9b8c718f1bf547b8637501c7"
+      },
+      "pcm/report.json": {
+        "bytes": 9732,
+        "sha256": "72515ad5c04b9040229a104ce6e6ba1b39199f55c1fd0685488c37186676728f"
+      },
+      "pcm/spectral-analysis.json": {
+        "bytes": 8171,
+        "sha256": "2a4fac020176aefef13ca43775d012913fcbfe2637070354cd5df9eb08761c6e"
+      },
+      "qualification.json": {
+        "bytes": 49497,
+        "sha256": "09bb065647b950177a69a57d86b59971a2590cc2d26ce05e58cd6a895903649d"
+      },
+      "render.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "render.stdout": {
+        "bytes": 5699,
+        "sha256": "2d40fdf1e70668f6078b744f65cb4565bd3ef33120dc5d6776534b038adff609"
+      },
+      "spectral-analysis.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "spectral-analysis.stdout": {
+        "bytes": 302,
+        "sha256": "5a55aec6234e48fda75a16a4b1c9625fde0c8e1d048f1e61e1cea5ba2f686ea5"
+      },
+      "tests.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tests.stdout": {
+        "bytes": 937,
+        "sha256": "76be540f664a1bc377a0fa8b9c883052c8a5e7692c334a451045a172af4cf1d7"
+      }
+    }
+  }
+}

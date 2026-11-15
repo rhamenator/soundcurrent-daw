@@ -13,8 +13,16 @@ namespace soundcurrent::daw::ui {
 namespace {
 void check(bool ok,const char *message,ErrorCode code=ErrorCode::InvalidState) {if (!ok) throw ProjectError(code,message);}
 void canceled(std::stop_token stop) {check(!stop.stop_requested(),"Media check canceled",ErrorCode::Canceled);}
+Asset replacementIdentity(const Asset &asset) {
+    check(asset.sha256.size()==64,"Replacement asset hash length invalid");
+    return {asset.id,{},asset.sha256,asset.sampleRate,asset.layout,asset.frames,{}};
+}
 QString qpath(const std::filesystem::path &path) {const auto bytes=path.u8string();return QString::fromUtf8(reinterpret_cast<const char *>(bytes.data()),static_cast<qsizetype>(bytes.size()));}
 }
+WaveAssetReplacement::WaveAssetReplacement(const Asset &asset,AssetReplacementContext value,ResourceLedger memory)
+    :lease(memory.reserve(sizeof(WaveAssetReplacement)+256)),
+     identity(replacementIdentity(asset)),
+     context(value),ticket(identity,value,memory) {}
 struct WaveCheckController::State : QThread {
     mutable QMutex mutex;
     QWaitCondition wake;
@@ -101,6 +109,9 @@ struct WaveCheckController::State : QThread {
         ResourceLease values,parser,encoded;loan.transferTo(values,waveReportValueCharge);loan.transferTo(parser,waveReportParserCharge);loan.transferTo(encoded,protocolCredit);
         auto result=decodeWaveCheckReport(OwnedInspectionProtocol(std::move(encoded),std::move(output)),view.selection->relative,
             view.childPid,view.selection->maximumBytes,options.memory,std::move(values),std::move(parser),token);
+        if (view.replacement)
+            verifyAssetReplacementReport(view.replacement->ticket,result,view.replacement->identity,
+                view.replacement->context,view.childPid,options.memory,token);
         view.report=std::make_shared<const WaveCheckReport>(std::move(result));view.phase=WaveCheckPhase::Complete;
     }
     void run() override {
@@ -108,13 +119,19 @@ struct WaveCheckController::State : QThread {
             std::stop_token token;
             {QMutexLocker lock(&mutex);while (!queued && !closing) wake.wait(&mutex);if (!queued) break;
              view=*latest;queued.reset();token=stop.get_token();}
-            try {execute(token);}
+            try {execute(token);if (options.beforeTerminalPublish) options.beforeTerminalPublish();}
             catch (const ProjectError &e) {view.error=e.code();view.phase=e.code()==ErrorCode::Canceled ? WaveCheckPhase::Canceled : WaveCheckPhase::Fault;}
             catch (const std::exception &) {view.error=ErrorCode::Io;view.phase=WaveCheckPhase::Fault;}
             view.busy=false;
-            {QMutexLocker lock(&mutex);busy=false;latest=std::make_shared<const WaveCheckSnapshot>(view);if (closing) break;}
+            {QMutexLocker lock(&mutex);
+             // Linearize cancellation with terminal publication, including the
+             // interval after the verifier's final stop-token poll.
+             if (token.stop_requested() && view.phase==WaveCheckPhase::Complete) {
+                 view.report.reset();view.error=ErrorCode::Canceled;view.phase=WaveCheckPhase::Canceled;
+             }
+             busy=false;latest=std::make_shared<const WaveCheckSnapshot>(view);if (closing) break;}
         }
-        view.selection.reset();view.report.reset();view.busy=false;view.closed=true;view.phase=WaveCheckPhase::Closed;publish();
+        view.selection.reset();view.report.reset();view.replacement.reset();view.busy=false;view.closed=true;view.phase=WaveCheckPhase::Closed;publish();
     }
 };
 WaveCheckController::WaveCheckController(WaveCheckOptions options):state_(std::make_unique<State>(std::move(options))) {state_->start(QThread::LowPriority);}
@@ -127,14 +144,32 @@ Admission WaveCheckController::submitReplacement(std::filesystem::path file,std:
     const auto name=file.filename().u8string();
     return enqueue(file.parent_path(),std::string(reinterpret_cast<const char *>(name.data()),name.size()),maximum,true);
 }
-Admission WaveCheckController::enqueue(std::filesystem::path root,std::string relative,std::uint64_t maximum,bool selected) {
+Admission WaveCheckController::submitAssetReplacement(std::filesystem::path file,
+    const ControllerSnapshot &project,const Id &asset,std::uint64_t request,std::uint64_t maximum) {
+    check(project.session && project.projectEpoch && request && !project.closing && !project.closed &&
+        project.io==IoOperation::None,"No idle accepted project for replacement");
+    const auto found=std::find_if(project.session->assets.begin(),project.session->assets.end(),
+        [&](const Asset &value){return value.id==asset;});
+    check(found!=project.session->assets.end(),"Replacement asset is not in the accepted project");
+    check(file.is_absolute(),"Replacement must be an explicitly selected absolute file",ErrorCode::InvalidParameter);
+    const auto name=file.filename().u8string();
+    return enqueue(file.parent_path(),std::string(reinterpret_cast<const char *>(name.data()),name.size()),maximum,true,
+        &*found,{project.projectEpoch,project.modelRevision,request,0});
+}
+Admission WaveCheckController::enqueue(std::filesystem::path root,std::string relative,std::uint64_t maximum,bool selected,
+    const Asset *asset,AssetReplacementContext context) {
     QMutexLocker lock(&state_->mutex);if (state_->closing) return Admission::Closing;
     if (state_->busy || state_->sequence==std::numeric_limits<std::uint64_t>::max()) return Admission::Full;
     check(root.is_absolute() && root.native().size()<=4096 && relative.size()<=1024 && !relative.empty() && validUtf8(relative),"Invalid explicit media selection",ErrorCode::InvalidParameter);
     if (!maximum) maximum=state_->options.maximumSourceBytes;
     check(maximum>0,"Invalid media byte limit",ErrorCode::InvalidParameter);
     auto selection=std::make_shared<const WaveSelection>(state_->options.memory.reserve(16384),std::move(root),std::move(relative),maximum,selected);
-    WaveCheckSnapshot next;next.phase=WaveCheckPhase::Queued;next.job=state_->sequence+1;next.selection=selection;next.busy=true;
+    std::shared_ptr<const WaveAssetReplacement> replacement;
+    if (asset) {
+        context.job=state_->sequence+1;
+        replacement=std::make_shared<const WaveAssetReplacement>(*asset,context,state_->options.memory);
+    }
+    WaveCheckSnapshot next;next.replacement=std::move(replacement);next.phase=WaveCheckPhase::Queued;next.job=state_->sequence+1;next.selection=selection;next.busy=true;
     auto published=std::make_shared<const WaveCheckSnapshot>(std::move(next));std::stop_source preparedStop;
     state_->sequence=published->job;state_->stop=std::move(preparedStop);state_->queued=std::move(selection);
     state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;
@@ -146,4 +181,24 @@ bool WaveCheckController::clearResult() {
     auto empty=std::make_shared<const WaveCheckSnapshot>();state_->view=WaveCheckSnapshot{};state_->latest=std::move(empty);return true;
 }
 std::shared_ptr<const WaveCheckSnapshot> WaveCheckController::snapshot() const {QMutexLocker lock(&state_->mutex);return state_->latest;}
+void verifyWaveAssetReplacement(const WaveCheckSnapshot &result,const ControllerSnapshot &project,
+    const Id &asset,std::uint64_t request,ResourceLedger memory) {
+    check(project.session && project.projectEpoch && request && !project.closing && !project.closed &&
+        project.io==IoOperation::None,"No idle accepted project for replacement review");
+    check(result.phase==WaveCheckPhase::Complete && !result.busy && !result.closed && !result.error &&
+        result.job && result.childPid && result.childExit==0 && result.report && result.replacement,
+        "No complete asset replacement report");
+    const auto found=std::find_if(project.session->assets.begin(),project.session->assets.end(),
+        [&](const Asset &value){return value.id==asset;});
+    check(found!=project.session->assets.end(),"Replacement asset is no longer in the accepted project");
+    verifyAssetReplacementReport(result.replacement->ticket,*result.report,*found,
+        {project.projectEpoch,project.modelRevision,request,result.job},result.childPid,memory);
+}
+OwnedInspectionProtocol copyWaveAssetReplacementProtocol(const WaveCheckSnapshot &result,
+    const ControllerSnapshot &project,const Id &asset,std::uint64_t request,
+    ResourceLedger memory,std::stop_token stop) {
+    canceled(stop);
+    verifyWaveAssetReplacement(result,project,asset,request,memory);
+    return result.report->copyProtocol(memory,stop);
+}
 } // namespace soundcurrent::daw::ui

@@ -1,0 +1,14 @@
+{
+  "format": "sc-protected-comp-candidate-index-v1",
+  "sourceCommit": "f68af1266a414fd385492dbe80c87345d8e605b8",
+  "archive": "feasibility.zip",
+  "bytes": 5850718,
+  "sha256": "2388c41b5f86ac6a720759733e41eb4614cf5f07b2043ce6361d2efde2bbe91e",
+  "files": 23,
+  "crcAndPayloadVerified": true,
+  "scope": "Nine Linux Release renders: three nominal controls and six expanded protected comp regions; independent rational/PCM oracle and MinGW syntax only",
+  "nativeWindowsRuntime": false,
+  "shippingFeature": false,
+  "processingQualityQualified": false,
+  "fullDawParity": false
+}

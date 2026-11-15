@@ -9,17 +9,41 @@ import json
 from pathlib import Path
 import shutil
 import tempfile
+import sys
+import uuid
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 owned = Path(tempfile.mkdtemp(prefix='sc-localization-catalogs-'))
 print(f'Owned localization catalog fixture root: "{owned}"', flush=True)
+# Keep only the active isolated case on an unexpected failure. The complete
+# successful corpus exceeds the collector's unchanged per-fixture entry bound.
+active_tree = None
+def retain_failure(kind, value, traceback):
+    try:
+        if active_tree is not None and active_tree.exists():
+            parent = Path(tempfile.gettempdir())/'sc-localization-failure-'
+            parent.mkdir(exist_ok=True)
+            if parent.is_symlink():
+                raise ValueError('Linked localization retention parent refused')
+            target = parent/str(uuid.uuid4())
+            target.mkdir()  # Exclusive name; never overwrite retained evidence.
+            active_tree.rename(target/'fixture')
+            (target/'failure.json').write_text(json.dumps({'case':active_tree.name,'original':str(active_tree)}),encoding='utf-8')
+            sys.stdout.buffer.write(('Retained localization fixture '+str(target)+'\n').encode('utf-8'))
+            sys.stdout.flush()
+    except Exception as error:
+        print('Localization fixture retention failed: '+type(error).__name__,file=sys.stderr)
+    sys.__excepthook__(kind,value,traceback)
+sys.excepthook = retain_failure
 spec = importlib.util.spec_from_file_location('catalog_audit', ROOT/'tools/localization.py')
 audit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(audit)
 
 def run(name, mutate=None):
+    global active_tree
     tree = owned/name
+    active_tree = tree
     shutil.copytree(ROOT/'ui', tree/'ui')
     shutil.copytree(ROOT/'localization', tree/'localization')
     audit.ROOT, audit.DATA = tree, tree/'localization'
@@ -85,6 +109,7 @@ run('wrong-resource-alias',resource_alias)
 # An unfinished entry must not be replaced by a newer borrowed draft, and plural
 # forms/comments must survive even though they are excluded from runtime QMs.
 preserved=owned/'translator-preservation'
+active_tree=preserved
 shutil.copytree(ROOT/'ui',preserved/'ui')
 shutil.copytree(ROOT/'localization',preserved/'localization')
 audit.ROOT,audit.DATA=preserved,preserved/'localization'

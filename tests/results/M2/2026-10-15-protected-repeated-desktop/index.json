@@ -1,0 +1,96 @@
+{
+  "format": "sc-protected-repeated-desktop-index-v1",
+  "sourceHead": "1f74c12c4d66b21168de3a5f01d9b42e9c21d02a",
+  "archive": "acceptance.zip",
+  "bytes": 45791391,
+  "sha256": "c1ea660b62faa6142bebdbb25d3052993c73e6d6df7d4cad4d8e9bea0e1d193a",
+  "originalFiles": 9017,
+  "uniquePayloads": 1752,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "1f74c12c4d66b21168de3a5f01d9b42e9c21d02a",
+    "rows": [
+      {
+        "configuration": "Debug",
+        "sourceHead": "1f74c12c4d66b21168de3a5f01d9b42e9c21d02a",
+        "seconds": 361.593530257931,
+        "selected": [
+          "desktop-comp-protected-repeated-transition",
+          "desktop-localization"
+        ],
+        "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-repeat-ui-evidence/run-fb9i88rn",
+        "adoptions": 9,
+        "mixedRetained": 3,
+        "successfulChildren": 15,
+        "failureAndCloseCases": 5,
+        "actualProjectCreditsReleased": true,
+        "allChildrenRetired": true,
+        "currentReviewStatus": true,
+        "protectedRawSamples": 32000,
+        "unchangedAudibleSamples": 1640832,
+        "liveExportSamples": 1810560,
+        "renderObservations": 14,
+        "maximumRenderMilliseconds": 21561,
+        "exportHashes": [
+          "4040a2b2047a9326d59c4217fac47655f3a4b5e298c4736fca2eb482a2449cec",
+          "e007ab67ed1a7e9a3ebc8708da87975cecba6a01b4cfdc2f5cde642909dd866c",
+          "d8b3a9d14a3ebd05bccee471d2f267151926e458091215da177c993a30f09eef",
+          "626da9ec3a85106329e280c1d97c7c2ec933573877aa1a0c95d2a51a509ee821",
+          "59076bdce391873e431c095cb975621cb20aaf7a390e606513d01c566009d1a3",
+          "3f265deac58e851f8344ab48387e043075ccd880c0bbaae4862b65e083a55c86",
+          "1e15d2531beb9430627841f0f80794878c022ccdd5f8db05ccf535212b2c51d5",
+          "51fd50803744b6cf8be97fdd657e217648b16b1221b1c582cfbdf367c7072de1",
+          "d6455046b2a28710a0030c7e646b5ff5a7532b2eaf0e65be10fb13f4241dc022"
+        ],
+        "allNineCoreAndDesktopExportsMatch": true,
+        "sourceAndBinariesUnchanged": true
+      },
+      {
+        "configuration": "Release",
+        "sourceHead": "1f74c12c4d66b21168de3a5f01d9b42e9c21d02a",
+        "seconds": 285.68657835095655,
+        "selected": [
+          "desktop-comp-protected-repeated-transition",
+          "desktop-localization",
+          "desktop-comp-repeated-transition",
+          "desktop-comp-protected-transition"
+        ],
+        "root": "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-repeat-ui-evidence/run-ba6z3mpr",
+        "adoptions": 9,
+        "mixedRetained": 3,
+        "successfulChildren": 15,
+        "failureAndCloseCases": 5,
+        "actualProjectCreditsReleased": true,
+        "allChildrenRetired": true,
+        "currentReviewStatus": true,
+        "protectedRawSamples": 32000,
+        "unchangedAudibleSamples": 1640832,
+        "liveExportSamples": 1810560,
+        "renderObservations": 14,
+        "maximumRenderMilliseconds": 8893,
+        "exportHashes": [
+          "4040a2b2047a9326d59c4217fac47655f3a4b5e298c4736fca2eb482a2449cec",
+          "e007ab67ed1a7e9a3ebc8708da87975cecba6a01b4cfdc2f5cde642909dd866c",
+          "d8b3a9d14a3ebd05bccee471d2f267151926e458091215da177c993a30f09eef",
+          "626da9ec3a85106329e280c1d97c7c2ec933573877aa1a0c95d2a51a509ee821",
+          "59076bdce391873e431c095cb975621cb20aaf7a390e606513d01c566009d1a3",
+          "3f265deac58e851f8344ab48387e043075ccd880c0bbaae4862b65e083a55c86",
+          "1e15d2531beb9430627841f0f80794878c022ccdd5f8db05ccf535212b2c51d5",
+          "51fd50803744b6cf8be97fdd657e217648b16b1221b1c582cfbdf367c7072de1",
+          "d6455046b2a28710a0030c7e646b5ff5a7532b2eaf0e65be10fb13f4241dc022"
+        ],
+        "allNineCoreAndDesktopExportsMatch": true,
+        "sourceAndBinariesUnchanged": true,
+        "legacyNineExportsUnchanged": true,
+        "legacyReviewStatusQualified": true,
+        "originalProtectedDesktopSuitePassed": true
+      }
+    ],
+    "allNineDebugReleaseAndCoreExportsMatch": true,
+    "nativeWindows": false,
+    "physicalAudio": false,
+    "qualityAdmission": false,
+    "fullDawParity": false
+  },
+  "initialProbe": "Original successful probe and screenshot retain stale prior Apply status before the UI correction."
+}

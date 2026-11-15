@@ -8,6 +8,14 @@
 
 ## Unreleased — development preview
 
+- Updated the Ubuntu Applications preview with retained take audition, paired
+  crossfades and retained-source transition handles, preserving a previous-version
+  launcher for rollback. Actual packaged Undo/Redo/save/reopen/export and private
+  native audio checks pass. Regenerated the stale localization fingerprint; exact
+  corrected source passes all four CI jobs. Windows installer, physical audio and
+  full processing/localization qualification remain open. See
+  [checkpoint 259](docs/259-comp-audition-preview.md).
+
 - Refreshed the Ubuntu recovery preview with current recording/recovery controls,
   exact GPL source, a per-user Applications entry and actual packaged
   Save/Quit/reopen/WAV-export evidence. The matching source passes current Linux

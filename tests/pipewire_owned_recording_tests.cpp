@@ -113,7 +113,16 @@ void shortWorkflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Share
     PipeWireMonitorRecording owner(t.root,factory(shared),o);owner.activate();check(owner.requestStopAt({1})==MonitorControlCode::Accepted,"Short PipeWire horizon refused");
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(8);bool done=false;
     while(!(done=owner.service()) && std::chrono::steady_clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    const auto r=done?owner.wait():owner.cancelAndWait();check(done && r.disposition==PipeWireRecordingDisposition::Recorded && r.prefix && r.prefix->monitorQueuedFrames==1 &&
+    const auto r=done?owner.wait():owner.cancelAndWait();
+    if(!done || r.disposition!=PipeWireRecordingDisposition::Recorded){
+        shared->saveTiming(t.root);
+        std::cerr<<"short_owner done="<<done<<" disposition="<<int(r.disposition)
+                 <<" output_samples="<<shared->output.size()<<" terminal_stored="<<r.terminalStored
+                 <<" render_cause="<<(r.render && r.render->fault?int(r.render->fault->cause):-1)
+                 <<" startup_published="<<(r.startup?r.startup->publishedFrames:0)
+                 <<" startup_asof="<<(r.startup?r.startup->asOfQpc100ns:0)<<'\n';
+    }
+    check(done && r.disposition==PipeWireRecordingDisposition::Recorded && r.prefix && r.prefix->monitorQueuedFrames==1 &&
         r.startup && r.startup->finiteFrames==1 && shared->output.size()==2 && r.terminalStored,"Short PipeWire output failed finite completion");
     const auto saved=inspectPipeWireRecordingState(owner.jobDirectory());check(saved.outcome->startup==r.startup && saved.prefix.monitorQueuedFrames==1,"Saved finite PipeWire receipt changed");
     original(*r.prefix);check(shared->joins==2 && !shared->auditBad,"Short PipeWire callback/retirement audit failed");

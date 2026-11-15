@@ -1,0 +1,992 @@
+{
+  "format": "sc-comp-clocked-protected-span-index-v1",
+  "sourceHead": "2a7cb853a9371c598b8f949b2ae8ff38ed846ff7",
+  "archive": "acceptance.zip",
+  "bytes": 3672952,
+  "sha256": "4b428cbaf3832e2913f1b7940e684c8706f9aebe6cd300d55c3da646ea549ded",
+  "originalFiles": 124,
+  "uniquePayloads": 72,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceHead": "2a7cb853a9371c598b8f949b2ae8ff38ed846ff7",
+    "rows": [
+      {
+        "configuration": "Release",
+        "sourceHead": "2a7cb853a9371c598b8f949b2ae8ff38ed846ff7",
+        "result": ".cache/comp-clocked-protected-span/qualified-Release-lbpx8anq/result.json",
+        "seconds": 10.128789287991822,
+        "selected": [
+          "comp-clocked-protected-44100",
+          "comp-clocked-protected-48000",
+          "comp-clocked-protected-96000",
+          "comp-protected-clock-oracle"
+        ],
+        "environment": {},
+        "configureCommand": null,
+        "reports": [
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9212,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.0006702347335476588,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 44100,
+            "rows": [
+              {
+                "frames": 98320,
+                "layers": 0,
+                "rawOrigin": [
+                  32767,
+                  1224949,
+                  2553621
+                ],
+                "rawRate": 44100
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27956,
+                  96,
+                  2240
+                ],
+                "clockStep": [
+                  1,
+                  121,
+                  320
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.50067023473355,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 44100,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27988,
+                  22399,
+                  24640
+                ],
+                "clockStep": [
+                  0,
+                  147,
+                  160
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 210.99937195008886,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 44100,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          },
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9211,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.0007460662780829352,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 48000,
+            "rows": [
+              {
+                "frames": 98322,
+                "layers": 0,
+                "rawOrigin": [
+                  32767,
+                  1224949,
+                  2553621
+                ],
+                "rawRate": 48000
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27952,
+                  2,
+                  14
+                ],
+                "clockStep": [
+                  1,
+                  1,
+                  2
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.5001241036988,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 48000,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27987,
+                  141,
+                  154
+                ],
+                "clockStep": [
+                  1,
+                  0,
+                  1
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 211.00074606627808,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 48000,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          },
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9215,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.00019260463994896782,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 96000,
+            "rows": [
+              {
+                "frames": 98339,
+                "layers": 0,
+                "rawOrigin": [
+                  32766,
+                  2085095,
+                  2553621
+                ],
+                "rawRate": 96000
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27904,
+                  1,
+                  7
+                ],
+                "clockStep": [
+                  3,
+                  0,
+                  1
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.49996553056343,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 96000,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27975,
+                  53,
+                  77
+                ],
+                "clockStep": [
+                  2,
+                  0,
+                  1
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 210.99980739536005,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 96000,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          }
+        ],
+        "oracle": {
+          "cases": 45,
+          "acceptedCases": 40,
+          "refusedCases": 5,
+          "exactAssertions": 165,
+          "exitCode": 0,
+          "inputSha256": "fa894d7191e19796895d666e26a3be15c7399804a664fdb10ef00be6be6aac9d",
+          "sourceSha256": "4126018057369aff14122a1f403909cc9e43f470084c27acea69c162cd1dea38",
+          "binarySha256": "8685c24c9c8906947857366b7f8ee44c6ec7ec4729a7fe725e875281453642fa",
+          "allResponsesMatch": true
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-protected-clock-evidence/run-ne6a14q7",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-evidence/run-cb1b4072-a7c3-4e7a-ae6f-b16470779f66",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-evidence/run-ea3111f2-20ca-4981-b72b-79fb1007fe49",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-pair-recovery/build/comp-clocked-protected-evidence/run-7162624d-22a2-4c1f-b61a-8ed35956b4a7"
+        ],
+        "files": {
+          "44100/candidate-0.f32le": {
+            "bytes": 393280,
+            "sha256": "13dba8542ddf8c5ed00e929f4097eff8ec4c32d619386a1c1b4124cbcef722d5"
+          },
+          "44100/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "3e807832e9ed9f3707d73854e495e3b2251646aab811e8a99bb88ba5f6b05491"
+          },
+          "44100/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "124ac10d137a99633b5d7d9ec429cd62fd2595cf6a3ac235def61e47f892fdbc"
+          },
+          "44100/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "3ad3d020edca8a7cddfb0176753785ea81ea06ddd536253f238c9e243e585ff1"
+          },
+          "44100/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "24b89504c73a8dfbe111665eff2c25e80a461f419055143ac76fdf472a0bf3a9"
+          },
+          "44100/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "496f9eea0438e87b872f9ff051ccdb5212481b94d66b705600465c410916c0ef"
+          },
+          "48000/candidate-0.f32le": {
+            "bytes": 393288,
+            "sha256": "e5785acea0b3b280172fdde368e544c3c72a0526d8de65861250439735c1cb96"
+          },
+          "48000/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "1b3bfa9313b93ec289cdf3522a0edb1577a0c2fc9da38f4ab17d9a35c4ab6690"
+          },
+          "48000/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "f03ecc4ce52d3de9dd1b04b4fc4ceea4d5a04e11e4a2083b6a17eb1c51bd0170"
+          },
+          "48000/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "99e15adf6e8e464db091f82f2a128dbeefc40d329c49960a5b658b2a4d2a1287"
+          },
+          "48000/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "e1dc87a2ad28a7004e16a2f720b65f0b82e1c3e18100c8ab2499c36099d1d859"
+          },
+          "48000/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "375e0f4028138e3861488ee049a5b4798666ec833832324217f76144926221b2"
+          },
+          "96000/candidate-0.f32le": {
+            "bytes": 393356,
+            "sha256": "d1de4e9a043f402e5b1ca963154e54d90ba278f8b140c71e6e1f630687f9a328"
+          },
+          "96000/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "d73c615e9925899d803505082b43eeac880b47f0ece8aa6469a274b5b11f52fe"
+          },
+          "96000/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "1e9e452376e560b6414b8491e49c86a5f711fc05d47e686174d114727587a58d"
+          },
+          "96000/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "db198deee1615df7dacf23d0d2934f959f3f4a4adf607b055970ab30aeeec8c6"
+          },
+          "96000/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "5c73f13d64f836038e40bd1e29f536ec841029c96a104806fcf84dcd922dd47a"
+          },
+          "96000/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "4c185264c148cfb6497ad42174fa6a3fdc00dcd20a483fe52f070aab1bb16d7d"
+          }
+        },
+        "cropSamplesIndependentlyCompared": 21384
+      },
+      {
+        "configuration": "Debug",
+        "sourceHead": "2a7cb853a9371c598b8f949b2ae8ff38ed846ff7",
+        "result": ".cache/comp-clocked-protected-span/qualified-Debug-l2b3y7et/result.json",
+        "seconds": 35.560843763989396,
+        "selected": [
+          "comp-clocked-protected-44100",
+          "comp-clocked-protected-48000",
+          "comp-clocked-protected-96000",
+          "comp-protected-clock-oracle"
+        ],
+        "environment": {},
+        "configureCommand": null,
+        "reports": [
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9212,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.0006702347335476588,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 44100,
+            "rows": [
+              {
+                "frames": 98320,
+                "layers": 0,
+                "rawOrigin": [
+                  32767,
+                  1224949,
+                  2553621
+                ],
+                "rawRate": 44100
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27956,
+                  96,
+                  2240
+                ],
+                "clockStep": [
+                  1,
+                  121,
+                  320
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.50067023473355,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 44100,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27988,
+                  22399,
+                  24640
+                ],
+                "clockStep": [
+                  0,
+                  147,
+                  160
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 210.99937195008886,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 44100,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          },
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9211,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.0007460662780829352,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 48000,
+            "rows": [
+              {
+                "frames": 98322,
+                "layers": 0,
+                "rawOrigin": [
+                  32767,
+                  1224949,
+                  2553621
+                ],
+                "rawRate": 48000
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27952,
+                  2,
+                  14
+                ],
+                "clockStep": [
+                  1,
+                  1,
+                  2
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.5001241036988,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 48000,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27987,
+                  141,
+                  154
+                ],
+                "clockStep": [
+                  1,
+                  0,
+                  1
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 211.00074606627808,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 48000,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          },
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9215,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.00019260463994896782,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 96000,
+            "rows": [
+              {
+                "frames": 98339,
+                "layers": 0,
+                "rawOrigin": [
+                  32766,
+                  2085095,
+                  2553621
+                ],
+                "rawRate": 96000
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27904,
+                  1,
+                  7
+                ],
+                "clockStep": [
+                  3,
+                  0,
+                  1
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.49996553056343,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 96000,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27975,
+                  53,
+                  77
+                ],
+                "clockStep": [
+                  2,
+                  0,
+                  1
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 210.99980739536005,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 96000,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          }
+        ],
+        "oracle": {
+          "cases": 45,
+          "acceptedCases": 40,
+          "refusedCases": 5,
+          "exactAssertions": 165,
+          "exitCode": 0,
+          "inputSha256": "fa894d7191e19796895d666e26a3be15c7399804a664fdb10ef00be6be6aac9d",
+          "sourceSha256": "4126018057369aff14122a1f403909cc9e43f470084c27acea69c162cd1dea38",
+          "binarySha256": "570827d7c864c6b061f1a3ab60159a09ed0265edee88b9d232a2e875f063e900",
+          "allResponsesMatch": true
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-evidence/run-3f67ec00-0182-4c22-b7cb-9df37dda335c",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-evidence/run-e630037e-b0be-48f0-9ab0-ee2d5cf198f1",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-clocked-protected-evidence/run-266781cf-1fdf-4f7c-b076-0b7ef6ab6c55",
+          "/home/rich/dev/soundcurrent-daw/.cache/comp-history-sharing/build-debug/comp-protected-clock-evidence/run-k6076e1a"
+        ],
+        "files": {
+          "44100/candidate-0.f32le": {
+            "bytes": 393280,
+            "sha256": "13dba8542ddf8c5ed00e929f4097eff8ec4c32d619386a1c1b4124cbcef722d5"
+          },
+          "44100/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "3e807832e9ed9f3707d73854e495e3b2251646aab811e8a99bb88ba5f6b05491"
+          },
+          "44100/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "124ac10d137a99633b5d7d9ec429cd62fd2595cf6a3ac235def61e47f892fdbc"
+          },
+          "44100/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "3ad3d020edca8a7cddfb0176753785ea81ea06ddd536253f238c9e243e585ff1"
+          },
+          "44100/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "24b89504c73a8dfbe111665eff2c25e80a461f419055143ac76fdf472a0bf3a9"
+          },
+          "44100/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "496f9eea0438e87b872f9ff051ccdb5212481b94d66b705600465c410916c0ef"
+          },
+          "48000/candidate-0.f32le": {
+            "bytes": 393288,
+            "sha256": "e5785acea0b3b280172fdde368e544c3c72a0526d8de65861250439735c1cb96"
+          },
+          "48000/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "1b3bfa9313b93ec289cdf3522a0edb1577a0c2fc9da38f4ab17d9a35c4ab6690"
+          },
+          "48000/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "f03ecc4ce52d3de9dd1b04b4fc4ceea4d5a04e11e4a2083b6a17eb1c51bd0170"
+          },
+          "48000/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "99e15adf6e8e464db091f82f2a128dbeefc40d329c49960a5b658b2a4d2a1287"
+          },
+          "48000/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "e1dc87a2ad28a7004e16a2f720b65f0b82e1c3e18100c8ab2499c36099d1d859"
+          },
+          "48000/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "375e0f4028138e3861488ee049a5b4798666ec833832324217f76144926221b2"
+          },
+          "96000/candidate-0.f32le": {
+            "bytes": 393356,
+            "sha256": "d1de4e9a043f402e5b1ca963154e54d90ba278f8b140c71e6e1f630687f9a328"
+          },
+          "96000/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "d73c615e9925899d803505082b43eeac880b47f0ece8aa6469a274b5b11f52fe"
+          },
+          "96000/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "1e9e452376e560b6414b8491e49c86a5f711fc05d47e686174d114727587a58d"
+          },
+          "96000/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "db198deee1615df7dacf23d0d2934f959f3f4a4adf607b055970ab30aeeec8c6"
+          },
+          "96000/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "5c73f13d64f836038e40bd1e29f536ec841029c96a104806fcf84dcd922dd47a"
+          },
+          "96000/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "4c185264c148cfb6497ad42174fa6a3fdc00dcd20a483fe52f070aab1bb16d7d"
+          }
+        },
+        "cropSamplesIndependentlyCompared": 21384
+      },
+      {
+        "configuration": "Sanitized",
+        "sourceHead": "2a7cb853a9371c598b8f949b2ae8ff38ed846ff7",
+        "result": ".cache/comp-clocked-protected-span/qualified-Sanitized-vziqpruk/result.json",
+        "seconds": 66.52216091309674,
+        "selected": [
+          "comp-clocked-protected-44100",
+          "comp-clocked-protected-48000",
+          "comp-clocked-protected-96000",
+          "comp-protected-clock-oracle"
+        ],
+        "environment": {
+          "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+          "UBSAN_OPTIONS": "halt_on_error=1"
+        },
+        "configureCommand": [
+          "cmake",
+          "-S",
+          "/home/rich/dev/soundcurrent-daw",
+          "-B",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DSC_BUILD_MEDIA=ON",
+          "-DSC_BUILD_DESKTOP=OFF",
+          "-DCMAKE_CXX_FLAGS=-O1 -fsanitize=address,undefined -fno-omit-frame-pointer",
+          "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
+        ],
+        "reports": [
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9212,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.0006702347335476588,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 44100,
+            "rows": [
+              {
+                "frames": 98320,
+                "layers": 0,
+                "rawOrigin": [
+                  32767,
+                  1224949,
+                  2553621
+                ],
+                "rawRate": 44100
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27956,
+                  96,
+                  2240
+                ],
+                "clockStep": [
+                  1,
+                  121,
+                  320
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.50067023473355,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 44100,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27988,
+                  22399,
+                  24640
+                ],
+                "clockStep": [
+                  0,
+                  147,
+                  160
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 210.99937195008886,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 44100,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          },
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9211,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.0007460662780829352,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 48000,
+            "rows": [
+              {
+                "frames": 98322,
+                "layers": 0,
+                "rawOrigin": [
+                  32767,
+                  1224949,
+                  2553621
+                ],
+                "rawRate": 48000
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27952,
+                  2,
+                  14
+                ],
+                "clockStep": [
+                  1,
+                  1,
+                  2
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.5001241036988,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 48000,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27987,
+                  141,
+                  154
+                ],
+                "clockStep": [
+                  1,
+                  0,
+                  1
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 211.00074606627808,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 48000,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          },
+          {
+            "actualCandidateRendering": true,
+            "allCreditsReleased": true,
+            "checks": 9215,
+            "cropComparedSamples": 7128,
+            "historyFixturesAreMetadataOnly": true,
+            "maximumPitchErrorHz": 0.00019260463994896782,
+            "outsideAnchorsRetained": 4,
+            "qualityAdmission": false,
+            "rawRate": 96000,
+            "rows": [
+              {
+                "frames": 98339,
+                "layers": 0,
+                "rawOrigin": [
+                  32766,
+                  2085095,
+                  2553621
+                ],
+                "rawRate": 96000
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  1,
+                  2
+                ],
+                "clockOrigin": [
+                  27904,
+                  1,
+                  7
+                ],
+                "clockStep": [
+                  3,
+                  0,
+                  1
+                ],
+                "frames": 4064,
+                "layers": 1,
+                "measuredHz": 316.49996553056343,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 96000,
+                "wantedHz": 316.5
+              },
+              {
+                "bakedPitch": [
+                  1,
+                  0,
+                  1
+                ],
+                "clockOrigin": [
+                  27975,
+                  53,
+                  77
+                ],
+                "clockStep": [
+                  2,
+                  0,
+                  1
+                ],
+                "frames": 3064,
+                "layers": 2,
+                "measuredHz": 210.99980739536005,
+                "outsideAnchorsRetained": 2,
+                "rawRate": 96000,
+                "wantedHz": 211.0
+              }
+            ],
+            "workerIntegrated": false
+          }
+        ],
+        "oracle": {
+          "cases": 45,
+          "acceptedCases": 40,
+          "refusedCases": 5,
+          "exactAssertions": 165,
+          "exitCode": 0,
+          "inputSha256": "fa894d7191e19796895d666e26a3be15c7399804a664fdb10ef00be6be6aac9d",
+          "sourceSha256": "4126018057369aff14122a1f403909cc9e43f470084c27acea69c162cd1dea38",
+          "binarySha256": "063e250e0075ab34297b5ed59aaa6906e0a0dadfbcb01143198e8d189062a340",
+          "allResponsesMatch": true
+        },
+        "evidenceRoots": [
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/comp-protected-clock-evidence/run-yuo3e95e",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/comp-clocked-protected-evidence/run-0a7749e0-a21d-4a9b-8be0-03f82999eee9",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/comp-clocked-protected-evidence/run-6b4ddedb-74e0-4d58-a3fa-974d4da46f7b",
+          "/home/rich/dev/soundcurrent-daw/.cache/clocked-protected-warp/build-sanitized-o1/comp-clocked-protected-evidence/run-a6c55a48-1964-4286-9300-3f8d853bcb36"
+        ],
+        "files": {
+          "44100/candidate-0.f32le": {
+            "bytes": 393280,
+            "sha256": "13dba8542ddf8c5ed00e929f4097eff8ec4c32d619386a1c1b4124cbcef722d5"
+          },
+          "44100/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "3e807832e9ed9f3707d73854e495e3b2251646aab811e8a99bb88ba5f6b05491"
+          },
+          "44100/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "124ac10d137a99633b5d7d9ec429cd62fd2595cf6a3ac235def61e47f892fdbc"
+          },
+          "44100/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "3ad3d020edca8a7cddfb0176753785ea81ea06ddd536253f238c9e243e585ff1"
+          },
+          "44100/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "24b89504c73a8dfbe111665eff2c25e80a461f419055143ac76fdf472a0bf3a9"
+          },
+          "44100/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "496f9eea0438e87b872f9ff051ccdb5212481b94d66b705600465c410916c0ef"
+          },
+          "48000/candidate-0.f32le": {
+            "bytes": 393288,
+            "sha256": "e5785acea0b3b280172fdde368e544c3c72a0526d8de65861250439735c1cb96"
+          },
+          "48000/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "1b3bfa9313b93ec289cdf3522a0edb1577a0c2fc9da38f4ab17d9a35c4ab6690"
+          },
+          "48000/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "f03ecc4ce52d3de9dd1b04b4fc4ceea4d5a04e11e4a2083b6a17eb1c51bd0170"
+          },
+          "48000/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "99e15adf6e8e464db091f82f2a128dbeefc40d329c49960a5b658b2a4d2a1287"
+          },
+          "48000/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "e1dc87a2ad28a7004e16a2f720b65f0b82e1c3e18100c8ab2499c36099d1d859"
+          },
+          "48000/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "375e0f4028138e3861488ee049a5b4798666ec833832324217f76144926221b2"
+          },
+          "96000/candidate-0.f32le": {
+            "bytes": 393356,
+            "sha256": "d1de4e9a043f402e5b1ca963154e54d90ba278f8b140c71e6e1f630687f9a328"
+          },
+          "96000/candidate-1.f32le": {
+            "bytes": 16256,
+            "sha256": "d73c615e9925899d803505082b43eeac880b47f0ece8aa6469a274b5b11f52fe"
+          },
+          "96000/candidate-2.f32le": {
+            "bytes": 12256,
+            "sha256": "1e9e452376e560b6414b8491e49c86a5f711fc05d47e686174d114727587a58d"
+          },
+          "96000/raw.f32le": {
+            "bytes": 786432,
+            "sha256": "db198deee1615df7dacf23d0d2934f959f3f4a4adf607b055970ab30aeeec8c6"
+          },
+          "96000/reference-1.f32le": {
+            "bytes": 32640,
+            "sha256": "5c73f13d64f836038e40bd1e29f536ec841029c96a104806fcf84dcd922dd47a"
+          },
+          "96000/reference-2.f32le": {
+            "bytes": 28640,
+            "sha256": "4c185264c148cfb6497ad42174fa6a3fdc00dcd20a483fe52f070aab1bb16d7d"
+          }
+        },
+        "cropSamplesIndependentlyCompared": 21384
+      }
+    ],
+    "allThreeBuildPcmCorporaEqual": true,
+    "allExactOracleResponsesMatch": true,
+    "workerIntegrated": false,
+    "nativeRuntime": false,
+    "qualityAdmission": false
+  },
+  "workerIntegrated": false,
+  "fullQualityAdmission": false
+}

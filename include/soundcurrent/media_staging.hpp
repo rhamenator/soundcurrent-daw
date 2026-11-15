@@ -5,6 +5,10 @@
 namespace soundcurrent::daw {
 struct StagedMediaState;
 class MediaProvenance;
+class PreparedAssetRestoration;
+class SavedRestorationStage;
+class RestorationAudit;
+class OwnedInspectionProtocol;
 struct CheckedMediaBytes {
     std::uint64_t bytes = 0;
     std::array<char,64> sha256{};
@@ -13,7 +17,7 @@ enum class StageBoundary {
     BeforeDirectory, BeforeFile, BeforeWrite, BeforeFileFlush,
     BeforeReadback, BeforeFinalSourceCheck, BeforeDirectoryFlush,
     BeforeIntentWrite, BeforeIntentFlush, BeforeAssetRename, BeforeReceiptWrite,
-    BeforeReceiptFlush, BeforeCommit, AfterCommitBeforeDirectoryFlush
+    BeforeReceiptFlush, BeforeCommit, AfterCommitBeforeDirectoryFlush, BeforeRestorationReceiptPublish, BeforeRestorationRename
 };
 // Trusted control/test seam only. No callback runs on the audio thread. A
 // callback may throw to exercise failure retirement; foreign input cannot
@@ -23,6 +27,9 @@ enum class StageDurability { FileFlushed=1, FileAndDirectoriesFlushed=2 };
 struct MediaCommitOutcome {
     bool published=false,postCommitFlushFailed=false;
     StageDurability durability=StageDurability::FileFlushed;
+    // Receipt visibility is separate from media publication and durability.
+    // postCommitFlushFailed also covers audit publication/observer failures.
+    bool receiptPublished=false;
 };
 class StagedMedia {
   public:
@@ -45,8 +52,21 @@ class StagedMedia {
         const MediaProvenance &,std::uint64_t,std::stop_token,const StageObserver &);
     friend MediaCommitOutcome commitStagedMedia(StagedMedia &,const MediaProvenance &,
         std::stop_token,const StageObserver &);
+    friend class PreparedAssetRestoration;
+    friend class SavedRestorationStage;
+    friend class SavedManifestStage;
+    friend class RestorationAudit;
+    void verifyRestorationParentTransition(ApprovedDirectoryStamp before,ApprovedDirectoryStamp current,
+        CheckedMediaBytes,std::string_view plannedIntent,ResourceLedger,std::stop_token) const;
+    static StagedMedia prepareRestorationStage(ApprovedMediaFile &,const std::filesystem::path &,
+        CheckedMediaBytes,std::uint64_t,Id,const OwnedInspectionProtocol &,std::stop_token,const StageObserver &);
+    static StagedMedia prepareSavedRestorationStage(ApprovedMediaFile &,const std::filesystem::path &,
+        CheckedMediaBytes,std::uint64_t,Id,const OwnedInspectionProtocol &,ApprovedDirectoryStamp,std::stop_token,const StageObserver &);
+    void verifyRestorationPublicationNames(ResourceLedger,std::stop_token) const;
+    MediaCommitOutcome restoreMissing(std::string_view,const OwnedInspectionProtocol &,const OwnedInspectionProtocol &,
+        std::stop_token,const StageObserver &);
     friend StagedMedia stageMediaImpl(ApprovedMediaFile &,const std::filesystem::path &,
-        CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &,const MediaProvenance *);
+        CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &,const MediaProvenance *,bool,const OwnedInspectionProtocol *,const ApprovedDirectoryStamp *);
     explicit StagedMedia(std::unique_ptr<StagedMediaState>);
     std::unique_ptr<StagedMediaState> state_;
 };

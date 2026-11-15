@@ -55,7 +55,7 @@ def verify_build_source(cache, root):
             'Build tree belongs to another source checkout')
 EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker',
                     'usr/bin/sc-approved-wave-probe','usr/bin/sc-media-import-worker',
-                    'usr/bin/sc-stretch-render-worker'}
+                    'usr/bin/sc-stretch-render-worker','usr/bin/sc-comp-span-worker','usr/bin/sc-waveform-worker'}
 def installed_mode(relative):
     return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
 def normalize_staged_permissions(stage):
@@ -79,8 +79,12 @@ def verify_staged_install(stage, root, executable):
         expected['usr/bin/sc-import-inspect-worker']=executable.parent/'sc-import-inspect-worker'
     if (root/'ui/import_media_dialog.cpp').is_file():
         expected['usr/bin/sc-approved-wave-probe']=executable.parent/'sc-approved-wave-probe'
+    if (root/'ui/timeline_waveforms.cpp').is_file():
+        expected['usr/bin/sc-waveform-worker']=executable.parent/'sc-waveform-worker'
     if (root/'ui/media_copy_controller.cpp').is_file():
         expected['usr/bin/sc-media-import-worker']=executable.parent/'sc-media-import-worker'
+    if (root/'include/soundcurrent/comp_transition_preparation.hpp').is_file():
+        expected['usr/bin/sc-comp-span-worker']=executable.parent/'sc-comp-span-worker'
     if (root/'ui/stretch_controller.cpp').is_file():
         expected['usr/bin/sc-stretch-render-worker']=executable.parent/'sc-stretch-render-worker'
         expected['usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt']=root/'third_party/rubberband/COPYING'
@@ -96,6 +100,9 @@ def verify_staged_install(stage, root, executable):
     return {relative:digest(source) for relative,source in expected.items()}
 def qualify_protected_worker(qualification, head, source_tree, executable):
     return qualify_protected_warp(qualification,head,source_tree,digest(executable),'linux')
+def qualify_waveform_worker(qualification, executable):
+    require(qualification.get('executable_sha256',{}).get('sc-waveform-worker')==digest(executable),
+            'Waveform worker differs from qualified worker')
 
 def package(args):
     require(not command(['git','status','--porcelain']), 'Commit the tested source before packaging')
@@ -110,6 +117,8 @@ def package(args):
     require(qualification.get('exit_code')==0, 'Qualification did not pass')
     require(qualification.get('executable_sha256',{}).get('soundcurrent-daw')==digest(executable),
             'Desktop executable differs from the tested executable')
+    if (ROOT/'ui/timeline_waveforms.cpp').is_file():
+        qualify_waveform_worker(qualification, build/'sc-waveform-worker')
     if (ROOT/'ui/import_inspection_dialog.cpp').is_file():
         worker=build/'sc-import-inspect-worker'
         require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
@@ -122,6 +131,10 @@ def package(args):
         worker=build/'sc-media-import-worker'
         require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
                 'Copy worker differs from qualified worker')
+    if (ROOT/'include/soundcurrent/comp_transition_preparation.hpp').is_file():
+        worker=build/'sc-comp-span-worker'
+        require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
+                'Comp worker differs from qualified worker')
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()

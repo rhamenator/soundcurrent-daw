@@ -1,0 +1,59 @@
+{
+  "run": 38626732345,
+  "head": "54c7276a0f0ab9d3a77635ecf201987c092acf90",
+  "conclusion": "success",
+  "artifacts": [
+    {
+      "id": 11925516941,
+      "name": "linux-synthetic-test-log",
+      "bytes": 114875279,
+      "sha256": "5704501e5aa63a7545b0761c80ac15b74a38123bdc827ca44737311d5cb9b2dd",
+      "originalEntries": 1755,
+      "selectedEvidenceEntries": 408,
+      "allOriginalEntriesRetainedLocally": true
+    },
+    {
+      "id": 11925042371,
+      "name": "windows-native-packet-unit-log",
+      "bytes": 139551550,
+      "sha256": "53f9543453dadf88929dbe7f48df599c47fbe032989238bb3d830459524cbecc",
+      "originalEntries": 1826,
+      "selectedEvidenceEntries": 408,
+      "allOriginalEntriesRetainedLocally": true
+    },
+    {
+      "id": 11924987575,
+      "name": "windows-media-build-review",
+      "bytes": 438043,
+      "sha256": "b20e06021f586caff5d3d9d1d1bdfdeb4845e1843678441cf3d539518b1b6e35",
+      "originalEntries": 7,
+      "selectedEvidenceEntries": 0,
+      "allOriginalEntriesRetainedLocally": true
+    },
+    {
+      "id": 11924917776,
+      "name": "windows-preview-build-inputs",
+      "bytes": 123897753,
+      "sha256": "1865325d681c3d3ab8c1a8595ed2385d4027e46e3ddb24c27a6ecd5caa225e61",
+      "originalEntries": 47,
+      "selectedEvidenceEntries": 0,
+      "allOriginalEntriesRetainedLocally": true
+    },
+    {
+      "id": 11924598275,
+      "name": "windows-desktop-import-test-log",
+      "bytes": 9673517,
+      "sha256": "daa18c40e8dcdfa56b5f22e6905a8ea4023dbf97e1c71c55a4d947cb85cdea75",
+      "originalEntries": 206,
+      "selectedEvidenceEntries": 2,
+      "allOriginalEntriesRetainedLocally": true
+    }
+  ],
+  "reviewArchive": {
+    "file": "review.zip",
+    "bytes": 1000181,
+    "sha256": "e2c71e34729b35f4a0d8a83ba16801b28cfcbbc68eb8f199eac3eca121da5603",
+    "entries": 838
+  },
+  "scope": "Original CI and retained-byte audits only; no current-controller Windows or installed/main-window/sonic-quality admission."
+}

@@ -1,0 +1,69 @@
+{
+  "format": "sc-protected-comp-pair-index-v1",
+  "sourceCommit": "587b5033c4aeb9dd55a34e13ba902fb710dbdfb3",
+  "archive": "acceptance.zip",
+  "bytes": 12216829,
+  "sha256": "11cf6abd51f527ed8d980b6b911608e16d6987d7b079a29c448110da7ccd2b12",
+  "originalFiles": 1776,
+  "uniquePayloads": 553,
+  "allPayloadsAndCrcVerified": true,
+  "acceptance": {
+    "sourceCommit": "587b5033c4aeb9dd55a34e13ba902fb710dbdfb3",
+    "rows": [
+      {
+        "configuration": "Debug",
+        "seconds": 26.161762760952115,
+        "tests": [
+          "comp-protected-pair-recovery",
+          "comp-paired-selection-recovery"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "protectedWorkers": 8,
+        "protectedSuccesses": 6,
+        "protectedRequiredFailureWorkers": 2,
+        "reopenedRelocatedPairs": 3,
+        "legacyWorkers": 4,
+        "protectedAudioHashesMatchPriorWorkerBank": true,
+        "audioHashes": [
+          "02abf89d13595017e17b0e665eaa92809e7b33d150b01a6deb5ca85b89e41999",
+          "08e93d8e5ca29011306d34a2810808313d7b0462e81b877f33c6970a434231e3",
+          "34675f4180c9b3f37f7822e8795dc07e72fea8d4dbec903df3332139d616cc56",
+          "5a331ba16558dcf9846bb30e15b28f6b4948fad0a74f19b18810746c6522819e",
+          "771ce5c050254b208882592bb5bd27f538d7bab5da624e990077155d8652875b",
+          "fae2df79af12a60a1b8f086fd142159f59b7f0ea7ec0ce5dfd925c9d3465b31f"
+        ]
+      },
+      {
+        "configuration": "Release",
+        "seconds": 52.08169171703048,
+        "tests": [
+          "comp-protected-pair-recovery",
+          "comp-paired-selection-recovery",
+          "comp-verified-pair-assembly",
+          "comp-paired-history-review"
+        ],
+        "sourceAndBinariesUnchanged": true,
+        "protectedWorkers": 8,
+        "protectedSuccesses": 6,
+        "protectedRequiredFailureWorkers": 2,
+        "reopenedRelocatedPairs": 3,
+        "legacyWorkers": 4,
+        "protectedAudioHashesMatchPriorWorkerBank": true,
+        "audioHashes": [
+          "02abf89d13595017e17b0e665eaa92809e7b33d150b01a6deb5ca85b89e41999",
+          "08e93d8e5ca29011306d34a2810808313d7b0462e81b877f33c6970a434231e3",
+          "34675f4180c9b3f37f7822e8795dc07e72fea8d4dbec903df3332139d616cc56",
+          "5a331ba16558dcf9846bb30e15b28f6b4948fad0a74f19b18810746c6522819e",
+          "771ce5c050254b208882592bb5bd27f538d7bab5da624e990077155d8652875b",
+          "fae2df79af12a60a1b8f086fd142159f59b7f0ea7ec0ce5dfd925c9d3465b31f"
+        ],
+        "uniformPairedAssemblyRegressionPassed": true,
+        "pairedHistoryRegressionPassed": true
+      }
+    ],
+    "desktopPolicyChanged": false,
+    "protectedPairedAssemblyQualified": false,
+    "nativeWindowsRuntime": false,
+    "qualityAdmission": false
+  }
+}

@@ -1,0 +1,4 @@
+Stretch deployment: four sibling workers; 57 native render receipt refusals; Linux/Windows identity separated
+Compiler/runtime policy: refused older or unbound inputs; generated NSIS uses reviewed minimum
+Pinned native dependencies: accepted qualified identities; refused replacement DLL
+Windows deployment inputs: accepted native separators; refused 14 mutations

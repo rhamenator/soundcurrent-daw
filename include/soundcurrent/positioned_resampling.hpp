@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "clip_timing.hpp"
+#include "exact_processing_grid.hpp"
 #include <span>
 #include <string_view>
 
@@ -15,6 +16,7 @@ class PreparedPositionedResampling {
     PreparedPositionedResampling(std::uint32_t sourceRate,std::uint32_t projectRate,
                                 std::uint32_t channels);
     PreparedPositionedResampling(const SourceFrameMap &,std::uint32_t channels);
+    PreparedPositionedResampling(const ExactProcessingGrid &,std::uint32_t channels);
     std::uint32_t sourceContextFrames() const noexcept;
     std::size_t maximumSourceWindowFrames(std::uint32_t outputFrames) const;
     SourceReadRange sourceRange(const SourceFrameMap &,Frame firstProject,
@@ -23,8 +25,18 @@ class PreparedPositionedResampling {
     // Input/output storage must be disjoint; overlapping spans are refused.
     void process(const SourceFrameMap &,Frame firstProject,Frame sourceFrames,
                  Frame firstSource,std::span<const float> source,std::span<float> output) const;
+    SourceReadRange sourceRange(const ExactProcessingGrid &,Frame first,
+                               std::uint32_t frames,Frame sourceFrames) const;
+    bool exactCopy(const ExactProcessingGrid &) const;
+    void process(const ExactProcessingGrid &,Frame first,Frame sourceFrames,
+                 Frame firstSource,std::span<const float> source,std::span<float> output) const;
   private:
-    std::uint32_t numerator_,denominator_,channels_;
+    struct RatioTag {};
+    PreparedPositionedResampling(std::uint64_t,std::uint64_t,std::uint32_t,RatioTag);
+    template<class Map> SourceReadRange sourceRangeImpl(const Map &,Frame,std::uint32_t,Frame) const;
+    template<class Map> void processImpl(const Map &,Frame,Frame,Frame,std::span<const float>,std::span<float>) const;
+    std::uint64_t numerator_,denominator_;
+    std::uint32_t channels_;
     double floatIncrement_,scale_;
     std::int64_t increment_;
 };

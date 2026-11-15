@@ -1,0 +1,16 @@
+{
+  "yamlParsed": true,
+  "original29TestsSelectedExactlyOnce": true,
+  "originalTargetsPreserved": true,
+  "desktopTestCounts": [
+    22,
+    6,
+    1
+  ],
+  "requiredAggregateUnchanged": true,
+  "deadlinesUnchanged": true,
+  "originalEvidencePathsPreserved": true,
+  "independentArtifacts": true,
+  "expectedJobCount": 10,
+  "newNativeRuntimePending": true
+}

@@ -1,0 +1,67 @@
+{
+  "run": 38587280851,
+  "head": "d4e77e043660d67bf55f6621d9d1019fe05e24ba",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 115932522732,
+      "name": "Windows desktop import and localization tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 115932523144,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115932523219,
+      "name": "Windows native packet ownership tests",
+      "conclusion": "failure"
+    },
+    {
+      "id": 115932523276,
+      "name": "Linux desktop and synthetic tests",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11907340414,
+      "name": "windows-desktop-import-test-log",
+      "size_in_bytes": 59819,
+      "digest": "sha256:b46b7ba907f9423ba8515eb6acdfdccb0e6a75d4011da5dde3e27cbf3a1f4994"
+    },
+    {
+      "id": 11907205449,
+      "name": "windows-preview-build-inputs",
+      "size_in_bytes": 123743858,
+      "digest": "sha256:ac8dfeba513443dbc2509ac16444e223986ff85dfdf6db34d89509db5908221f"
+    },
+    {
+      "id": 11907065647,
+      "name": "windows-media-build-review",
+      "size_in_bytes": 438050,
+      "digest": "sha256:dccae74b718dcdf58a74f14a5fceac12e1bd3f2d653d5f794a1f509e3f73af49"
+    },
+    {
+      "id": 11906967004,
+      "name": "linux-synthetic-test-log",
+      "size_in_bytes": 37273,
+      "digest": "sha256:e3c9b45c532f2bf6c47e6c2d49c7b17bbaf5c2af9e63b3d4a8da1fd94f83b1d2"
+    },
+    {
+      "id": 11906875655,
+      "name": "windows-native-packet-unit-log",
+      "size_in_bytes": 1848,
+      "digest": "sha256:4cf8f3ef1ba9902b54aa88b38a22a1bac041914bd275f079d5d7510fdad059e7"
+    }
+  ],
+  "originalResultsRetained": true,
+  "nativeFailure": "MSVC C2666 ambiguous JSON/string_view equality at src/comp_processing_recipe.cpp:89; explicit typed-string comparison implemented in 6b0fa05",
+  "failureNotWaived": true,
+  "unchangedRerun": false,
+  "nativeRecipeExecutionQualified": false,
+  "nativeAudioQualified": false,
+  "installerPrepared": false,
+  "independentBundleAudit": "bundle-audit.json"
+}

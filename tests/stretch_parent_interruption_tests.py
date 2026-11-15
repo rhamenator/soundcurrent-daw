@@ -12,6 +12,7 @@ import signal
 import subprocess
 import tempfile
 import time
+from parent_fixture_initialization import initialize_fixture
 
 
 def wait_for(predicate, seconds=12):
@@ -44,7 +45,7 @@ def terminal(pid):
 def run_case(probe, helper, directory, stage):
     directory.mkdir()
     root = (directory / "project-été-Κиїв").resolve()
-    subprocess.run([str(probe), "--init", str(root)], check=True, timeout=10)
+    initialize_fixture(probe, root, directory)
     baseline = inventory(root)
     ticket = directory / "parent-ready.json"
     release = Path(str(ticket) + ".release")

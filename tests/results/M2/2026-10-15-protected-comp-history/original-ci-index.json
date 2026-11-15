@@ -1,0 +1,200 @@
+{
+  "run": 38681796679,
+  "head": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f",
+  "conclusion": "failure",
+  "archive": "original-ci-review.zip",
+  "bytes": 38155349,
+  "sha256": "da61c7fe67186a095c8e54cd73ac50957e6e3b159529c735e12ade818df351f4",
+  "originalFiles": 4309,
+  "uniquePayloads": 1166,
+  "allArchivePayloadsAndCrcVerified": true,
+  "originalArtifacts": [
+    {
+      "id": 11949471558,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk0OTQ3MTU1OA==",
+      "name": "windows-native-packet-unit-log",
+      "size_in_bytes": 332762564,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11949471558",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11949471558/zip",
+      "expired": false,
+      "digest": "sha256:ba20b703cdebc6f2b73b1657d8f99f6282a37129c860cb925847b18da9d2d429",
+      "created_at": "2026-10-15T04:54:19Z",
+      "updated_at": "2026-10-15T04:54:19Z",
+      "expires_at": "2027-01-13T04:30:15Z",
+      "workflow_run": {
+        "id": 38681796679,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f"
+      }
+    },
+    {
+      "id": 11949180936,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk0OTE4MDkzNg==",
+      "name": "windows-desktop-import-test-log",
+      "size_in_bytes": 182343244,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11949180936",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11949180936/zip",
+      "expired": false,
+      "digest": "sha256:ff0563d6e793de8ef5ec11a913936c5a4d974652d3ecac0c904d90d90d67683f",
+      "created_at": "2026-10-15T04:49:21Z",
+      "updated_at": "2026-10-15T04:49:21Z",
+      "expires_at": "2027-01-13T04:30:15Z",
+      "workflow_run": {
+        "id": 38681796679,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f"
+      }
+    },
+    {
+      "id": 11949054050,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk0OTA1NDA1MA==",
+      "name": "linux-synthetic-test-log-1",
+      "size_in_bytes": 285033449,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11949054050",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11949054050/zip",
+      "expired": false,
+      "digest": "sha256:219af43fef44307662b0caa5b4cd626df5c91cce9bc9704ea5a673475c1622ed",
+      "created_at": "2026-10-15T05:00:44Z",
+      "updated_at": "2026-10-15T05:00:44Z",
+      "expires_at": "2027-01-13T04:30:15Z",
+      "workflow_run": {
+        "id": 38681796679,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f"
+      }
+    },
+    {
+      "id": 11948718068,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk0ODcxODA2OA==",
+      "name": "windows-preview-build-inputs",
+      "size_in_bytes": 129149179,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11948718068",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11948718068/zip",
+      "expired": false,
+      "digest": "sha256:fa3594541ca87b2eda40c5e7969fbad22c69293a1f355df7a2df3e82b9121a3d",
+      "created_at": "2026-10-15T04:49:04Z",
+      "updated_at": "2026-10-15T04:49:04Z",
+      "expires_at": "2026-10-18T04:48:58Z",
+      "workflow_run": {
+        "id": 38681796679,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f"
+      }
+    },
+    {
+      "id": 11948688187,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk0ODY4ODE4Nw==",
+      "name": "windows-media-build-review",
+      "size_in_bytes": 438050,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11948688187",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11948688187/zip",
+      "expired": false,
+      "digest": "sha256:379464bb94f2d0819985c9115cf0b3b5027ba9dacc3ae17e1c670168d1d9e73e",
+      "created_at": "2026-10-15T04:49:05Z",
+      "updated_at": "2026-10-15T04:49:05Z",
+      "expires_at": "2026-10-18T04:49:04Z",
+      "workflow_run": {
+        "id": 38681796679,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f"
+      }
+    },
+    {
+      "id": 11948682936,
+      "node_id": "MDg6QXJ0aWZhY3QxMTk0ODY4MjkzNg==",
+      "name": "linux-synthetic-test-log-0",
+      "size_in_bytes": 196565440,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11948682936",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11948682936/zip",
+      "expired": false,
+      "digest": "sha256:48a1c027011a288e9c1b084afda30071de1f4a074d6d5065cea8056b4dfe9cd5",
+      "created_at": "2026-10-15T04:46:59Z",
+      "updated_at": "2026-10-15T04:46:59Z",
+      "expires_at": "2027-01-13T04:30:15Z",
+      "workflow_run": {
+        "id": 38681796679,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-rendered-comp-handles",
+        "head_sha": "9a3cd5b8dba1b7287ae42138344b6e372e317c6f"
+      }
+    }
+  ],
+  "allOriginalArtifactZipsRetainedLocally": true,
+  "allOriginalArtifactBytesAndDigestsVerified": true,
+  "fullLogs": 6,
+  "pngs": 146,
+  "linux": {
+    "ctestPassed": 199,
+    "shardCounts": [
+      100,
+      99
+    ],
+    "wholeLinuxPassed": false,
+    "shard1": "cancelled after CTest passed during retained evidence checks; 30-minute job deadline; remaining checks skipped",
+    "deadlineUnchanged": true
+  },
+  "native": {
+    "nativeCompTestsPassed": 24,
+    "nativeOtherTestsPassed": 92,
+    "nativeOtherTestsFailed": 1,
+    "nativeFailure": "pipewire-owned-recording check2 Startup cause19; retained original project; diagnosis pending",
+    "desktopTestsPassed": 28,
+    "wholeDesktopJob": "success",
+    "wholeNativeJob": "failure",
+    "protected": {
+      "coreRenders": 18,
+      "coreMapQueries": 264,
+      "coreProtectedSamples": 34560,
+      "coreRefusals": 12,
+      "coreManifestFilesVerified": 25,
+      "workerSuccesses": 6,
+      "workerRefusals": 63,
+      "workerCompletePcmSamples": 622848,
+      "workerProtectedSamples": 12800,
+      "pairWorkers": 8,
+      "pairSuccesses": 6,
+      "pairCancelOrDeadline": 2,
+      "allObservedChildrenRetired": true,
+      "completedAudioFilesVerified": 18,
+      "detailedCoreCorpusRetained": true,
+      "processingQualityQualified": false,
+      "newAssemblyOrDesktopBankIncluded": true
+    },
+    "newWorkflows": {
+      "protectedAssemblyPairs": 5,
+      "abruptPublicationExits": 15,
+      "assemblyProcesses": 110,
+      "protectedDesktopCases": 12,
+      "protectedDesktopAdoptions": 5,
+      "protectedDesktopSpanChildren": 9,
+      "actualProjectLedgerCleanupQualified": true,
+      "installedAudio": false,
+      "qualityAdmission": false,
+      "actualNativeQtScreenshotsInspected": [
+        {
+          "path": "pngs/11949180936/build-desktop-native/comp-protected-ui-evidence/run-rdx3dus9/case-96000-protected/desktop/case-0/applied.png",
+          "sha256": "b9f3a10b93e665d5c63d2cc1a1ba3daa0d6c95c7f6533e6e12e8e0b237d1db67"
+        },
+        {
+          "path": "pngs/11949180936/build-desktop-native/comp-protected-ui-evidence/run-rdx3dus9/case-48000-uniform/desktop/case-0/review.png",
+          "sha256": "d58be519a6680f1b26c9a833256d62043bfa4d937841fbf90da7b56d062e960f"
+        }
+      ],
+      "visualReview": "Readable timeline/clip fields and applied status; review dialog shows verified pair and enabled Apply. Synthetic native Qt screenshots, not installed application."
+    },
+    "installedNativeAudioQualified": false
+  },
+  "nativeInstalledAudio": false,
+  "fullDawParity": false
+}
