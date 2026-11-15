@@ -112,12 +112,13 @@ void releaseReserveAndFaultVisibility() {
             const auto classified=make(packed);
             require(isMidi1CaptureReleaseMessage(classified.message()));
         }
-        for(const auto packed:std::array<std::uint32_t,18>{
+        for(const auto packed:std::array<std::uint32_t,24>{
                 0xa04040b0u, 0xa07f40b0u, 0xa04042b0u, 0xa07f42b0u,
                 0xa04045b0u, 0xa07f45b0u, 0xa00041b0u, 0xa00043b0u,
                 0xa00044b0u, 0xa0007ab0u, 0xa00000e0u, 0xa00000fbu,
                 0xa0013c90u, 0xa04040b1u, 0xa00000fau, 0xa07f3ca0u,
-                0xa00040c0u, 0xa00040d0u}) {
+                0xa00040c0u, 0xa00040d0u, 0xa00000f8u, 0xa00000feu,
+                0xa00040f1u, 0xa00040f3u, 0xa00040f2u, 0xa00040f6u}) {
             const auto classified=make(packed);
             require(!isMidi1CaptureReleaseMessage(classified.message()));
         }
@@ -134,41 +135,41 @@ void releaseReserveAndFaultVisibility() {
         require(backpressure && backpressure->status==Midi1CaptureIngressStatus::ReservedForRelease &&
                 backpressure->rejected==event(3));
         require(!ingress.firstReleaseOverflowFault());
-        require(ingress.trySubmit(event(3,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
-        require(ingress.trySubmit(event(4,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
-        require(ingress.trySubmit(event(5,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
+        require(ingress.trySubmit(event(4,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
+        require(ingress.trySubmit(event(5,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
+        require(ingress.trySubmit(event(6,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
         const auto releaseFault=ingress.firstReleaseOverflowFault();
         require(releaseFault && releaseFault->status==Midi1CaptureIngressStatus::ReleaseReserveFull &&
-                releaseFault->rejected==event(5,0,id,0xa5003e80u));
+                releaseFault->rejected==event(6,0,id,0xa5003e80u));
         require(ingress.firstFault()->status==Midi1CaptureIngressStatus::ReleaseReserveFull);
         std::optional<Midi1PackedMillisecondCapture> out;
-        for(const auto expected:std::array{event(1),event(2),event(3,0,id,0xa5003c80u),
-                                            event(4,0,id,0xa5003d80u)})
+        for(const auto expected:std::array{event(1),event(2),event(4,0,id,0xa5003c80u),
+                                            event(5,0,id,0xa5003d80u)})
             require(ingress.tryPop(out) && out && *out==expected);
         require(!ingress.tryPop(out) && !ingress.consumerAvailable());
         require(ingress.firstReleaseOverflowFault()==releaseFault);
         require(ingress.firstReservedRefusal()==backpressure);
-        require(ingress.trySubmit(event(6))==Midi1CaptureIngressStatus::Accepted);
-        require(ingress.tryPop(out) && out && *out==event(6));
+        require(ingress.trySubmit(event(7))==Midi1CaptureIngressStatus::Accepted);
+        require(ingress.tryPop(out) && out && *out==event(7));
     });
     PreparedMidi1CaptureIngress releaseOnly(id,4,0,4);
     hot([&] {
         require(releaseOnly.trySubmit(event(1))==Midi1CaptureIngressStatus::ReservedForRelease);
         require(!releaseOnly.firstFault() && releaseOnly.firstReservedRefusal());
-        require(releaseOnly.trySubmit(event(1,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
+        require(releaseOnly.trySubmit(event(2,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
     });
     PreparedMidi1CaptureIngress oneOrdinarySlot(id,4,0,3);
     hot([&] {
         require(oneOrdinarySlot.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
         require(oneOrdinarySlot.trySubmit(event(2))==Midi1CaptureIngressStatus::ReservedForRelease);
-        require(oneOrdinarySlot.trySubmit(event(2,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
-        require(oneOrdinarySlot.trySubmit(event(3))==Midi1CaptureIngressStatus::ReservedForRelease);
-        require(oneOrdinarySlot.trySubmit(event(3,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
+        require(oneOrdinarySlot.trySubmit(event(3,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
+        require(oneOrdinarySlot.trySubmit(event(4))==Midi1CaptureIngressStatus::ReservedForRelease);
+        require(oneOrdinarySlot.trySubmit(event(5,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
         require(oneOrdinarySlot.firstReservedRefusal() &&
                 oneOrdinarySlot.firstReservedRefusal()->rejected==event(2));
         require(!oneOrdinarySlot.firstFault());
-        require(oneOrdinarySlot.trySubmit(event(4,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::Accepted);
-        require(oneOrdinarySlot.trySubmit(event(5,0,id,0xa5003f80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
+        require(oneOrdinarySlot.trySubmit(event(6,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::Accepted);
+        require(oneOrdinarySlot.trySubmit(event(7,0,id,0xa5003f80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
     });
     PreparedMidi1CaptureIngress noReserve(id,1);
     hot([&] {
@@ -191,8 +192,8 @@ void releaseReserveAndFaultVisibility() {
     PreparedMidi1CaptureIngress ordinaryAfterReleaseExhaustion(id,1,0,1);
     hot([&] {
         require(ordinaryAfterReleaseExhaustion.trySubmit(event(1))==Midi1CaptureIngressStatus::ReservedForRelease);
-        require(ordinaryAfterReleaseExhaustion.trySubmit(event(1,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
-        require(ordinaryAfterReleaseExhaustion.trySubmit(event(2))==Midi1CaptureIngressStatus::Full);
+        require(ordinaryAfterReleaseExhaustion.trySubmit(event(2,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
+        require(ordinaryAfterReleaseExhaustion.trySubmit(event(3))==Midi1CaptureIngressStatus::Full);
         require(ordinaryAfterReleaseExhaustion.firstFault() &&
                 ordinaryAfterReleaseExhaustion.firstFault()->status==Midi1CaptureIngressStatus::Full);
         require(ordinaryAfterReleaseExhaustion.firstReservedRefusal() &&
@@ -317,9 +318,9 @@ void concurrentReservePublication() {
         { rt_audit::Guard guard;
           const bool firstOk=ingress.tryPop(first), secondOk=ingress.tryPop(second);
           if(!firstOk || !secondOk || !first || !second ||
-             *first!=event(1) || *second!=event(2,0,id,0xa5003c80u) || !auditZero()) failed.store(true); }
+          *first!=event(1) || *second!=event(3,0,id,0xa5003c80u) || !auditZero()) failed.store(true); }
         const auto expectedRefusal=event(2);
-        const auto expectedOverflow=event(3,0,id,0xa5003e80u);
+        const auto expectedOverflow=event(4,0,id,0xa5003e80u);
         if(refused->status!=Midi1CaptureIngressStatus::ReservedForRelease ||
            refused->rejected!=expectedRefusal ||
            overflow->status!=Midi1CaptureIngressStatus::ReleaseReserveFull ||
@@ -335,8 +336,8 @@ void concurrentReservePublication() {
         { rt_audit::Guard guard;
           a=ingress.trySubmit(event(1));
           b=ingress.trySubmit(event(2));
-          c=ingress.trySubmit(event(2,0,id,0xa5003c80u));
-          d=ingress.trySubmit(event(3,0,id,0xa5003e80u)); }
+          c=ingress.trySubmit(event(3,0,id,0xa5003c80u));
+          d=ingress.trySubmit(event(4,0,id,0xa5003e80u)); }
         if(a!=Midi1CaptureIngressStatus::Accepted || b!=Midi1CaptureIngressStatus::ReservedForRelease ||
            c!=Midi1CaptureIngressStatus::Accepted || d!=Midi1CaptureIngressStatus::ReleaseReserveFull ||
            !auditZero()) failed.store(true);
@@ -346,18 +347,25 @@ void concurrentReservePublication() {
 void concurrentReserveAndConsumption() {
     PreparedMidi1CaptureIngress ingress(id,4,std::numeric_limits<std::uint32_t>::max()-1,2);
     constexpr std::uint64_t attempts=20000;
-    std::atomic<bool> consumerReady{false}, producerDone{false}, failed{false};
-    std::atomic<std::uint32_t> accepted{0}, consumed{0};
+    std::atomic<bool> consumerReady{false}, drainEnabled{false}, producerDone{false}, failed{false};
+    std::atomic<std::uint32_t> accepted{0}, consumed{0}, acceptedOrdinary{0}, consumedOrdinary{0};
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
     std::jthread consumer([&] {
         rt_audit::reset(); consumerReady.store(true,std::memory_order_release);
+        while(!drainEnabled.load(std::memory_order_acquire)) std::this_thread::yield();
         bool haveSequence=false; std::uint64_t lastSequence=0;
         for(;;) {
             std::optional<Midi1PackedMillisecondCapture> out; bool popped=false;
             { rt_audit::Guard guard; popped=ingress.tryPop(out); }
             if(popped) {
                 if(!out || (haveSequence && out->stamp().sequence()<=lastSequence)) failed.store(true);
-                else { lastSequence=out->stamp().sequence(); haveSequence=true; consumed.fetch_add(1,std::memory_order_relaxed); }
+                else {
+                    const auto seq=out->stamp().sequence(); const bool isRelease=isMidi1CaptureReleaseMessage(out->message());
+                    const bool expectedRelease=seq>=3 && (seq<=5 || (seq%4)==3);
+                    if(isRelease!=expectedRelease || *out!=event(seq,0,id,isRelease?0xa5003c80u:0xa5013c90u)) failed.store(true);
+                    lastSequence=seq; haveSequence=true; consumed.fetch_add(1,std::memory_order_relaxed);
+                    if(!isRelease) consumedOrdinary.fetch_add(1,std::memory_order_relaxed);
+                }
             } else if(producerDone.load(std::memory_order_acquire) && !ingress.consumerAvailable()) break;
             else if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
             else std::this_thread::yield();
@@ -370,28 +378,49 @@ void concurrentReserveAndConsumption() {
             std::this_thread::yield();
         }
         rt_audit::reset();
-        for(std::uint64_t seq=0;seq<attempts;++seq) {
+        Midi1CaptureIngressStatus a,b,c,d,e,f;
+        { rt_audit::Guard guard;
+          a=ingress.trySubmit(event(0)); b=ingress.trySubmit(event(1)); c=ingress.trySubmit(event(2));
+          d=ingress.trySubmit(event(3,0,id,0xa5003c80u)); e=ingress.trySubmit(event(4,0,id,0xa5003d80u));
+          f=ingress.trySubmit(event(5,0,id,0xa5003e80u)); }
+        if(a!=Midi1CaptureIngressStatus::Accepted || b!=Midi1CaptureIngressStatus::Accepted ||
+           c!=Midi1CaptureIngressStatus::ReservedForRelease || d!=Midi1CaptureIngressStatus::Accepted ||
+           e!=Midi1CaptureIngressStatus::Accepted || f!=Midi1CaptureIngressStatus::ReleaseReserveFull ||
+           !auditZero()) failed.store(true);
+        accepted.fetch_add(4,std::memory_order_relaxed);
+        acceptedOrdinary.fetch_add(2,std::memory_order_relaxed);
+        drainEnabled.store(true,std::memory_order_release);
+        for(std::uint64_t seq=6;seq<attempts;++seq) {
             const bool release=(seq%4)==3;
             const auto message=release ? 0xa5003c80u : 0xa5013c90u;
             Midi1CaptureIngressStatus status;
             { rt_audit::Guard guard; status=ingress.trySubmit(event(seq,0,id,message)); }
-            if(status==Midi1CaptureIngressStatus::Accepted) accepted.fetch_add(1,std::memory_order_relaxed);
-            else if(status!=Midi1CaptureIngressStatus::ReservedForRelease &&
-                    status!=Midi1CaptureIngressStatus::ReleaseReserveFull &&
-                    status!=Midi1CaptureIngressStatus::Full) failed.store(true);
+            if(status==Midi1CaptureIngressStatus::Accepted) {
+                accepted.fetch_add(1,std::memory_order_relaxed);
+                if(!release) {
+                    acceptedOrdinary.fetch_add(1,std::memory_order_relaxed);
+                    const auto inFlight=acceptedOrdinary.load(std::memory_order_relaxed)-
+                        consumedOrdinary.load(std::memory_order_acquire);
+                    if(inFlight>2) failed.store(true);
+                }
+            } else if(release ? status!=Midi1CaptureIngressStatus::ReleaseReserveFull :
+                               (status!=Midi1CaptureIngressStatus::ReservedForRelease && status!=Midi1CaptureIngressStatus::Full))
+                failed.store(true);
             if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
         }
         producerDone.store(true,std::memory_order_release);
         if(!auditZero()) failed.store(true);
     });
     producer.join(); consumer.join();
-    require(!failed.load() && consumed.load()==accepted.load() && accepted.load()>0);
+        require(!failed.load() && consumed.load()==accepted.load() && accepted.load()>0 &&
+                ingress.firstReservedRefusal() && ingress.firstReservedRefusal()->rejected==event(2) &&
+                ingress.firstReleaseOverflowFault() && ingress.firstReleaseOverflowFault()->rejected==event(5,0,id,0xa5003e80u));
 }
 }
 int main() {
     try { preparationAndWrap(); producerAvailableBoundaries(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
           maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); concurrentReserveAndConsumption(); reservePreconditionPrecedence();
-        std::cout << "MIDI1 capture ingress: owned raw FIFO, identity+sequence, timestamp wrap, immutable first fault publication, joined owners, audit0\n";
+        std::cout << "MIDI1 capture ingress: owned FIFO, release reserve, fault latches, concurrent SPSC, wrap, audit0\n";
         return 0;
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }
 }

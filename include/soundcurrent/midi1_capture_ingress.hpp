@@ -9,8 +9,8 @@
 
 namespace soundcurrent::daw {
 // ReservedForRelease and ReleaseReserveFull are emitted only with a nonzero reserve.
-// With a configured reserve, an ordinary message returns Full only when no slot
-// is available; it returns ReservedForRelease while some reserved capacity remains.
+// With a configured reserve, an ordinary message returns Full when tryPush sees
+// no slot; it returns ReservedForRelease before consuming remaining reserve.
 enum class Midi1CaptureIngressStatus {
     Accepted, Full, InvalidIdentity, SequenceNotIncreasing,
     ReservedForRelease, ReleaseReserveFull

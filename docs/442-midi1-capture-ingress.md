@@ -45,8 +45,11 @@ accepted-sequence watermark.
 Status and first-record behavior:
 
 - `Accepted`: the event enters the FIFO.
-- `Full`: admission failed because the FIFO push found no available slot; this
-  is also the result for queue exhaustion when reserve is zero.
+- `Full`: the FIFO push reports no available slot. An ordinary message at a
+  nonzero reserve that still has slots remaining reports `ReservedForRelease`;
+  an ordinary push that observes no slot reports `Full`, too. The shared queue's
+  producer snapshot is conservative and may refuse early if its consumer read is
+  stale.
 - `ReservedForRelease`: an ordinary event was refused while some slots remained
   protected by the nonzero reserve. This is backpressure, not a capture fault.
 - `ReleaseReserveFull`: a release event could not enter a full queue despite a
@@ -56,21 +59,23 @@ Status and first-record behavior:
   `firstReservedRefusal()` retains only the first reserve refusal; there is no
   refusal counter, so producers needing a total must count returned statuses.
   `firstReleaseOverflowFault()` retains release capacity failure separately,
-  even if another actual fault already occupies `firstFault()`.
+  even if another actual fault already occupies `firstFault()`. With reserve
+  zero, release overflow is reported there with status `Full`. A missing
+  `firstFault()` alone does not establish lossless capture when a reserve is on.
 
 With a nonzero reserve, ordinary traffic gets `ReservedForRelease` only while at
-least one slot is available. An already-full queue returns `Full` and records
-that capacity fault. The constructor rejects a reserve larger than the effective
+least one slot is observed available; a zero snapshot proceeds to `tryPush`,
+which may return `Full`. The constructor rejects a reserve larger than the effective
 power-of-two capacity with `ProjectError(InvalidParameter)`. The original
 three-argument constructor remains available; a four-argument overload opts in.
-Callers opting in must handle the two new enum values, including exhaustive
-switches; an in-repository search found no production consumer or switch over
-this new enum yet.
+Callers opting in must handle both new enum values, including exhaustive
+switches.
 
-A reserved refusal does not advance the accepted watermark. An accepted release
-may therefore share a sequence value with a previously refused ordinary event;
-consumers can see gaps and orphan note-offs, which do not prove that the matching
-note-on arrived.
+A reserved refusal does not advance the accepted watermark. With a source that
+assigns monotonically increasing sequence values to every attempt, consumers
+see gaps after refusals. Callers that reuse values can submit a later release
+with a value formerly refused for an ordinary event, but this is not the normal
+monotonic-source case. Neither gaps nor reused values repair a missing note-on.
 
 This is bounded admission preference, not guaranteed critical delivery: enough
 release messages can fill the entire queue. It does not synthesize note-offs,
