@@ -86,16 +86,28 @@ void releaseReserveAndFaultVisibility() {
             return *Midi1PackedMillisecondCapture::fromOriginal(
                 *MidiMillisecondCaptureStamp::fromOriginal(id,1,0,MidiCaptureNotice::Data,0),packed);
         };
-        for(const auto packed:std::array<std::uint32_t,14>{
+        for(const auto packed:std::array<std::uint32_t,17>{
                 0xa5003c80u, 0xa5003c90u, 0xa50040b0u, 0xa00078b0u,
                 0xa00079b0u, 0xa0007bb0u, 0xa00042b0u, 0xa00045b0u,
                 0xa0007cb0u, 0xa0007db0u, 0xa0007eb0u, 0xa0007fb0u,
-                0xa00000fcu, 0xa00000ffu}) {
+                0xa00000fcu, 0xa00000ffu, 0xa0003c81u, 0xa0003c91u,
+                0xa00040bfu}) {
             const auto classified=make(packed);
             require(isMidi1CaptureReleaseMessage(classified.message()));
         }
-        const auto sustainOn=make(0xa50140b0u);
-        require(!isMidi1CaptureReleaseMessage(sustainOn.message()));
+        for(const auto packed:std::array<std::uint32_t,15>{
+                0xa04040b0u, 0xa07f40b0u, 0xa04042b0u, 0xa07f42b0u,
+                0xa04045b0u, 0xa07f45b0u, 0xa00041b0u, 0xa00043b0u,
+                0xa00044b0u, 0xa0007ab0u, 0xa00000e0u, 0xa00000fbu,
+                0xa0013c90u, 0xa04040b1u, 0xa00000fau}) {
+            const auto classified=make(packed);
+            require(!isMidi1CaptureReleaseMessage(classified.message()));
+        }
+        for(const auto packed:std::array<std::uint32_t,3>{
+                0xa03f40b0u, 0xa03f42b0u, 0xa03f45b0u}) {
+            const auto classified=make(packed);
+            require(isMidi1CaptureReleaseMessage(classified.message()));
+        }
         require(ingress.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(2))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(3))==Midi1CaptureIngressStatus::ReservedForRelease);

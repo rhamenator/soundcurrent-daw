@@ -37,8 +37,10 @@ remain attached to their original values without interpretation.
 An optional release reserve prevents ordinary messages from consuming the final
 configured number of prepared FIFO slots. The release class includes MIDI
 note-off, note-on with zero velocity, sustain/sostenuto/hold2 release (CC64/66/69
-below64), CC120/121/123/124-127, System Stop, and System Reset. Accepted release
-and ordinary messages retain one FIFO order and the same strict accepted-sequence
+below 64), CC120/121/123/124-127, System Stop, and System Reset. CC124-127 are
+reserved because those channel-mode changes imply All Notes Off; CC122 Local
+Control is deliberately excluded. Accepted release and ordinary messages retain
+one FIFO order and the same strict accepted-sequence
 watermark. `ReservedForRelease` distinguishes ordinary admission stopped at the
 reserve boundary from `Full`; `ReleaseReserveFull` reports that a configured
 nonzero reserve still did not prevent release-priority messages from exhausting
@@ -46,7 +48,9 @@ the complete queue. With reserve zero all queue exhaustion, including release
 messages, reports the compatible `Full` status. `firstReleaseOverflowFault()`
 preserves the first capacity-overflowed release even when an earlier ordinary
 event already occupies `firstFault()`; identity and sequence rejections do not
-occupy this overflow-only record.
+occupy this overflow-only record. The general first-refusal field can contain
+`ReservedForRelease`, which reports ordinary backpressure and is not necessarily
+a fatal capture fault.
 
 This is bounded admission preference, not guaranteed critical delivery: enough
 release messages can fill the entire queue. It does not synthesize note-offs,
