@@ -54,11 +54,15 @@ void retainedFaultAndWatermark() {
     PreparedMidi1CaptureIngress ingress(id,1,std::numeric_limits<std::uint32_t>::max());
     hot([&] {
         require(ingress.trySubmit(event(4))==Midi1CaptureIngressStatus::Accepted);
-        auto original=event(100,0xffffffffu);
+        auto original=event(100,0xffffffffu,id,0xa5003c90u);
         require(ingress.trySubmit(original)==Midi1CaptureIngressStatus::Full);
         original=event(200);
         const auto fault=ingress.firstFault();
-        require(fault && fault->status==Midi1CaptureIngressStatus::Full && fault->rejected==event(100,0xffffffffu));
+        require(fault && fault->status==Midi1CaptureIngressStatus::Full &&
+                fault->rejected==event(100,0xffffffffu,id,0xa5003c90u));
+        const auto releaseFault=ingress.firstReleaseOverflowFault();
+        require(releaseFault && releaseFault->status==Midi1CaptureIngressStatus::Full &&
+                releaseFault->rejected==event(100,0xffffffffu,id,0xa5003c90u));
         std::optional<Midi1PackedMillisecondCapture> out;
         require(ingress.tryPop(out) && *out==event(4));
         require(ingress.trySubmit(event(50))==Midi1CaptureIngressStatus::Accepted); // Failed100 did not advance accepted watermark.
@@ -82,9 +86,11 @@ void releaseReserveAndFaultVisibility() {
             return *Midi1PackedMillisecondCapture::fromOriginal(
                 *MidiMillisecondCaptureStamp::fromOriginal(id,1,0,MidiCaptureNotice::Data,0),packed);
         };
-        for(const auto packed:std::array<std::uint32_t,8>{
+        for(const auto packed:std::array<std::uint32_t,14>{
                 0xa5003c80u, 0xa5003c90u, 0xa50040b0u, 0xa00078b0u,
-                0xa00079b0u, 0xa0007bb0u, 0xa00000fcu, 0xa00000ffu}) {
+                0xa00079b0u, 0xa0007bb0u, 0xa00042b0u, 0xa00045b0u,
+                0xa0007cb0u, 0xa0007db0u, 0xa0007eb0u, 0xa0007fb0u,
+                0xa00000fcu, 0xa00000ffu}) {
             const auto classified=make(packed);
             require(isMidi1CaptureReleaseMessage(classified.message()));
         }
@@ -94,11 +100,11 @@ void releaseReserveAndFaultVisibility() {
         require(ingress.trySubmit(event(2))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(3))==Midi1CaptureIngressStatus::ReservedForRelease);
         require(ingress.firstFault()->status==Midi1CaptureIngressStatus::ReservedForRelease);
-        require(!ingress.firstReleaseFault());
+        require(!ingress.firstReleaseOverflowFault());
         require(ingress.trySubmit(event(3,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(4,0,id,0xa5003d80u))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(5,0,id,0xa5003e80u))==Midi1CaptureIngressStatus::ReleaseReserveFull);
-        const auto releaseFault=ingress.firstReleaseFault();
+        const auto releaseFault=ingress.firstReleaseOverflowFault();
         require(releaseFault && releaseFault->status==Midi1CaptureIngressStatus::ReleaseReserveFull &&
                 releaseFault->rejected==event(5,0,id,0xa5003e80u));
         require(ingress.firstFault()->status==Midi1CaptureIngressStatus::ReservedForRelease);
@@ -107,7 +113,12 @@ void releaseReserveAndFaultVisibility() {
                                             event(4,0,id,0xa5003d80u)})
             require(ingress.tryPop(out) && out && *out==expected);
         require(!ingress.tryPop(out) && !ingress.consumerAvailable());
-        require(ingress.firstReleaseFault()==releaseFault);
+        require(ingress.firstReleaseOverflowFault()==releaseFault);
+    });
+    PreparedMidi1CaptureIngress releaseOnly(id,4,0,4);
+    hot([&] {
+        require(releaseOnly.trySubmit(event(1))==Midi1CaptureIngressStatus::ReservedForRelease);
+        require(releaseOnly.trySubmit(event(1,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
     });
 }
 void identityAndSequenceLimit() {

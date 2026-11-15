@@ -34,20 +34,26 @@ fault; this value does not pretend that subsequent acceptance repairs a lost
 message. Consumer-behind notices, padding provenance and declared uncertainty
 remain attached to their original values without interpretation.
 
-An optional nonzero release reserve prevents ordinary messages from consuming
-the final configured number of prepared FIFO slots. The release class includes
-MIDI note-off, note-on with zero velocity, sustain release, CC120/121/123, System
-Stop, and System Reset. Accepted release and ordinary messages retain one FIFO
-order and the same strict accepted-sequence watermark. `ReservedForRelease`
-distinguishes ordinary admission stopped at the reserve boundary from `Full`;
-`ReleaseReserveFull` reports that even a release message exhausted the complete
-queue. `firstReleaseFault()` preserves the first rejected release message even
-when an earlier ordinary event already occupies `firstFault()`.
+An optional release reserve prevents ordinary messages from consuming the final
+configured number of prepared FIFO slots. The release class includes MIDI
+note-off, note-on with zero velocity, sustain/sostenuto/hold2 release (CC64/66/69
+below64), CC120/121/123/124-127, System Stop, and System Reset. Accepted release
+and ordinary messages retain one FIFO order and the same strict accepted-sequence
+watermark. `ReservedForRelease` distinguishes ordinary admission stopped at the
+reserve boundary from `Full`; `ReleaseReserveFull` reports that a configured
+nonzero reserve still did not prevent release-priority messages from exhausting
+the complete queue. With reserve zero all queue exhaustion, including release
+messages, reports the compatible `Full` status. `firstReleaseOverflowFault()`
+preserves the first capacity-overflowed release even when an earlier ordinary
+event already occupies `firstFault()`; identity and sequence rejections do not
+occupy this overflow-only record.
 
 This is bounded admission preference, not guaranteed critical delivery: enough
 release messages can fill the entire queue. It does not synthesize note-offs,
 panic, reconcile voice state, or establish callback serialization. The reserve
 defaults to zero to preserve the existing all-events-equal admission behavior.
+A reserve equal to the effective power-of-two capacity is allowed and
+deliberately configures a release-only FIFO, which refuses every ordinary event.
 
 Tests cover preparation/counter wrap, raw timestamp wrap, exact identity,
 accepted-only sequence watermark after full refusal, first-fault ownership and

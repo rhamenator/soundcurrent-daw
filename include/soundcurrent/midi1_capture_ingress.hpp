@@ -9,8 +9,8 @@
 
 namespace soundcurrent::daw {
 enum class Midi1CaptureIngressStatus {
-    Accepted, Full, ReservedForRelease, ReleaseReserveFull,
-    InvalidIdentity, SequenceNotIncreasing
+    Accepted, Full, InvalidIdentity, SequenceNotIncreasing,
+    ReservedForRelease, ReleaseReserveFull
 };
 struct Midi1CaptureIngressFault {
     Midi1CaptureIngressStatus status;
@@ -28,8 +28,9 @@ inline bool isMidi1CaptureReleaseMessage(const Midi1ShortMessage &message) noexc
     case 0x90u: return bytes.size() == 3 && bytes[2] == 0;
     case 0xb0u:
         return bytes.size() == 3 &&
-            ((bytes[1] == 64 && bytes[2] < 64) || bytes[1] == 120 ||
-             bytes[1] == 121 || bytes[1] == 123);
+            (((bytes[1] == 64 || bytes[1] == 66 || bytes[1] == 69) && bytes[2] < 64) ||
+             bytes[1] == 120 || bytes[1] == 121 || bytes[1] == 123 ||
+             (bytes[1] >= 124 && bytes[1] <= 127));
     default: return status == 0xfcu || status == 0xffu;
     }
 }
@@ -50,14 +51,16 @@ class PreparedMidi1CaptureIngress {
         const bool release = isMidi1CaptureReleaseMessage(event.message());
         const auto stamp = event.stamp();
         if (stamp.identity() != identity_)
-            return reject(Midi1CaptureIngressStatus::InvalidIdentity, event, release);
+            return reject(Midi1CaptureIngressStatus::InvalidIdentity, event);
         if (accepted_ && stamp.sequence() <= lastAccepted_)
-            return reject(Midi1CaptureIngressStatus::SequenceNotIncreasing, event, release);
+            return reject(Midi1CaptureIngressStatus::SequenceNotIncreasing, event);
         if (releaseReserve_ && !release && queue_.producerAvailable() <= releaseReserve_)
             return reject(Midi1CaptureIngressStatus::ReservedForRelease, event);
-        if (!queue_.tryPush(Slot{event}))
-            return reject(release ? Midi1CaptureIngressStatus::ReleaseReserveFull :
-                                     Midi1CaptureIngressStatus::Full, event, release);
+        if (!queue_.tryPush(Slot{event})) {
+            const auto status = release && releaseReserve_ ?
+                Midi1CaptureIngressStatus::ReleaseReserveFull : Midi1CaptureIngressStatus::Full;
+            return reject(status, event, release);
+        }
         lastAccepted_ = stamp.sequence(); accepted_ = true;
         return Midi1CaptureIngressStatus::Accepted;
     }
@@ -70,11 +73,11 @@ class PreparedMidi1CaptureIngress {
         if (!faultReady_.load(std::memory_order_acquire)) return std::nullopt;
         return fault_;
     }
-    // Preserves visibility of the first refused release message even if an
+    // Preserves visibility of the first overflowed release message even if an
     // earlier ordinary event already occupied the general first-fault slot.
-    std::optional<Midi1CaptureIngressFault> firstReleaseFault() const noexcept {
-        if (!releaseFaultReady_.load(std::memory_order_acquire)) return std::nullopt;
-        return releaseFault_;
+    std::optional<Midi1CaptureIngressFault> firstReleaseOverflowFault() const noexcept {
+        if (!releaseOverflowReady_.load(std::memory_order_acquire)) return std::nullopt;
+        return releaseOverflowFault_;
     }
     std::uint32_t consumerAvailable() const noexcept { return queue_.consumerAvailable(); }
     std::uint32_t capacity() const noexcept { return capacity_; }
@@ -93,14 +96,14 @@ class PreparedMidi1CaptureIngress {
     }
     Midi1CaptureIngressStatus reject(Midi1CaptureIngressStatus status,
                                      const Midi1PackedMillisecondCapture &event,
-                                     bool release = false) noexcept {
+                                     bool releaseOverflow = false) noexcept {
         if (!faultReady_.load(std::memory_order_relaxed)) {
             fault_.emplace(Midi1CaptureIngressFault{status, event});
             faultReady_.store(1, std::memory_order_release);
         }
-        if (release && !releaseFaultReady_.load(std::memory_order_relaxed)) {
-            releaseFault_.emplace(Midi1CaptureIngressFault{status, event});
-            releaseFaultReady_.store(1, std::memory_order_release);
+        if (releaseOverflow && !releaseOverflowReady_.load(std::memory_order_relaxed)) {
+            releaseOverflowFault_.emplace(Midi1CaptureIngressFault{status, event});
+            releaseOverflowReady_.store(1, std::memory_order_release);
         }
         return status;
     }
@@ -110,8 +113,8 @@ class PreparedMidi1CaptureIngress {
     const std::uint32_t releaseReserve_;
     std::optional<Midi1CaptureIngressFault> fault_;
     std::atomic<std::uint32_t> faultReady_{0};
-    std::optional<Midi1CaptureIngressFault> releaseFault_;
-    std::atomic<std::uint32_t> releaseFaultReady_{0};
+    std::optional<Midi1CaptureIngressFault> releaseOverflowFault_;
+    std::atomic<std::uint32_t> releaseOverflowReady_{0};
     std::uint64_t lastAccepted_ = 0; // Producer only; rejections never advance it.
     bool accepted_ = false;
 };
