@@ -20,9 +20,9 @@ struct Midi1CaptureIngressFault {
     Midi1PackedMillisecondCapture rejected;
     bool operator==(const Midi1CaptureIngressFault &) const = default;
 };
-// These messages can release or silence channel voices. The reserve is an
-// admission preference only: it cannot guarantee delivery after the reserved
-// capacity is exhausted, nor replace controller-side panic/recovery handling.
+// Channel-voice release/silence messages plus System Stop and Reset. The reserve
+// is preference only: it cannot guarantee delivery after it is exhausted, nor
+// replace controller-side panic/recovery handling.
 inline bool isMidi1CaptureReleaseMessage(const Midi1ShortMessage &message) noexcept {
     // Midi1ShortMessage can only represent a fully validated nonempty wire message.
     const auto bytes = message.bytes();

@@ -343,10 +343,54 @@ void concurrentReservePublication() {
     });
     producer.join(); consumer.join(); require(!failed.load());
 }
+void concurrentReserveAndConsumption() {
+    PreparedMidi1CaptureIngress ingress(id,4,std::numeric_limits<std::uint32_t>::max()-1,2);
+    constexpr std::uint64_t attempts=20000;
+    std::atomic<bool> consumerReady{false}, producerDone{false}, failed{false};
+    std::atomic<std::uint32_t> accepted{0}, consumed{0};
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(20);
+    std::jthread consumer([&] {
+        rt_audit::reset(); consumerReady.store(true,std::memory_order_release);
+        bool haveSequence=false; std::uint64_t lastSequence=0;
+        for(;;) {
+            std::optional<Midi1PackedMillisecondCapture> out; bool popped=false;
+            { rt_audit::Guard guard; popped=ingress.tryPop(out); }
+            if(popped) {
+                if(!out || (haveSequence && out->stamp().sequence()<=lastSequence)) failed.store(true);
+                else { lastSequence=out->stamp().sequence(); haveSequence=true; consumed.fetch_add(1,std::memory_order_relaxed); }
+            } else if(producerDone.load(std::memory_order_acquire) && !ingress.consumerAvailable()) break;
+            else if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
+            else std::this_thread::yield();
+        }
+        if(!auditZero()) failed.store(true);
+    });
+    std::jthread producer([&] {
+        while(!consumerReady.load(std::memory_order_acquire)) {
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); producerDone.store(true,std::memory_order_release); return; }
+            std::this_thread::yield();
+        }
+        rt_audit::reset();
+        for(std::uint64_t seq=0;seq<attempts;++seq) {
+            const bool release=(seq%4)==3;
+            const auto message=release ? 0xa5003c80u : 0xa5013c90u;
+            Midi1CaptureIngressStatus status;
+            { rt_audit::Guard guard; status=ingress.trySubmit(event(seq,0,id,message)); }
+            if(status==Midi1CaptureIngressStatus::Accepted) accepted.fetch_add(1,std::memory_order_relaxed);
+            else if(status!=Midi1CaptureIngressStatus::ReservedForRelease &&
+                    status!=Midi1CaptureIngressStatus::ReleaseReserveFull &&
+                    status!=Midi1CaptureIngressStatus::Full) failed.store(true);
+            if(std::chrono::steady_clock::now()>=deadline) { failed.store(true); break; }
+        }
+        producerDone.store(true,std::memory_order_release);
+        if(!auditZero()) failed.store(true);
+    });
+    producer.join(); consumer.join();
+    require(!failed.load() && consumed.load()==accepted.load() && accepted.load()>0);
+}
 }
 int main() {
     try { preparationAndWrap(); producerAvailableBoundaries(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
-          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); reservePreconditionPrecedence();
+          maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); concurrentReserveAndConsumption(); reservePreconditionPrecedence();
         std::cout << "MIDI1 capture ingress: owned raw FIFO, identity+sequence, timestamp wrap, immutable first fault publication, joined owners, audit0\n";
         return 0;
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }

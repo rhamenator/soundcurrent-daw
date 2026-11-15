@@ -35,39 +35,42 @@ message. Consumer-behind notices, padding provenance and declared uncertainty
 remain attached to their original values without interpretation.
 
 An optional release reserve prevents ordinary messages from consuming the final
-configured number of prepared FIFO slots. The release class includes MIDI
-note-off, note-on with zero velocity, sustain/sostenuto/hold2 release (CC64/66/69
-below 64), CC120/121/123/124-127 at any value, System Stop, and System Reset.
-CC121 is included because resetting controller state can release held sustain;
-CC124-127 imply All Notes Off; CC122 Local Control is excluded. Accepted release
-and ordinary messages retain one FIFO order and the same strict accepted-sequence
-watermark. `ReservedForRelease` distinguishes ordinary admission stopped at the
-reserve boundary from `Full`; `ReleaseReserveFull` reports that a configured
-nonzero reserve still did not prevent release-priority messages from exhausting
-the complete queue. With reserve zero all queue exhaustion, including release
-messages, reports the compatible `Full` status. `firstReleaseOverflowFault()`
-preserves the first capacity-overflowed release even when an earlier ordinary
-event already occupies `firstFault()`; identity and sequence rejections do not
-occupy this overflow-only record. The separate `firstReservedRefusal()` record
-captures the first ordinary backpressure result without masking later identity,
-sequence, or capacity faults reported by `firstFault()`. Only the first reserve
-refusal is retained; there is no refusal counter, so a producer that needs a
-total must count `ReservedForRelease` return values itself. The constructor
-rejects a reserve larger than the effective power-of-two queue capacity with
-`ProjectError(InvalidParameter)`. With a nonzero reserve, ordinary traffic gets
-`ReservedForRelease` only while at least one slot remains; an already full queue
-returns `Full` and records that capacity fault. The original three-argument
-constructor remains available; the four-argument overload opts into a reserve.
-Callers opting in must handle both new enum statuses (including exhaustive
-switches): reserve-boundary backpressure is not a fault, while `Full` and
-`ReleaseReserveFull` are capacity exhaustion.
+configured number of prepared FIFO slots. It classifies note-off, note-on with
+zero velocity, CC64/66/69 below 64, CC120/121/123/124-127 at any value, System
+Stop, and System Reset as releases. CC121 can release held sustain by resetting
+controller state; CC124-127 imply All Notes Off; CC122 Local Control is excluded.
+Accepted release and ordinary messages retain one FIFO order and the same strict
+accepted-sequence watermark.
 
-Reserved refusal does not advance the accepted watermark, so an accepted release may share the
-sequence value of a previously refused ordinary event and consumers may observe
-sequence gaps. This is deliberate accepted-only ordering, not proof that the
-matching note-on arrived. Before configuring a nonzero reserve, callers must
-handle `ReservedForRelease` as backpressure and `ReleaseReserveFull` as capacity
-exhaustion; reserve zero preserves the original `Full` result for queue overflow.
+Status and first-record behavior:
+
+- `Accepted`: the event enters the FIFO.
+- `Full`: admission failed because the FIFO push found no available slot; this
+  is also the result for queue exhaustion when reserve is zero.
+- `ReservedForRelease`: an ordinary event was refused while some slots remained
+  protected by the nonzero reserve. This is backpressure, not a capture fault.
+- `ReleaseReserveFull`: a release event could not enter a full queue despite a
+  configured nonzero reserve; reserve is bounded preference, not guaranteed
+  delivery.
+- `firstFault()` retains the first identity, sequence, or actual capacity fault.
+  `firstReservedRefusal()` retains only the first reserve refusal; there is no
+  refusal counter, so producers needing a total must count returned statuses.
+  `firstReleaseOverflowFault()` retains release capacity failure separately,
+  even if another actual fault already occupies `firstFault()`.
+
+With a nonzero reserve, ordinary traffic gets `ReservedForRelease` only while at
+least one slot is available. An already-full queue returns `Full` and records
+that capacity fault. The constructor rejects a reserve larger than the effective
+power-of-two capacity with `ProjectError(InvalidParameter)`. The original
+three-argument constructor remains available; a four-argument overload opts in.
+Callers opting in must handle the two new enum values, including exhaustive
+switches; an in-repository search found no production consumer or switch over
+this new enum yet.
+
+A reserved refusal does not advance the accepted watermark. An accepted release
+may therefore share a sequence value with a previously refused ordinary event;
+consumers can see gaps and orphan note-offs, which do not prove that the matching
+note-on arrived.
 
 This is bounded admission preference, not guaranteed critical delivery: enough
 release messages can fill the entire queue. It does not synthesize note-offs,
