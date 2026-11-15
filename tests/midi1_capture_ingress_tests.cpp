@@ -76,16 +76,20 @@ void releaseReserveAndFaultVisibility() {
     PreparedMidi1CaptureIngress ingress(id,4,0,2);
     hot([&] {
         require(ingress.capacity()==4 && ingress.releaseReserve()==2);
-        require(!isMidi1CaptureReleaseMessage(event(0).message()));
+        const auto ordinaryEvent=event(0);
+        require(!isMidi1CaptureReleaseMessage(ordinaryEvent.message()));
         const auto make=[&](std::uint32_t packed) {
             return *Midi1PackedMillisecondCapture::fromOriginal(
                 *MidiMillisecondCaptureStamp::fromOriginal(id,1,0,MidiCaptureNotice::Data,0),packed);
         };
         for(const auto packed:std::array<std::uint32_t,8>{
                 0xa5003c80u, 0xa5003c90u, 0xa50040b0u, 0xa00078b0u,
-                0xa00079b0u, 0xa0007bb0u, 0xa00000fcu, 0xa00000ffu})
-            require(isMidi1CaptureReleaseMessage(make(packed).message()));
-        require(!isMidi1CaptureReleaseMessage(make(0xa50140b0u).message()));
+                0xa00079b0u, 0xa0007bb0u, 0xa00000fcu, 0xa00000ffu}) {
+            const auto classified=make(packed);
+            require(isMidi1CaptureReleaseMessage(classified.message()));
+        }
+        const auto sustainOn=make(0xa50140b0u);
+        require(!isMidi1CaptureReleaseMessage(sustainOn.message()));
         require(ingress.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(2))==Midi1CaptureIngressStatus::Accepted);
         require(ingress.trySubmit(event(3))==Midi1CaptureIngressStatus::ReservedForRelease);
