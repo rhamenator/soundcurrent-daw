@@ -9,6 +9,8 @@
 
 namespace soundcurrent::daw {
 // ReservedForRelease and ReleaseReserveFull are emitted only with a nonzero reserve.
+// With a configured reserve, an ordinary message returns Full only when no slot
+// is available; it returns ReservedForRelease while some reserved capacity remains.
 enum class Midi1CaptureIngressStatus {
     Accepted, Full, InvalidIdentity, SequenceNotIncreasing,
     ReservedForRelease, ReleaseReserveFull
@@ -45,8 +47,11 @@ class PreparedMidi1CaptureIngress {
     static_assert(std::atomic<std::uint32_t>::is_always_lock_free);
   public:
     explicit PreparedMidi1CaptureIngress(MidiCaptureStreamIdentity identity,
-        std::uint32_t requested, std::uint32_t initialCounter = 0,
-        std::uint32_t releaseReserve = 0)
+        std::uint32_t requested, std::uint32_t initialCounter = 0)
+        : PreparedMidi1CaptureIngress(identity, requested, initialCounter, 0) {}
+    PreparedMidi1CaptureIngress(MidiCaptureStreamIdentity identity,
+        std::uint32_t requested, std::uint32_t initialCounter,
+        std::uint32_t releaseReserve)
         : identity_(checked(identity)), capacity_(PreparedSpscQueue<Slot>::storageCapacity(requested)),
           queue_(requested, initialCounter), releaseReserve_(checkedReserve(releaseReserve, capacity_)) {}
     Midi1CaptureIngressStatus trySubmit(const Midi1PackedMillisecondCapture &event) noexcept {
@@ -56,8 +61,11 @@ class PreparedMidi1CaptureIngress {
             return reject(Midi1CaptureIngressStatus::InvalidIdentity, event);
         if (accepted_ && stamp.sequence() <= lastAccepted_)
             return reject(Midi1CaptureIngressStatus::SequenceNotIncreasing, event);
-        if (releaseReserve_ && !release && queue_.producerAvailable() <= releaseReserve_)
-            return reject(Midi1CaptureIngressStatus::ReservedForRelease, event);
+        if (releaseReserve_ && !release) {
+            const auto available=queue_.producerAvailable();
+            if (available && available <= releaseReserve_)
+                return reject(Midi1CaptureIngressStatus::ReservedForRelease, event);
+        }
         if (!queue_.tryPush(Slot{event})) {
             const auto status = release && releaseReserve_ ?
                 Midi1CaptureIngressStatus::ReleaseReserveFull : Midi1CaptureIngressStatus::Full;

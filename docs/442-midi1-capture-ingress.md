@@ -54,7 +54,13 @@ sequence, or capacity faults reported by `firstFault()`. Only the first reserve
 refusal is retained; there is no refusal counter, so a producer that needs a
 total must count `ReservedForRelease` return values itself. The constructor
 rejects a reserve larger than the effective power-of-two queue capacity with
-`ProjectError(InvalidParameter)`.
+`ProjectError(InvalidParameter)`. With a nonzero reserve, ordinary traffic gets
+`ReservedForRelease` only while at least one slot remains; an already full queue
+returns `Full` and records that capacity fault. The original three-argument
+constructor remains available; the four-argument overload opts into a reserve.
+Callers opting in must handle both new enum statuses (including exhaustive
+switches): reserve-boundary backpressure is not a fault, while `Full` and
+`ReleaseReserveFull` are capacity exhaustion.
 
 Reserved refusal does not advance the accepted watermark, so an accepted release may share the
 sequence value of a previously refused ordinary event and consumers may observe
@@ -73,7 +79,8 @@ deliberately configures a release-only FIFO, which refuses every ordinary event.
 Tests cover preparation/counter wrap, raw timestamp wrap, exact identity,
 accepted-only sequence watermark after full refusal, first-fault ownership and
 immutability, release classification/reserve boundaries/overflow visibility,
-sequence exhaustion and maximum capacity. Bounded joined-owner fixtures observe
+producer-available empty/partial/full boundaries across counter wrap, sequence
+exhaustion and maximum capacity. Bounded joined-owner fixtures observe
 first-fault and reserve-refusal publication concurrently without a second payload
 handoff signal. Instrumentation retains Linux C/C++ allocation/pthread and Windows
 C++ allocation limits. Zero counters do not establish full native callback safety.

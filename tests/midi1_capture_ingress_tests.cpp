@@ -50,6 +50,21 @@ void preparationAndWrap() {
         require(!ingress.firstFault() && !ingress.consumerAvailable());
     });
 }
+void producerAvailableBoundaries() {
+    PreparedSpscQueue<std::uint32_t> queue(3,std::numeric_limits<std::uint32_t>::max()-1);
+    hot([&] {
+        require(queue.capacity()==4 && queue.producerAvailable()==4);
+        require(queue.tryPush(1) && queue.producerAvailable()==3);
+        require(queue.tryPush(2) && queue.producerAvailable()==2);
+        require(queue.tryPush(3) && queue.producerAvailable()==1);
+        require(queue.tryPush(4) && queue.producerAvailable()==0);
+        require(!queue.tryPush(5) && queue.producerAvailable()==0);
+        std::uint32_t out=0;
+        require(queue.tryPop(out) && out==1 && queue.producerAvailable()==1);
+        require(queue.tryPop(out) && out==2 && queue.producerAvailable()==2);
+        require(queue.tryPush(5) && queue.producerAvailable()==1);
+    });
+}
 void retainedFaultAndWatermark() {
     PreparedMidi1CaptureIngress ingress(id,1,std::numeric_limits<std::uint32_t>::max());
     hot([&] {
@@ -173,6 +188,16 @@ void releaseReserveAndFaultVisibility() {
         require(preserveFault.firstReleaseOverflowFault() &&
                 preserveFault.firstReleaseOverflowFault()->rejected==event(3,0,id,0xa5003c80u));
     });
+    PreparedMidi1CaptureIngress ordinaryAfterReleaseExhaustion(id,1,0,1);
+    hot([&] {
+        require(ordinaryAfterReleaseExhaustion.trySubmit(event(1))==Midi1CaptureIngressStatus::ReservedForRelease);
+        require(ordinaryAfterReleaseExhaustion.trySubmit(event(1,0,id,0xa5003c80u))==Midi1CaptureIngressStatus::Accepted);
+        require(ordinaryAfterReleaseExhaustion.trySubmit(event(2))==Midi1CaptureIngressStatus::Full);
+        require(ordinaryAfterReleaseExhaustion.firstFault() &&
+                ordinaryAfterReleaseExhaustion.firstFault()->status==Midi1CaptureIngressStatus::Full);
+        require(ordinaryAfterReleaseExhaustion.firstReservedRefusal() &&
+                ordinaryAfterReleaseExhaustion.firstReservedRefusal()->rejected==event(1));
+    });
 }
 void reservePreconditionPrecedence() {
     PreparedMidi1CaptureIngress ingress(id,4,0,3);
@@ -185,6 +210,17 @@ void reservePreconditionPrecedence() {
         require(!ingress.firstReservedRefusal());
         require(ingress.trySubmit(event(2))==Midi1CaptureIngressStatus::ReservedForRelease);
         require(ingress.firstReservedRefusal() && ingress.firstReservedRefusal()->rejected==event(2));
+    });
+    PreparedMidi1CaptureIngress laterFaults(id,4,0,3);
+    hot([&] {
+        require(laterFaults.trySubmit(event(1))==Midi1CaptureIngressStatus::Accepted);
+        require(laterFaults.trySubmit(event(2))==Midi1CaptureIngressStatus::ReservedForRelease);
+        const auto refusal=laterFaults.firstReservedRefusal();
+        const auto wrong=event(3,0,{2,3,6});
+        require(laterFaults.trySubmit(wrong)==Midi1CaptureIngressStatus::InvalidIdentity);
+        require(laterFaults.trySubmit(event(1))==Midi1CaptureIngressStatus::SequenceNotIncreasing);
+        require(laterFaults.firstFault() && laterFaults.firstFault()->rejected==wrong);
+        require(laterFaults.firstReservedRefusal()==refusal);
     });
 }
 void identityAndSequenceLimit() {
@@ -309,7 +345,7 @@ void concurrentReservePublication() {
 }
 }
 int main() {
-    try { preparationAndWrap(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
+    try { preparationAndWrap(); producerAvailableBoundaries(); retainedFaultAndWatermark(); releaseReserveAndFaultVisibility(); identityAndSequenceLimit();
           maximumCapacity(); concurrentFirstFault(); concurrentReservePublication(); reservePreconditionPrecedence();
         std::cout << "MIDI1 capture ingress: owned raw FIFO, identity+sequence, timestamp wrap, immutable first fault publication, joined owners, audit0\n";
         return 0;
